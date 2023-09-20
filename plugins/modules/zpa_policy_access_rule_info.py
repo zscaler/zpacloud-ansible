@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-#
-# Copyright 2023, Zscaler, Inc
 
+# Copyright 2023, Zscaler, Inc
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -34,8 +34,6 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
-requirements:
-  - supported starting from zpa_api >= 1.0
 options:
   client_id:
     description: ""

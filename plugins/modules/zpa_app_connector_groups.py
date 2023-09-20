@@ -118,27 +118,30 @@ options:
     description:
       - App Connectors in this group will attempt to update to a newer version of the software during this specified time.
       - Integer in seconds (i.e., -66600). The integer should be greater than or equal to 0 and less than 86400, in 15 minute intervals.
-    default: 66600
+    default: '66600'
     type: str
   override_version_profile:
     description:
       - App Connectors in this group will attempt to update to a newer version of the software during this specified time.
       - Integer in seconds (i.e., -66600). The integer should be greater than or equal to 0 and less than 86400, in 15 minute intervals.
+    required: false
     type: bool
     default: false
   version_profile_id:
     description:
       - ID of the version profile. To learn more, see Version Profile Use Cases.
       - This value is required, if the value for overrideVersionProfile is set to true.
+    required: false
     type: str
     default: '0'
     choices:
-      - 0
-      - 1
-      - 2
+      - '0'
+      - '1'
+      - '2'
   version_profile_name:
     description:
       - Name of the version profile.
+    required: false
     type: str
   state:
     description:

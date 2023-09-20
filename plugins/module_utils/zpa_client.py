@@ -80,4 +80,11 @@ class ZPAClientHelper(ZPA):
                     ["ZPA_CUSTOMER_ID"],
                 ),
             ),
+            cloud=dict(
+                no_log=True,
+                fallback=(
+                    env_fallback,
+                    ["ZPA_CLOUD"],
+                ),
+            ),
         )

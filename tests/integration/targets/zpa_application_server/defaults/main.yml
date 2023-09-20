@@ -1,0 +1,5 @@
+name: Dummy Application for integration test
+description: Dummy Application for integration test
+enabled: true
+address: "192.168.1.1"
+config_space: DEFAULT

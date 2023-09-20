@@ -1,0 +1,4 @@
+name: "Dummy server group for integration test"
+description: "Dummy server group for integration test"
+enabled: true
+dynamic_discovery: true

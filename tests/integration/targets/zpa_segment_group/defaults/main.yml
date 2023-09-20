@@ -1,0 +1,6 @@
+config_space: "DEFAULT"
+name: Dummy Application group for integration test
+description: Dummy Application group for integration test
+enabled: true
+policy_migrated: true
+tcp_keep_alive_enabled: "1"

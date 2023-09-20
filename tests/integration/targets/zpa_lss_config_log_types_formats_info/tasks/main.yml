@@ -1,0 +1,117 @@
+---
+- block:
+    - name: Ensure ZPA API Credential is Set
+      ansible.builtin.fail:
+        msg: client_id, client_secret and customer_id should be defined in tests/integration/integration_config.yml
+      when:
+        - client_id is not defined
+        - client_secret is not defined
+        - customer_id  is not defined
+        - client_id | length == 0
+        - client_secret | length == 0
+        - customer_id | length == 0
+
+    - name: Gather LSS Log Type zpn_trans_log Information
+      zscaler.zpacloud.zpa_lss_config_log_types_formats_info:
+        client_id: "{{ client_id }}"
+        client_secret: "{{ client_secret }}"
+        customer_id: "{{ customer_id }}"
+        log_type: "zpn_trans_log"
+      register: zpn_trans_log
+
+    - name: Verify lss log type zpn_trans_log fetched
+      ansible.builtin.assert:
+        that:
+          - zpn_trans_log.data.json is defined
+          - zpn_trans_log.data.csv is defined
+          - zpn_trans_log.data.tsv is defined
+
+    - name: Gather LSS Log Type zpn_auth_log Information
+      zscaler.zpacloud.zpa_lss_config_log_types_formats_info:
+        client_id: "{{ client_id }}"
+        client_secret: "{{ client_secret }}"
+        customer_id: "{{ customer_id }}"
+        log_type: "zpn_auth_log"
+      register: zpn_auth_log
+
+    - name: Verify lss log type zpn_auth_log fetched
+      ansible.builtin.assert:
+        that:
+          - zpn_auth_log.data.json is defined
+          - zpn_auth_log.data.csv is defined
+          - zpn_auth_log.data.tsv is defined
+
+    - name: Gather LSS Log Type zpn_ast_auth_log Information
+      zscaler.zpacloud.zpa_lss_config_log_types_formats_info:
+        client_id: "{{ client_id }}"
+        client_secret: "{{ client_secret }}"
+        customer_id: "{{ customer_id }}"
+        log_type: "zpn_ast_auth_log"
+      register: zpn_ast_auth_log
+
+    - name: Verify lss log type zpn_ast_auth_log fetched
+      ansible.builtin.assert:
+        that:
+          - zpn_ast_auth_log.data.json is defined
+          - zpn_ast_auth_log.data.csv is defined
+          - zpn_ast_auth_log.data.tsv is defined
+
+    - name: Gather LSS Log Type zpn_http_trans_log Information
+      zscaler.zpacloud.zpa_lss_config_log_types_formats_info:
+        client_id: "{{ client_id }}"
+        client_secret: "{{ client_secret }}"
+        customer_id: "{{ customer_id }}"
+        log_type: "zpn_http_trans_log"
+      register: zpn_http_trans_log
+
+    - name: Verify lss log type zpn_http_trans_log fetched
+      ansible.builtin.assert:
+        that:
+          - zpn_http_trans_log.data.json is defined
+          - zpn_http_trans_log.data.csv is defined
+          - zpn_http_trans_log.data.tsv is defined
+
+    - name: Gather LSS Log Type zpn_audit_log Information
+      zscaler.zpacloud.zpa_lss_config_log_types_formats_info:
+        client_id: "{{ client_id }}"
+        client_secret: "{{ client_secret }}"
+        customer_id: "{{ customer_id }}"
+        log_type: "zpn_audit_log"
+      register: zpn_audit_log
+
+    - name: Verify lss log type zpn_audit_log fetched
+      ansible.builtin.assert:
+        that:
+          - zpn_audit_log.data.json is defined
+          - zpn_audit_log.data.csv is defined
+          - zpn_audit_log.data.tsv is defined
+
+    - name: Gather LSS Log Type zpn_ast_comprehensive_stats Information
+      zscaler.zpacloud.zpa_lss_config_log_types_formats_info:
+        client_id: "{{ client_id }}"
+        client_secret: "{{ client_secret }}"
+        customer_id: "{{ customer_id }}"
+        log_type: "zpn_ast_comprehensive_stats"
+      register: zpn_ast_comprehensive_stats
+
+    - name: Verify lss log type zpn_ast_comprehensive_stats fetched
+      ansible.builtin.assert:
+        that:
+          - zpn_ast_comprehensive_stats.data.json is defined
+          - zpn_ast_comprehensive_stats.data.csv is defined
+          - zpn_ast_comprehensive_stats.data.tsv is defined
+
+    - name: Gather LSS Log Type zpn_sys_auth_log Information
+      zscaler.zpacloud.zpa_lss_config_log_types_formats_info:
+        client_id: "{{ client_id }}"
+        client_secret: "{{ client_secret }}"
+        customer_id: "{{ customer_id }}"
+        log_type: "zpn_sys_auth_log"
+      register: zpn_sys_auth_log
+
+    - name: Verify lss log type zpn_sys_auth_log fetched
+      ansible.builtin.assert:
+        that:
+          - zpn_sys_auth_log.data.json is defined
+          - zpn_sys_auth_log.data.csv is defined
+          - zpn_sys_auth_log.data.tsv is defined

@@ -1,0 +1,120 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+#
+# Copyright: (c) 2022, William Guilherme <wguilherme@securitygeek.io>
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+from __future__ import absolute_import, division, print_function
+
+__metaclass__ = type
+
+DOCUMENTATION = """
+---
+module: zpa_ba_certificate_info
+short_description: Retrieves browser access certificate information.
+description:
+    - This module will allow the retrieval of information about a browser access certificate.
+author:
+  - William Guilherme (@willguibr)
+version_added: "1.0.0"
+requirements:
+    - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+requirements:
+  - supported starting from zpa_api >= 1.0
+options:
+  client_id:
+    description: ""
+    required: false
+    type: str
+  client_secret:
+    description: ""
+    required: false
+    type: str
+  customer_id:
+    description: ""
+    required: false
+    type: str
+  name:
+    description:
+      - Name of the browser certificate.
+    required: false
+    type: str
+  id:
+    description:
+      - ID of the browser certificate.
+    required: false
+    type: str
+"""
+
+EXAMPLES = """
+- name: Gather Details of All Browser Certificates
+  zscaler.zpacloud.zpa_ba_certificate_info:
+
+- name: Gather Details of a Specific Browser Certificates by Name
+  zscaler.zpacloud.zpa_ba_certificate_info:
+    name: crm.acme.com
+
+- name: Gather Details of a Specific Browser Certificates by ID
+  zscaler.zpacloud.zpa_ba_certificate_info:
+    id: "216196257331282583"
+"""
+
+RETURN = """
+# Returns information on a specified Browser Access certificate.
+"""
+
+from traceback import format_exc
+
+from ansible.module_utils._text import to_native
+from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
+    ZPAClientHelper,
+)
+
+
+def core(module: AnsibleModule):
+    certificate_id = module.params.get("id", None)
+    certificate_name = module.params.get("name", None)
+    client = ZPAClientHelper(module)
+    certificates = []
+    if certificate_id is not None:
+        certificate_box = client.certificates.get_browser_access(
+            certificate_id=certificate_id
+        )
+        if certificate_box is None:
+            module.fail_json(
+                msg="Failed to retrieve Browser Access Certificate ID: '%s'"
+                % (certificate_id)
+            )
+        certificates = [certificate_box.to_dict()]
+    else:
+        certificates = client.certificates.list_browser_access().to_list()
+        if certificate_name is not None:
+            certificate_found = False
+            for certificate in certificates:
+                if certificate.get("name") == certificate_name:
+                    certificate_found = True
+                    certificates = [certificate]
+            if not certificate_found:
+                module.fail_json(
+                    msg="Failed to retrieve Browser Access Certificate Name: '%s'"
+                    % (certificate_name)
+                )
+    module.exit_json(changed=False, data=certificates)
+
+
+def main():
+    argument_spec = ZPAClientHelper.zpa_argument_spec()
+    argument_spec.update(
+        name=dict(type="str", required=False),
+        id=dict(type="str", required=False),
+    )
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+    try:
+        core(module)
+    except Exception as e:
+        module.fail_json(msg=to_native(e), exception=format_exc())
+
+
+if __name__ == "__main__":
+    main()

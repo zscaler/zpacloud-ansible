@@ -1,0 +1,12 @@
+name: Dummy Application for integration test
+description: Dummy Application for integration test
+enabled: true
+health_reporting: ON_ACCESS
+bypass_type: NEVER
+is_cname_enabled: true
+tcp_port_range:
+  - from: "80"
+    to: "80"
+domain_names:
+  - crm1.example.com
+  - crm2.example.com

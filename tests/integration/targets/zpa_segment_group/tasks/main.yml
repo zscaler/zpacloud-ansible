@@ -1,0 +1,129 @@
+---
+- block:
+    - name: Ensure ZPA API Credential is Set
+      ansible.builtin.fail:
+        msg: client_id, client_secret and customer_id should be defined in tests/integration/integration_config.yml
+      when:
+        - client_id is not defined
+        - client_secret is not defined
+        - customer_id  is not defined
+        - client_id | length == 0
+        - client_secret | length == 0
+        - customer_id | length == 0
+    - name: Ensure Segment Group is absent (leftover)
+      zscaler.zpacloud.zpa_segment_group:
+        state: absent
+        client_id: "{{ client_id }}"
+        client_secret: "{{ client_secret }}"
+        customer_id: "{{ customer_id }}"
+        config_space: "{{ config_space }}"
+        name: "{{ name }}"
+        description: "{{ description }}"
+        enabled: "{{ enabled }}"
+        policy_migrated: "{{ policy_migrated }}"
+        tcp_keep_alive_enabled: "{{ tcp_keep_alive_enabled }}"
+      ignore_errors: true # In case one was left from previous run
+      register: result
+    - name: Ensure Segment Group is absent
+      zscaler.zpacloud.zpa_segment_group:
+        state: absent
+        client_id: "{{ client_id }}"
+        client_secret: "{{ client_secret }}"
+        customer_id: "{{ customer_id }}"
+        config_space: "{{ config_space }}"
+        name: "{{ name }}"
+        description: "{{ description }}"
+        enabled: "{{ enabled }}"
+        policy_migrated: "{{ policy_migrated }}"
+        tcp_keep_alive_enabled: "{{ tcp_keep_alive_enabled }}"
+      ignore_errors: true # In case one was left from previous run
+      register: result
+    - name: Verify Segment Group is absent
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+    # Create Segment Groups (Present)
+    - name: Ensure Segment Group is (Present)
+      zscaler.zpacloud.zpa_segment_group:
+        state: present
+        client_id: "{{ client_id }}"
+        client_secret: "{{ client_secret }}"
+        customer_id: "{{ customer_id }}"
+        config_space: "{{ config_space }}"
+        name: "{{ name }}"
+        description: "{{ description }}"
+        enabled: "{{ enabled }}"
+        policy_migrated: "{{ policy_migrated }}"
+        tcp_keep_alive_enabled: "{{ tcp_keep_alive_enabled }}"
+      register: result
+    - name: Verify Segment Group is present
+      ansible.builtin.assert:
+        that:
+          - result.data
+          - result.data.name is defined
+          - result.data.enabled is true
+    - name: Create the Segment Group (again; idempotency check)
+      zscaler.zpacloud.zpa_segment_group:
+        state: present
+        client_id: "{{ client_id }}"
+        client_secret: "{{ client_secret }}"
+        customer_id: "{{ customer_id }}"
+        config_space: "{{ config_space }}"
+        name: "{{ name }}"
+        description: "{{ description }}"
+        enabled: "{{ enabled }}"
+        policy_migrated: "{{ policy_migrated }}"
+        tcp_keep_alive_enabled: "{{ tcp_keep_alive_enabled }}"
+      register: result
+    - name: Verify Segment Group is present (again; idempotency check)
+      ansible.builtin.assert:
+        that:
+          - result.changed
+    - name: Fetch all Segment Groups
+      zscaler.zpacloud.zpa_segment_group_info:
+        client_id: "{{ client_id }}"
+        client_secret: "{{ client_secret }}"
+        customer_id: "{{ customer_id }}"
+      register: result
+    - name: Ensure all Segment Groups found
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.data[0] is defined
+    - name: Give the ZPA Cloud a 5 seconds to settle
+      ansible.builtin.pause:
+        seconds: 5
+    - name: Delete Segment Group
+      zscaler.zpacloud.zpa_segment_group:
+        state: absent
+        client_id: "{{ client_id }}"
+        client_secret: "{{ client_secret }}"
+        customer_id: "{{ customer_id }}"
+        config_space: "{{ config_space }}"
+        name: "{{ name }}"
+        description: "{{ description }}"
+        enabled: "{{ enabled }}"
+        policy_migrated: "{{ policy_migrated }}"
+        tcp_keep_alive_enabled: "{{ tcp_keep_alive_enabled }}"
+      register: result
+    - name: Verify Segment Group is absent
+      ansible.builtin.assert:
+        that:
+          - result.changed
+    - name: Delete Segment Group (again; idempotency check)
+      zscaler.zpacloud.zpa_segment_group:
+        state: absent
+        client_id: "{{ client_id }}"
+        client_secret: "{{ client_secret }}"
+        customer_id: "{{ customer_id }}"
+        config_space: "{{ config_space }}"
+        name: "{{ name }}"
+        description: "{{ description }}"
+        enabled: "{{ enabled }}"
+        policy_migrated: "{{ policy_migrated }}"
+        tcp_keep_alive_enabled: "{{ tcp_keep_alive_enabled }}"
+      register: result
+    - name: Verify Segment Group is absent
+      ansible.builtin.assert:
+        that:
+          - not result.changed

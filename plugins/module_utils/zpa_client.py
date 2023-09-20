@@ -4,7 +4,7 @@
 # still belong to the author of the module, and may assign their own license
 # to the complete work.
 #
-# Copyright (c) 2023 Zscaler Technology Alliances, <zscaler-partner-labs@z-bd.com>
+# Copyright (c) Zscaler Technology Alliances, <zscaler-partner-labs@z-bd.com>
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -78,6 +78,13 @@ class ZPAClientHelper(ZPA):
                 fallback=(
                     env_fallback,
                     ["ZPA_CUSTOMER_ID"],
+                ),
+            ),
+            cloud=dict(
+                no_log=True,
+                fallback=(
+                    env_fallback,
+                    ["ZPA_CLOUD"],
                 ),
             ),
         )

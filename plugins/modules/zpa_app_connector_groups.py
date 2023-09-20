@@ -1,8 +1,23 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright: (c) 2022, William Guilherme <wguilherme@securitygeek.io>
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Copyright 2023, Zscaler, Inc
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
 
 from __future__ import absolute_import, division, print_function
 
@@ -103,27 +118,30 @@ options:
     description:
       - App Connectors in this group will attempt to update to a newer version of the software during this specified time.
       - Integer in seconds (i.e., -66600). The integer should be greater than or equal to 0 and less than 86400, in 15 minute intervals.
-    default: 66600
+    default: '66600'
     type: str
   override_version_profile:
     description:
       - App Connectors in this group will attempt to update to a newer version of the software during this specified time.
       - Integer in seconds (i.e., -66600). The integer should be greater than or equal to 0 and less than 86400, in 15 minute intervals.
+    required: false
     type: bool
     default: false
   version_profile_id:
     description:
       - ID of the version profile. To learn more, see Version Profile Use Cases.
       - This value is required, if the value for overrideVersionProfile is set to true.
+    required: false
     type: str
     default: '0'
     choices:
-      - 0
-      - 1
-      - 2
+      - '0'
+      - '1'
+      - '2'
   version_profile_name:
     description:
       - Name of the version profile.
+    required: false
     type: str
   state:
     description:

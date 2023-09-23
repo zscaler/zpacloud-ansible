@@ -225,30 +225,11 @@ from traceback import format_exc
 
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import map_conditions
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
     deleteNone,
 )
-
-
-def map_conditions(conditions_obj):
-    result = []
-    for condition in conditions_obj:
-        operands = condition.get("operands")
-        if operands is not None and isinstance(operands, list):
-            for op in operands:
-                if (
-                    op.get("object_type", None) is not None
-                    and op.get("lhs", None) is not None
-                    and op.get("rhs", None) is not None
-                ):
-                    operand = (
-                        op.get("object_type", None),
-                        op.get("lhs", None),
-                        op.get("rhs", None),
-                    )
-                    result.append(operand)
-    return result
 
 
 def core(module):
@@ -364,13 +345,12 @@ def main():
                                 "APP",
                                 "APP_GROUP",
                                 "CLIENT_TYPE",
-                                "SAML",
                                 "IDP",
+                                "POSTURE",
+                                "PLATFORM",
+                                "SAML",
                                 "SCIM",
                                 "SCIM_GROUP",
-                                "TRUSTED_NETWORK",
-                                "EDGE_CONNECTOR_GROUP",
-                                "POSTURE",
                             ],
                         ),
                     ),

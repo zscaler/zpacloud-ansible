@@ -65,7 +65,7 @@ options:
     choices: ["INTERCEPT", "INTERCEPT_ACCESSIBLE", "BYPASS"]
     default: INTERCEPT
   default_rule:
-    description: ""
+        description: ""
     type: bool
     required: False
   default_rule_name:
@@ -225,31 +225,11 @@ from traceback import format_exc
 
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import map_conditions
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
     deleteNone,
 )
-
-
-def map_conditions(conditions_obj):
-    result = []
-    for condition in conditions_obj:
-        operands = condition.get("operands")
-        if operands is not None and isinstance(operands, list):
-            for op in operands:
-                if (
-                    op.get("object_type", None) is not None
-                    and op.get("lhs", None) is not None
-                    and op.get("rhs", None) is not None
-                ):
-                    operand = (
-                        op.get("object_type", None),
-                        op.get("lhs", None),
-                        op.get("rhs", None),
-                    )
-                    result.append(operand)
-    return result
-
 
 def core(module):
     state = module.params.get("state", None)
@@ -323,14 +303,6 @@ def core(module):
 
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
-    id_name_spec = dict(
-        type="list",
-        elements="dict",
-        options=dict(
-            id=dict(type="str", required=True), name=dict(type="str", required=False)
-        ),
-        required=False,
-    )
     argument_spec.update(
         id=dict(type="str"),
         name=dict(type="str", required=True),
@@ -373,15 +345,17 @@ def main():
                             choices=[
                                 "APP",
                                 "APP_GROUP",
-                                "SAML",
+                                "CLIENT_TYPE",
+                                "BRANCH_CONNECTOR_GROUP",
+                                "EDGE_CONNECTOR_GROUP",
+                                "POSTURE",
+                                "MACHINE_GRP",
+                                "TRUSTED_NETWORK",
+                                "PLATFORM",
                                 "IDP",
+                                "SAML",
                                 "SCIM",
                                 "SCIM_GROUP",
-                                "CLIENT_TYPE",
-                                "TRUSTED_NETWORK",
-                                "MACHINE_GRP",
-                                "POSTURE",
-                                "EDGE_CONNECTOR_GROUP",
                             ],
                         ),
                     ),
@@ -390,7 +364,6 @@ def main():
             ),
             required=False,
         ),
-        app_server_groups=id_name_spec,
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

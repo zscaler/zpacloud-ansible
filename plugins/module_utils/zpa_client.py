@@ -30,8 +30,20 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible.module_utils.basic import env_fallback
+import platform
+import ansible
+import importlib
 from zscaler import ZPA
 
+VALID_ZPA_ENVIRONMENTS = {
+    "PRODUCTION",  # Default
+    "BETA",
+    "QA",
+    "QA2",
+    "GOV",
+    "GOVUS",
+    "PREVIEW"
+}
 
 def deleteNone(_dict):
     """Delete None values recursively from all of the dictionaries, tuples, lists, sets"""
@@ -45,16 +57,63 @@ def deleteNone(_dict):
         _dict = type(_dict)(deleteNone(item) for item in _dict if item is not None)
     return _dict
 
+def to_zscaler_sdk_cls(pkg_name, cls_name):
+    sdk_name = "zscaler_sdk_python"
+
+    try:
+        mod = importlib.import_module("{0}.{1}".format(sdk_name, pkg_name))
+    except ModuleNotFoundError:
+        raise Exception(f"Couldn't find the package named {pkg_name} in {sdk_name}")
+    else:
+        try:
+            return getattr(mod, cls_name)
+        except AttributeError:
+            raise Exception(f"{sdk_name}.{pkg_name}.{cls_name} does not exist")
+
+
+class ConnectionHelper:
+    """ConnectionHelper class for managing and verifying connectivity."""
+
+    def __init__(self, min_sdk_version):
+        self.min_sdk_version = min_sdk_version
+        self.sdk_installed = self._check_sdk_installed()
+
+    def _check_sdk_installed(self):
+        try:
+            import zscaler_sdk_python
+            installed_version = tuple(map(int, zscaler_sdk_python.__version__.split(".")))
+            if installed_version < self.min_sdk_version:
+                raise Exception(f"zscaler_sdk_python version should be >= {'.'.join(map(str, self.min_sdk_version))}")
+            return True
+        except ModuleNotFoundError:
+            return False
+        except AttributeError:
+            raise Exception("zscaler_sdk_python does not have a __version__ attribute. Please ensure you have the correct SDK installed.")
+
+    def ensure_sdk_installed(self):
+        if not self.sdk_installed:
+            raise Exception('Missing required SDK "zscaler_sdk_python".')
+
 
 class ZPAClientHelper(ZPA):
     def __init__(self, module):
-        ZPA.__init__(
-            self,
+        self.connection_helper = ConnectionHelper(min_sdk_version=(1, 0, 0))
+        self.connection_helper.ensure_sdk_installed()
+
+        cloud_env = module.params.get("cloud", "PRODUCTION").upper()  # default to "PRODUCTION" if not provided
+        if cloud_env not in VALID_ZPA_ENVIRONMENTS:
+            raise ValueError(f"Invalid ZPA Cloud environment '{cloud_env}'. Supported environments are: {', '.join(VALID_ZPA_ENVIRONMENTS)}.")
+
+        super().__init__(
             client_id=module.params.get("client_id", ""),
             client_secret=module.params.get("client_secret", ""),
             customer_id=module.params.get("customer_id", ""),
-            cloud=module.params.get("cloud", ""),
+            cloud=cloud_env,  # using the validated cloud environment
         )
+
+        # Set the User-Agent
+        ansible_version = ansible.__version__  # Get the Ansible version
+        self.user_agent = f"zpa-ansible/{ansible_version}/({platform.system().lower()} {platform.machine()})"
 
     @staticmethod
     def zpa_argument_spec():

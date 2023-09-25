@@ -58,7 +58,7 @@ def deleteNone(_dict):
     return _dict
 
 def to_zscaler_sdk_cls(pkg_name, cls_name):
-    sdk_name = "zscaler_sdk_python"
+    sdk_name = "zscaler"
 
     try:
         mod = importlib.import_module("{0}.{1}".format(sdk_name, pkg_name))
@@ -80,19 +80,19 @@ class ConnectionHelper:
 
     def _check_sdk_installed(self):
         try:
-            import zscaler_sdk_python
-            installed_version = tuple(map(int, zscaler_sdk_python.__version__.split(".")))
+            import zscaler
+            installed_version = tuple(map(int, zscaler.__version__.split(".")))
             if installed_version < self.min_sdk_version:
-                raise Exception(f"zscaler_sdk_python version should be >= {'.'.join(map(str, self.min_sdk_version))}")
+                raise Exception(f"zscaler version should be >= {'.'.join(map(str, self.min_sdk_version))}")
             return True
         except ModuleNotFoundError:
             return False
         except AttributeError:
-            raise Exception("zscaler_sdk_python does not have a __version__ attribute. Please ensure you have the correct SDK installed.")
+            raise Exception("zscaler does not have a __version__ attribute. Please ensure you have the correct SDK installed.")
 
     def ensure_sdk_installed(self):
         if not self.sdk_installed:
-            raise Exception('Missing required SDK "zscaler_sdk_python".')
+            raise Exception('Missing required SDK "zscaler".')
 
 
 class ZPAClientHelper(ZPA):

@@ -55,24 +55,18 @@ options:
     choices:
       - ALLOW
       - DENY
-  action_id:
-    type: str
-    required: false
-    description:
-      - This field defines the description of the server.
-  priority:
-    description: ""
-    type: str
-    required: false
+      - REQUIRE_APPROVAL
   id:
     type: str
     description: ""
-  default_rule_name:
+  name:
+    description:
+      - This is the name of the policy.
     type: str
-    description: ""
+    required: True
   description:
     type: str
-    description: ""
+    description: "This is the description of the access rule"
   policy_type:
     description: ""
     type: str
@@ -80,11 +74,6 @@ options:
   rule_order:
     description: ""
     type: str
-    required: false
-  default_rule:
-    description:
-      - This is for providing a customer message for the user.
-    type: bool
     required: false
   operator:
     description:
@@ -94,55 +83,16 @@ options:
     choices:
       - AND
       - OR
-  app_connector_groups:
-    description:
-      - List of the app connector group IDs.
-    type: list
-    elements: dict
-    required: false
-    suboptions:
-      name:
-        required: false
-        type: str
-        description: ""
-      id:
-        required: true
-        type: str
-        description: ""
-  app_server_groups:
-    type: list
-    elements: dict
-    required: false
-    description:
-      - List of the server group IDs.
-    suboptions:
-      name:
-        required: false
-        type: str
-        description: ""
-      id:
-        required: true
-        type: str
-        description: ""
   custom_msg:
     description:
-      - This is for providing a customer message for the user.
+      - This is for providing a customer message for the user
     type: str
     required: false
-  lss_default_rule:
-    description: ""
-    type: bool
-    required: False
-  name:
-    description:
-      - This is the name of the policy.
-    type: str
-    required: True
   conditions:
     type: list
     elements: dict
     required: False
-    description: ""
+    description: "This is for providing the set of conditions for the policy"
     suboptions:
       id:
         description: ""
@@ -152,13 +102,13 @@ options:
         type: bool
         required: False
       operator:
-        description: ""
+        description: "This denotes the operation type"
         type: str
         required: True
         choices: ["AND", "OR"]
       operands:
         required: False
-        description: ""
+        description: "This signifies the various policy criteria"
         type: list
         elements: dict
         suboptions:
@@ -174,20 +124,24 @@ options:
             type: str
             required: False
           lhs:
-            description: ""
+            description:
+              - This signifies the key for the object type
+              - String ID example: "id"
             type: str
             required: True
           rhs:
-            description: ""
+            description:
+              - This denotes the value for the given object type. Its value depends upon the key
+              - For APP, APP_GROUP, and IDP, the supported value is entity id.
+              - For CLIENT_TYPE, the supported values are zpn_client_type_zapp (for ZApp) and zpn_client_type_exporter (for Clientless).
+              - For POSTURE, the supported values are: true (verified), false (verification failed).
+              - For TRUSTED_NETWORK, the supported value is true.
             type: str
             required: False
-          rhs_list:
-            description: ""
-            type: list
-            elements: str
-            required: False
           object_type:
-            description: ""
+            description:
+              - This is for specifying the policy criteria
+              - POSTURE and TRUSTED_NETWORK values are only supported for the CLIENT_TYPE.
             type: str
             required: True
             choices:
@@ -202,6 +156,8 @@ options:
               - SCIM
               - SCIM_GROUP
               - EDGE_CONNECTOR_GROUP
+              - COUNTRY_CODE
+              - PLATFORM
   state:
     description: "Whether the app should be present or absent."
     type: str
@@ -212,35 +168,78 @@ options:
 """
 
 EXAMPLES = """
-- name: Access Policy - Intranet Web Apps
+- name: Gather ID for Trusted Network Corp-Trusted-Networks
+  zscaler.zpacloud.zpa_trusted_networks_info:
+    name: Corp-Trusted-Networks
+  register: network_id
+
+- name: Gather ID for Posture Profiles CrowdStrike_ZPA_ZTA_40
+  zscaler.zpacloud.zpa_posture_profile_info:
+    name: CrowdStrike_ZPA_ZTA_40
+  register: posture1
+
+- name: Gather ID for Machine Group CrowdStrike_ZPA_ZTA_80
+  zscaler.zpacloud.zpa_machine_group_info:
+    name: Example MGR01
+  register: machine_groups
+
+- name: Gather ID for Segment Group Example100
+  zscaler.zpacloud.zpa_segment_group_info:
+    name: "Example100"
+  register: segment_group
+
+- name: Gather ID for App Segment app01
+  zscaler.zpacloud.zpa_application_segment_info:
+    name: "app01"
+  register: app01
+
+- name: Create/update/delete a policy rule
   zscaler.zpacloud.zpa_policy_access_rule:
-    name: "Intranet Web Apps"
-    description: "Intranet Web Apps"
+    name: "Ansible_Access_Policy_Rule"
+    description: "Ansible_Access_Policy_Rule"
     action: "ALLOW"
     rule_order: 1
+    app_connector_group_ids:
+      - "216196257331368721"
+      - "216196257331368838"
+    app_server_group_ids:
+      - "216196257331368722"
+      - "216196257331368839"
     operator: "AND"
     conditions:
-      - negated: false
-        operator: "OR"
+      - operator: "AND"
+        negated: false
         operands:
-          - name: "app_seg_intranet"
-            object_type: "APP"
+          - object_type: "TRUSTED_NETWORK"
+            lhs: "{{ network_id.data[0].network_id }}"
+            rhs: "true"
+      - operator: "OR"
+        negated: false
+        operands:
+          - object_type: "POSTURE"
+            lhs: "{{ posture1.data[0].posture_udid }}"
+            rhs: "true"
+      - operator: "AND"
+        negated: false
+        operands:
+          - object_type: "COUNTRY_CODE"
+            lhs: "CA"
+            rhs: "true"
+      - operator: "AND"
+        negated: false
+        operands:
+          - object_type: "MACHINE_GRP"
             lhs: "id"
-            rhs: "{{ app_seg_intranet.data.id }}"
-      - negated: false
-        operator: "OR"
+            rhs: "{{ machine_groups.data[0].id }}"
+      - operator: "AND"
+        negated: false
         operands:
-          - name: "sg_seg_intranet"
-            object_type: "APP_GROUP"
+          - object_type: "APP_GROUP"
             lhs: "id"
-            rhs: "{{ seg_intranet.data.id }}"
-      - negated: false
-        operator: "OR"
-        operands:
-          - name: "engineering_group"
-            object_type: "SCIM_GROUP"
-            lhs: "{{ user_okta.data[0].id }}"
-            rhs: "{{ engineering_group.data[0].id }}"
+            rhs: "{{ segment_group.data[0].id }}"
+          - object_type: "APP"
+            lhs: "id"
+            rhs: "{{ app01.data[0].id }}"
 """
 
 RETURN = """
@@ -284,21 +283,17 @@ def core(module):
     policy_rule_name = module.params.get("name", None)
     policy = dict()
     params = [
-        "default_rule",
+        "id",
+        "name",
         "description",
         "policy_type",
         "custom_msg",
-        "id",
-        "lss_default_rule",
-        "action_id",
-        "name",
-        "app_connector_groups",
         "action",
-        "priority",
         "operator",
         "rule_order",
         "conditions",
-        "app_server_groups",
+        "app_connector_group_ids",
+        "app_server_group_ids",
     ]
     for param_name in params:
         policy[param_name] = module.params.get(param_name, None)
@@ -329,9 +324,11 @@ def core(module):
                     action=existing_policy.get("action", "").upper(),
                     conditions=map_conditions(existing_policy.get("conditions", [])),
                     custom_msg=existing_policy.get("custom_msg", None),
+                    app_connector_group_ids=existing_policy.get("app_connector_group_ids", None),
+                    app_server_group_ids=existing_policy.get("app_server_group_ids", None),
                 )
             )
-            existing_policy = client.policies.update_rule(**existing_policy)
+            existing_policy = client.policies.update_access_rule(**existing_policy)
             module.exit_json(changed=True, data=existing_policy)
         else:
             """Create"""
@@ -342,6 +339,9 @@ def core(module):
                     action=policy.get("action", None),
                     conditions=map_conditions(policy.get("conditions", [])),
                     custom_msg=policy.get("custom_msg", None),
+                    app_connector_group_ids=policy.get("app_connector_group_ids", None),
+                    app_server_group_ids=policy.get("app_server_group_ids", None),
+
                 )
             )
             policy = client.policies.add_access_rule(**policy)
@@ -358,22 +358,15 @@ def core(module):
 
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
-    id_name_spec = dict(
-        type="list",
-        elements="dict",
-        options=dict(
-            id=dict(type="str", required=True), name=dict(type="str", required=False)
-        ),
-        required=False,
-    )
     argument_spec.update(
         id=dict(type="str"),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
         policy_type=dict(type="str", required=False),
         custom_msg=dict(type="str", required=False),
+        app_connector_group_ids=dict(type="list", elements="str", required=False),
+        app_server_group_ids=dict(type="list", elements="str", required=False),
         lss_default_rule=dict(type="bool", required=False),
-        app_connector_groups=id_name_spec,
         action=dict(
             type="str", required=False, choices=["allow", "deny", "ALLOW", "DENY"]
         ),
@@ -385,7 +378,7 @@ def main():
             options=dict(
                 id=dict(type="str"),
                 negated=dict(type="bool", required=False),
-                operator=dict(type="str", required=True, choices=["AND", "OR"]),
+                operator=dict(type="str", required=False, choices=["AND", "OR"]),
                 operands=dict(
                     type="list",
                     elements="dict",
@@ -393,24 +386,25 @@ def main():
                         id=dict(type="str"),
                         idp_id=dict(type="str", required=False),
                         name=dict(type="str", required=False),
-                        lhs=dict(type="str", required=True),
+                        lhs=dict(type="str", required=False),
                         rhs=dict(type="str", required=False),
-                        rhs_list=dict(type="list", elements="str", required=False),
                         object_type=dict(
                             type="str",
                             required=True,
                             choices=[
                                 "APP",
                                 "APP_GROUP",
-                                "SAML",
+                                "LOCATION",
                                 "IDP",
-                                "CLIENT_TYPE",
-                                "trusted_network",
-                                "MACHINE_GRP",
-                                "POSTURE",
+                                "SAML",
                                 "SCIM",
                                 "SCIM_GROUP",
+                                "CLIENT_TYPE",
+                                "POSTURE",
+                                "TRUSTED_NETWORK",
+                                "BRANCH_CONNECTOR_GROUP",
                                 "EDGE_CONNECTOR_GROUP",
+                                "MACHINE_GRP",
                                 "COUNTRY_CODE",
                                 "PLATFORM",
                             ],
@@ -421,7 +415,6 @@ def main():
             ),
             required=False,
         ),
-        app_server_groups=id_name_spec,
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

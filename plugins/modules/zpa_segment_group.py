@@ -92,7 +92,6 @@ EXAMPLES = """
 - name: Create/Update/Delete a Segment Group
   zscaler.zpacloud.zpa_segment_group:
     name: Example Segment Group
-    config_space: "DEFAULT"
     description: Example Segment Group
     enabled: true
     policy_migrated: true
@@ -119,8 +118,6 @@ def core(module):
     group = dict()
     params = [
         "id",
-        "application_ids",
-        "config_space",
         "description",
         "enabled",
         "name",
@@ -154,10 +151,9 @@ def core(module):
                     name=existing_group.get("name"),
                     description=existing_group.get("description"),
                     enabled=existing_group.get("enabled"),
-                    config_space=existing_group.get("config_space"),
                     policy_migrated=existing_group.get("policy_migrated"),
                     tcp_keep_alive_enabled=existing_group.get("tcp_keep_alive_enabled"),
-                    application_ids=group.get("application_ids"),
+                    # application_ids=group.get("application_ids"),
                 )
             )
             existing_group = client.segment_groups.update_group(
@@ -170,11 +166,10 @@ def core(module):
                 dict(
                     name=group.get("name"),
                     description=group.get("description"),
-                    enable=group.get("enable"),
-                    config_space=group.get("config_space"),
+                    enabled=group.get("enabled"),
                     policy_migrated=group.get("policy_migrated"),
                     tcp_keep_alive_enabled=group.get("tcp_keep_alive_enabled"),
-                    application_ids=group.get("application_ids"),
+                    # application_ids=group.get("application_ids"),
                 )
             )
             group = client.segment_groups.add_group(**group).to_dict()
@@ -191,16 +186,13 @@ def core(module):
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
-        application_ids=dict(
-            type="list",
-            elements="str",
-            required=False,
-        ),
-        config_space=dict(
-            type="str", required=False, default="DEFAULT", choices=["DEFAULT", "SIEM"]
-        ),
+        # application_ids=dict(
+        #     type="list",
+        #     elements="str",
+        #     required=False,
+        # ),
         description=dict(type="str", required=False),
-        enabled=dict(type="bool", required=False),
+        enabled=dict(type="bool", required=False, default=True),
         id=dict(type="str"),
         name=dict(type="str", required=True),
         policy_migrated=dict(type="bool", required=False),

@@ -272,11 +272,11 @@ def core(module):
     group_name = group.get("name", None)
     existing_group = None
     if group_id is not None:
-        group_box = client.connector_groups.get_group(group_id=group_id)
+        group_box = client.connector_groups.get_connector_group(group_id=group_id)
         if group_box is not None:
             existing_group = group_box.to_dict()
     elif group_name is not None:
-        groups = client.connector_groups.list_groups().to_list()
+        groups = client.connector_groups.list_connector_groups().to_list()
         for group_ in groups:
             if group_.get("name") == group_name:
                 existing_group = group_

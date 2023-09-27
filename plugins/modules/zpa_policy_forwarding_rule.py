@@ -226,17 +226,18 @@ from traceback import format_exc
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import map_conditions
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import validate_operand
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import normalize_policy
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
     deleteNone,
 )
 
 def core(module):
-    state = module.params.get("state", None)
+    state = module.params.get("state", "present")
     client = ZPAClientHelper(module)
     policy_rule_id = module.params.get("id", None)
     policy_rule_name = module.params.get("name", None)
-    policy = dict()
     params = [
         "id",
         "name",
@@ -247,56 +248,72 @@ def core(module):
         "rule_order",
         "conditions",
     ]
-    for param_name in params:
-        policy[param_name] = module.params.get(param_name, None)
+
+    policy = {param: module.params.get(param, None) for param in params}
+
+    # Validate conditions
+    for condition in module.params.get('conditions', []):
+        for operand in condition.get('operands', []):
+            validation_result = validate_operand(operand, module)
+            if validation_result:
+                module.fail_json(msg=validation_result)
+
     existing_policy = None
     if policy_rule_id is not None:
-        existing_policy = client.policies.get_rule(
-            policy_type="client_forwarding", rule_id=policy_rule_id
-        )
+        existing_policy = client.policies.get_rule(policy_type="client_forwarding", rule_id=policy_rule_id)
     elif policy_rule_name is not None:
-        rules = client.policies.list_rules(policy_type="client_forwarding").to_list()
+        rules = client.policies.list_rules(policy_type="client_forwarding")
         for rule in rules:
             if rule.get("name") == policy_rule_name:
                 existing_policy = rule
                 break
-    if existing_policy is not None:
-        id = existing_policy.get("id")
-        existing_policy.update(policy)
-        existing_policy["id"] = id
+
+    differences_detected = False
+    if existing_policy:
+        policy['conditions'] = map_conditions(policy.get("conditions", []))
+        existing_policy['conditions'] = map_conditions(existing_policy.get("conditions", []))
+        desired_policy = normalize_policy(policy)
+        current_policy = normalize_policy(existing_policy)
+
+        fields_to_exclude = ['id', 'policy_type']
+        for key, value in desired_policy.items():
+            if key not in fields_to_exclude and current_policy.get(key) != value:
+                differences_detected = True
+                module.warn(f"Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}")
+
     if state == "present":
-        if existing_policy is not None:
+        if existing_policy and differences_detected:
             """Update"""
-            existing_policy = deleteNone(
-                dict(
-                    policy_type="client_forwarding",
-                    rule_id=existing_policy.get("id", None),
-                    name=existing_policy.get("name", None),
-                    description=existing_policy.get("description", None),
-                    action=existing_policy.get("action", "").upper(),
-                    conditions=map_conditions(existing_policy.get("conditions", [])),
-                )
-            )
-            existing_policy = client.policies.update_rule(**existing_policy)
-            module.exit_json(changed=True, data=existing_policy)
-        else:
+            updated_policy = {
+                "policy_type": "client_forwarding",
+                "rule_id": existing_policy.get("id"),
+                "name": existing_policy.get("name"),
+                "description": existing_policy.get("description"),
+                "action": existing_policy.get("action").upper(),
+                "conditions": map_conditions(existing_policy.get("conditions", [])),
+                "rule_order": existing_policy.get("rule_order"),
+            }
+            cleaned_policy = deleteNone(updated_policy)
+            updated_policy = client.policies.update_rule(**cleaned_policy)
+            module.exit_json(changed=True, data=updated_policy)
+        elif not existing_policy:
             """Create"""
-            policy = deleteNone(
-                dict(
-                    name=policy.get("name", None),
-                    description=policy.get("description", None),
-                    action=policy.get("action", None),
-                    conditions=map_conditions(policy.get("conditions", [])),
-                )
-            )
-            policy = client.policies.add_client_forwarding_rule(**policy)
-            module.exit_json(changed=False, data=policy)
-    elif state == "absent" and existing_policy is not None:
-        code = client.policies.delete_rule(
-            policy_type="client_forwarding", rule_id=existing_policy.get("id")
-        )
+            new_policy = {
+                "name": policy.get("name"),
+                "description": policy.get("description"),
+                "action": policy.get("action"),
+                "rule_order": policy.get("rule_order"),
+                "conditions": map_conditions(policy.get("conditions", [])),
+            }
+            cleaned_policy = deleteNone(new_policy)
+            created_policy = client.policies.add_client_forwarding_rule(**cleaned_policy)
+            module.exit_json(changed=True, data=created_policy)
+        else:
+            module.exit_json(changed=False, data=existing_policy)
+    elif state == "absent" and existing_policy:
+        code = client.policies.delete_rule(policy_type="client_forwarding", rule_id=existing_policy.get("id"))
         if code > 299:
-            module.exit_json(changed=False, data=None)
+            module.fail_json(msg="Failed to delete rule", data=None)
         module.exit_json(changed=True, data=existing_policy)
     module.exit_json(changed=False, data={})
 
@@ -336,7 +353,7 @@ def main():
                         id=dict(type="str"),
                         idp_id=dict(type="str", required=False),
                         name=dict(type="str", required=False),
-                        lhs=dict(type="str", required=True),
+                        lhs=dict(type="str", required=False),
                         rhs=dict(type="str", required=False),
                         rhs_list=dict(type="list", elements="str", required=False),
                         object_type=dict(

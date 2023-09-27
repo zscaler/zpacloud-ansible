@@ -276,10 +276,10 @@ def core(module):
     app = dict()
     params = [
         "tcp_port_range",
+        "udp_port_range",
         "enabled",
         "default_idle_timeout",
         "bypass_type",
-        "udp_port_range",
         "config_space",
         "health_reporting",
         "segment_group_id",

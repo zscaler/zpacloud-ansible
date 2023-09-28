@@ -45,7 +45,7 @@ def normalize_policy(policy):
     normalized = policy.copy()
 
     # Exclude the computed values from the data
-    computed_values = ["modified_time", "creation_time", "modified_by", "rule_order"]
+    computed_values = ["modified_time", "creation_time", "modified_by", "rule_order", "idp_id"]
     for attr in computed_values:
         normalized.pop(attr, None)
 
@@ -59,6 +59,7 @@ def normalize_policy(policy):
         for operand in condition.get('operands', []):
             operand.pop('id', None)  # remove ID from operand
             operand.pop('name', None)  # remove name from operand
+            operand.pop('idp_id', None)  # remove idp_id from operand
 
             # Adjust the operand key from "objectType" to "object_type"
             if 'objectType' in operand:
@@ -80,9 +81,17 @@ def validate_operand(operand, module):
             error_msg += f". Error details: {error}"
         return error_msg
 
+    def idpWarn(object_type, expected, got, error=None):
+        error_msg = f"Invalid IDP_ID for '{object_type}'. Expected {expected}, but got '{got}'"
+        if error:
+            error_msg += f". Error details: {error}"
+        return error_msg
+
+
     object_type = operand.get("object_type", "").upper()
     lhs = operand.get("lhs")
     rhs = operand.get("rhs")
+    idp_id = operand.get("idp_id")
 
     # Validate non-emptiness
     if not object_type or not lhs or not rhs:
@@ -94,7 +103,7 @@ def validate_operand(operand, module):
     if not isinstance(rhs, str):
         rhs = str(rhs)
 
-    valid_object_types = ["APP", "APP_GROUP", "MACHINE_GRP", "EDGE_CONNECTOR_GROUP", "POSTURE", "TRUSTED_NETWORK", "PLATFORM", "COUNTRY_CODE", "CLIENT_TYPE"]
+    valid_object_types = ["APP", "APP_GROUP", "MACHINE_GRP", "EDGE_CONNECTOR_GROUP", "POSTURE", "TRUSTED_NETWORK", "PLATFORM", "COUNTRY_CODE", "CLIENT_TYPE", "SCIM_GROUP", "SCIM", "SAML"]
 
     if object_type not in valid_object_types:
         return f"Invalid object type: {object_type}. Supported types are: {', '.join(valid_object_types)}"
@@ -138,6 +147,29 @@ def validate_operand(operand, module):
         ]
         if rhs not in valid_client_types:
             return rhsWarn(object_type, f"one of {valid_client_types}", rhs)
+
+    # New validation logic for SCIM_GROUP, SCIM, and SAML
+    if object_type in ["SCIM_GROUP", "SCIM", "SAML"]:
+        if not lhs:
+            return lhsWarn(object_type, "non-empty string", lhs)
+        if not rhs:
+            return rhsWarn(object_type, "non-empty string", rhs)
+        if not idp_id:  # Check if idp_id is empty or None
+            return idpWarn(object_type, "non-empty string", idp_id)
+
+        # Specific validation for each object type
+        if object_type == "SCIM_GROUP":
+            # Add proper check for Identity Provider ID and SCIM Group ID if necessary
+            pass  # Placeholder for any additional validation logic needed for SCIM_GROUP
+
+        elif object_type == "SCIM":
+            # Add proper check for SCIM Attribute Header ID and SCIM Attribute Value if necessary
+            pass  # Placeholder for any additional validation logic needed for SCIM
+
+        elif object_type == "SAML":
+            # Add proper check for SAML Attribute ID and SAML Attribute Value if necessary
+            pass  # Placeholder for any additional validation logic needed for SAML
+
 
     return None
 

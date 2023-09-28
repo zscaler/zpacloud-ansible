@@ -66,6 +66,7 @@ def normalize_policy(policy):
 
     return normalized
 
+
 def validate_operand(operand, module):
     def lhsWarn(object_type, expected, got, error=None):
         error_msg = f"Invalid LHS for '{object_type}'. Expected {expected}, but got '{got}'"

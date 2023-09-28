@@ -226,8 +226,8 @@ from traceback import format_exc
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import map_conditions
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import validate_operand
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import normalize_policy
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import validate_operand
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
     deleteNone,
@@ -239,6 +239,7 @@ def core(module):
     client = ZPAClientHelper(module)
     policy_rule_id = module.params.get("id", None)
     policy_rule_name = module.params.get("name", None)
+    policy = dict()
     params = [
         "id",
         "name",
@@ -251,62 +252,75 @@ def core(module):
         "conditions",
     ]
 
-    policy = {param: module.params.get(param, None) for param in params}
+    for param_name in params:
+        policy[param_name] = module.params.get(param_name, None)
 
-    # Validate conditions
-    for condition in module.params.get('conditions', []):
-        for operand in condition.get('operands', []):
+    conditions = module.params.get('conditions') or []
+
+    # Validate each operand in the conditions
+    for condition in conditions:
+        operands = condition.get('operands', [])
+        for operand in operands:
             validation_result = validate_operand(operand, module)
             if validation_result:
-                module.fail_json(msg=validation_result)
+                module.fail_json(msg=validation_result)  # Fail if validation returns a warning or error message
 
     existing_policy = None
     if policy_rule_id is not None:
-        existing_policy = client.policies.get_rule(policy_type="timeout", rule_id=policy_rule_id)
+        existing_policy = client.policies.get_rule(
+            policy_type="timeout", rule_id=policy_rule_id
+        )
     elif policy_rule_name is not None:
-        rules = client.policies.list_rules(policy_type="timeout")
+        rules = client.policies.list_rules(policy_type="timeout").to_list()
         for rule in rules:
             if rule.get("name") == policy_rule_name:
                 existing_policy = rule
                 break
 
-    differences_detected = False
-    if existing_policy:
+    if existing_policy is not None:
+        # Normalize both policies' conditions
         policy['conditions'] = map_conditions(policy.get("conditions", []))
         existing_policy['conditions'] = map_conditions(existing_policy.get("conditions", []))
+
         desired_policy = normalize_policy(policy)
         current_policy = normalize_policy(existing_policy)
 
         fields_to_exclude = ['id', 'policy_type']
+        differences_detected = False
         for key, value in desired_policy.items():
             if key not in fields_to_exclude and current_policy.get(key) != value:
                 differences_detected = True
                 module.warn(f"Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}")
 
+    if existing_policy is not None:
+        id = existing_policy.get("id")
+        existing_policy.update(policy)
+        existing_policy["id"] = id
+
     if state == "present":
-        if existing_policy and differences_detected:
+        if existing_policy is not None and differences_detected:
             """Update"""
             updated_policy = {
                 "policy_type": "timeout",
-                "rule_id": existing_policy.get("id"),
-                "name": existing_policy.get("name"),
-                "description": existing_policy.get("description"),
+                "rule_id": existing_policy.get("id", None),
+                "name": existing_policy.get("name", None),
+                "description": existing_policy.get("description", None),
                 "action": existing_policy.get("action").upper(),
-                "custom_msg": existing_policy.get("custom_msg"),
+                "custom_msg": existing_policy.get("custom_msg", None),
                 "conditions": map_conditions(existing_policy.get("conditions", [])),
-                "rule_order": existing_policy.get("rule_order"),
+                "rule_order": existing_policy.get("rule_order", None),
             }
             cleaned_policy = deleteNone(updated_policy)
             updated_policy = client.policies.update_rule(**cleaned_policy)
             module.exit_json(changed=True, data=updated_policy)
-        elif not existing_policy:
+        elif existing_policy is None:
             """Create"""
             new_policy = {
-                "name": policy.get("name"),
-                "description": policy.get("description"),
-                "action": policy.get("action"),
-                "custom_msg": policy.get("custom_msg"),
-                "rule_order": policy.get("rule_order"),
+                "name": policy.get("name", None),
+                "description": policy.get("description", None),
+                "action": policy.get("action", None),
+                "custom_msg": policy.get("custom_msg", None),
+                "rule_order": policy.get("rule_order", None),
                 "conditions": map_conditions(policy.get("conditions", [])),
             }
             cleaned_policy = deleteNone(new_policy)
@@ -315,9 +329,11 @@ def core(module):
         else:
             module.exit_json(changed=False, data=existing_policy)
     elif state == "absent" and existing_policy:
-        code = client.policies.delete_rule(policy_type="timeout", rule_id=existing_policy.get("id"))
+        code = client.policies.delete_rule(
+          policy_type="timeout", rule_id=existing_policy.get("id")
+        )
         if code > 299:
-            module.fail_json(msg="Failed to delete rule", data=None)
+            module.exit_json(changed=False, data=None)
         module.exit_json(changed=True, data=existing_policy)
     module.exit_json(changed=False, data={})
 
@@ -352,18 +368,7 @@ def main():
                         rhs=dict(type="str", required=False),
                         object_type=dict(
                             type="str",
-                            required=True,
-                            choices=[
-                                "APP",
-                                "APP_GROUP",
-                                "CLIENT_TYPE",
-                                "IDP",
-                                "POSTURE",
-                                "PLATFORM",
-                                "SAML",
-                                "SCIM",
-                                "SCIM_GROUP",
-                            ],
+                            required=False,
                         ),
                     ),
                     required=False,
@@ -374,11 +379,26 @@ def main():
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+
+    # Custom validation for object_type
+    conditions = module.params['conditions']
+    if conditions:  # Add this check to handle when conditions is None
+        for condition in conditions:
+            operands = condition.get('operands', [])
+            for operand in operands:
+                object_type = operand.get('object_type')
+                valid_object_types = [
+                      "APP", "APP_GROUP", "CLIENT_TYPE", "IDP",
+                       "POSTURE", "PLATFORM", "SAML", "SCIM","SCIM_GROUP"
+                ]
+                if object_type is None or object_type == "":  # Explicitly check for None or empty string
+                    module.fail_json(msg=f"object_type cannot be empty or None. Must be one of: {', '.join(valid_object_types)}")
+                elif object_type not in valid_object_types:
+                    module.fail_json(msg=f"Invalid object_type: {object_type}. Must be one of: {', '.join(valid_object_types)}")
     try:
         core(module)
     except Exception as e:
         module.fail_json(msg=to_native(e), exception=format_exc())
-
 
 if __name__ == "__main__":
     main()

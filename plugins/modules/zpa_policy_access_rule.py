@@ -321,6 +321,7 @@ def core(module):
         id = existing_policy.get("id")
         existing_policy.update(policy)
         existing_policy["id"] = id
+
     if state == "present":
         if existing_policy is not None and differences_detected:
             """Update"""
@@ -422,7 +423,7 @@ def main():
                     "APP", "APP_GROUP", "LOCATION", "IDP", "SAML", "SCIM",
                     "SCIM_GROUP", "CLIENT_TYPE", "POSTURE", "TRUSTED_NETWORK",
                     "BRANCH_CONNECTOR_GROUP", "EDGE_CONNECTOR_GROUP", "MACHINE_GRP",
-                    "COUNTRY_CODE", "PLATFORM",
+                    "COUNTRY_CODE", "PLATFORM"
                 ]
                 if object_type is None or object_type == "":  # Explicitly check for None or empty string
                     module.fail_json(msg=f"object_type cannot be empty or None. Must be one of: {', '.join(valid_object_types)}")

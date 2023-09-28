@@ -100,7 +100,12 @@ class ZPAClientHelper(ZPA):
         self.connection_helper = ConnectionHelper(min_sdk_version=(1, 0, 0))
         self.connection_helper.ensure_sdk_installed()
 
-        cloud_env = module.params.get("cloud", "PRODUCTION").upper()  # default to "PRODUCTION" if not provided
+        cloud_env = module.params.get("cloud")
+        if cloud_env is None:
+            cloud_env = "PRODUCTION"
+        else:
+            cloud_env = cloud_env.upper()
+
         if cloud_env not in VALID_ZPA_ENVIRONMENTS:
             raise ValueError(f"Invalid ZPA Cloud environment '{cloud_env}'. Supported environments are: {', '.join(VALID_ZPA_ENVIRONMENTS)}.")
 
@@ -113,7 +118,8 @@ class ZPAClientHelper(ZPA):
 
         # Set the User-Agent
         ansible_version = ansible.__version__  # Get the Ansible version
-        self.user_agent = f"zpa-ansible/{ansible_version}/({platform.system().lower()} {platform.machine()})"
+        customer_id = module.params.get("customer_id", "")
+        self.user_agent = f"zpa-ansible/{ansible_version}/({platform.system().lower()} {platform.machine()})/customer_id:{customer_id}"
 
     @staticmethod
     def zpa_argument_spec():

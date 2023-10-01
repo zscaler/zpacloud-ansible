@@ -106,9 +106,9 @@ examples/script.sh
 collections_test/
 zpa_all_together/
 zpa_all_together/*
-scripts/
-scripts/*
+
 ansible_collections/
 ansible_demo/
 tests/integration/integration_config.yml
 local_test
+ansible.cfg

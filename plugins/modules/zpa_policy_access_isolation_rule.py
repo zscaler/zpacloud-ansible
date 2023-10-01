@@ -21,14 +21,12 @@
 
 from __future__ import absolute_import, division, print_function
 
-__metaclass__ = type
-
 DOCUMENTATION = """
 ---
-module: zpa_policy_forwarding_rule
-short_description: Create a Policy Forwarding Rule.
+module: zpa_policy_access_isolation_rule
+short_description: Create a Policy Isolation Rule
 description:
-  - This module will create, update or delete a specific Policy Forwarding Rule
+  - This module create/update/delete a Policy Isolation Rule in the ZPA Cloud.
 author:
   - William Guilherme (@willguibr)
 version_added: "1.0.0"
@@ -47,178 +45,133 @@ options:
     description: ""
     required: false
     type: str
+  action:
+    description:
+      - This is for providing the rule action.
+    type: str
+    required: false
+    choices:
+      - RE_AUTH
   id:
     description: ""
     type: str
-  name:
-    description: ""
-    type: str
-    required: True
-  description:
-    description: ""
-    type: str
-    required: False
-  action:
-    description: ""
-    type: str
-    required: False
-    choices: ["INTERCEPT", "INTERCEPT_ACCESSIBLE", "BYPASS"]
-    default: INTERCEPT
-  default_rule:
-        description: ""
-    type: bool
-    required: False
-  default_rule_name:
-    description: ""
-    type: str
-    required: False
-  custom_msg:
-    description: ""
-    type: str
-    required: False
-  bypass_default_rule:
-    description: ""
-    type: bool
-    required: False
-  operator:
-    description: ""
-    type: str
-    required: False
-    choices: ["AND", "OR"]
+    required: false
   policy_type:
     description: ""
     type: str
-    required: False
-  priority:
-    description: ""
-    type: str
-    required: False
+    required: false
   rule_order:
     description: ""
     type: str
-    required: False
+    required: false
+  operator:
+    description:
+      - This denotes the operation type.
+    type: str
+    required: false
+    choices:
+      - AND
+      - OR
+  description:
+    description:
+      - This is the description of the access policy.
+    type: str
+    required: false
+  zpn_isolation_profile_id:
+    description:
+      - The isolation profile ID associated with the rule.
+    type: str
+    required: true
+  name:
+    type: str
+    required: true
+    description:
+      - The name of the isolation rule.
   conditions:
-    description: ""
     type: list
     elements: dict
-    required: False
+    required: false
+    description: "This is for providing the set of conditions for the policy"
     suboptions:
-      id:
-        description: ""
-        type: str
       negated:
         description: ""
         type: bool
-        required: False
+        required: false
       operator:
-        description: ""
+        description: "The operation type. Supported values: AND, OR"
         type: str
-        required: True
-        choices: ["AND", "OR"]
+        required: false
       operands:
-        description: ""
+        description: "The various policy criteria. Array of attributes (e.g., objectType, lhs, rhs, name)"
         type: list
         elements: dict
-        required: False
+        required: false
         suboptions:
-          id:
-            description: ""
-            type: str
           idp_id:
-            description: ""
+            description: "The ID information for the Identity Provider (IdP)"
             type: str
-            required: False
-          name:
-            description: ""
-            type: str
-            required: False
+            required: false
           lhs:
-            description: ""
+            description: "The key for the object type. String ID example: "id""
             type: str
             required: True
           rhs:
-            description: ""
+            description:
+                - The value for the given object type. Its value depends upon the key
+                - For APP, APP_GROUP, and IDP, the supported value is entity id
+                - For CLIENT_TYPE, the supported values are: zpn_client_type_zapp (for Zscaler Client Connector), zpn_client_type_exporter (for Clientless)
+                - For POSTURE, the supported values are: true (verified), false (verification failed)
+                - For TRUSTED_NETWORK, the supported value is true
             type: str
-            required: False
-          rhs_list:
-            description: ""
-            type: list
-            elements: str
-            required: False
+            required: false
           object_type:
-            description: ""
+            description:
+              - This is for specifying the policy criteria
+              - Supported values: APP, APP_GROUP, SAML, IDP, CLIENT_TYPE, POSTURE, TRUSTED_NETWORK, MACHINE_GRP, SCIM, SCIM_GROUP.
+              - POSTURE and TRUSTED_NETWORK values are only supported for the CLIENT_TYPE.
             type: str
-            required: True
-            choices:
-              [
-                "APP",
-                "APP_GROUP",
-                "SAML",
-                "IDP",
-                "SCIM",
-                "SCIM_GROUP",
-                "CLIENT_TYPE",
-                "TRUSTED_NETWORK",
-                "MACHINE_GRP",
-                "POSTURE",
-                "EDGE_CONNECTOR_GROUP",
-              ]
+            required: false
   state:
-    description: ""
+    description: "Whether the app should be present or absent."
     type: str
-    choices: ["present", "absent"]
+    choices:
+      - present
+      - absent
     default: present
+
 """
 
 EXAMPLES = """
-- name: Policy Forwarding Rule - Example
-  zscaler.zpacloud.zpa_policy_forwarding_rule:
-    name: "Policy Forwarding Rule - Example"
-    description: "Policy Forwarding Rule - Example"
-    action: "BYPASS"
+- name: "Policy Isolation Rule - Example"
+  zscaler.zpacloud.zpa_policy_access_isolation_rule:
+    name: "Policy Isolation Rule - Example"
+    description: "Policy Isolation Rule - Example"
+    action: "ISOLATE"
     rule_order: 1
     operator: "AND"
+    zpn_isolation_profile_id: "216196257331286656"
     conditions:
       - negated: false
         operator: "OR"
         operands:
-          - name: "app_segment"
-            object_type: "APP"
+          - object_type: "APP"
             lhs: "id"
             rhs: "216196257331292105"
-      - negated: false
-        operator: "OR"
-        operands:
-          - name: "segment_group"
-            object_type: "APP_GROUP"
+          - object_type: "APP_GROUP"
             lhs: "id"
             rhs: "216196257331292103"
       - negated: false
         operator: "OR"
         operands:
-          - name: "zpn_client_type_exporter"
-            object_type: "CLIENT_TYPE"
-            lhs: "id"
-            rhs: "zpn_client_type_exporter"
-          - name: "zpn_client_type_browser_isolation"
-            object_type: "CLIENT_TYPE"
-            lhs: "id"
-            rhs: "zpn_client_type_browser_isolation"
-          - name: "zpn_client_type_zapp"
+          - name:
             object_type: "CLIENT_TYPE"
             lhs: "id"
             rhs: "zpn_client_type_zapp"
-      - negated: false
-        operator: "OR"
-        operands:
-          - name: "CrowdStrike_ZPA_ZTA_80"
-            object_type: "POSTURE"
-            lhs: "{{ postures.data[0].posture_udid }}"
-            rhs: "false"
+
 """
 
 RETURN = """
-# The newly created access client forwarding policy rule resource record.
+# The newly created policy access isolation rule resource record.
 """
 
 from traceback import format_exc
@@ -229,10 +182,10 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     map_conditions,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
-    validate_operand,
+    normalize_policy,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
-    normalize_policy,
+    validate_operand,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
@@ -254,8 +207,10 @@ def core(module):
         "action",
         "operator",
         "rule_order",
+        "zpn_isolation_profile_id",
         "conditions",
     ]
+
     for param_name in params:
         policy[param_name] = module.params.get(param_name, None)
 
@@ -274,10 +229,10 @@ def core(module):
     existing_policy = None
     if policy_rule_id is not None:
         existing_policy = client.policies.get_rule(
-            policy_type="client_forwarding", rule_id=policy_rule_id
+            policy_type="isolation", rule_id=policy_rule_id
         )
     elif policy_rule_name is not None:
-        rules = client.policies.list_rules(policy_type="client_forwarding").to_list()
+        rules = client.policies.list_rules(policy_type="isolation").to_list()
         for rule in rules:
             if rule.get("name") == policy_rule_name:
                 existing_policy = rule
@@ -311,14 +266,18 @@ def core(module):
         if existing_policy is not None and differences_detected:
             """Update"""
             updated_policy = {
-                "policy_type": "client_forwarding",
+                "policy_type": "isolation",
                 "rule_id": existing_policy.get("id", None),
                 "name": existing_policy.get("name", None),
                 "description": existing_policy.get("description", None),
                 "action": existing_policy.get("action").upper(),
+                "zpn_isolation_profile_id": existing_policy.get(
+                    "zpn_isolation_profile_id", None
+                ),
                 "conditions": map_conditions(existing_policy.get("conditions", [])),
                 "rule_order": existing_policy.get("rule_order", None),
             }
+
             cleaned_policy = deleteNone(updated_policy)
             updated_policy = client.policies.update_rule(**cleaned_policy)
             module.exit_json(changed=True, data=updated_policy)
@@ -327,24 +286,24 @@ def core(module):
             new_policy = {
                 "name": policy.get("name", None),
                 "description": policy.get("description", None),
-                "action": policy.get("action", None),
+                "action": policy.get("action", None).upper(),
                 "rule_order": policy.get("rule_order", None),
+                "zpn_isolation_profile_id": policy.get(
+                    "zpn_isolation_profile_id", None
+                ),
                 "conditions": map_conditions(policy.get("conditions", [])),
             }
-            cleaned_policy = deleteNone(new_policy)
-            created_policy = client.policies.add_client_forwarding_rule(
-                **cleaned_policy
+            module.warn(
+                f"zpn_isolation_profile_id: {policy.get('zpn_isolation_profile_id', None)}"
             )
-            module.exit_json(
-                changed=True, data=created_policy
-            )  # Mark as changed since we are creating
+            cleaned_policy = deleteNone(new_policy)
+            created_policy = client.policies.add_isolation_rule(**cleaned_policy)
+            module.exit_json(changed=True, data=created_policy)
         else:
-            module.exit_json(
-                changed=False, data=existing_policy
-            )  # If there's no change, exit without updating
-    elif state == "absent" and existing_policy is not None:
+            module.exit_json(changed=False, data=existing_policy)
+    elif state == "absent" and existing_policy:
         code = client.policies.delete_rule(
-            policy_type="client_forwarding", rule_id=existing_policy.get("id")
+            policy_type="isolation", rule_id=existing_policy.get("id")
         )
         if code > 299:
             module.exit_json(changed=False, data=None)
@@ -358,18 +317,12 @@ def main():
         id=dict(type="str"),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
+        zpn_isolation_profile_id=dict(type="str", required=True),
         policy_type=dict(type="str", required=False),
         action=dict(
             type="str",
             required=False,
-            choices=[
-                "bypass",
-                "BYPASS",
-                "intercept",
-                "INTERCEPT",
-                "intercept_accessible",
-                "INTERCEPT_ACCESSIBLE",
-            ],
+            choices=["ISOLATE", "isolate", "BYPASS_ISOLATE", "bypass_isolate"],
         ),
         operator=dict(type="str", required=False, choices=["AND", "OR"]),
         rule_order=dict(type="str", required=False),
@@ -387,27 +340,11 @@ def main():
                         id=dict(type="str"),
                         idp_id=dict(type="str", required=False),
                         name=dict(type="str", required=False),
-                        lhs=dict(type="str", required=False),
+                        lhs=dict(type="str", required=True),
                         rhs=dict(type="str", required=False),
-                        rhs_list=dict(type="list", elements="str", required=False),
                         object_type=dict(
                             type="str",
-                            required=True,
-                            choices=[
-                                "APP",
-                                "APP_GROUP",
-                                "CLIENT_TYPE",
-                                "BRANCH_CONNECTOR_GROUP",
-                                "EDGE_CONNECTOR_GROUP",
-                                "POSTURE",
-                                "MACHINE_GRP",
-                                "TRUSTED_NETWORK",
-                                "PLATFORM",
-                                "IDP",
-                                "SAML",
-                                "SCIM",
-                                "SCIM_GROUP",
-                            ],
+                            required=False,
                         ),
                     ),
                     required=False,
@@ -430,11 +367,7 @@ def main():
                     "APP",
                     "APP_GROUP",
                     "CLIENT_TYPE",
-                    "BRANCH_CONNECTOR_GROUP",
                     "EDGE_CONNECTOR_GROUP",
-                    "POSTURE",
-                    "MACHINE_GRP",
-                    "TRUSTED_NETWORK",
                     "PLATFORM",
                     "IDP",
                     "SAML",

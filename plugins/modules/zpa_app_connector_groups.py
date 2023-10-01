@@ -185,6 +185,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
     ZPAClientHelper,
 )
 
+
 def validate_latitude(val):
     try:
         v = float(val)
@@ -193,6 +194,7 @@ def validate_latitude(val):
     except ValueError:
         return (None, ["latitude value should be a valid float number"])
     return (None, None)
+
 
 def validate_longitude(val):
     try:
@@ -203,6 +205,7 @@ def validate_longitude(val):
         return (None, ["longitude value should be a valid float number"])
     return (None, None)
 
+
 def diff_suppress_func_coordinate(old, new):
     try:
         o = round(float(old) * 1000000) / 1000000
@@ -211,20 +214,26 @@ def diff_suppress_func_coordinate(old, new):
     except ValueError:
         return False
 
-def validate_tcp_quick_ack(tcp_quick_ack_app, tcp_quick_ack_assistant, tcp_quick_ack_read_assistant):
-    if tcp_quick_ack_app != tcp_quick_ack_assistant or \
-       tcp_quick_ack_app != tcp_quick_ack_read_assistant or \
-       tcp_quick_ack_assistant != tcp_quick_ack_read_assistant:
+
+def validate_tcp_quick_ack(
+    tcp_quick_ack_app, tcp_quick_ack_assistant, tcp_quick_ack_read_assistant
+):
+    if (
+        tcp_quick_ack_app != tcp_quick_ack_assistant
+        or tcp_quick_ack_app != tcp_quick_ack_read_assistant
+        or tcp_quick_ack_assistant != tcp_quick_ack_read_assistant
+    ):
         return "the values of tcpQuickAck related flags need to be consistent"
     return None
+
 
 def core(module):
     state = module.params.get("state", None)
     client = ZPAClientHelper(module)
     group = dict()
 
-    latitude = module.params.get('latitude')
-    longitude = module.params.get('longitude')
+    latitude = module.params.get("latitude")
+    longitude = module.params.get("longitude")
     _, lat_errors = validate_latitude(latitude)
     _, lon_errors = validate_longitude(longitude)
 
@@ -233,11 +242,13 @@ def core(module):
         module.fail_json(msg=", ".join(all_errors))
 
     # Validate the TCP Quick Ack attributes
-    tcp_quick_ack_app = module.params['tcp_quick_ack_app']
-    tcp_quick_ack_assistant = module.params['tcp_quick_ack_assistant']
-    tcp_quick_ack_read_assistant = module.params['tcp_quick_ack_read_assistant']
+    tcp_quick_ack_app = module.params["tcp_quick_ack_app"]
+    tcp_quick_ack_assistant = module.params["tcp_quick_ack_assistant"]
+    tcp_quick_ack_read_assistant = module.params["tcp_quick_ack_read_assistant"]
 
-    tcp_quick_ack_error = validate_tcp_quick_ack(tcp_quick_ack_app, tcp_quick_ack_assistant, tcp_quick_ack_read_assistant)
+    tcp_quick_ack_error = validate_tcp_quick_ack(
+        tcp_quick_ack_app, tcp_quick_ack_assistant, tcp_quick_ack_read_assistant
+    )
     if tcp_quick_ack_error:
         module.fail_json(msg=tcp_quick_ack_error)
 
@@ -272,11 +283,11 @@ def core(module):
     group_name = group.get("name", None)
     existing_group = None
     if group_id is not None:
-        group_box = client.connector_groups.get_group(group_id=group_id)
+        group_box = client.connector_groups.get_connector_group(group_id=group_id)
         if group_box is not None:
             existing_group = group_box.to_dict()
     elif group_name is not None:
-        groups = client.connector_groups.list_groups().to_list()
+        groups = client.connector_groups.list_connector_groups().to_list()
         for group_ in groups:
             if group_.get("name") == group_name:
                 existing_group = group_
@@ -291,12 +302,16 @@ def core(module):
             existing_lat = existing_group.get("latitude")
             new_lat = group.get("latitude")
             if diff_suppress_func_coordinate(existing_lat, new_lat):
-                existing_group["latitude"] = existing_lat  # reset to original if they're deemed equal
+                existing_group[
+                    "latitude"
+                ] = existing_lat  # reset to original if they're deemed equal
 
             existing_long = existing_group.get("longitude")
             new_long = group.get("longitude")
             if diff_suppress_func_coordinate(existing_long, new_long):
-                existing_group["longitude"] = existing_long  # reset to original if they're deemed equal
+                existing_group[
+                    "longitude"
+                ] = existing_long  # reset to original if they're deemed equal
 
             existing_group = deleteNone(
                 dict(
@@ -311,13 +326,19 @@ def core(module):
                     location=existing_group.get("location"),
                     upgrade_day=existing_group.get("upgrade_day"),
                     upgrade_time_in_secs=existing_group.get("upgrade_time_in_secs"),
-                    override_version_profile=existing_group.get("override_version_profile"),
+                    override_version_profile=existing_group.get(
+                        "override_version_profile"
+                    ),
                     version_profile_id=existing_group.get("version_profile_id"),
                     version_profile_name=existing_group.get("version_profile_name"),
                     dns_query_type=existing_group.get("dns_query_type"),
                     tcp_quick_ack_app=existing_group.get("tcp_quick_ack_app"),
-                    tcp_quick_ack_assistant=existing_group.get("tcp_quick_ack_assistant"),
-                    tcp_quick_ack_read_assistant=existing_group.get("tcp_quick_ack_read_assistant"),
+                    tcp_quick_ack_assistant=existing_group.get(
+                        "tcp_quick_ack_assistant"
+                    ),
+                    tcp_quick_ack_read_assistant=existing_group.get(
+                        "tcp_quick_ack_read_assistant"
+                    ),
                     use_in_dr_mode=existing_group.get("use_in_dr_mode"),
                     pra_enabled=existing_group.get("pra_enabled"),
                     waf_disabled=existing_group.get("waf_disabled"),
@@ -347,7 +368,9 @@ def core(module):
                     dns_query_type=group.get("dns_query_type"),
                     tcp_quick_ack_app=group.get("tcp_quick_ack_app"),
                     tcp_quick_ack_assistant=group.get("tcp_quick_ack_assistant"),
-                    tcp_quick_ack_read_assistant=group.get("tcp_quick_ack_read_assistant"),
+                    tcp_quick_ack_read_assistant=group.get(
+                        "tcp_quick_ack_read_assistant"
+                    ),
                     use_in_dr_mode=group.get("use_in_dr_mode"),
                     pra_enabled=group.get("pra_enabled"),
                     waf_disabled=group.get("waf_disabled"),
@@ -394,13 +417,30 @@ def main():
         location=dict(type="str", required=False),
         longitude=dict(type="str", required=False),
         lss_app_connector_group=dict(type="str", required=False),
-        upgrade_day=dict(type="str", default="SUNDAY", choices=["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"], required=False),
+        upgrade_day=dict(
+            type="str",
+            default="SUNDAY",
+            choices=[
+                "MONDAY",
+                "TUESDAY",
+                "WEDNESDAY",
+                "THURSDAY",
+                "FRIDAY",
+                "SATURDAY",
+                "SUNDAY",
+            ],
+            required=False,
+        ),
         upgrade_time_in_secs=dict(type="str", default=66600, required=False),
         override_version_profile=dict(type="bool", default=False, required=False),
         version_profile_id=dict(
             type="str", default="0", choices=["0", "1", "2"], required=False
         ),
-        version_profile_name=dict(type="str", choices=["Default", "Previous Default", "New Release"], required=False),
+        version_profile_name=dict(
+            type="str",
+            choices=["Default", "Previous Default", "New Release"],
+            required=False,
+        ),
         tcp_quick_ack_app=dict(type="bool", default=False, required=False),
         tcp_quick_ack_assistant=dict(type="bool", default=False, required=False),
         tcp_quick_ack_read_assistant=dict(type="bool", default=False, required=False),

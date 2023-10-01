@@ -175,8 +175,8 @@ EXAMPLES = """
     description: "Policy Timeout Rule - Example"
     action: "RE_AUTH"
     rule_order: 1
-    reauth_idle_timeout: 600
-    reauth_timeout: 172800
+    reauth_idle_timeout: '600'
+    reauth_timeout: '172800'
     operator: "AND"
     conditions:
       - negated: false
@@ -225,34 +225,23 @@ from traceback import format_exc
 
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    map_conditions,
+)
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    normalize_policy,
+)
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    validate_operand,
+)
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
     deleteNone,
 )
 
 
-def map_conditions(conditions_obj):
-    result = []
-    for condition in conditions_obj:
-        operands = condition.get("operands")
-        if operands is not None and isinstance(operands, list):
-            for op in operands:
-                if (
-                    op.get("object_type", None) is not None
-                    and op.get("lhs", None) is not None
-                    and op.get("rhs", None) is not None
-                ):
-                    operand = (
-                        op.get("object_type", None),
-                        op.get("lhs", None),
-                        op.get("rhs", None),
-                    )
-                    result.append(operand)
-    return result
-
-
 def core(module):
-    state = module.params.get("state", None)
+    state = module.params.get("state", "present")
     client = ZPAClientHelper(module)
     policy_rule_id = module.params.get("id", None)
     policy_rule_name = module.params.get("name", None)
@@ -261,16 +250,28 @@ def core(module):
         "id",
         "name",
         "description",
-        "policy_type",
+        "custom_msg" "policy_type",
         "action",
-        "reauth_idle_timeout",
-        "reauth_timeout",
         "operator",
         "rule_order",
         "conditions",
     ]
+
     for param_name in params:
         policy[param_name] = module.params.get(param_name, None)
+
+    conditions = module.params.get("conditions") or []
+
+    # Validate each operand in the conditions
+    for condition in conditions:
+        operands = condition.get("operands", [])
+        for operand in operands:
+            validation_result = validate_operand(operand, module)
+            if validation_result:
+                module.fail_json(
+                    msg=validation_result
+                )  # Fail if validation returns a warning or error message
+
     existing_policy = None
     if policy_rule_id is not None:
         existing_policy = client.policies.get_rule(
@@ -282,44 +283,63 @@ def core(module):
             if rule.get("name") == policy_rule_name:
                 existing_policy = rule
                 break
+
+    if existing_policy is not None:
+        # Normalize both policies' conditions
+        policy["conditions"] = map_conditions(policy.get("conditions", []))
+        existing_policy["conditions"] = map_conditions(
+            existing_policy.get("conditions", [])
+        )
+
+        desired_policy = normalize_policy(policy)
+        current_policy = normalize_policy(existing_policy)
+
+        fields_to_exclude = ["id", "policy_type"]
+        differences_detected = False
+        for key, value in desired_policy.items():
+            if key not in fields_to_exclude and current_policy.get(key) != value:
+                differences_detected = True
+                module.warn(
+                    f"Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}"
+                )
+
     if existing_policy is not None:
         id = existing_policy.get("id")
         existing_policy.update(policy)
         existing_policy["id"] = id
+
     if state == "present":
-        if existing_policy is not None:
+        if existing_policy is not None and differences_detected:
             """Update"""
-            existing_policy = deleteNone(
-                dict(
-                    policy_type="timeout",
-                    rule_id=existing_policy.get("id", None),
-                    name=existing_policy.get("name", None),
-                    description=existing_policy.get("description", None),
-                    action=existing_policy.get("action", "").upper(),
-                    reauth_idle_timeout=existing_policy.get(
-                        "reauth_idle_timeout", None
-                    ),
-                    reauth_timeout=existing_policy.get("reauth_timeout", None),
-                    conditions=map_conditions(existing_policy.get("conditions", [])),
-                )
-            )
-            existing_policy = client.policies.update_rule(**existing_policy)
-            module.exit_json(changed=True, data=existing_policy)
-        else:
+            updated_policy = {
+                "policy_type": "timeout",
+                "rule_id": existing_policy.get("id", None),
+                "name": existing_policy.get("name", None),
+                "description": existing_policy.get("description", None),
+                "action": existing_policy.get("action").upper(),
+                "custom_msg": existing_policy.get("custom_msg", None),
+                "conditions": map_conditions(existing_policy.get("conditions", [])),
+                "rule_order": existing_policy.get("rule_order", None),
+            }
+            cleaned_policy = deleteNone(updated_policy)
+            updated_policy = client.policies.update_rule(**cleaned_policy)
+            module.exit_json(changed=True, data=updated_policy)
+        elif existing_policy is None:
             """Create"""
-            policy = deleteNone(
-                dict(
-                    name=policy.get("name", None),
-                    description=policy.get("description", None),
-                    action=policy.get("action", None),
-                    reauth_idle_timeout=policy.get("reauth_idle_timeout", None),
-                    reauth_timeout=policy.get("reauth_timeout", None),
-                    conditions=map_conditions(policy.get("conditions", [])),
-                )
-            )
-            policy = client.policies.add_timeout_rule(**policy)
-            module.exit_json(changed=False, data=policy)
-    elif state == "absent" and existing_policy is not None:
+            new_policy = {
+                "name": policy.get("name", None),
+                "description": policy.get("description", None),
+                "action": policy.get("action", None),
+                "custom_msg": policy.get("custom_msg", None),
+                "rule_order": policy.get("rule_order", None),
+                "conditions": map_conditions(policy.get("conditions", [])),
+            }
+            cleaned_policy = deleteNone(new_policy)
+            created_policy = client.policies.add_timeout_rule(**cleaned_policy)
+            module.exit_json(changed=True, data=created_policy)
+        else:
+            module.exit_json(changed=False, data=existing_policy)
+    elif state == "absent" and existing_policy:
         code = client.policies.delete_rule(
             policy_type="timeout", rule_id=existing_policy.get("id")
         )
@@ -335,6 +355,7 @@ def main():
         id=dict(type="str"),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
+        custom_msg=dict(type="str", required=False),
         policy_type=dict(type="str", required=False),
         action=dict(type="str", required=False, choices=["RE_AUTH"]),
         reauth_idle_timeout=dict(type="str", required=True),
@@ -359,19 +380,7 @@ def main():
                         rhs=dict(type="str", required=False),
                         object_type=dict(
                             type="str",
-                            required=True,
-                            choices=[
-                                "APP",
-                                "APP_GROUP",
-                                "CLIENT_TYPE",
-                                "SAML",
-                                "IDP",
-                                "SCIM",
-                                "SCIM_GROUP",
-                                "TRUSTED_NETWORK",
-                                "EDGE_CONNECTOR_GROUP",
-                                "POSTURE",
-                            ],
+                            required=False,
                         ),
                     ),
                     required=False,
@@ -382,6 +391,35 @@ def main():
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+
+    # Custom validation for object_type
+    conditions = module.params["conditions"]
+    if conditions:  # Add this check to handle when conditions is None
+        for condition in conditions:
+            operands = condition.get("operands", [])
+            for operand in operands:
+                object_type = operand.get("object_type")
+                valid_object_types = [
+                    "APP",
+                    "APP_GROUP",
+                    "CLIENT_TYPE",
+                    "IDP",
+                    "POSTURE",
+                    "PLATFORM",
+                    "SAML",
+                    "SCIM",
+                    "SCIM_GROUP",
+                ]
+                if (
+                    object_type is None or object_type == ""
+                ):  # Explicitly check for None or empty string
+                    module.fail_json(
+                        msg=f"object_type cannot be empty or None. Must be one of: {', '.join(valid_object_types)}"
+                    )
+                elif object_type not in valid_object_types:
+                    module.fail_json(
+                        msg=f"Invalid object_type: {object_type}. Must be one of: {', '.join(valid_object_types)}"
+                    )
     try:
         core(module)
     except Exception as e:

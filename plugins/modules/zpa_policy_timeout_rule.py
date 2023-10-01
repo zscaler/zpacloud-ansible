@@ -225,9 +225,15 @@ from traceback import format_exc
 
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import map_conditions
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import normalize_policy
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import validate_operand
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    map_conditions,
+)
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    normalize_policy,
+)
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    validate_operand,
+)
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
     deleteNone,
@@ -244,8 +250,7 @@ def core(module):
         "id",
         "name",
         "description",
-        "custom_msg"
-        "policy_type",
+        "custom_msg" "policy_type",
         "action",
         "operator",
         "rule_order",
@@ -255,15 +260,17 @@ def core(module):
     for param_name in params:
         policy[param_name] = module.params.get(param_name, None)
 
-    conditions = module.params.get('conditions') or []
+    conditions = module.params.get("conditions") or []
 
     # Validate each operand in the conditions
     for condition in conditions:
-        operands = condition.get('operands', [])
+        operands = condition.get("operands", [])
         for operand in operands:
             validation_result = validate_operand(operand, module)
             if validation_result:
-                module.fail_json(msg=validation_result)  # Fail if validation returns a warning or error message
+                module.fail_json(
+                    msg=validation_result
+                )  # Fail if validation returns a warning or error message
 
     existing_policy = None
     if policy_rule_id is not None:
@@ -279,18 +286,22 @@ def core(module):
 
     if existing_policy is not None:
         # Normalize both policies' conditions
-        policy['conditions'] = map_conditions(policy.get("conditions", []))
-        existing_policy['conditions'] = map_conditions(existing_policy.get("conditions", []))
+        policy["conditions"] = map_conditions(policy.get("conditions", []))
+        existing_policy["conditions"] = map_conditions(
+            existing_policy.get("conditions", [])
+        )
 
         desired_policy = normalize_policy(policy)
         current_policy = normalize_policy(existing_policy)
 
-        fields_to_exclude = ['id', 'policy_type']
+        fields_to_exclude = ["id", "policy_type"]
         differences_detected = False
         for key, value in desired_policy.items():
             if key not in fields_to_exclude and current_policy.get(key) != value:
                 differences_detected = True
-                module.warn(f"Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}")
+                module.warn(
+                    f"Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}"
+                )
 
     if existing_policy is not None:
         id = existing_policy.get("id")
@@ -330,12 +341,13 @@ def core(module):
             module.exit_json(changed=False, data=existing_policy)
     elif state == "absent" and existing_policy:
         code = client.policies.delete_rule(
-          policy_type="timeout", rule_id=existing_policy.get("id")
+            policy_type="timeout", rule_id=existing_policy.get("id")
         )
         if code > 299:
             module.exit_json(changed=False, data=None)
         module.exit_json(changed=True, data=existing_policy)
     module.exit_json(changed=False, data={})
+
 
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
@@ -381,24 +393,38 @@ def main():
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 
     # Custom validation for object_type
-    conditions = module.params['conditions']
+    conditions = module.params["conditions"]
     if conditions:  # Add this check to handle when conditions is None
         for condition in conditions:
-            operands = condition.get('operands', [])
+            operands = condition.get("operands", [])
             for operand in operands:
-                object_type = operand.get('object_type')
+                object_type = operand.get("object_type")
                 valid_object_types = [
-                      "APP", "APP_GROUP", "CLIENT_TYPE", "IDP",
-                       "POSTURE", "PLATFORM", "SAML", "SCIM","SCIM_GROUP"
+                    "APP",
+                    "APP_GROUP",
+                    "CLIENT_TYPE",
+                    "IDP",
+                    "POSTURE",
+                    "PLATFORM",
+                    "SAML",
+                    "SCIM",
+                    "SCIM_GROUP",
                 ]
-                if object_type is None or object_type == "":  # Explicitly check for None or empty string
-                    module.fail_json(msg=f"object_type cannot be empty or None. Must be one of: {', '.join(valid_object_types)}")
+                if (
+                    object_type is None or object_type == ""
+                ):  # Explicitly check for None or empty string
+                    module.fail_json(
+                        msg=f"object_type cannot be empty or None. Must be one of: {', '.join(valid_object_types)}"
+                    )
                 elif object_type not in valid_object_types:
-                    module.fail_json(msg=f"Invalid object_type: {object_type}. Must be one of: {', '.join(valid_object_types)}")
+                    module.fail_json(
+                        msg=f"Invalid object_type: {object_type}. Must be one of: {', '.join(valid_object_types)}"
+                    )
     try:
         core(module)
     except Exception as e:
         module.fail_json(msg=to_native(e), exception=format_exc())
+
 
 if __name__ == "__main__":
     main()

@@ -91,14 +91,14 @@ def core(module: AnsibleModule):
     client = ZPAClientHelper(module)
     groups = []
     if group_id is not None:
-        group_box = client.connector_groups.get_group(group_id=group_id)
+        group_box = client.connector_groups.get_connector_group(group_id=group_id)
         if group_box is None:
             module.fail_json(
                 msg="Failed to retrieve App Connector Group ID: '%s'" % (group_id)
             )
         groups = [group_box.to_dict()]
     else:
-        groups = client.connector_groups.list_groups().to_list()
+        groups = client.connector_groups.list_connector_groups().to_list()
         if group_name is not None:
             group_found = False
             for group in groups:

@@ -180,51 +180,17 @@ from traceback import format_exc
 
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    validate_latitude,
+    validate_longitude,
+    diff_suppress_func_coordinate,
+    validate_tcp_quick_ack,
+    deleteNone,
+)
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     deleteNone,
     ZPAClientHelper,
 )
-
-
-def validate_latitude(val):
-    try:
-        v = float(val)
-        if v < -90 or v > 90:
-            return (None, ["latitude must be between -90 and 90"])
-    except ValueError:
-        return (None, ["latitude value should be a valid float number"])
-    return (None, None)
-
-
-def validate_longitude(val):
-    try:
-        v = float(val)
-        if v < -180 or v > 180:
-            return (None, ["longitude must be between -180 and 180"])
-    except ValueError:
-        return (None, ["longitude value should be a valid float number"])
-    return (None, None)
-
-
-def diff_suppress_func_coordinate(old, new):
-    try:
-        o = round(float(old) * 1000000) / 1000000
-        n = round(float(new) * 1000000) / 1000000
-        return o == n
-    except ValueError:
-        return False
-
-
-def validate_tcp_quick_ack(
-    tcp_quick_ack_app, tcp_quick_ack_assistant, tcp_quick_ack_read_assistant
-):
-    if (
-        tcp_quick_ack_app != tcp_quick_ack_assistant
-        or tcp_quick_ack_app != tcp_quick_ack_read_assistant
-        or tcp_quick_ack_assistant != tcp_quick_ack_read_assistant
-    ):
-        return "the values of tcpQuickAck related flags need to be consistent"
-    return None
 
 
 def core(module):

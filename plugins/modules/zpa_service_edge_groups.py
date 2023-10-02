@@ -347,7 +347,11 @@ def main():
         version_profile_id=dict(
             type="str", choices=["0", "1", "2"], default="0", required=False
         ),
-        version_profile_name=dict(type="str", choices=["Default", "Previous Default", "New Release"], required=False),
+        version_profile_name=dict(
+            type="str",
+            choices=["Default", "Previous Default", "New Release"],
+            required=False,
+        ),
         use_in_dr_mode=dict(type="bool", default=False, required=False),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )

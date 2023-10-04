@@ -3,6 +3,7 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 import pycountry
+# from zscaler.exceptions.exceptions import BadRequestError
 
 def deleteNone(_dict):
     """Delete None values recursively from all of the dictionaries, tuples, lists, sets"""
@@ -72,10 +73,18 @@ def convert_str_to_bool(value, true_value='1', false_value='0'):
         return False
     return value  # if the value isn't recognized, return it as-is
 
+def normalize_common_apps(common_apps):
+    normalized = common_apps.copy()
+    if 'appsConfig' in normalized:
+        # You can add more normalization logic for each appConfig object here
+        for app_config in normalized['appsConfig']:
+            # For now, I'm just normalizing the 'domain' field
+            app_config['domain'] = app_config['domain'].lower() if app_config['domain'] else None
+    return normalized
+
 def normalize_app(app):
     normalized = app.copy()
 
-    # Exclude computed values from the data
     computed_values = [
         "creation_time", "modified_by", "modified_time", "id",
         "config_space", "microtenant_name", "segment_group_name",
@@ -85,22 +94,65 @@ def normalize_app(app):
     for attr in computed_values:
         normalized.pop(attr, None)
 
-    # Convert tcp_keep_alive from string to boolean
     if 'tcp_keep_alive' in normalized:
         normalized['tcp_keep_alive'] = convert_str_to_bool(normalized['tcp_keep_alive'])
 
-    # Convert icmp_access_type to boolean
     if 'icmp_access_type' in normalized:
         normalized['icmp_access_type'] = normalized['icmp_access_type'] in ['PING', 'PING_TRACEROUTING']
 
-    # Handle special case for server_group_ids
     if "server_groups" in app:
         normalized["server_group_ids"] = [group['id'] for group in app["server_groups"]]
 
-    # Normalize other attributes as needed
-    # Add other normalization logic here
+    if 'common_apps_dto' in normalized and normalized['common_apps_dto']:
+        normalized['common_apps_dto'] = normalize_common_apps(normalized['common_apps_dto'])
 
     return normalized
+
+def prepare_updated_app(existing_app, app):
+    """
+    Prepares the updated application data by merging existing_app and app.
+    Note: You might need to adjust the merging logic based on your specific requirements.
+    """
+    updated_app = existing_app.copy()  # Start with a copy of the existing_app data
+    for key, value in app.items():
+        # Overwrite fields in updated_app with non-None values from app
+        if value is not None:
+            updated_app[key] = value
+    return updated_app
+
+
+# def handle_create_or_update(client, module, app):
+#     cleaned_app = deleteNone(app)
+
+#     if 'id' in cleaned_app:
+#         try:
+#             # Attempt to update the existing resource.
+#             updated_app = client.app_segments_pra.update_segment_pra(segment_id=cleaned_app['id'], **cleaned_app)
+#             return updated_app, True
+#         except Exception as update_err:
+#             error_message = str(update_err)
+#             if '400' in error_message and 'PUT' in error_message:
+#                 # Handle the specific error for a failed update attempt.
+#                 client.app_segments_pra.delete_segment_pra(segment_id=cleaned_app['id'])
+#                 try:
+#                     # Recreate the resource after deletion.
+#                     created_app = client.app_segments_pra.add_segment_pra(**cleaned_app)
+#                     return created_app, True
+#                 except Exception as create_err_after_delete:
+#                     module.fail_json(msg=f"Failed to create resource after deletion due to error: {create_err_after_delete}")
+#             else:
+#                 # For other errors during the update attempt.
+#                 module.fail_json(msg=f"Failed to update resource due to error: {update_err}")
+#     else:
+#         try:
+#             # Attempt to create a new resource if it doesn't exist.
+#             module.warn(f"Payload being sent to add_segment_pra: {app}")
+#             created_app = client.app_segments_pra.add_segment_pra(**cleaned_app)
+#             return created_app, True
+#         except Exception as e:
+#             module.warn(f"Exception details: {e}")
+#             # Handle errors during the create attempt.
+#             module.fail_json(msg=f"Failed to create resource due to error: {e}")
 
 
 # Function to handle App Connector and Service Edge Group validations

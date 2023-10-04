@@ -25,10 +25,10 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: zpa_application_segment_pra
-short_description: Create an PRA application segment in the ZPA Cloud.
+module: zpa_application_segment_inspection
+short_description: Create an AppProtection application segment in the ZPA Cloud.
 description:
-    - This module will create/update/delete an Privileged Remote Access application segment
+    - This module will create/update/delete an AppProtection application segment
 author:
   - William Guilherme (@willguibr)
 version_added: "1.0.0"
@@ -315,13 +315,21 @@ def core(module):
     if select_connector_close_to_app and udp_port_range is not None:
         module.fail_json(msg="Invalid configuration: 'select_connector_close_to_app' cannot be set to True when 'udp_port_range' is defined.")
 
+    if common_apps_dto:
+        apps_config = common_apps_dto.get('apps_config', [])
+        for app_config in apps_config:
+            application_protocol = app_config.get('application_protocol')
+            certificate_id = app_config.get('certificate_id')
+            if application_protocol == 'HTTP' and certificate_id is not None:
+                module.fail_json(msg="Invalid configuration: 'certificate_id' cannot be set when 'application_protocol' is 'HTTP'.")
+
     appsegment_id = module.params.get("id", None)
     appsegment_name = module.params.get("name", None)
     existing_app = None
     if appsegment_id is not None:
-        existing_app = client.app_segments_pra.get_segment_pra(segment_id=appsegment_id)
+        existing_app = client.app_segments_inspection.get_segment_inspection(segment_id=appsegment_id)
     elif appsegment_name is not None:
-        ba_app_segments = client.app_segments_pra.list_segments_pra().to_list()
+        ba_app_segments = client.app_segments_inspection.list_segments_inspection().to_list()
         for ba_app_segment in ba_app_segments:
             if ba_app_segment.get("name") == appsegment_name:
                 existing_app = ba_app_segment
@@ -376,7 +384,7 @@ def core(module):
                     "udp_ports": convert_ports(existing_app.get("udp_port_range", None)),
             }
             cleaned_app = deleteNone(updated_app)
-            updated_app = client.app_segments_pra.update_segment_pra(**cleaned_app)
+            updated_app = client.app_segments_inspection.update_segment_inspection(**cleaned_app)
             module.exit_json(changed=True, data=updated_app)
 
         elif existing_app is None:
@@ -407,7 +415,7 @@ def core(module):
                     "udp_ports": convert_ports_list(app.get("udp_port_range", None)),
             }
             cleaned_app = deleteNone(new_app)
-            created_app = client.app_segments_pra.add_segment_pra(**cleaned_app)
+            created_app = client.app_segments_inspection.add_segment_inspection(**cleaned_app)
             module.exit_json(
                 changed=True, data=created_app
             )  # Mark as changed since we are creating
@@ -417,7 +425,7 @@ def core(module):
             )  # If there's no change, exit without updating
     elif state == "absent":
         if existing_app is not None:
-            code = client.app_segments_pra.delete_segment_pra(segment_id=existing_app.get("id"))
+            code = client.app_segments_inspection.delete_segment_inspection(segment_id=existing_app.get("id"))
             if code > 299:
                 module.exit_json(changed=False, data=None)
             module.exit_json(changed=True, data=existing_app)
@@ -436,13 +444,13 @@ def main():
         name=dict(type='str', required=True),
         description=dict(type='str', required=False),
         enabled=dict(type='bool', required=False, default=True),
-        app_types=dict(type='list', elements='str', choices=['BROWSER_ACCESS', 'SIPA', 'INSPECT', 'SECURE_REMOTE_ACCESS'], required=True),
+        app_types=dict(type='list', elements='str', choices=['INSPECT'], required=True),
         application_port=dict(type='str', required=False),
-        application_protocol=dict(type='str', choices=['HTTP', 'HTTPS', 'FTP', 'RDP', 'SSH', 'WEBSOCKET', 'VNC', 'NONE'], required=True),
+        application_protocol=dict(type='str', choices=['HTTP', 'HTTPS'], required=True),
         certificate_id=dict(type='str', required=False),
-        connection_security=dict(type='str', choices=['ANY', 'NLA', 'NLA_EXT', 'TLS', 'VM_CONNECT', 'RDP'], required=False),
+        trust_untrusted_cert=dict(type='bool', required=False),
+        allow_options=dict(type='bool', required=False),
         domain=dict(type='str', required=True),
-        protocols=dict(type='list', elements='str', choices=['NONE', 'KERBEROS', 'LDAP', 'SMB'], required=False),
     )
     argument_spec.update(
         tcp_port_range=dict(

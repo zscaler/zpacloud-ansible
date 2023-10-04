@@ -91,7 +91,7 @@ def core(module: AnsibleModule):
     client = ZPAClientHelper(module)
     certificates = []
     if certificate_id is not None:
-        certificate_box = client.certificates.get_browser_access(
+        certificate_box = client.certificates.get_certificate(
             certificate_id=certificate_id
         )
         if certificate_box is None:
@@ -101,7 +101,7 @@ def core(module: AnsibleModule):
             )
         certificates = [certificate_box.to_dict()]
     else:
-        certificates = client.certificates.list_browser_access().to_list()
+        certificates = client.certificates.list_issued_certificates().to_list()
         if certificate_name is not None:
             certificate_found = False
             for certificate in certificates:

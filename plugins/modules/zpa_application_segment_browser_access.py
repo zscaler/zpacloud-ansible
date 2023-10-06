@@ -47,47 +47,74 @@ options:
     description: ""
     required: false
     type: str
-  default_max_age:
-    type: str
-    required: False
-    default: ""
-    description: "default_max_age"
   ip_anchored:
     type: bool
     required: False
     description: "ip_anchored"
-  udp_port_range:
-    type: list
-    elements: dict
-    required: False
-    description: "udp port range"
-    suboptions:
-      to:
-        type: str
-        required: False
-        description: ""
-      from:
-        type: str
-        required: False
-        description: ""
   id:
     type: str
     description: "Unique ID."
+  name:
+    type: str
+    required: True
+    description: "Name of the application."
+  description:
+    type: str
+    required: False
+    description: "Description of the application."
+  enabled:
+    type: bool
+    required: False
+    description: "Whether this application is enabled or not."
   double_encrypt:
     type: bool
     required: False
     description: "Whether Double Encryption is enabled or disabled for the app."
   icmp_access_type:
-    type: str
-    required: False
-    default: "NONE"
-    choices: ["PING_TRACEROUTING", "PING", "NONE"]
-    description: "icmp access type."
-  default_idle_timeout:
-    type: str
-    required: False
-    default: ""
-    description: "default idle timeout."
+    description:
+      - Indicates the ICMP access type.
+    type: bool
+    required: false
+    default: false
+  tcp_keep_alive:
+    description:
+      - Indicates whether TCP communication sockets are enabled or disabled.
+    type: bool
+    required: false
+    default: false
+  select_connector_close_to_app:
+    description:
+      - Whether the App Connector is closest to the application (True) or closest to the user (False).
+    type: bool
+    required: false
+    default: false
+  passive_health_enabled:
+    description:
+      - passive health enabled.
+    type: bool
+    required: false
+  use_in_dr_mode:
+    description: "Whether or not the application resource is designated for disaster recovery"
+    type: bool
+    required: false
+  is_incomplete_dr_config:
+    description: "Indicates whether or not the disaster recovery configuration is incomplete"
+    type: bool
+    required: false
+  inspect_traffic_with_zia:
+    description:
+      - Indicates if Inspect Traffic with ZIA is enabled for the application
+      - When enabled, this leverages a single posture for securing internet/SaaS and private applications
+      - and applies Data Loss Prevention policies to the application segment you are creating
+    type: bool
+    required: false
+  adp_enabled:
+    description:
+      - Indicates if Active Directory Inspection is enabled or not for the application
+      - This allows the application segment's traffic to be inspected by Active Directory (AD) Protection
+      - By default, this field is set to false
+    type: bool
+    required: false
   passive_health_enabled:
     type: bool
     required: False
@@ -101,16 +128,6 @@ options:
     type: bool
     required: False
     description: "Indicates if the Zscaler Client Connector (formerly Zscaler App or Z App) receives CNAME DNS records from the connectors."
-  name:
-    type: str
-    required: True
-    description: "Name of the application."
-  config_space:
-    type: str
-    required: False
-    default: "DEFAULT"
-    choices: ["DEFAULT", "SIEM"]
-    description: "config space."
   health_reporting:
     type: str
     required: False
@@ -126,35 +143,37 @@ options:
     type: str
     required: True
     description: "segment group id."
-  description:
-    type: str
-    required: False
-    description: "Description of the application."
   health_check_type:
     type: str
     description: "health check type."
-  segment_group_name:
-    type: str
-    required: False
-    description: "segment group name."
   tcp_port_range:
     type: list
     elements: dict
     required: False
-    description: "tcp port range"
+    description: "The TCP port ranges used to access the application"
     suboptions:
-      to:
-        type: str
-        required: False
-        description: ""
       from:
         type: str
         required: False
-        description: ""
-  enabled:
-    type: bool
+        description: "The starting port for a port range"
+      to:
+        type: str
+        required: False
+        description: "The ending port for a port range"
+  udp_port_range:
+    type: list
+    elements: dict
     required: False
-    description: "Whether this application is enabled or not."
+    description: "The UDP port ranges used to access the application"
+    suboptions:
+      from:
+        type: str
+        required: False
+        description: "The starting port for a port range"
+      to:
+        type: str
+        required: False
+        description: "The ending port for a port range"
   domain_names:
     type: list
     elements: str
@@ -279,66 +298,80 @@ from traceback import format_exc
 
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    deleteNone,
+    convert_ports_list,
+    convert_ports,
+    convert_bool_to_str,
+    normalize_app,
+)
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
-    deleteNone,
 )
-
-
-def convert_ports_list(obj_list):
-    if obj_list is None:
-        return []
-    r = []
-    for o in obj_list:
-        if o.get("from", None) is not None and o.get("to", None) is not None:
-            r.append("" + o.get("from"))
-            r.append("" + o.get("to"))
-    return r
-
-
-def convert_ports(obj_list):
-    if obj_list is None:
-        return []
-    r = []
-    for o in obj_list:
-        if o.get("from", None) is not None and o.get("to", None) is not None:
-            c = (o.get("from"), o.get("to"))
-            r.append(c)
-    return r
 
 
 def core(module):
     state = module.params.get("state", None)
-    ba_appsegment_id = module.params.get("id", None)
-    ba_appsegment_name = module.params.get("name", None)
     client = ZPAClientHelper(module)
     app = dict()
     params = [
-        "segment_group_id",
-        "segment_group_name",
+        "id",
+        "name",
+        "enabled",
+        "description",
         "bypass_type",
         "clientless_apps",
-        "config_space",
-        "default_idle_timeout",
-        "default_max_age",
-        "description",
         "domain_names",
         "double_encrypt",
-        "enabled",
         "health_check_type",
         "health_reporting",
-        "icmp_access_type",
-        "id",
         "ip_anchored",
         "is_cname_enabled",
-        "name",
+        "icmp_access_type",
+        "select_connector_close_to_app",
+        "use_in_dr_mode",
+        "is_incomplete_dr_config",
+        "inspect_traffic_with_zia",
+        "adp_enabled",
         "passive_health_enabled",
         "tcp_port_range",
         "udp_port_range",
+        "segment_group_id",
         "server_group_ids",
     ]
     for param_name in params:
         app[param_name] = module.params.get(param_name)
+    # Usage for tcp_keep_alive
+    tcp_keep_alive = module.params.get("tcp_keep_alive")
+    converted_tcp_keep_alive = convert_bool_to_str(
+        tcp_keep_alive, true_value="1", false_value="0"
+    )
+    app["tcp_keep_alive"] = converted_tcp_keep_alive
+
+    # Get icmp_access_type
+    icmp_access_type = module.params.get("icmp_access_type")
+
+    # Convert icmp_access_type
+    if isinstance(icmp_access_type, bool):
+        app["icmp_access_type"] = "PING" if icmp_access_type else "NONE"
+    else:
+        # You might want to fail the module here since you only want to allow boolean values
+        module.fail_json(
+            msg=f"Invalid value for icmp_access_type: {icmp_access_type}. Only boolean values are allowed."
+        )
+
+    select_connector_close_to_app = module.params.get(
+        "select_connector_close_to_app", None
+    )
+    udp_port_range = module.params.get("udp_port_range", None)
+
+    if select_connector_close_to_app and udp_port_range is not None:
+        module.fail_json(
+            msg="Invalid configuration: 'select_connector_close_to_app' cannot be set to True when 'udp_port_range' is defined."
+        )
+
+    ba_appsegment_id = module.params.get("id", None)
+    ba_appsegment_name = module.params.get("name", None)
     existing_app = None
     if ba_appsegment_id is not None:
         existing_app = client.app_segments.get_segment(segment_id=ba_appsegment_id)
@@ -348,60 +381,98 @@ def core(module):
             if ba_app_segment.get("name") == ba_appsegment_name:
                 existing_app = ba_app_segment
                 break
+
+    # Normalize and compare existing and desired application data
+    desired_app = normalize_app(app)
+    current_app = normalize_app(existing_app) if existing_app else {}
+
+    fields_to_exclude = ["id"]
+    differences_detected = False
+    for key, value in desired_app.items():
+        if key not in fields_to_exclude and current_app.get(key) != value:
+            differences_detected = True
+            module.warn(
+                f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+            )
+
     if existing_app is not None:
         id = existing_app.get("id")
         existing_app.update(app)
         existing_app["id"] = id
-    if state == "present":
-        if existing_app is not None:
-            """Update"""
-            existing_app = deleteNone(
-                dict(
-                    segment_id=existing_app.get("id"),
-                    bypass_type=existing_app.get("bypass_type", None),
-                    clientless_app_ids=existing_app.get("clientless_apps", None),
-                    config_space=existing_app.get("config_space", None),
-                    default_idle_timeout=existing_app.get("default_idle_timeout", None),
-                    default_max_age=existing_app.get("default_max_age", None),
-                    description=existing_app.get("description", None),
-                    domain_names=existing_app.get("domain_names", None),
-                    double_encrypt=existing_app.get("double_encrypt", None),
-                    enabled=existing_app.get("enabled", None),
-                    health_check_type=existing_app.get("health_check_type", None),
-                    health_reporting=existing_app.get("health_reporting", None),
-                    ip_anchored=existing_app.get("ip_anchored", None),
-                    is_cname_enabled=existing_app.get("is_cname_enabled", None),
-                    name=existing_app.get("name", None),
-                    passive_health_enabled=existing_app.get(
-                        "passive_health_enabled", None
-                    ),
-                    segment_group_id=existing_app.get("segment_group_id", None),
-                    server_group_ids=existing_app.get("server_group_ids", None),
-                    tcp_ports=convert_ports(existing_app.get("tcp_port_range", None)),
-                    udp_ports=convert_ports(existing_app.get("udp_port_range", None)),
+
+        if state == "present":
+            if existing_app is not None:
+                """Update"""
+                existing_app = deleteNone(
+                    dict(
+                        segment_id=existing_app.get("id"),
+                        name=existing_app.get("name", None),
+                        description=existing_app.get("description", None),
+                        enabled=existing_app.get("enabled", None),
+                        bypass_type=existing_app.get("bypass_type", None),
+                        clientless_app_ids=existing_app.get("clientless_apps", None),
+                        domain_names=existing_app.get("domain_names", None),
+                        double_encrypt=existing_app.get("double_encrypt", None),
+                        health_check_type=existing_app.get("health_check_type", None),
+                        health_reporting=existing_app.get("health_reporting", None),
+                        ip_anchored=existing_app.get("ip_anchored", None),
+                        is_cname_enabled=existing_app.get("is_cname_enabled", None),
+                        tcp_keep_alive=existing_app.get("tcp_keep_alive", None),
+                        icmp_access_type=existing_app.get("icmp_access_type", None),
+                        select_connector_close_to_app=existing_app.get(
+                            "select_connector_close_to_app", None
+                        ),
+                        use_in_dr_mode=existing_app.get("use_in_dr_mode", None),
+                        is_incomplete_dr_config=existing_app.get(
+                            "is_incomplete_dr_config", None
+                        ),
+                        inspect_traffic_with_zia=existing_app.get(
+                            "inspect_traffic_with_zia", None
+                        ),
+                        adp_enabled=existing_app.get("adp_enabled", None),
+                        passive_health_enabled=existing_app.get(
+                            "passive_health_enabled", None
+                        ),
+                        segment_group_id=existing_app.get("segment_group_id", None),
+                        server_group_ids=existing_app.get("server_group_ids", None),
+                        tcp_ports=convert_ports(
+                            existing_app.get("tcp_port_range", None)
+                        ),
+                        udp_ports=convert_ports(
+                            existing_app.get("udp_port_range", None)
+                        ),
+                    )
                 )
-            )
-            existing_app = client.app_segments.update_segment(**existing_app)
-            module.exit_json(changed=True, data=existing_app)
+                app = client.app_segments.update_segment(**existing_app)
+                module.exit_json(changed=True, data=app)
+            else:
+                """No Changes Needed"""
+                module.exit_json(changed=False, data=existing_app)
         else:
             """Create"""
             app = deleteNone(
                 dict(
+                    name=app.get("name", None),
+                    description=app.get("description", None),
+                    enabled=app.get("enabled", None),
                     bypass_type=app.get("bypass_type", None),
                     clientless_app_ids=app.get("clientless_apps", None),
-                    config_space=app.get("config_space", None),
-                    default_idle_timeout=app.get("default_idle_timeout", None),
-                    default_max_age=app.get("default_max_age", None),
-                    description=app.get("description", None),
                     domain_names=app.get("domain_names", None),
                     double_encrypt=app.get("double_encrypt", None),
-                    enabled=app.get("enabled", None),
                     health_check_type=app.get("health_check_type", None),
                     health_reporting=app.get("health_reporting", None),
                     ip_anchored=app.get("ip_anchored", None),
                     is_cname_enabled=app.get("is_cname_enabled", None),
-                    name=app.get("name", None),
+                    tcp_keep_alive=app.get("tcp_keep_alive", None),
+                    icmp_access_type=app.get("icmp_access_type", None),
                     passive_health_enabled=app.get("passive_health_enabled", None),
+                    select_connector_close_to_app=app.get(
+                        "select_connector_close_to_app", None
+                    ),
+                    use_in_dr_mode=app.get("use_in_dr_mode", None),
+                    is_incomplete_dr_config=app.get("is_incomplete_dr_config", None),
+                    inspect_traffic_with_zia=app.get("inspect_traffic_with_zia", None),
+                    adp_enabled=app.get("adp_enabled", None),
                     segment_group_id=app.get("segment_group_id", None),
                     server_group_ids=app.get("server_group_ids", None),
                     tcp_ports=convert_ports_list(app.get("tcp_port_range", None)),
@@ -424,20 +495,25 @@ def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     port_spec = dict(to=dict(type="str", required=False))
     port_spec["from"] = dict(type="str", required=False)
+    id_name_spec = dict(
+        type="list",
+        elements="str",
+        required=False,
+    )
     argument_spec.update(
-        tcp_port_range=dict(
-            type="list", elements="dict", options=port_spec, required=False
-        ),
+        id=dict(type="str"),
+        name=dict(type="str", required=True),
+        description=dict(type="str", required=False),
         enabled=dict(type="bool", required=False),
-        default_idle_timeout=dict(type="str", required=False, default=""),
+        select_connector_close_to_app=dict(type="bool", required=False),
+        use_in_dr_mode=dict(type="bool", required=False),
+        is_incomplete_dr_config=dict(type="bool", required=False),
+        inspect_traffic_with_zia=dict(type="bool", required=False),
+        adp_enabled=dict(type="bool", required=False),
+        tcp_keep_alive=dict(type="bool", required=False, default=False),
+        icmp_access_type=dict(type="bool", required=False, default=False),
         bypass_type=dict(
             type="str", required=False, choices=["ALWAYS", "NEVER", "ON_NET"]
-        ),
-        udp_port_range=dict(
-            type="list", elements="dict", options=port_spec, required=False
-        ),
-        config_space=dict(
-            type="str", required=False, default="DEFAULT", choices=["DEFAULT", "SIEM"]
         ),
         health_reporting=dict(
             type="str",
@@ -445,25 +521,21 @@ def main():
             default="NONE",
             choices=["NONE", "ON_ACCESS", "CONTINUOUS"],
         ),
-        segment_group_id=dict(type="str", required=True),
+        segment_group_id=dict(type="str", required=False),
         double_encrypt=dict(type="bool", required=False),
         health_check_type=dict(type="str"),
-        default_max_age=dict(type="str", required=False, default=""),
         is_cname_enabled=dict(type="bool", required=False),
         passive_health_enabled=dict(type="bool", required=False),
         ip_anchored=dict(type="bool", required=False),
-        name=dict(type="str", required=True),
-        description=dict(type="str", required=False),
-        icmp_access_type=dict(
-            type="str",
-            required=False,
-            default="NONE",
-            choices=["PING_TRACEROUTING", "PING", "NONE"],
+        server_group_ids=id_name_spec,
+        # server_group_ids=dict(type="list", elements="str", required=False),
+        domain_names=dict(type="list", elements="str", required=False),
+        tcp_port_range=dict(
+            type="list", elements="dict", options=port_spec, required=False
         ),
-        id=dict(type="str"),
-        server_group_ids=dict(type="list", elements="str", required=True),
-        segment_group_name=dict(type="str", required=False),
-        domain_names=dict(type="list", elements="str", required=True),
+        udp_port_range=dict(
+            type="list", elements="dict", options=port_spec, required=False
+        ),
         clientless_apps=dict(
             type="list",
             elements="dict",

@@ -96,17 +96,18 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
     ZPAClientHelper,
 )
 
+
 def core(module):
     client = ZPAClientHelper(module)
-    policy_type = module.params['policy_type']
-    rules = module.params['rules']
+    policy_type = module.params["policy_type"]
+    rules = module.params["rules"]
 
     try:
         # Sort rules by order
-        rules.sort(key=lambda x: x['order'])
+        rules.sort(key=lambda x: x["order"])
 
         # Validate rules (e.g., check for duplicates, order > 0, etc.)
-        orders = [rule['order'] for rule in rules]
+        orders = [rule["order"] for rule in rules]
         if min(orders) <= 0:
             module.fail_json(msg="New order of rule should be greater than 0")
 
@@ -116,21 +117,25 @@ def core(module):
         duplicate_orders = [order for order, count in order_count.items() if count > 1]
         if duplicate_orders:
             duplicate_rules = [
-                str(rule['id']) for rule in rules if rule['order'] in duplicate_orders
+                str(rule["id"]) for rule in rules if rule["order"] in duplicate_orders
             ]
-            module.fail_json(msg=f"duplicate order '{duplicate_orders[0]}' used by rules with IDs: {', '.join(duplicate_rules)}")
+            module.fail_json(
+                msg=f"duplicate order '{duplicate_orders[0]}' used by rules with IDs: {', '.join(duplicate_rules)}"
+            )
 
         # Check for gaps in rule orders
         expected_orders = set(range(min(orders), max(orders) + 1))
         actual_orders = set(orders)
         missing_orders = expected_orders - actual_orders
         if missing_orders:
-            module.fail_json(msg=f"missing rule order numbers: {', '.join(map(str, sorted(missing_orders)))}")
+            module.fail_json(
+                msg=f"missing rule order numbers: {', '.join(map(str, sorted(missing_orders)))}"
+            )
 
         # Iterate and reorder rules
         for rule in rules:
-            rule_id = rule['id']
-            rule_order = rule['order']
+            rule_id = rule["id"]
+            rule_order = rule["order"]
 
             # Call reorder method from SDK
             client.policies.reorder_rule(policy_type, rule_id, str(rule_order))
@@ -144,18 +149,33 @@ def core(module):
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
-        policy_type=dict(type='str', required=True),
-        rules=dict(type='list', required=True, elements='dict',
-                   options=dict(
-                       id=dict(type='str', required=True),
-                       order=dict(type='int', required=True)
-                   ))
+        policy_type=dict(
+            type="str",
+            required=True,
+            choices=[
+                "access",
+                "timeout",
+                "client_forwarding",
+                "isolation",
+                "inspection",
+            ],
+        ),
+        rules=dict(
+            type="list",
+            required=True,
+            elements="dict",
+            options=dict(
+                id=dict(type="str", required=True),
+                order=dict(type="int", required=True),
+            ),
+        ),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:
         core(module)
     except Exception as e:
         module.fail_json(msg=to_native(e), exception=format_exc())
+
 
 if __name__ == "__main__":
     main()

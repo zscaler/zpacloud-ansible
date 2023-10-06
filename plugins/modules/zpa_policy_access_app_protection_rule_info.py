@@ -95,7 +95,9 @@ def core(module):
             policy_type="inspection", rule_id=policy_rule_id
         )
         if policy_rule is None:
-            module.fail_json(msg="Failed to retrieve app protection rule ID: '%s'" % (id))
+            module.fail_json(
+                msg="Failed to retrieve app protection rule ID: '%s'" % (id)
+            )
         policy_rules = [policy_rule]
     elif policy_rule_name is not None:
         rules = client.policies.list_rules(policy_type="inspection").to_list()
@@ -107,7 +109,8 @@ def core(module):
                 break
         if not found:
             module.fail_json(
-                msg="Failed to retrieve app protection rule Name: '%s'" % (policy_rule_name)
+                msg="Failed to retrieve app protection rule Name: '%s'"
+                % (policy_rule_name)
             )
     else:
         policy_rules = client.policies.list_rules(policy_type="inspection").to_list()

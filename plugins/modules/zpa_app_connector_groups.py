@@ -188,7 +188,6 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     deleteNone,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
-    deleteNone,
     ZPAClientHelper,
 )
 
@@ -200,12 +199,6 @@ def core(module):
 
     latitude = module.params.get("latitude")
     longitude = module.params.get("longitude")
-    _, lat_errors = validate_latitude(latitude)
-    _, lon_errors = validate_longitude(longitude)
-
-    if lat_errors or lon_errors:
-        all_errors = lat_errors + lon_errors
-        module.fail_json(msg=", ".join(all_errors))
 
     # Validate the TCP Quick Ack attributes
     tcp_quick_ack_app = module.params["tcp_quick_ack_app"]
@@ -261,23 +254,33 @@ def core(module):
         id = existing_group.get("id")
         existing_group.update(group)
         existing_group["id"] = id
+
     if state == "present":
+        if latitude is not None and longitude is not None:
+            _, lat_errors = validate_latitude(latitude)
+            _, lon_errors = validate_longitude(longitude)
+            if lat_errors or lon_errors:
+                all_errors = lat_errors + lon_errors
+                module.fail_json(msg=", ".join(all_errors))
+
         if existing_group is not None:
             """Update"""
             # Check if latitude and longitude need to be updated
             existing_lat = existing_group.get("latitude")
             new_lat = group.get("latitude")
-            if diff_suppress_func_coordinate(existing_lat, new_lat):
-                existing_group[
-                    "latitude"
-                ] = existing_lat  # reset to original if they're deemed equal
+            if new_lat is not None:  # Check if new_lat is not None before comparing
+                if diff_suppress_func_coordinate(existing_lat, new_lat):
+                    existing_group["latitude"] = existing_lat  # reset to original if they're deemed equal
+            else:
+                existing_group["latitude"] = existing_lat  # If new_lat is None, keep the existing value
 
             existing_long = existing_group.get("longitude")
             new_long = group.get("longitude")
-            if diff_suppress_func_coordinate(existing_long, new_long):
-                existing_group[
-                    "longitude"
-                ] = existing_long  # reset to original if they're deemed equal
+            if new_long is not None:  # Check if new_long is not None before comparing
+                if diff_suppress_func_coordinate(existing_long, new_long):
+                    existing_group["longitude"] = existing_long  # reset to original if they're deemed equal
+            else:
+                existing_group["longitude"] = existing_long  # If new_long is None, keep the existing value
 
             existing_group = deleteNone(
                 dict(
@@ -291,28 +294,21 @@ def core(module):
                     longitude=existing_group.get("longitude"),
                     location=existing_group.get("location"),
                     upgrade_day=existing_group.get("upgrade_day"),
+                    connector_ids=existing_group.get("connector_ids"),
                     upgrade_time_in_secs=existing_group.get("upgrade_time_in_secs"),
-                    override_version_profile=existing_group.get(
-                        "override_version_profile"
-                    ),
+                    override_version_profile=existing_group.get("override_version_profile"),
                     version_profile_id=existing_group.get("version_profile_id"),
                     version_profile_name=existing_group.get("version_profile_name"),
                     dns_query_type=existing_group.get("dns_query_type"),
                     tcp_quick_ack_app=existing_group.get("tcp_quick_ack_app"),
-                    tcp_quick_ack_assistant=existing_group.get(
-                        "tcp_quick_ack_assistant"
-                    ),
-                    tcp_quick_ack_read_assistant=existing_group.get(
-                        "tcp_quick_ack_read_assistant"
-                    ),
+                    tcp_quick_ack_assistant=existing_group.get("tcp_quick_ack_assistant"),
+                    tcp_quick_ack_read_assistant=existing_group.get("tcp_quick_ack_read_assistant"),
                     use_in_dr_mode=existing_group.get("use_in_dr_mode"),
                     pra_enabled=existing_group.get("pra_enabled"),
                     waf_disabled=existing_group.get("waf_disabled"),
                 )
             )
-            existing_group = client.connectors.update_connector_group(
-                **existing_group
-            ).to_dict()
+            existing_group = client.connectors.update_connector_group(**existing_group).to_dict()
             module.exit_json(changed=True, data=existing_group)
         else:
             """Create"""
@@ -326,6 +322,7 @@ def core(module):
                     latitude=group.get("latitude"),
                     longitude=group.get("longitude"),
                     location=group.get("location"),
+                    connector_ids=group.get("connector_ids"),
                     upgrade_day=group.get("upgrade_day"),
                     upgrade_time_in_secs=group.get("upgrade_time_in_secs"),
                     override_version_profile=group.get("override_version_profile"),
@@ -334,9 +331,7 @@ def core(module):
                     dns_query_type=group.get("dns_query_type"),
                     tcp_quick_ack_app=group.get("tcp_quick_ack_app"),
                     tcp_quick_ack_assistant=group.get("tcp_quick_ack_assistant"),
-                    tcp_quick_ack_read_assistant=group.get(
-                        "tcp_quick_ack_read_assistant"
-                    ),
+                    tcp_quick_ack_read_assistant=group.get("tcp_quick_ack_read_assistant"),
                     use_in_dr_mode=group.get("use_in_dr_mode"),
                     pra_enabled=group.get("pra_enabled"),
                     waf_disabled=group.get("waf_disabled"),
@@ -366,7 +361,7 @@ def main():
         required=False,
     )
     argument_spec.update(
-        connectors=id_name_spec,
+        connector_ids=id_name_spec,
         name=dict(type="str", required=True),
         id=dict(type="str", required=False),
         city_country=dict(type="str", required=False),
@@ -397,7 +392,7 @@ def main():
             ],
             required=False,
         ),
-        upgrade_time_in_secs=dict(type="str", default=66600, required=False),
+        upgrade_time_in_secs=dict(type="str", default="66600", required=False),
         override_version_profile=dict(type="bool", default=False, required=False),
         version_profile_id=dict(
             type="str", default="0", choices=["0", "1", "2"], required=False

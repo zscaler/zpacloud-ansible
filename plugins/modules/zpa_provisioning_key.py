@@ -120,9 +120,9 @@ from traceback import format_exc
 
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import deleteNone
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
-    deleteNone,
 )
 
 
@@ -207,20 +207,20 @@ def main():
     argument_spec.update(
         enabled=dict(type="bool", default=True, required=False),
         id=dict(type="str", required=False),
-        max_usage=dict(type="str", required=True),
+        max_usage=dict(type="str", required=False),
         name=dict(type="str", required=True),
         provisioning_key=dict(
             type="str",
             required=False,
             no_log=True,
         ),
-        enrollment_cert_id=dict(type="str", required=True),
+        enrollment_cert_id=dict(type="str", required=False),
         usage_count=dict(type="str", required=False),
-        zcomponent_id=dict(type="str", required=True),
+        zcomponent_id=dict(type="str", required=False),
         association_type=dict(
             type="str",
             choices=["CONNECTOR_GRP", "connector", "service_edge", "SERVICE_EDGE_GRP"],
-            required=True,
+            required=False,
         ),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )

@@ -100,6 +100,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
     ZPAClientHelper,
 )
 
+
 def core(module):
     state = module.params.get("state", None)
     client = ZPAClientHelper(module)
@@ -127,7 +128,9 @@ def core(module):
 
     if state == "present":
         if existing_cert is not None:
-            module.exit_json(changed=False, msg="Certificate already exists.", data=existing_cert)
+            module.exit_json(
+                changed=False, msg="Certificate already exists.", data=existing_cert
+            )
         else:
             """Create"""
             certificate = deleteNone(
@@ -142,9 +145,12 @@ def core(module):
     elif state == "absent" and existing_cert is not None:
         code = client.certificates.delete_certificate(cert_id=existing_cert.get("id"))
         if code > 299:
-            module.fail_json(changed=False, msg="Failed to delete certificate.", data=None)
+            module.fail_json(
+                changed=False, msg="Failed to delete certificate.", data=None
+            )
         module.exit_json(changed=True, data=existing_cert)
     module.exit_json(changed=False, data={})
+
 
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
@@ -160,6 +166,7 @@ def main():
         core(module)
     except Exception as e:
         module.fail_json(msg=to_native(e), exception=format_exc())
+
 
 if __name__ == "__main__":
     main()

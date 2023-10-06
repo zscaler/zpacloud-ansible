@@ -145,9 +145,9 @@ from traceback import format_exc
 
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import deleteNone
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
-    deleteNone,
 )
 
 
@@ -157,9 +157,9 @@ def core(module):
     server_group = dict()
     params = [
         "id",
-        "ip_anchored",
+        # "ip_anchored",
         "name",
-        "config_space",
+        # "config_space",
         "enabled",
         "description",
         "dynamic_discovery",
@@ -195,10 +195,10 @@ def core(module):
                         "app_connector_group_ids"
                     ),
                     application_ids=existing_server_group.get("application_ids"),
-                    config_space=existing_server_group.get("config_space"),
+                    # config_space=existing_server_group.get("config_space"),
                     description=existing_server_group.get("description"),
                     enabled=existing_server_group.get("enabled"),
-                    ip_anchored=existing_server_group.get("ip_anchored"),
+                    # ip_anchored=existing_server_group.get("ip_anchored"),
                     dynamic_discovery=existing_server_group.get("dynamic_discovery"),
                     server_ids=existing_server_group.get("server_ids"),
                 )
@@ -212,10 +212,10 @@ def core(module):
                     name=server_group.get("name"),
                     app_connector_group_ids=server_group.get("app_connector_group_ids"),
                     application_ids=server_group.get("application_ids"),
-                    config_space=server_group.get("config_space"),
+                    # config_space=server_group.get("config_space"),
                     description=server_group.get("description"),
                     enabled=server_group.get("enabled"),
-                    ip_anchored=server_group.get("ip_anchored"),
+                    # ip_anchored=server_group.get("ip_anchored"),
                     dynamic_discovery=server_group.get("dynamic_discovery"),
                     server_ids=server_group.get("server_ids"),
                 )
@@ -234,11 +234,11 @@ def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
         id=dict(type="str"),
-        ip_anchored=dict(type="bool", required=False),
+        # ip_anchored=dict(type="bool", required=False),
         name=dict(type="str", required=True),
-        config_space=dict(
-            type="str", required=False, default="DEFAULT", choices=["DEFAULT", "SIEM"]
-        ),
+        # config_space=dict(
+        #     type="str", required=False, default="DEFAULT", choices=["DEFAULT", "SIEM"]
+        # ),
         enabled=dict(type="bool", required=False),
         description=dict(type="str", required=False),
         dynamic_discovery=dict(type="bool", required=False),

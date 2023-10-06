@@ -111,8 +111,10 @@ from traceback import format_exc
 
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     deleteNone,
+)
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
 

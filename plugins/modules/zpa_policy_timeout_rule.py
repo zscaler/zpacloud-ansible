@@ -227,16 +227,12 @@ from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     map_conditions,
-)
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
-    normalize_policy,
-)
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     validate_operand,
+    normalize_policy,
+    deleteNone,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
-    deleteNone,
 )
 
 
@@ -316,7 +312,7 @@ def core(module):
                 "rule_id": existing_policy.get("id", None),
                 "name": existing_policy.get("name", None),
                 "description": existing_policy.get("description", None),
-                "action": existing_policy.get("action").upper(),
+                "action": existing_policy.get("action", "").upper() if existing_policy.get("action") else None,
                 "custom_msg": existing_policy.get("custom_msg", None),
                 "conditions": map_conditions(existing_policy.get("conditions", [])),
                 "rule_order": existing_policy.get("rule_order", None),
@@ -329,7 +325,7 @@ def core(module):
             new_policy = {
                 "name": policy.get("name", None),
                 "description": policy.get("description", None),
-                "action": policy.get("action", None),
+                "action": policy.get("action", "").upper() if policy.get("action") else None,
                 "custom_msg": policy.get("custom_msg", None),
                 "rule_order": policy.get("rule_order", None),
                 "conditions": map_conditions(policy.get("conditions", [])),
@@ -358,8 +354,8 @@ def main():
         custom_msg=dict(type="str", required=False),
         policy_type=dict(type="str", required=False),
         action=dict(type="str", required=False, choices=["RE_AUTH"]),
-        reauth_idle_timeout=dict(type="str", required=True),
-        reauth_timeout=dict(type="str", required=True),
+        reauth_idle_timeout=dict(type="str", required=False),
+        reauth_timeout=dict(type="str", required=False),
         operator=dict(type="str", required=False, choices=["AND", "OR"]),
         rule_order=dict(type="str", required=False),
         conditions=dict(

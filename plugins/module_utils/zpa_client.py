@@ -45,6 +45,7 @@ VALID_ZPA_ENVIRONMENTS = {
     "PREVIEW",
 }
 
+
 def to_zscaler_sdk_cls(pkg_name, cls_name):
     sdk_name = "zscaler"
 

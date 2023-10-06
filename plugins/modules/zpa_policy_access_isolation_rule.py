@@ -180,16 +180,12 @@ from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     map_conditions,
-)
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     normalize_policy,
-)
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     validate_operand,
+    deleteNone,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
-    deleteNone,
 )
 
 
@@ -270,7 +266,7 @@ def core(module):
                 "rule_id": existing_policy.get("id", None),
                 "name": existing_policy.get("name", None),
                 "description": existing_policy.get("description", None),
-                "action": existing_policy.get("action").upper(),
+                "action": existing_policy.get("action", "").upper() if existing_policy.get("action") else None,
                 "zpn_isolation_profile_id": existing_policy.get(
                     "zpn_isolation_profile_id", None
                 ),
@@ -286,7 +282,7 @@ def core(module):
             new_policy = {
                 "name": policy.get("name", None),
                 "description": policy.get("description", None),
-                "action": policy.get("action", None).upper(),
+                "action": policy.get("action", "").upper() if policy.get("action") else None,
                 "rule_order": policy.get("rule_order", None),
                 "zpn_isolation_profile_id": policy.get(
                     "zpn_isolation_profile_id", None

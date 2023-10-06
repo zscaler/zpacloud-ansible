@@ -88,6 +88,16 @@ options:
       - This is for providing a customer message for the user
     type: str
     required: false
+  app_connector_group_ids:
+    description:
+      - List of App Connector Group IDs
+    type: str
+    required: false
+  app_server_group_ids:
+    description:
+      - List of Server Group IDs
+    type: str
+    required: false
   conditions:
     type: list
     elements: dict
@@ -252,16 +262,12 @@ from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     map_conditions,
-)
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
-    normalize_policy,
-)
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     validate_operand,
+    normalize_policy,
+    deleteNone,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
-    deleteNone,
 )
 
 
@@ -344,7 +350,7 @@ def core(module):
                 "name": existing_policy.get("name", None),
                 "description": existing_policy.get("description", None),
                 "rule_order": existing_policy.get("rule_order", None),
-                "action": existing_policy.get("action", "").upper(),
+                "action": existing_policy.get("action", "").upper() if existing_policy.get("action") else None,
                 "conditions": map_conditions(existing_policy.get("conditions", [])),
                 "custom_msg": existing_policy.get("custom_msg", None),
                 "app_connector_group_ids": existing_policy.get(
@@ -362,7 +368,7 @@ def core(module):
             new_policy = {
                 "name": policy.get("name", None),
                 "description": policy.get("description", None),
-                "action": policy.get("action", None),
+                "action": policy.get("action", "").upper() if policy.get("action") else None,
                 "rule_order": policy.get("rule_order", None),
                 "conditions": map_conditions(policy.get("conditions", [])),
                 "custom_msg": policy.get("custom_msg", None),

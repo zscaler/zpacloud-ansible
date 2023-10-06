@@ -163,7 +163,7 @@ options:
 
 EXAMPLES = """
 - name: Create/Update/Delete an Service Edge Group
-  zscaler.zpacloud.zpa_app_connector_groups:
+  zscaler.zpacloud.zpa_service_edge_groups:
     name: "Example"
     description: "Example2"
     enabled: true
@@ -188,8 +188,13 @@ from traceback import format_exc
 
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    validate_latitude,
+    validate_longitude,
+    diff_suppress_func_coordinate,
     deleteNone,
+)
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
 
@@ -197,6 +202,10 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 def core(module):
     state = module.params.get("state", None)
     client = ZPAClientHelper(module)
+
+    latitude = module.params.get("latitude")
+    longitude = module.params.get("longitude")
+
     group = dict()
     params = [
         "id",
@@ -208,6 +217,7 @@ def core(module):
         "latitude",
         "longitude",
         "location",
+        "is_public",
         "upgrade_day",
         "upgrade_time_in_secs",
         "dns_query_type",
@@ -235,9 +245,35 @@ def core(module):
         id = existing_group.get("id")
         existing_group.update(group)
         existing_group["id"] = id
+
     if state == "present":
+        if latitude is not None and longitude is not None:
+            _, lat_errors = validate_latitude(latitude)
+            _, lon_errors = validate_longitude(longitude)
+
+            if lat_errors or lon_errors:
+                all_errors = lat_errors + lon_errors
+                module.fail_json(msg=", ".join(all_errors))
+
         if existing_group is not None:
             """Update"""
+            # Check if latitude and longitude need to be updated
+            existing_lat = existing_group.get("latitude")
+            new_lat = group.get("latitude")
+            if new_lat is not None:  # Check if new_lat is not None before comparing
+                if diff_suppress_func_coordinate(existing_lat, new_lat):
+                    existing_group["latitude"] = existing_lat  # reset to original if they're deemed equal
+            else:
+                existing_group["latitude"] = existing_lat  # If new_lat is None, keep the existing value
+
+            existing_long = existing_group.get("longitude")
+            new_long = group.get("longitude")
+            if new_long is not None:  # Check if new_long is not None before comparing
+                if diff_suppress_func_coordinate(existing_long, new_long):
+                    existing_group["longitude"] = existing_long  # reset to original if they're deemed equal
+            else:
+                existing_group["longitude"] = existing_long  # If new_long is None, keep the existing value
+
             existing_group = deleteNone(
                 dict(
                     group_id=existing_group.get("id"),
@@ -248,6 +284,8 @@ def core(module):
                     country_code=existing_group.get("country_code"),
                     latitude=existing_group.get("latitude"),
                     longitude=existing_group.get("longitude"),
+                    is_public=existing_group.get("is_public"),
+                    service_edge_ids=existing_group.get("service_edge_ids"),
                     location=existing_group.get("location"),
                     upgrade_day=existing_group.get("upgrade_day"),
                     upgrade_time_in_secs=existing_group.get("upgrade_time_in_secs"),
@@ -278,6 +316,8 @@ def core(module):
                     longitude=group.get("longitude"),
                     city_country=group.get("city_country"),
                     country_code=group.get("country_code"),
+                    is_public=group.get("is_public"),
+                    service_edge_ids=group.get("service_edge_ids"),
                     upgrade_day=group.get("upgrade_day"),
                     upgrade_time_in_secs=group.get("upgrade_time_in_secs"),
                     dns_query_type=group.get("dns_query_type"),
@@ -293,7 +333,7 @@ def core(module):
     elif state == "absent":
         if existing_group is not None and existing_group.get("id") is not None:
             code = client.service_edges.delete_service_edge_group(
-                group_id=existing_group.get("id")
+                service_edge_group_id=existing_group.get("id")
             )
             if code > 299:
                 module.exit_json(changed=False, data=None)
@@ -312,22 +352,23 @@ def main():
         required=False,
     )
     argument_spec.update(
-        connectors=id_name_spec,
+        service_edge_ids=id_name_spec,
         id=dict(type="str", required=False),
         name=dict(type="str", required=True),
+        description=dict(type="str", required=False),
         enabled=dict(type="bool", default=True, required=False),
         city_country=dict(type="str", required=False),
         country_code=dict(type="str", required=False),
-        description=dict(type="str", required=False),
+        is_public=dict(type="str", required=False),
         dns_query_type=dict(
             type="str",
             choices=["IPV4_IPV6", "IPV4", "IPV6"],
             required=False,
             default="IPV4_IPV6",
         ),
-        latitude=dict(type="str", required=True),
+        latitude=dict(type="str", required=False),
         location=dict(type="str", required=False),
-        longitude=dict(type="str", required=True),
+        longitude=dict(type="str", required=False),
         upgrade_day=dict(
             type="str",
             choices=[
@@ -342,7 +383,7 @@ def main():
             default="SUNDAY",
             required=False,
         ),
-        upgrade_time_in_secs=dict(type="str", default=66600, required=False),
+        upgrade_time_in_secs=dict(type="str", default="66600", required=False),
         override_version_profile=dict(type="bool", default=False, required=False),
         version_profile_id=dict(
             type="str", choices=["0", "1", "2"], default="0", required=False

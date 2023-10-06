@@ -75,37 +75,31 @@ options:
   tcp_port_range:
     type: list
     elements: dict
-    description:
-      - List of tcp port range pairs, e.g. [22, 22] for port 22-22, [80, 100] for 80-100.
-    required: false
+    required: False
+    description: "The TCP port ranges used to access the application"
     suboptions:
       from:
         type: str
-        required: false
-        description:
-          - List of valid TCP ports. The application segment API supports multiple TCP and UDP port ranges.
+        required: False
+        description: "The starting port for a port range"
       to:
         type: str
-        required: false
-        description:
-          - List of valid TCP ports. The application segment API supports multiple TCP and UDP port ranges.
+        required: False
+        description: "The ending port for a port range"
   udp_port_range:
     type: list
     elements: dict
-    description:
-      - List of udp port range pairs, e.g. ['35000', '35000'] for port 35000.
-    required: false
+    required: False
+    description: "The UDP port ranges used to access the application"
     suboptions:
       from:
         type: str
-        required: false
-        description:
-          - List of valid UDP ports. The application segment API supports multiple TCP and UDP port ranges.
+        required: False
+        description: "The starting port for a port range"
       to:
         type: str
-        required: false
-        description:
-          - List of valid UDP ports. The application segment API supports multiple TCP and UDP port ranges.
+        required: False
+        description: "The ending port for a port range"
   double_encrypt:
     description:
       - Whether Double Encryption is enabled or disabled for the app.
@@ -135,19 +129,25 @@ options:
     type: bool
     required: false
   use_in_dr_mode:
-    description: ""
+    description: "Whether or not the application resource is designated for disaster recovery"
     type: bool
     required: false
   is_incomplete_dr_config:
-    description: ""
+    description: "Indicates whether or not the disaster recovery configuration is incomplete"
     type: bool
     required: false
   inspect_traffic_with_zia:
-    description: ""
+    description:
+      - Indicates if Inspect Traffic with ZIA is enabled for the application
+      - When enabled, this leverages a single posture for securing internet/SaaS and private applications
+      - and applies Data Loss Prevention policies to the application segment you are creating
     type: bool
     required: false
   adp_enabled:
-    description: ""
+    description:
+      - Indicates if Active Directory Inspection is enabled or not for the application
+      - This allows the application segment's traffic to be inspected by Active Directory (AD) Protection
+      - By default, this field is set to false
     type: bool
     required: false
   bypass_type:
@@ -253,6 +253,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
     ZPAClientHelper,
 )
 
+
 def core(module):
     state = module.params.get("state", None)
     client = ZPAClientHelper(module)
@@ -287,24 +288,32 @@ def core(module):
 
     # Usage for tcp_keep_alive
     tcp_keep_alive = module.params.get("tcp_keep_alive")
-    converted_tcp_keep_alive = convert_bool_to_str(tcp_keep_alive, true_value='1', false_value='0')
-    app['tcp_keep_alive'] = converted_tcp_keep_alive
+    converted_tcp_keep_alive = convert_bool_to_str(
+        tcp_keep_alive, true_value="1", false_value="0"
+    )
+    app["tcp_keep_alive"] = converted_tcp_keep_alive
 
     # Get icmp_access_type
     icmp_access_type = module.params.get("icmp_access_type")
 
     # Convert icmp_access_type
     if isinstance(icmp_access_type, bool):
-        app['icmp_access_type'] = 'PING' if icmp_access_type else 'NONE'
+        app["icmp_access_type"] = "PING" if icmp_access_type else "NONE"
     else:
         # You might want to fail the module here since you only want to allow boolean values
-        module.fail_json(msg=f"Invalid value for icmp_access_type: {icmp_access_type}. Only boolean values are allowed.")
+        module.fail_json(
+            msg=f"Invalid value for icmp_access_type: {icmp_access_type}. Only boolean values are allowed."
+        )
 
-    select_connector_close_to_app = module.params.get("select_connector_close_to_app", None)
+    select_connector_close_to_app = module.params.get(
+        "select_connector_close_to_app", None
+    )
     udp_port_range = module.params.get("udp_port_range", None)
 
     if select_connector_close_to_app and udp_port_range is not None:
-        module.fail_json(msg="Invalid configuration: 'select_connector_close_to_app' cannot be set to True when 'udp_port_range' is defined.")
+        module.fail_json(
+            msg="Invalid configuration: 'select_connector_close_to_app' cannot be set to True when 'udp_port_range' is defined."
+        )
 
     appsegment_id = module.params.get("id", None)
     appsegment_name = module.params.get("name", None)
@@ -337,40 +346,52 @@ def core(module):
 
     if state == "present":
         if existing_app is not None:
-          if differences_detected:
-            """Update"""
-            existing_app = deleteNone(
-                dict(
-                    segment_id=existing_app.get("id"),
-                    bypass_type=existing_app.get("bypass_type", None),
-                    description=existing_app.get("description", None),
-                    domain_names=existing_app.get("domain_names", None),
-                    double_encrypt=existing_app.get("double_encrypt", None),
-                    enabled=existing_app.get("enabled", None),
-                    health_check_type=existing_app.get("health_check_type", None),
-                    health_reporting=existing_app.get("health_reporting", None),
-                    ip_anchored=existing_app.get("ip_anchored", None),
-                    is_cname_enabled=existing_app.get("is_cname_enabled", None),
-                    tcp_keep_alive=existing_app.get("tcp_keep_alive", None),
-                    icmp_access_type=existing_app.get("icmp_access_type", None),
-                    select_connector_close_to_app=existing_app.get("select_connector_close_to_app", None),
-                    use_in_dr_mode=existing_app.get("use_in_dr_mode", None),
-                    is_incomplete_dr_config=existing_app.get("is_incomplete_dr_config", None),
-                    inspect_traffic_with_zia=existing_app.get("inspect_traffic_with_zia", None),
-                    adp_enabled=existing_app.get("adp_enabled", None),
-                    name=existing_app.get("name", None),
-                    passive_health_enabled=existing_app.get("passive_health_enabled", None),
-                    segment_group_id=existing_app.get("segment_group_id", None),
-                    server_group_ids=existing_app.get("server_group_ids", None),
-                    tcp_ports=convert_ports(existing_app.get("tcp_port_range", None)),
-                    udp_ports=convert_ports(existing_app.get("udp_port_range", None)),
+            if differences_detected:
+                """Update"""
+                existing_app = deleteNone(
+                    dict(
+                        segment_id=existing_app.get("id"),
+                        bypass_type=existing_app.get("bypass_type", None),
+                        description=existing_app.get("description", None),
+                        domain_names=existing_app.get("domain_names", None),
+                        double_encrypt=existing_app.get("double_encrypt", None),
+                        enabled=existing_app.get("enabled", None),
+                        health_check_type=existing_app.get("health_check_type", None),
+                        health_reporting=existing_app.get("health_reporting", None),
+                        ip_anchored=existing_app.get("ip_anchored", None),
+                        is_cname_enabled=existing_app.get("is_cname_enabled", None),
+                        tcp_keep_alive=existing_app.get("tcp_keep_alive", None),
+                        icmp_access_type=existing_app.get("icmp_access_type", None),
+                        select_connector_close_to_app=existing_app.get(
+                            "select_connector_close_to_app", None
+                        ),
+                        use_in_dr_mode=existing_app.get("use_in_dr_mode", None),
+                        is_incomplete_dr_config=existing_app.get(
+                            "is_incomplete_dr_config", None
+                        ),
+                        inspect_traffic_with_zia=existing_app.get(
+                            "inspect_traffic_with_zia", None
+                        ),
+                        adp_enabled=existing_app.get("adp_enabled", None),
+                        name=existing_app.get("name", None),
+                        passive_health_enabled=existing_app.get(
+                            "passive_health_enabled", None
+                        ),
+                        segment_group_id=existing_app.get("segment_group_id", None),
+                        server_group_ids=existing_app.get("server_group_ids", None),
+                        tcp_ports=convert_ports(
+                            existing_app.get("tcp_port_range", None)
+                        ),
+                        udp_ports=convert_ports(
+                            existing_app.get("udp_port_range", None)
+                        ),
+                    )
                 )
-            )
-            app = client.app_segments.update_segment(**existing_app)
-            module.exit_json(changed=True, data=app)
-          else:
-              """No Changes Needed"""
-              module.exit_json(changed=False, data=existing_app)
+                app = client.app_segments.update_segment(**existing_app)
+                module.exit_json(changed=True, data=app)
+            else:
+                """No Changes Needed"""
+                module.exit_json(changed=False, data=existing_app)
         else:
             """Create"""
             app = deleteNone(
@@ -388,7 +409,9 @@ def core(module):
                     tcp_keep_alive=app.get("tcp_keep_alive", None),
                     icmp_access_type=app.get("icmp_access_type", None),
                     passive_health_enabled=app.get("passive_health_enabled", None),
-                    select_connector_close_to_app=app.get("select_connector_close_to_app", None),
+                    select_connector_close_to_app=app.get(
+                        "select_connector_close_to_app", None
+                    ),
                     use_in_dr_mode=app.get("use_in_dr_mode", None),
                     is_incomplete_dr_config=app.get("is_incomplete_dr_config", None),
                     inspect_traffic_with_zia=app.get("inspect_traffic_with_zia", None),
@@ -402,7 +425,11 @@ def core(module):
             app = client.app_segments.add_segment(**app)
             module.exit_json(changed=True, data=app)
     elif state == "absent" and existing_app is not None:
-        client.app_segments.delete_segment(existing_app.get("id"), force_delete=True)
+        code = client.app_segments.delete_segment(
+            segment_id=existing_app.get("id"), force_delete=True
+        )
+        if code > 299:
+            module.exit_json(changed=False, data=None)
         module.exit_json(changed=True, data=existing_app)
     module.exit_json(changed=False, data={})
 
@@ -414,12 +441,12 @@ def main():
     id_name_spec = dict(
         type="list",
         elements="str",
-        required=True,
+        required=False,
     )
     argument_spec.update(
-        tcp_port_range=dict(
-            type="list", elements="dict", options=port_spec, required=False
-        ),
+        id=dict(type="str"),
+        name=dict(type="str", required=True),
+        description=dict(type="str", required=False),
         enabled=dict(type="bool", required=False),
         select_connector_close_to_app=dict(type="bool", required=False),
         use_in_dr_mode=dict(type="bool", required=False),
@@ -432,36 +459,28 @@ def main():
             default="NEVER",
             choices=["ALWAYS", "NEVER", "ON_NET"],
         ),
-        udp_port_range=dict(
-            type="list", elements="dict", options=port_spec, required=False
-        ),
         health_reporting=dict(
             type="str",
             required=False,
             default="NONE",
             choices=["NONE", "ON_ACCESS", "CONTINUOUS"],
         ),
-        tcp_keep_alive=dict(
-            type="bool",
-            required=False,
-            default=False
-        ),
-        segment_group_id=dict(type="str", required=True),
+        tcp_keep_alive=dict(type="bool", required=False, default=False),
+        segment_group_id=dict(type="str", required=False),
         double_encrypt=dict(type="bool", required=False),
         health_check_type=dict(type="str"),
         is_cname_enabled=dict(type="bool", required=False),
         passive_health_enabled=dict(type="bool", required=False),
         ip_anchored=dict(type="bool", required=False),
-        name=dict(type="str", required=True),
-        description=dict(type="str", required=False),
-        icmp_access_type=dict(
-            type="bool",
-            required=False,
-            default=False
-        ),
-        id=dict(type="str", required=False),
+        icmp_access_type=dict(type="bool", required=False, default=False),
         server_group_ids=id_name_spec,
-        domain_names=dict(type="list", elements="str", required=True),
+        domain_names=dict(type="list", elements="str", required=False),
+        tcp_port_range=dict(
+            type="list", elements="dict", options=port_spec, required=False
+        ),
+        udp_port_range=dict(
+            type="list", elements="dict", options=port_spec, required=False
+        ),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

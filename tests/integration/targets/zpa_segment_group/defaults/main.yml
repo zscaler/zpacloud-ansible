@@ -1,6 +1,3 @@
-config_space: "DEFAULT"
-name: Dummy Application group for integration test
-description: Dummy Application group for integration test
+name: test_zpa_segment_group
+description: test_zpa_segment_group
 enabled: true
-policy_migrated: true
-tcp_keep_alive_enabled: "1"

@@ -1,287 +1,260 @@
----
+- name: Include default variables
+  ansible.builtin.include_vars:
+    file: "../defaults/main.yml"
+
+- name: Import Random String Generator Tasks
+  ansible.builtin.import_tasks: "../../../generate_random_string.yml"
+
+- name: Create segment group
+  ansible.builtin.include_tasks: "../../../helper_tasks/zpa_segment_group/create_segment_group.yml"
+
+- name: Verify segment group
+  ansible.builtin.include_tasks: "../../../helper_tasks/zpa_segment_group/verify_segment_group.yml"
+
+- name: Create server group
+  ansible.builtin.include_tasks: "../../../helper_tasks/zpa_server_group/create_server_group.yml"
+
+- name: Verify server group
+  ansible.builtin.include_tasks: "../../../helper_tasks/zpa_server_group/verify_server_group.yml"
+
+- ansible.builtin.set_fact:
+    appended_name: "{{ name }}_{{ random_string }}"
+    appended_description: "{{ description }}_{{ random_string }}"
+
+- name: Ensure required environment variables are set
+  fail:
+    msg: "{{ item }} is not defined as environment variable"
+  when: lookup('env', item) is none
+  loop:
+    - ZPA_CLIENT_ID
+    - ZPA_CLIENT_SECRET
+    - ZPA_CUSTOMER_ID
+
+- ansible.builtin.set_fact:
+    zpa_cloud:
+      client_id: "{{ lookup('env', 'ZPA_CLIENT_ID') }}"
+      client_secret: "{{ lookup('env', 'ZPA_CLIENT_SECRET') }}"
+      customer_id: "{{ lookup('env', 'ZPA_CUSTOMER_ID') }}"
+      cloud: "{{ lookup('env', 'ZPA_CLOUD') | default(omit) }}"
+  no_log: True
+
 - block:
-    - name: Ensure ZPA API Credential is Set
-      ansible.builtin.fail:
-        msg: client_id, client_secret and customer_id should be defined in tests/integration/integration_config.yml
-      when:
-        - client_id is not defined
-        - client_secret is not defined
-        - customer_id  is not defined
-        - client_id | length == 0
-        - client_secret | length == 0
-        - customer_id | length == 0
     - name: Ensure Application Segment is absent (leftover)
       zscaler.zpacloud.zpa_application_segment:
         state: absent
-        client_id: "{{ client_id }}"
-        client_secret: "{{ client_secret }}"
-        customer_id: "{{ customer_id }}"
-        name: "{{ name }}"
-        description: "{{ description }}"
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+        description: "{{ appended_description }}"
         enabled: "{{ enabled }}"
+        double_encrypt: "{{ double_encrypt }}"
+        is_cname_enabled: "{{ is_cname_enabled }}"
+        tcp_keep_alive: "{{ tcp_keep_alive }}"
+        passive_health_enabled: "{{ passive_health_enabled }}"
+        select_connector_close_to_app: "{{ select_connector_close_to_app }}"
+        ip_anchored: "{{ ip_anchored }}"
+        use_in_dr_mode: "{{ use_in_dr_mode }}"
+        is_incomplete_dr_config: "{{ is_incomplete_dr_config }}"
+        inspect_traffic_with_zia: "{{ inspect_traffic_with_zia }}"
+        adp_enabled: "{{ adp_enabled }}"
+        health_check_type: "{{ health_check_type }}"
         health_reporting: "{{ health_reporting }}"
         bypass_type: "{{ bypass_type }}"
-        is_cname_enabled: "{{ is_cname_enabled }}"
+        icmp_access_type: "{{ icmp_access_type }}"
         tcp_port_range: "{{ tcp_port_range }}"
         domain_names: "{{ domain_names }}"
-        segment_group_id: "216196257331291896"
-        server_groups:
-          - id: "216196257331291969"
-      ignore_errors: true # In case one was left from previous run
+        segment_group_id: "{{ segment_group_id }}"
+        server_group_ids:
+          - "{{ server_group_id }}"
       register: result
+
     - name: Ensure Application Segment is absent
       zscaler.zpacloud.zpa_application_segment:
         state: absent
-        client_id: "{{ client_id }}"
-        client_secret: "{{ client_secret }}"
-        customer_id: "{{ customer_id }}"
-        name: "{{ name }}"
-        description: "{{ description }}"
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+        description: "{{ appended_description }}"
         enabled: "{{ enabled }}"
+        double_encrypt: "{{ double_encrypt }}"
+        is_cname_enabled: "{{ is_cname_enabled }}"
+        tcp_keep_alive: "{{ tcp_keep_alive }}"
+        passive_health_enabled: "{{ passive_health_enabled }}"
+        select_connector_close_to_app: "{{ select_connector_close_to_app }}"
+        ip_anchored: "{{ ip_anchored }}"
+        use_in_dr_mode: "{{ use_in_dr_mode }}"
+        is_incomplete_dr_config: "{{ is_incomplete_dr_config }}"
+        inspect_traffic_with_zia: "{{ inspect_traffic_with_zia }}"
+        adp_enabled: "{{ adp_enabled }}"
+        health_check_type: "{{ health_check_type }}"
         health_reporting: "{{ health_reporting }}"
         bypass_type: "{{ bypass_type }}"
-        is_cname_enabled: "{{ is_cname_enabled }}"
+        icmp_access_type: "{{ icmp_access_type }}"
         tcp_port_range: "{{ tcp_port_range }}"
         domain_names: "{{ domain_names }}"
-        segment_group_id: "216196257331291896"
-        server_groups:
-          - id: "216196257331291969"
-      ignore_errors: true # In case one was left from previous run
+        segment_group_id: "{{ segment_group_id }}"
+        server_group_ids:
+          - "{{ server_group_id }}"
       register: result
+
     - name: Verify Application Segment is absent
       ansible.builtin.assert:
         that:
           - not result.changed
-    - name: Create a segment group
-      zscaler.zpacloud.zpa_segment_group:
-        state: present
-        client_id: "{{ client_id }}"
-        client_secret: "{{ client_secret }}"
-        customer_id: "{{ customer_id }}"
-        config_space: "DEFAULT"
-        name: Dummy Application group for integration test
-        description: Dummy Application group for integration test
-        enabled: true
-        policy_migrated: true
-        tcp_keep_alive_enabled: "1"
-      register: segment_group
-    - name: Verify Application Segment group is created
-      ansible.builtin.assert:
-        that:
-          - segment_group.data
-          - segment_group.data.name is defined
-          - segment_group.data.id is defined
-          - segment_group.data.enabled is true
-    - name: Create the App Connector Group
-      zscaler.zpacloud.zpa_app_connector_groups:
-        state: present
-        client_id: "{{ client_id }}"
-        client_secret: "{{ client_secret }}"
-        customer_id: "{{ customer_id }}"
-        name: "Dummy Application connector group for integration test"
-        description: "Dummy Application connector group for integration test"
-        enabled: true
-        city_country: California, US
-        country_code: US
-        latitude: 37.3382082
-        longitude: -121.8863286
-        location: San Jose, CA, USA
-        upgrade_day: SUNDAY
-        upgrade_time_in_secs: 66600
-        override_version_profile: true
-        version_profile_id: "1"
-        dns_query_type: "IPV4"
-      register: app_connector_group
-    - name: Verify Application connector group is created
-      ansible.builtin.assert:
-        that:
-          - app_connector_group.data
-          - app_connector_group.data.name is defined
-          - app_connector_group.data.id is defined
-          - app_connector_group.data.enabled is true
-    - name: Create a server group
-      zscaler.zpacloud.zpa_server_group:
-        state: present
-        client_id: "{{ client_id }}"
-        client_secret: "{{ client_secret }}"
-        customer_id: "{{ customer_id }}"
-        name: "Dummy server group for integration test"
-        description: "Dummy server group for integration test"
-        enabled: true
-        dynamic_discovery: true
-        app_connector_groups:
-          - id: "{{app_connector_group.data.id}}"
-      register: server_group
-    - name: Verify Server group is created
-      ansible.builtin.assert:
-        that:
-          - server_group.data
-          - server_group.data.name is defined
-          - server_group.data.id is defined
-          - server_group.data.enabled is true
+
     # Create Application Segments (Present)
     - name: Ensure Application Segment is (Present)
       zscaler.zpacloud.zpa_application_segment:
         state: present
-        client_id: "{{ client_id }}"
-        client_secret: "{{ client_secret }}"
-        customer_id: "{{ customer_id }}"
-        name: "{{ name }}"
-        description: "{{ description }}"
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+        description: "{{ appended_description }}"
         enabled: "{{ enabled }}"
+        double_encrypt: "{{ double_encrypt }}"
+        is_cname_enabled: "{{ is_cname_enabled }}"
+        tcp_keep_alive: "{{ tcp_keep_alive }}"
+        passive_health_enabled: "{{ passive_health_enabled }}"
+        select_connector_close_to_app: "{{ select_connector_close_to_app }}"
+        ip_anchored: "{{ ip_anchored }}"
+        use_in_dr_mode: "{{ use_in_dr_mode }}"
+        is_incomplete_dr_config: "{{ is_incomplete_dr_config }}"
+        inspect_traffic_with_zia: "{{ inspect_traffic_with_zia }}"
+        adp_enabled: "{{ adp_enabled }}"
+        health_check_type: "{{ health_check_type }}"
         health_reporting: "{{ health_reporting }}"
         bypass_type: "{{ bypass_type }}"
-        is_cname_enabled: "{{ is_cname_enabled }}"
+        icmp_access_type: "{{ icmp_access_type }}"
         tcp_port_range: "{{ tcp_port_range }}"
         domain_names: "{{ domain_names }}"
-        segment_group_id: "{{ segment_group.data.id }}"
-        server_groups:
-          - id: "{{ server_group.data.id }}"
+        segment_group_id: "{{ segment_group_id }}"
+        server_group_ids:
+          - "{{ server_group_id }}"
       register: result
+
     - name: Verify Application Segment is present
       ansible.builtin.assert:
         that:
           - result.data
           - result.data.name is defined
           - result.data.enabled is true
+
     - name: Create the Application Segment (again; idempotency check)
       zscaler.zpacloud.zpa_application_segment:
         state: present
-        client_id: "{{ client_id }}"
-        client_secret: "{{ client_secret }}"
-        customer_id: "{{ customer_id }}"
-        name: "{{ name }}"
-        description: "{{ description }}"
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+        description: "{{ appended_description }}"
         enabled: "{{ enabled }}"
+        double_encrypt: "{{ double_encrypt }}"
+        is_cname_enabled: "{{ is_cname_enabled }}"
+        tcp_keep_alive: "{{ tcp_keep_alive }}"
+        passive_health_enabled: "{{ passive_health_enabled }}"
+        select_connector_close_to_app: "{{ select_connector_close_to_app }}"
+        ip_anchored: "{{ ip_anchored }}"
+        use_in_dr_mode: "{{ use_in_dr_mode }}"
+        is_incomplete_dr_config: "{{ is_incomplete_dr_config }}"
+        inspect_traffic_with_zia: "{{ inspect_traffic_with_zia }}"
+        adp_enabled: "{{ adp_enabled }}"
+        health_check_type: "{{ health_check_type }}"
         health_reporting: "{{ health_reporting }}"
         bypass_type: "{{ bypass_type }}"
-        is_cname_enabled: "{{ is_cname_enabled }}"
+        icmp_access_type: "{{ icmp_access_type }}"
         tcp_port_range: "{{ tcp_port_range }}"
         domain_names: "{{ domain_names }}"
-        segment_group_id: "{{ segment_group.data.id }}"
-        server_groups:
-          - id: "{{ server_group.data.id }}"
+        segment_group_id: "{{ segment_group_id }}"
+        server_group_ids:
+          - "{{ server_group_id }}"
       register: result
+
     - name: Verify Application Segment is present (again; idempotency check)
       ansible.builtin.assert:
         that:
-          - result.changed
+          - not result.changed
+
     - name: Fetch all Application Segments
       zscaler.zpacloud.zpa_application_segment_info:
-        client_id: "{{ client_id }}"
-        client_secret: "{{ client_secret }}"
-        customer_id: "{{ customer_id }}"
+        provider: "{{ zpa_cloud }}"
       register: result
+
     - name: Ensure all Application Segments found
       ansible.builtin.assert:
         that:
           - not result.changed
           - result.data[0] is defined
+
     - name: Give the ZPA Cloud a 5 seconds to settle
       ansible.builtin.pause:
         seconds: 5
+
     - name: Delete Application Segment
       zscaler.zpacloud.zpa_application_segment:
         state: absent
-        client_id: "{{ client_id }}"
-        client_secret: "{{ client_secret }}"
-        customer_id: "{{ customer_id }}"
-        name: "{{ name }}"
-        description: "{{ description }}"
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+        description: "{{ appended_description }}"
         enabled: "{{ enabled }}"
+        double_encrypt: "{{ double_encrypt }}"
+        is_cname_enabled: "{{ is_cname_enabled }}"
+        tcp_keep_alive: "{{ tcp_keep_alive }}"
+        passive_health_enabled: "{{ passive_health_enabled }}"
+        select_connector_close_to_app: "{{ select_connector_close_to_app }}"
+        ip_anchored: "{{ ip_anchored }}"
+        use_in_dr_mode: "{{ use_in_dr_mode }}"
+        is_incomplete_dr_config: "{{ is_incomplete_dr_config }}"
+        inspect_traffic_with_zia: "{{ inspect_traffic_with_zia }}"
+        adp_enabled: "{{ adp_enabled }}"
+        health_check_type: "{{ health_check_type }}"
         health_reporting: "{{ health_reporting }}"
         bypass_type: "{{ bypass_type }}"
-        is_cname_enabled: "{{ is_cname_enabled }}"
+        icmp_access_type: "{{ icmp_access_type }}"
         tcp_port_range: "{{ tcp_port_range }}"
         domain_names: "{{ domain_names }}"
-        segment_group_id: "{{ segment_group.data.id }}"
-        server_groups:
-          - id: "{{ server_group.data.id }}"
+        segment_group_id: "{{ segment_group_id }}"
+        server_group_ids:
+          - "{{ server_group_id }}"
       register: result
+
     - name: Verify Application Segment is absent
       ansible.builtin.assert:
         that:
           - result.changed
+
     - name: Delete Application Segment (again; idempotency check)
       zscaler.zpacloud.zpa_application_segment:
         state: absent
-        client_id: "{{ client_id }}"
-        client_secret: "{{ client_secret }}"
-        customer_id: "{{ customer_id }}"
-        name: "{{ name }}"
-        description: "{{ description }}"
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+        description: "{{ appended_description }}"
         enabled: "{{ enabled }}"
+        double_encrypt: "{{ double_encrypt }}"
+        is_cname_enabled: "{{ is_cname_enabled }}"
+        tcp_keep_alive: "{{ tcp_keep_alive }}"
+        passive_health_enabled: "{{ passive_health_enabled }}"
+        select_connector_close_to_app: "{{ select_connector_close_to_app }}"
+        ip_anchored: "{{ ip_anchored }}"
+        use_in_dr_mode: "{{ use_in_dr_mode }}"
+        is_incomplete_dr_config: "{{ is_incomplete_dr_config }}"
+        inspect_traffic_with_zia: "{{ inspect_traffic_with_zia }}"
+        adp_enabled: "{{ adp_enabled }}"
+        health_check_type: "{{ health_check_type }}"
         health_reporting: "{{ health_reporting }}"
         bypass_type: "{{ bypass_type }}"
-        is_cname_enabled: "{{ is_cname_enabled }}"
+        icmp_access_type: "{{ icmp_access_type }}"
         tcp_port_range: "{{ tcp_port_range }}"
         domain_names: "{{ domain_names }}"
-        segment_group_id: "{{ segment_group.data.id }}"
-        server_groups:
-          - id: "{{ server_group.data.id }}"
+        segment_group_id: "{{ segment_group_id }}"
+        server_group_ids:
+          - "{{ server_group_id }}"
       register: result
+
     - name: Verify Application Segment is absent
       ansible.builtin.assert:
         that:
           - not result.changed
-    - name: Delete Segment Group
-      zscaler.zpacloud.zpa_segment_group:
-        state: absent
-        client_id: "{{ client_id }}"
-        client_secret: "{{ client_secret }}"
-        customer_id: "{{ customer_id }}"
-        config_space: "DEFAULT"
-        name: "{{ segment_group.data.name }}"
-        description: Dummy Application group for integration test
-        enabled: true
-        policy_migrated: true
-        tcp_keep_alive_enabled: "1"
-        id: "{{ segment_group.data.id }}"
-      register: result
-    - name: Verify Segment Group is absent
-      ansible.builtin.assert:
-        that:
-          - result.changed
-    - name: Delete Server Group
-      zscaler.zpacloud.zpa_server_group:
-        state: absent
-        client_id: "{{ client_id }}"
-        client_secret: "{{ client_secret }}"
-        customer_id: "{{ customer_id }}"
-        name: "Dummy server group for integration test"
-        description: "Dummy server group for integration test"
-        enabled: true
-        dynamic_discovery: true
-        id: "{{ server_group.data.id }}"
-        app_connector_groups:
-          - id: "{{app_connector_group.data.id}}"
-      register: result
-    - name: Verify Server Group is absent
-      ansible.builtin.assert:
-        that:
-          - result.changed
-    - name: Delete App connector Group
-      zscaler.zpacloud.zpa_app_connector_groups:
-        state: absent
-        client_id: "{{ client_id }}"
-        client_secret: "{{ client_secret }}"
-        customer_id: "{{ customer_id }}"
-        name: "{{app_connector_group.data.name}}"
-        id: "{{app_connector_group.data.id}}"
-        description: "Dummy Application connector group for integration test"
-        enabled: true
-        city_country: California, US
-        country_code: US
-        latitude: 37.3382082
-        longitude: -121.8863286
-        location: San Jose, CA, USA
-        upgrade_day: SUNDAY
-        upgrade_time_in_secs: 66600
-        override_version_profile: true
-        version_profile_id: "1"
-        dns_query_type: "IPV4"
-      register: result
-    - name: Verify App connector Group is absent
-      ansible.builtin.assert:
-        that:
-          - result.changed
+
+- name: Clean up segment group
+  include_tasks: "../../../helper_tasks/zpa_segment_group/delete_segment_group.yml"
+
+- name: Clean up server group
+  include_tasks: "../../../helper_tasks/zpa_server_group/delete_server_group.yml"
+
+- name: Clean up App Connector group
+  include_tasks: "../../../helper_tasks/zpa_app_connector_group/delete_app_connector_group.yml"

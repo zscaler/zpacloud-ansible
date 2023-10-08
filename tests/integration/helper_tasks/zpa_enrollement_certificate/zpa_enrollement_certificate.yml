@@ -1,0 +1,38 @@
+---
+- name: Ensure required environment variables are set
+  fail:
+    msg: "{{ item }} is not defined as environment variable"
+  when: lookup('env', item) is none
+  loop:
+    - ZPA_CLIENT_ID
+    - ZPA_CLIENT_SECRET
+    - ZPA_CUSTOMER_ID
+
+- ansible.builtin.set_fact:
+    zpa_cloud:
+      client_id: "{{ lookup('env', 'ZPA_CLIENT_ID') }}"
+      client_secret: "{{ lookup('env', 'ZPA_CLIENT_SECRET') }}"
+      customer_id: "{{ lookup('env', 'ZPA_CUSTOMER_ID') }}"
+      cloud: "{{ lookup('env', 'ZPA_CLOUD') | default(omit) }}"
+  no_log: True
+
+- block:
+    - name: Fetch Connector Certificate
+      zscaler.zpacloud.zpa_enrollement_certificate_info:
+        provider: "{{ zpa_cloud }}"
+        name: "Connector"
+      register: connector_cert_id
+
+    - name: Set Connector Certificate ID as fact
+      ansible.builtin.set_fact:
+        connector_cert_id: "{{ connector_cert_id.data[0].id }}"
+
+    - name: Fetch Service Edge Certificate
+      zscaler.zpacloud.zpa_enrollement_certificate_info:
+        provider: "{{ zpa_cloud }}"
+        name: "Service Edge"
+      register: service_edge_cert_id
+
+    - name: Set Service Edge Certificate ID as fact
+      ansible.builtin.set_fact:
+        service_edge_cert_id: "{{ service_edge_cert_id.data[0].id }}"

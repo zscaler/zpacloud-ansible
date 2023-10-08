@@ -270,17 +270,25 @@ def core(module):
             new_lat = group.get("latitude")
             if new_lat is not None:  # Check if new_lat is not None before comparing
                 if diff_suppress_func_coordinate(existing_lat, new_lat):
-                    existing_group["latitude"] = existing_lat  # reset to original if they're deemed equal
+                    existing_group[
+                        "latitude"
+                    ] = existing_lat  # reset to original if they're deemed equal
             else:
-                existing_group["latitude"] = existing_lat  # If new_lat is None, keep the existing value
+                existing_group[
+                    "latitude"
+                ] = existing_lat  # If new_lat is None, keep the existing value
 
             existing_long = existing_group.get("longitude")
             new_long = group.get("longitude")
             if new_long is not None:  # Check if new_long is not None before comparing
                 if diff_suppress_func_coordinate(existing_long, new_long):
-                    existing_group["longitude"] = existing_long  # reset to original if they're deemed equal
+                    existing_group[
+                        "longitude"
+                    ] = existing_long  # reset to original if they're deemed equal
             else:
-                existing_group["longitude"] = existing_long  # If new_long is None, keep the existing value
+                existing_group[
+                    "longitude"
+                ] = existing_long  # If new_long is None, keep the existing value
 
             existing_group = deleteNone(
                 dict(
@@ -296,19 +304,27 @@ def core(module):
                     upgrade_day=existing_group.get("upgrade_day"),
                     connector_ids=existing_group.get("connector_ids"),
                     upgrade_time_in_secs=existing_group.get("upgrade_time_in_secs"),
-                    override_version_profile=existing_group.get("override_version_profile"),
+                    override_version_profile=existing_group.get(
+                        "override_version_profile"
+                    ),
                     version_profile_id=existing_group.get("version_profile_id"),
                     version_profile_name=existing_group.get("version_profile_name"),
                     dns_query_type=existing_group.get("dns_query_type"),
                     tcp_quick_ack_app=existing_group.get("tcp_quick_ack_app"),
-                    tcp_quick_ack_assistant=existing_group.get("tcp_quick_ack_assistant"),
-                    tcp_quick_ack_read_assistant=existing_group.get("tcp_quick_ack_read_assistant"),
+                    tcp_quick_ack_assistant=existing_group.get(
+                        "tcp_quick_ack_assistant"
+                    ),
+                    tcp_quick_ack_read_assistant=existing_group.get(
+                        "tcp_quick_ack_read_assistant"
+                    ),
                     use_in_dr_mode=existing_group.get("use_in_dr_mode"),
                     pra_enabled=existing_group.get("pra_enabled"),
                     waf_disabled=existing_group.get("waf_disabled"),
                 )
             )
-            existing_group = client.connectors.update_connector_group(**existing_group).to_dict()
+            existing_group = client.connectors.update_connector_group(
+                **existing_group
+            ).to_dict()
             module.exit_json(changed=True, data=existing_group)
         else:
             """Create"""
@@ -331,7 +347,9 @@ def core(module):
                     dns_query_type=group.get("dns_query_type"),
                     tcp_quick_ack_app=group.get("tcp_quick_ack_app"),
                     tcp_quick_ack_assistant=group.get("tcp_quick_ack_assistant"),
-                    tcp_quick_ack_read_assistant=group.get("tcp_quick_ack_read_assistant"),
+                    tcp_quick_ack_read_assistant=group.get(
+                        "tcp_quick_ack_read_assistant"
+                    ),
                     use_in_dr_mode=group.get("use_in_dr_mode"),
                     pra_enabled=group.get("pra_enabled"),
                     waf_disabled=group.get("waf_disabled"),

@@ -311,7 +311,9 @@ def core(module):
                 "rule_id": existing_policy.get("id", None),
                 "name": existing_policy.get("name", None),
                 "description": existing_policy.get("description", None),
-                "action": existing_policy.get("action", "").upper() if existing_policy.get("action") else None,
+                "action": existing_policy.get("action", "").upper()
+                if existing_policy.get("action")
+                else None,
                 "conditions": map_conditions(existing_policy.get("conditions", [])),
                 "rule_order": existing_policy.get("rule_order", None),
             }
@@ -323,7 +325,9 @@ def core(module):
             new_policy = {
                 "name": policy.get("name", None),
                 "description": policy.get("description", None),
-                "action": policy.get("action", "").upper() if policy.get("action") else None,
+                "action": policy.get("action", "").upper()
+                if policy.get("action")
+                else None,
                 "rule_order": policy.get("rule_order", None),
                 "conditions": map_conditions(policy.get("conditions", [])),
             }

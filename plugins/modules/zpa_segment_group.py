@@ -47,50 +47,34 @@ options:
     description: ""
     required: false
     type: str
-  application_ids:
-    description: ""
-    type: list
-    required: False
-    elements: str
-  config_space:
-    description: ""
+  id:
+    description: "The unique identifier of the Segment Group"
     type: str
-    required: False
-    default: DEFAULT
-    choices: ['DEFAULT', 'SIEM']
+  name:
+    description: "Name of the segment group"
+    type: str
+    required: True
   description:
-    description: ""
+    description: "Description of the segment group"
     type: str
     required: False
   enabled:
-    description: ""
+    description: "Whether this segment group is enabled or not"
     type: bool
-    required: False
-  id:
-    description: ""
-    type: str
-  name:
-    description: ""
-    type: str
-    required: True
-  policy_migrated:
-    description: ""
-    type: bool
-    required: False
-  tcp_keep_alive_enabled:
-    description: ""
-    type: str
     required: False
   state:
-    description: ""
-    type: str
-    choices: ['present', 'absent']
-    default: present
+      description: "Whether the app should be present or absent."
+      type: str
+      choices:
+          - present
+          - absent
+      default: present
 """
 
 EXAMPLES = """
 - name: Create/Update/Delete a Segment Group
   zscaler.zpacloud.zpa_segment_group:
+    provider: "{{ zpa_cloud }}"
     name: Example Segment Group
     description: Example Segment Group
     enabled: true
@@ -106,11 +90,12 @@ from traceback import format_exc
 
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import deleteNone
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    deleteNone, normalize_app
+)
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
-
 
 def core(module):
     state = module.params.get("state", None)
@@ -121,13 +106,12 @@ def core(module):
         "description",
         "enabled",
         "name",
-        "policy_migrated",
-        "tcp_keep_alive_enabled",
     ]
     for param_name in params:
         group[param_name] = module.params.get(param_name, None)
     group_id = group.get("id", None)
     group_name = group.get("name", None)
+
     existing_group = None
     if group_id is not None:
         group_box = client.segment_groups.get_group(group_id=group_id)
@@ -138,65 +122,65 @@ def core(module):
         for group_ in groups:
             if group_.get("name") == group_name:
                 existing_group = group_
+                break
+
+    desired_app = normalize_app(group)
+    current_app = normalize_app(existing_group) if existing_group else {}
+
+    fields_to_exclude = ["id"]
+    differences_detected = False
+    for key, value in desired_app.items():
+        if key not in fields_to_exclude and current_app.get(key) != value:
+            differences_detected = True
+            module.warn(
+                f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+            )
+
     if existing_group is not None:
         id = existing_group.get("id")
         existing_group.update(group)
         existing_group["id"] = id
+
     if state == "present":
         if existing_group is not None:
-            """Update"""
-            existing_group = deleteNone(
-                dict(
-                    group_id=existing_group.get("id"),
-                    name=existing_group.get("name"),
-                    description=existing_group.get("description"),
-                    enabled=existing_group.get("enabled"),
-                    policy_migrated=existing_group.get("policy_migrated"),
-                    tcp_keep_alive_enabled=existing_group.get("tcp_keep_alive_enabled"),
-                    # application_ids=group.get("application_ids"),
-                )
-            )
-            existing_group = client.segment_groups.update_group(
-                **existing_group
-            ).to_dict()
-            module.exit_json(changed=True, data=existing_group)
+            if differences_detected:
+                """Update"""
+                existing_group = deleteNone({
+                    "group_id": existing_group.get("id"),
+                    "name": existing_group.get("name"),
+                    "description": existing_group.get("description"),
+                    "enabled": existing_group.get("enabled"),
+                })
+                existing_group = client.segment_groups.update_group(**existing_group).to_dict()
+                module.exit_json(changed=True, data=existing_group)
+            else:
+                """No Changes Needed"""
+                module.exit_json(changed=False, data=existing_group)
         else:
             """Create"""
-            group = deleteNone(
-                dict(
-                    name=group.get("name"),
-                    description=group.get("description"),
-                    enabled=group.get("enabled"),
-                    policy_migrated=group.get("policy_migrated"),
-                    tcp_keep_alive_enabled=group.get("tcp_keep_alive_enabled"),
-                    # application_ids=group.get("application_ids"),
-                )
-            )
+            group = deleteNone({
+                "name": group.get("name"),
+                "description": group.get("description"),
+                "enabled": group.get("enabled"),
+            })
             group = client.segment_groups.add_group(**group).to_dict()
             module.exit_json(changed=True, data=group)
-    elif state == "absent":
-        if existing_group is not None:
-            code = client.segment_groups.delete_group(group_id=existing_group.get("id"))
-            if code > 299:
-                module.exit_json(changed=False, data=None)
-            module.exit_json(changed=True, data=existing_group)
+    elif state == "absent" and existing_group is not None and existing_group.get("id") is not None:
+        code = client.segment_groups.delete_group(group_id=existing_group.get("id"))
+        if code > 299:
+            module.exit_json(changed=False, data=None)
+        module.exit_json(changed=True, data=existing_group)
     module.exit_json(changed=False, data={})
+
 
 
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
-        # application_ids=dict(
-        #     type="list",
-        #     elements="str",
-        #     required=False,
-        # ),
         description=dict(type="str", required=False),
         enabled=dict(type="bool", required=False, default=True),
         id=dict(type="str"),
         name=dict(type="str", required=True),
-        policy_migrated=dict(type="bool", required=False),
-        tcp_keep_alive_enabled=dict(type="str", required=False),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

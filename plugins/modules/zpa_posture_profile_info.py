@@ -79,17 +79,12 @@ from traceback import format_exc
 
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    remove_cloud_suffix
+)
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
-import re
-
-
-def remove_cloud_suffix(s: str) -> str:
-    reg = re.compile(r"(.*)[\s]+\([a-zA-Z0-9\-_\.]*\)[\s]*$")
-    res = reg.sub(r"\1", s)
-    return res.strip()
-
 
 def core(module: AnsibleModule):
     profile_id = module.params.get("id", None)

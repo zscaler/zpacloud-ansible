@@ -1,0 +1,31 @@
+---
+- name: Ensure required environment variables are set
+  fail:
+    msg: "{{ item }} is not defined as environment variable"
+  when: lookup('env', item) is none
+  loop:
+    - ZPA_CLIENT_ID
+    - ZPA_CLIENT_SECRET
+    - ZPA_CUSTOMER_ID
+
+- ansible.builtin.set_fact:
+    zpa_cloud:
+      client_id: "{{ lookup('env', 'ZPA_CLIENT_ID') }}"
+      client_secret: "{{ lookup('env', 'ZPA_CLIENT_SECRET') }}"
+      customer_id: "{{ lookup('env', 'ZPA_CUSTOMER_ID') }}"
+      cloud: "{{ lookup('env', 'ZPA_CLOUD') | default(omit) }}"
+  no_log: True
+
+- block:
+    - name: List all Service Edge Groups
+      zscaler.zpacloud.zpa_service_edge_groups_info:
+        provider: "{{ zpa_cloud }}"
+      register: all_service_edge_groups
+
+    - name: Delete all Service Edge Groups 💥
+      zscaler.zpacloud.zpa_service_edge_groups:
+        provider: "{{ zpa_cloud }}"
+        state: absent
+        name: "{{ item.name }}"
+      loop: "{{ all_service_edge_groups.data }}"
+      when: all_service_edge_groups.data is defined

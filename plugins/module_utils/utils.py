@@ -3,6 +3,8 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import pycountry
+import re
+
 
 def deleteNone(_dict):
     """Delete None values recursively from all of the dictionaries, tuples, lists, sets"""
@@ -16,6 +18,10 @@ def deleteNone(_dict):
         _dict = type(_dict)(deleteNone(item) for item in _dict if item is not None)
     return _dict
 
+def remove_cloud_suffix(s: str) -> str:
+    reg = re.compile(r"(.*)[\s]+\([a-zA-Z0-9\-_\.]*\)[\s]*$")
+    res = reg.sub(r"\1", s)
+    return res.strip()
 
 # Function to handle application segment port conversion list
 def convert_ports_list(obj_list):
@@ -104,6 +110,8 @@ def normalize_app(app):
         "is_incomplete_dr_config",
         "inspect_traffic_with_zia",
         "adp_enabled",
+        "app_id",
+        "ip_anchored",
     ]
     for attr in computed_values:
         normalized.pop(attr, None)
@@ -124,6 +132,13 @@ def normalize_app(app):
         normalized["common_apps_dto"] = normalize_common_apps(
             normalized["common_apps_dto"]
         )
+
+    # Normalizing clientless_app_ids attributes
+    if "clientless_app_ids" in normalized:
+        for clientless_app in normalized["clientless_app_ids"]:
+            for field in ["app_id", "id", "hidden", "portal", "path", "certificate_name", "cname", "local_domain"]:
+                clientless_app.pop(field, None)
+
 
     return normalized
 
@@ -151,6 +166,7 @@ def validate_latitude(val):
         return (None, ["latitude value should be a valid float number or not empty"])
     return (None, None)
 
+
 def validate_longitude(val):
     try:
         v = float(val)
@@ -160,6 +176,7 @@ def validate_longitude(val):
         return (None, ["longitude value should be a valid float number or not empty"])
     return (None, None)
 
+
 def diff_suppress_func_coordinate(old, new):
     try:
         o = round(float(old) * 1000000) / 1000000
@@ -167,6 +184,7 @@ def diff_suppress_func_coordinate(old, new):
         return o == n
     except ValueError:
         return False
+
 
 def validate_tcp_quick_ack(
     tcp_quick_ack_app, tcp_quick_ack_assistant, tcp_quick_ack_read_assistant

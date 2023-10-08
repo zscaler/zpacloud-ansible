@@ -1,4 +1,5 @@
-name: "Dummy server group for integration test"
-description: "Dummy server group for integration test"
+---
+name: "test_zpa_server_group"
+description: "test_zpa_server_group"
 enabled: true
 dynamic_discovery: true

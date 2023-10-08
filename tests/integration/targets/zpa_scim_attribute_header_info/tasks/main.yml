@@ -1,21 +1,29 @@
 ---
-- block:
-    - name: Ensure ZPA API Credential is Set
-      ansible.builtin.fail:
-        msg: client_id, client_secret and customer_id should be defined in tests/integration/integration_config.yml
-      when:
-        - client_id is not defined
-        - client_secret is not defined
-        - customer_id  is not defined
-        - client_id | length == 0
-        - client_secret | length == 0
-        - customer_id | length == 0
+- name: Include default variables
+  ansible.builtin.include_vars:
+    file: "../defaults/main.yml"
 
+- name: Ensure required environment variables are set
+  fail:
+    msg: "{{ item }} is not defined as environment variable"
+  when: lookup('env', item) is none
+  loop:
+    - ZPA_CLIENT_ID
+    - ZPA_CLIENT_SECRET
+    - ZPA_CUSTOMER_ID
+
+- ansible.builtin.set_fact:
+    zpa_cloud:
+      client_id: "{{ lookup('env', 'ZPA_CLIENT_ID') }}"
+      client_secret: "{{ lookup('env', 'ZPA_CLIENT_SECRET') }}"
+      customer_id: "{{ lookup('env', 'ZPA_CUSTOMER_ID') }}"
+      cloud: "{{ lookup('env', 'ZPA_CLOUD') | default(omit) }}"
+  no_log: True
+
+- block:
     - name: Gather Scim Attribute Header Information
       zscaler.zpacloud.zpa_scim_attribute_header_info:
-        client_id: "{{ client_id }}"
-        client_secret: "{{ client_secret }}"
-        customer_id: "{{ customer_id }}"
+        provider: "{{ zpa_cloud }}"
         idp_name: "{{ idp_name }}"
       register: result
 

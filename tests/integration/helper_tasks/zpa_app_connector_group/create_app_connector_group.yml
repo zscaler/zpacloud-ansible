@@ -1,0 +1,64 @@
+---
+- name: Set initial variables
+  ansible.builtin.set_fact:
+    name: test_zpa_app_connector_group
+    description: test_zpa_app_connector_group
+    enabled: true
+    city_country: California, US
+    country_code: US
+    latitude: "37.3382082"
+    longitude: "-121.8863286"
+    location: San Jose, CA, USA
+    upgrade_day: SUNDAY
+    upgrade_time_in_secs: "66600"
+    override_version_profile: true
+    version_profile_id: "2"
+    dns_query_type: "IPV4_IPV6"
+
+- name: Ensure required environment variables are set
+  fail:
+    msg: "{{ item }} is not defined as environment variable"
+  when: lookup('env', item) is none
+  loop:
+    - ZPA_CLIENT_ID
+    - ZPA_CLIENT_SECRET
+    - ZPA_CUSTOMER_ID
+
+- ansible.builtin.set_fact:
+    zpa_cloud:
+      client_id: "{{ lookup('env', 'ZPA_CLIENT_ID') }}"
+      client_secret: "{{ lookup('env', 'ZPA_CLIENT_SECRET') }}"
+      customer_id: "{{ lookup('env', 'ZPA_CUSTOMER_ID') }}"
+      cloud: "{{ lookup('env', 'ZPA_CLOUD') | default(omit) }}"
+  no_log: True
+
+- name: Import Random String Generator Tasks
+  ansible.builtin.import_tasks: "../../generate_random_string.yml"
+
+- ansible.builtin.set_fact:
+    acg_name: "{{ name }}_{{ random_string }}"
+    acg_description: "{{ description }}_{{ random_string }}"
+
+- block:
+    - name: Create Helper App Connector Group
+      zscaler.zpacloud.zpa_app_connector_groups:
+        provider: "{{ zpa_cloud }}"
+        state: present
+        name: "{{ acg_name }}"
+        description: "{{ acg_description }}"
+        enabled: "{{ enabled }}"
+        city_country: "{{ city_country }}"
+        country_code: "{{ country_code }}"
+        latitude: "{{ latitude }}"
+        longitude: "{{ longitude }}"
+        location: "{{ location }}"
+        upgrade_day: "{{ upgrade_day }}"
+        upgrade_time_in_secs: "{{ upgrade_time_in_secs }}"
+        override_version_profile: "{{ override_version_profile }}"
+        version_profile_id: "{{ version_profile_id }}"
+        dns_query_type: "{{ dns_query_type }}"
+      register: app_connector_group_id
+
+    - name: Set App Connector Group ID as fact
+      ansible.builtin.set_fact:
+        app_connector_group_id: "{{ app_connector_group_id.data.id }}"

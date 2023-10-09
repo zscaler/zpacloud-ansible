@@ -103,7 +103,7 @@ def main():
     argument_spec.update(
         log_type=dict(
             type="str",
-            required=True,
+            required=False,
             choices=[
                 "zpn_trans_log",
                 "zpn_auth_log",
@@ -112,9 +112,12 @@ def main():
                 "zpn_audit_log",
                 "zpn_ast_comprehensive_stats",
                 "zpn_sys_auth_log",
+                "zpn_waf_http_exchanges_log",
+                "zpn_pbroker_comprehensive_stats",
             ],
         ),
     )
+
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:
         core(module)

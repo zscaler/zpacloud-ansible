@@ -185,6 +185,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     validate_longitude,
     diff_suppress_func_coordinate,
     validate_tcp_quick_ack,
+    normalize_app,
     deleteNone,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
@@ -240,6 +241,7 @@ def core(module):
         group[param_name] = module.params.get(param_name, None)
     group_id = group.get("id", None)
     group_name = group.get("name", None)
+
     existing_group = None
     if group_id is not None:
         group_box = client.connector_groups.get_connector_group(group_id=group_id)
@@ -250,9 +252,24 @@ def core(module):
         for group_ in groups:
             if group_.get("name") == group_name:
                 existing_group = group_
+                break
+
+    # Normalize and compare existing and desired application data
+    normalized_group = normalize_app(group)
+    normalized_existing_group = normalize_app(existing_group) if existing_group else {}
+
+    fields_to_exclude = ["id"]
+    differences_detected = False
+    for key, value in normalized_group.items():
+        if key not in fields_to_exclude and normalized_existing_group.get(key) != value:
+            differences_detected = True
+            module.warn(
+                f"Difference detected in {key}. Current: {normalized_existing_group.get(key)}, Desired: {value}"
+            )
+
     if existing_group is not None:
         id = existing_group.get("id")
-        existing_group.update(group)
+        existing_group.update(normalized_group)
         existing_group["id"] = id
 
     if state == "present":
@@ -264,23 +281,32 @@ def core(module):
                 module.fail_json(msg=", ".join(all_errors))
 
         if existing_group is not None:
+          if differences_detected:
             """Update"""
             # Check if latitude and longitude need to be updated
             existing_lat = existing_group.get("latitude")
             new_lat = group.get("latitude")
             if new_lat is not None:  # Check if new_lat is not None before comparing
                 if diff_suppress_func_coordinate(existing_lat, new_lat):
-                    existing_group["latitude"] = existing_lat  # reset to original if they're deemed equal
+                    existing_group[
+                        "latitude"
+                    ] = existing_lat  # reset to original if they're deemed equal
             else:
-                existing_group["latitude"] = existing_lat  # If new_lat is None, keep the existing value
+                existing_group[
+                    "latitude"
+                ] = existing_lat  # If new_lat is None, keep the existing value
 
             existing_long = existing_group.get("longitude")
             new_long = group.get("longitude")
             if new_long is not None:  # Check if new_long is not None before comparing
                 if diff_suppress_func_coordinate(existing_long, new_long):
-                    existing_group["longitude"] = existing_long  # reset to original if they're deemed equal
+                    existing_group[
+                        "longitude"
+                    ] = existing_long  # reset to original if they're deemed equal
             else:
-                existing_group["longitude"] = existing_long  # If new_long is None, keep the existing value
+                existing_group[
+                    "longitude"
+                ] = existing_long  # If new_long is None, keep the existing value
 
             existing_group = deleteNone(
                 dict(
@@ -296,23 +322,31 @@ def core(module):
                     upgrade_day=existing_group.get("upgrade_day"),
                     connector_ids=existing_group.get("connector_ids"),
                     upgrade_time_in_secs=existing_group.get("upgrade_time_in_secs"),
-                    override_version_profile=existing_group.get("override_version_profile"),
+                    override_version_profile=existing_group.get(
+                        "override_version_profile"
+                    ),
                     version_profile_id=existing_group.get("version_profile_id"),
                     version_profile_name=existing_group.get("version_profile_name"),
                     dns_query_type=existing_group.get("dns_query_type"),
                     tcp_quick_ack_app=existing_group.get("tcp_quick_ack_app"),
-                    tcp_quick_ack_assistant=existing_group.get("tcp_quick_ack_assistant"),
-                    tcp_quick_ack_read_assistant=existing_group.get("tcp_quick_ack_read_assistant"),
+                    tcp_quick_ack_assistant=existing_group.get(
+                        "tcp_quick_ack_assistant"
+                    ),
+                    tcp_quick_ack_read_assistant=existing_group.get(
+                        "tcp_quick_ack_read_assistant"
+                    ),
                     use_in_dr_mode=existing_group.get("use_in_dr_mode"),
                     pra_enabled=existing_group.get("pra_enabled"),
                     waf_disabled=existing_group.get("waf_disabled"),
                 )
             )
-            existing_group = client.connectors.update_connector_group(**existing_group).to_dict()
+            existing_group = client.connectors.update_connector_group(
+                **existing_group
+            ).to_dict()
             module.exit_json(changed=True, data=existing_group)
         else:
             """Create"""
-            group = deleteNone(
+            normalized_group = deleteNone(
                 dict(
                     name=group.get("name"),
                     description=group.get("description"),
@@ -331,13 +365,15 @@ def core(module):
                     dns_query_type=group.get("dns_query_type"),
                     tcp_quick_ack_app=group.get("tcp_quick_ack_app"),
                     tcp_quick_ack_assistant=group.get("tcp_quick_ack_assistant"),
-                    tcp_quick_ack_read_assistant=group.get("tcp_quick_ack_read_assistant"),
+                    tcp_quick_ack_read_assistant=group.get(
+                        "tcp_quick_ack_read_assistant"
+                    ),
                     use_in_dr_mode=group.get("use_in_dr_mode"),
                     pra_enabled=group.get("pra_enabled"),
                     waf_disabled=group.get("waf_disabled"),
                 )
             )
-            group = client.connectors.add_connector_group(**group).to_dict()
+            group = client.connectors.add_connector_group(**normalized_group).to_dict()
             module.exit_json(changed=True, data=group)
     elif state == "absent":
         if existing_group is not None and existing_group.get("id") is not None:

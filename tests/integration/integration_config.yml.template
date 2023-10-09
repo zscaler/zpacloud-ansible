@@ -1,4 +1,0 @@
----
-client_id: ${ZPA_CLIENT_ID}
-client_secret: ${ZPA_CLIENT_SECRET}
-customer_id: ${ZPA_CUSTOMER_ID}

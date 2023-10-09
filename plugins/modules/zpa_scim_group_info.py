@@ -90,36 +90,33 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
     ZPAClientHelper,
 )
 
-
 def core(module):
     scim_group_name = module.params.get("name", None)
     scim_group_id = module.params.get("id", None)
     idp_name = module.params.get("idp_name", None)
     client = ZPAClientHelper(module)
-    scim_groups = []
+
+    # Efficiently retrieve the idp_id and handle the case where idp_name is not found
+    idp_id = next((idp.get("id") for idp in client.idp.list_idps() if idp.get("name") == idp_name), None)
+    if not idp_id:
+        module.fail_json(msg=f"IdP with name '{idp_name}' not found")
+
+    # Optimized search using scim_group_name
+    if scim_group_name:
+        scim_group = client.scim_groups.search_group(idp_id, scim_group_name) # Adjusted parameters
+        if not scim_group:
+            module.fail_json(msg=f"Failed to retrieve SCIM Group Name: '{scim_group_name}'")
+        module.exit_json(changed=False, data=[scim_group])
+
+    # Handling the case when scim_group_id is provided
     if scim_group_id is not None:
         attribute_box = client.scim_groups.get_group(group_id=scim_group_id)
         if attribute_box is None:
-            module.fail_json(msg="Failed to retrieve scim group ID: '%s'" % (id))
-        scim_groups = [attribute_box.to_dict()]
-    else:
-        idp_id = ""
-        idps = client.idp.list_idps()
-        for idp in idps:
-            if idp.get("name") == idp_name:
-                idp_id = idp.get("id")
-        scim_groups = client.scim_groups.list_groups(idp_id=idp_id).to_list()
-        if scim_group_name is not None:
-            scim_group_found = False
-            for scim_group in scim_groups:
-                if scim_group.get("name") == scim_group_name:
-                    scim_group_found = True
-                    scim_groups = [scim_group]
-            if not scim_group_found:
-                module.fail_json(
-                    msg="Failed to retrieve App Connector Group Name: '%s'"
-                    % (scim_group_name)
-                )
+            module.fail_json(msg=f"Failed to retrieve SCIM group ID: '{scim_group_id}'")
+        module.exit_json(changed=False, data=[attribute_box.to_dict()])
+
+    # Fallback: List all groups if specific group is not provided
+    scim_groups = client.scim_groups.list_groups(idp_id=idp_id).to_list()
     module.exit_json(changed=False, data=scim_groups)
 
 
@@ -135,7 +132,6 @@ def main():
         core(module)
     except Exception as e:
         module.fail_json(msg=to_native(e), exception=format_exc())
-
 
 if __name__ == "__main__":
     main()

@@ -47,42 +47,35 @@ options:
         description: ""
         required: false
         type: str
-    name:
-        description:
-            - This field defines the name of the server to create.
-        required: True
-        type: str
     id:
         description: ""
         required: false
         type: str
-    address:
-        description: ""
-        required: true
-        type: str
-    app_server_group_ids:
+    name:
         description:
-            - This field defines the list of server groups IDs.
+            - This field defines the name of the server.
+        required: True
+        type: str
+    description:
+        description:
+            - This field defines the description of the server.
         required: False
-        type: list
-        elements: str
+        type: str
     enabled:
         description:
             - This field defines the status of the server, true or false.
         required: False
         type: bool
-    description:
-        description:
-            - This field defines the description of the server to create.
-        required: False
+    address:
+        description: "This field defines the domain or IP address of the server"
+        required: True
         type: str
-    config_space:
+    app_server_group_ids:
         description:
-            - This field defines the type of the server, DEFAULT or SIEM.
+            - This field defines the list of server groups IDs
         required: False
-        type: str
-        default: "DEFAULT"
-        choices: ["DEFAULT", "SIEM"]
+        type: list
+        elements: str
     state:
         description: "Whether the app should be present or absent."
         type: str
@@ -95,6 +88,7 @@ options:
 EXAMPLES = """
 - name: Create Second Application Server
   zscaler.zpacloud.zpa_application_server:
+    provider: "{{ zpa_cloud }}"
     name: Example1
     description: Example1
     address: example.acme.com
@@ -112,7 +106,7 @@ from traceback import format_exc
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
-    deleteNone,
+    deleteNone, normalize_app
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
@@ -130,12 +124,12 @@ def core(module):
         "address",
         "enabled",
         "app_server_group_ids",
-        "config_space",
     ]
     for param_name in params:
         server[param_name] = module.params.get(param_name, None)
     server_id = server.get("id", None)
     server_name = server.get("name", None)
+
     existing_server = None
     if server_id is not None:
         server_box = client.servers.get_server(server_id=server_id)
@@ -146,26 +140,44 @@ def core(module):
         for server_ in servers:
             if server_.get("name") == server_name:
                 existing_server = server_
+                break
+
+    # Normalize and compare existing and desired application data
+    desired_app = normalize_app(server)
+    current_app = normalize_app(existing_server) if existing_server else {}
+
+    fields_to_exclude = ["id"]
+    differences_detected = False
+    for key, value in desired_app.items():
+        if key not in fields_to_exclude and current_app.get(key) != value:
+            differences_detected = True
+            module.warn(
+                f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+            )
     if existing_server is not None:
         id = existing_server.get("id")
         existing_server.update(server)
         existing_server["id"] = id
+
     if state == "present":
         if existing_server is not None:
-            """Update"""
-            existing_server = deleteNone(
-                dict(
-                    server_id=existing_server.get("id"),
-                    name=existing_server.get("name"),
-                    description=existing_server.get("description"),
-                    address=existing_server.get("address"),
-                    enabled=existing_server.get("enabled"),
-                    app_server_group_ids=existing_server.get("app_server_group_ids"),
-                    config_space=existing_server.get("config_space"),
+            if differences_detected:
+                """Update"""
+                existing_server = deleteNone(
+                    dict(
+                        server_id=existing_server.get("id"),
+                        name=existing_server.get("name"),
+                        description=existing_server.get("description"),
+                        address=existing_server.get("address"),
+                        enabled=existing_server.get("enabled"),
+                        app_server_group_ids=existing_server.get("app_server_group_ids"),
+                    )
                 )
-            )
-            existing_server = client.servers.update_server(**existing_server).to_dict()
-            module.exit_json(changed=True, data=existing_server)
+                existing_server = client.servers.update_server(**existing_server).to_dict()
+                module.exit_json(changed=True, data=existing_server)
+            else:
+                """No Changes Needed"""
+                module.exit_json(changed=False, data=existing_server)
         else:
             """Create"""
             server = deleteNone(
@@ -175,7 +187,6 @@ def core(module):
                     address=server.get("address"),
                     enable=server.get("enable"),
                     app_server_group_ids=server.get("app_server_group_ids"),
-                    config_space=server.get("config_space"),
                 )
             )
             server = client.servers.add_server(**server).to_dict()
@@ -198,10 +209,9 @@ def main():
         id=dict(type="str", required=False),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
-        address=dict(type="str", required=True),
-        enabled=dict(type="bool", required=False),
+        address=dict(type="str", required=False),
+        enabled=dict(type="bool", default=True, required=False),
         app_server_group_ids=dict(type="list", elements="str", required=False),
-        config_space=dict(type="str", required=False),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

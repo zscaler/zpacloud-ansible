@@ -179,7 +179,7 @@ options:
     elements: str
     required: True
     description: "List of domains and IPs."
-  clientless_apps:
+  clientless_app_ids:
     description: ""
     type: list
     elements: dict
@@ -264,7 +264,7 @@ EXAMPLES = """
     enabled: true
     health_reporting: ON_ACCESS
     bypass_type: NEVER
-    clientless_apps:
+    clientless_app_ids:
       - name: "crm.example.com"
         application_protocol: "HTTP"
         application_port: "8080"
@@ -294,6 +294,7 @@ RETURN = """
 # The newly created browser access application segment resource record.
 """
 
+# Need to review resource to ensure update occurs successfully.
 from traceback import format_exc
 
 from ansible.module_utils._text import to_native
@@ -309,7 +310,6 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
     ZPAClientHelper,
 )
 
-
 def core(module):
     state = module.params.get("state", None)
     client = ZPAClientHelper(module)
@@ -320,7 +320,7 @@ def core(module):
         "enabled",
         "description",
         "bypass_type",
-        "clientless_apps",
+        "clientless_app_ids",
         "domain_names",
         "double_encrypt",
         "health_check_type",
@@ -341,6 +341,7 @@ def core(module):
     ]
     for param_name in params:
         app[param_name] = module.params.get(param_name)
+
     # Usage for tcp_keep_alive
     tcp_keep_alive = module.params.get("tcp_keep_alive")
     converted_tcp_keep_alive = convert_bool_to_str(
@@ -400,8 +401,9 @@ def core(module):
         existing_app.update(app)
         existing_app["id"] = id
 
-        if state == "present":
-            if existing_app is not None:
+    if state == "present":
+        if existing_app is not None:
+            if differences_detected:
                 """Update"""
                 existing_app = deleteNone(
                     dict(
@@ -410,7 +412,7 @@ def core(module):
                         description=existing_app.get("description", None),
                         enabled=existing_app.get("enabled", None),
                         bypass_type=existing_app.get("bypass_type", None),
-                        clientless_app_ids=existing_app.get("clientless_apps", None),
+                        clientless_app_ids=existing_app.get("clientless_app_ids", None),
                         domain_names=existing_app.get("domain_names", None),
                         double_encrypt=existing_app.get("double_encrypt", None),
                         health_check_type=existing_app.get("health_check_type", None),
@@ -443,6 +445,7 @@ def core(module):
                         ),
                     )
                 )
+                module.warn("Prepared payload for update_segment: {}".format(existing_app))
                 app = client.app_segments.update_segment(**existing_app)
                 module.exit_json(changed=True, data=app)
             else:
@@ -456,7 +459,7 @@ def core(module):
                     description=app.get("description", None),
                     enabled=app.get("enabled", None),
                     bypass_type=app.get("bypass_type", None),
-                    clientless_app_ids=app.get("clientless_apps", None),
+                    clientless_app_ids=app.get("clientless_app_ids", None),
                     domain_names=app.get("domain_names", None),
                     double_encrypt=app.get("double_encrypt", None),
                     health_check_type=app.get("health_check_type", None),
@@ -480,7 +483,7 @@ def core(module):
                 )
             )
             app = client.app_segments.add_segment(**app)
-            module.exit_json(changed=False, data=app)
+            module.exit_json(changed=True, data=app)
     elif state == "absent" and existing_app is not None:
         code = client.app_segments.delete_segment(
             segment_id=existing_app.get("id"), force_delete=True
@@ -536,7 +539,7 @@ def main():
         udp_port_range=dict(
             type="list", elements="dict", options=port_spec, required=False
         ),
-        clientless_apps=dict(
+        clientless_app_ids=dict(
             type="list",
             elements="dict",
             options=dict(

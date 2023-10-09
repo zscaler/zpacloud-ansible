@@ -90,15 +90,6 @@ options:
     required: false
     description:
       - List of server_group-connector ID objects.
-  config_space:
-    description:
-      - config space.
-    type: str
-    required: false
-    choices:
-      - DEFAULT
-      - SIEM
-    default: DEFAULT
   description:
     type: str
     required: False
@@ -106,10 +97,6 @@ options:
       - This field is the description of the server group.
   id:
     type: str
-    description: ""
-  ip_anchored:
-    type: bool
-    required: False
     description: ""
   state:
     description:
@@ -125,6 +112,7 @@ options:
 EXAMPLES = """
 - name: Create/Update/Delete a Server Group - Dynamic Discovery Off
   zscaler.zpacloud.zpa_server_group:
+    provider: "{{ zpa_cloud }}"
     name: "Example"
     description: "Example"
     enabled: false
@@ -132,8 +120,6 @@ EXAMPLES = """
     app_connector_group_ids:
       - id: "216196257331291921"
     server_ids:
-      - id: "216196257331291921"
-    application_ids:
       - id: "216196257331291921"
 """
 
@@ -145,11 +131,12 @@ from traceback import format_exc
 
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import deleteNone
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    deleteNone, normalize_app
+)
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
-
 
 def core(module):
     state = module.params.get("state", None)
@@ -157,20 +144,18 @@ def core(module):
     server_group = dict()
     params = [
         "id",
-        # "ip_anchored",
         "name",
-        # "config_space",
-        "enabled",
         "description",
+        "enabled",
         "dynamic_discovery",
         "server_ids",
-        "application_ids",
         "app_connector_group_ids",
     ]
     for param_name in params:
         server_group[param_name] = module.params.get(param_name, None)
     group_id = server_group.get("id", None)
     group_name = server_group.get("name", None)
+
     existing_server_group = None
     if group_id is not None:
         group_box = client.server_groups.get_group(group_id=group_id)
@@ -181,47 +166,55 @@ def core(module):
         for group_ in groups:
             if group_.get("name") == group_name:
                 existing_server_group = group_
+                break
+
+    desired_app = normalize_app(server_group)
+    current_app = normalize_app(existing_server_group) if existing_server_group else {}
+
+    fields_to_exclude = ["id"]
+    differences_detected = False
+    for key, value in desired_app.items():
+        if key not in fields_to_exclude and current_app.get(key) != value:
+            differences_detected = True
+            module.warn(
+                f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+            )
+
     if existing_server_group is not None:
         id = existing_server_group.get("id")
         existing_server_group.update(server_group)
         existing_server_group["id"] = id
+
     if state == "present":
         if existing_server_group is not None:
-            """Update"""
-            existing_server_group = deleteNone(
-                dict(
-                    group_id=existing_server_group.get("id"),
-                    app_connector_group_ids=existing_server_group.get(
-                        "app_connector_group_ids"
-                    ),
-                    application_ids=existing_server_group.get("application_ids"),
-                    # config_space=existing_server_group.get("config_space"),
-                    description=existing_server_group.get("description"),
-                    enabled=existing_server_group.get("enabled"),
-                    # ip_anchored=existing_server_group.get("ip_anchored"),
-                    dynamic_discovery=existing_server_group.get("dynamic_discovery"),
-                    server_ids=existing_server_group.get("server_ids"),
-                )
-            )
-            server_group = client.server_groups.update_group(**existing_server_group)
-            module.exit_json(changed=True, data=server_group)
+            if differences_detected:
+                """Update"""
+                existing_server_group = deleteNone({
+                    "group_id": existing_server_group.get("id"),
+                    "name": existing_server_group.get("name"),
+                    "description": existing_server_group.get("description"),
+                    "enabled": existing_server_group.get("enabled"),
+                    "app_connector_group_ids": existing_server_group.get("app_connector_group_ids"),
+                    "dynamic_discovery": existing_server_group.get("dynamic_discovery"),
+                    "server_ids": existing_server_group.get("server_ids"),
+                })
+                existing_server_group = client.server_groups.update_group(**existing_server_group)
+                module.exit_json(changed=True, data=existing_server_group)
+            else:
+                # No Changes Needed
+                module.exit_json(changed=False, data=existing_server_group)
         else:
             """Create"""
-            server_group = deleteNone(
-                dict(
-                    name=server_group.get("name"),
-                    app_connector_group_ids=server_group.get("app_connector_group_ids"),
-                    application_ids=server_group.get("application_ids"),
-                    # config_space=server_group.get("config_space"),
-                    description=server_group.get("description"),
-                    enabled=server_group.get("enabled"),
-                    # ip_anchored=server_group.get("ip_anchored"),
-                    dynamic_discovery=server_group.get("dynamic_discovery"),
-                    server_ids=server_group.get("server_ids"),
-                )
-            )
+            server_group = deleteNone({
+                "name": server_group.get("name"),
+                "app_connector_group_ids": server_group.get("app_connector_group_ids"),
+                "description": server_group.get("description"),
+                "enabled": server_group.get("enabled"),
+                "dynamic_discovery": server_group.get("dynamic_discovery"),
+                "server_ids": server_group.get("server_ids"),
+            })
             server_group = client.server_groups.add_group(**server_group).to_dict()
-            module.exit_json(changed=False, data=server_group)
+            module.exit_json(changed=True, data=server_group)
     elif state == "absent" and existing_server_group is not None:
         code = client.server_groups.delete_group(existing_server_group.get("id"))
         if code > 299:
@@ -230,20 +223,16 @@ def core(module):
     module.exit_json(changed=False, data={})
 
 
+
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
         id=dict(type="str"),
-        # ip_anchored=dict(type="bool", required=False),
         name=dict(type="str", required=True),
-        # config_space=dict(
-        #     type="str", required=False, default="DEFAULT", choices=["DEFAULT", "SIEM"]
-        # ),
-        enabled=dict(type="bool", required=False),
+        enabled=dict(type="bool", required=False, default=True),
         description=dict(type="str", required=False),
         dynamic_discovery=dict(type="bool", required=False),
         server_ids=dict(type="list", elements="str", required=False),
-        application_ids=dict(type="list", elements="str", required=False),
         app_connector_group_ids=dict(type="list", elements="str", required=False),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )

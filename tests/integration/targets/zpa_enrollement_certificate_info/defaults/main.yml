@@ -1,0 +1,6 @@
+---
+root_certificate: Root
+client_certificate: Client
+connector_certificate: Connector
+service_edge_certificate: Service Edge
+isolation_certificate: Isolation Client

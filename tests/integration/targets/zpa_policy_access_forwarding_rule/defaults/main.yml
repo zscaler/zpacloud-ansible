@@ -1,0 +1,5 @@
+---
+name: test_zpa_policy_access_forwarding_rule
+description: test_zpa_policy_access_forwarding_rule
+action: BYPASS
+operator: AND

@@ -1,1 +1,14 @@
-idp_name: SGIO-User-Okta
+attr01: active
+attr02: costCenter
+attr03: department
+attr04: displayName
+attr05: division
+attr06: emails.value
+attr07: name.familyName
+attr08: name.formatted
+attr09: name.givenName
+attr10: nickName
+attr11: organization
+attr12: userName
+attr13: userType
+idp_name: BD_Okta_Users

@@ -146,7 +146,7 @@ EXAMPLES = """
   zscaler.zpacloud.zpa_policy_access_app_protection_rule:
     name: "Policy App Protection Rule - Example"
     description: "Policy App Protection Rule"
-    action: "ISOLATE"
+    action: "INSPECT"
     rule_order: 1
     operator: "AND"
     zpn_inspection_profile_id: "216196257331286656"
@@ -266,7 +266,9 @@ def core(module):
                 "rule_id": existing_policy.get("id", None),
                 "name": existing_policy.get("name", None),
                 "description": existing_policy.get("description", None),
-                "action": existing_policy.get("action", "").upper() if existing_policy.get("action") else None,
+                "action": existing_policy.get("action", "").upper()
+                if existing_policy.get("action")
+                else None,
                 "zpn_inspection_profile_id": existing_policy.get(
                     "zpn_inspection_profile_id", None
                 ),
@@ -282,7 +284,9 @@ def core(module):
             new_policy = {
                 "name": policy.get("name", None),
                 "description": policy.get("description", None),
-                "action": policy.get("action", "").upper() if policy.get("action") else None,
+                "action": policy.get("action", "").upper()
+                if policy.get("action")
+                else None,
                 "rule_order": policy.get("rule_order", None),
                 "zpn_inspection_profile_id": policy.get(
                     "zpn_inspection_profile_id", None

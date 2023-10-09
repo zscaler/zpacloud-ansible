@@ -48,7 +48,6 @@ VALID_ZPA_ENVIRONMENTS = {
 
 def to_zscaler_sdk_cls(pkg_name, cls_name):
     sdk_name = "zscaler"
-
     try:
         mod = importlib.import_module("{0}.{1}".format(sdk_name, pkg_name))
     except ModuleNotFoundError:
@@ -61,8 +60,6 @@ def to_zscaler_sdk_cls(pkg_name, cls_name):
 
 
 class ConnectionHelper:
-    """ConnectionHelper class for managing and verifying connectivity."""
-
     def __init__(self, min_sdk_version):
         self.min_sdk_version = min_sdk_version
         self.sdk_installed = self._check_sdk_installed()
@@ -94,11 +91,22 @@ class ZPAClientHelper(ZPA):
         self.connection_helper = ConnectionHelper(min_sdk_version=(1, 0, 0))
         self.connection_helper.ensure_sdk_installed()
 
-        cloud_env = module.params.get("cloud")
-        if cloud_env is None:
-            cloud_env = "PRODUCTION"
-        else:
-            cloud_env = cloud_env.upper()
+        provider = module.params.get("provider") or {}
+
+        client_id = provider.get("client_id") if provider else module.params.get("client_id")
+        if not client_id:
+            raise ValueError("client_id must be provided via provider or directly")
+
+        client_secret = provider.get("client_secret") if provider else module.params.get("client_secret")
+        if not client_secret:
+            raise ValueError("client_secret must be provided via provider or directly")
+
+        customer_id = provider.get("customer_id") if provider else module.params.get("customer_id")
+        if not customer_id:
+            raise ValueError("customer_id must be provided via provider or directly")
+
+        cloud_env = (provider.get("cloud") if provider else module.params.get("cloud")) or "PRODUCTION"
+        cloud_env = cloud_env.upper()
 
         if cloud_env not in VALID_ZPA_ENVIRONMENTS:
             raise ValueError(
@@ -106,46 +114,60 @@ class ZPAClientHelper(ZPA):
             )
 
         super().__init__(
-            client_id=module.params.get("client_id", ""),
-            client_secret=module.params.get("client_secret", ""),
-            customer_id=module.params.get("customer_id", ""),
+            client_id=client_id,
+            client_secret=client_secret,
+            customer_id=customer_id,
             cloud=cloud_env,  # using the validated cloud environment
         )
 
-        # Set the User-Agent
+        super().__init__(
+            client_id=client_id,
+            client_secret=client_secret,
+            customer_id=customer_id,
+            cloud=cloud_env,  # using the validated cloud environment
+        )
+
         ansible_version = ansible.__version__  # Get the Ansible version
-        customer_id = module.params.get("customer_id", "")
         self.user_agent = f"zpa-ansible/{ansible_version}/({platform.system().lower()} {platform.machine()})/customer_id:{customer_id}"
 
     @staticmethod
     def zpa_argument_spec():
         return dict(
+            provider=dict(
+                type="dict",
+                options=dict(
+                    client_id=dict(
+                        no_log=True,
+                        fallback=(env_fallback, ["ZPA_CLIENT_ID"]),
+                    ),
+                    client_secret=dict(
+                        no_log=True,
+                        fallback=(env_fallback, ["ZPA_CLIENT_SECRET"]),
+                    ),
+                    customer_id=dict(
+                        no_log=True,
+                        fallback=(env_fallback, ["ZPA_CUSTOMER_ID"]),
+                    ),
+                    cloud=dict(
+                        no_log=True,
+                        fallback=(env_fallback, ["ZPA_CLOUD"]),
+                    ),
+                ),
+            ),
             client_id=dict(
                 no_log=True,
-                fallback=(
-                    env_fallback,
-                    ["ZPA_CLIENT_ID"],
-                ),
+                fallback=(env_fallback, ["ZPA_CLIENT_ID"]),
             ),
             client_secret=dict(
                 no_log=True,
-                fallback=(
-                    env_fallback,
-                    ["ZPA_CLIENT_SECRET"],
-                ),
+                fallback=(env_fallback, ["ZPA_CLIENT_SECRET"]),
             ),
             customer_id=dict(
                 no_log=True,
-                fallback=(
-                    env_fallback,
-                    ["ZPA_CUSTOMER_ID"],
-                ),
+                fallback=(env_fallback, ["ZPA_CUSTOMER_ID"]),
             ),
             cloud=dict(
                 no_log=True,
-                fallback=(
-                    env_fallback,
-                    ["ZPA_CLOUD"],
-                ),
+                fallback=(env_fallback, ["ZPA_CLOUD"]),
             ),
         )

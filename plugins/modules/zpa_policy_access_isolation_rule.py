@@ -266,7 +266,9 @@ def core(module):
                 "rule_id": existing_policy.get("id", None),
                 "name": existing_policy.get("name", None),
                 "description": existing_policy.get("description", None),
-                "action": existing_policy.get("action", "").upper() if existing_policy.get("action") else None,
+                "action": existing_policy.get("action", "").upper()
+                if existing_policy.get("action")
+                else None,
                 "zpn_isolation_profile_id": existing_policy.get(
                     "zpn_isolation_profile_id", None
                 ),
@@ -282,7 +284,9 @@ def core(module):
             new_policy = {
                 "name": policy.get("name", None),
                 "description": policy.get("description", None),
-                "action": policy.get("action", "").upper() if policy.get("action") else None,
+                "action": policy.get("action", "").upper()
+                if policy.get("action")
+                else None,
                 "rule_order": policy.get("rule_order", None),
                 "zpn_isolation_profile_id": policy.get(
                     "zpn_isolation_profile_id", None
@@ -313,7 +317,7 @@ def main():
         id=dict(type="str"),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
-        zpn_isolation_profile_id=dict(type="str", required=True),
+        zpn_isolation_profile_id=dict(type="str", required=False),
         policy_type=dict(type="str", required=False),
         action=dict(
             type="str",

@@ -185,6 +185,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     validate_longitude,
     diff_suppress_func_coordinate,
     validate_tcp_quick_ack,
+    normalize_app,
     deleteNone,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
@@ -240,6 +241,7 @@ def core(module):
         group[param_name] = module.params.get(param_name, None)
     group_id = group.get("id", None)
     group_name = group.get("name", None)
+
     existing_group = None
     if group_id is not None:
         group_box = client.connector_groups.get_connector_group(group_id=group_id)
@@ -250,9 +252,24 @@ def core(module):
         for group_ in groups:
             if group_.get("name") == group_name:
                 existing_group = group_
+                break
+
+    # Normalize and compare existing and desired application data
+    normalized_group = normalize_app(group)
+    normalized_existing_group = normalize_app(existing_group) if existing_group else {}
+
+    fields_to_exclude = ["id"]
+    differences_detected = False
+    for key, value in normalized_group.items():
+        if key not in fields_to_exclude and normalized_existing_group.get(key) != value:
+            differences_detected = True
+            module.warn(
+                f"Difference detected in {key}. Current: {normalized_existing_group.get(key)}, Desired: {value}"
+            )
+
     if existing_group is not None:
         id = existing_group.get("id")
-        existing_group.update(group)
+        existing_group.update(normalized_group)
         existing_group["id"] = id
 
     if state == "present":
@@ -264,6 +281,7 @@ def core(module):
                 module.fail_json(msg=", ".join(all_errors))
 
         if existing_group is not None:
+          if differences_detected:
             """Update"""
             # Check if latitude and longitude need to be updated
             existing_lat = existing_group.get("latitude")
@@ -328,7 +346,7 @@ def core(module):
             module.exit_json(changed=True, data=existing_group)
         else:
             """Create"""
-            group = deleteNone(
+            normalized_group = deleteNone(
                 dict(
                     name=group.get("name"),
                     description=group.get("description"),
@@ -355,7 +373,7 @@ def core(module):
                     waf_disabled=group.get("waf_disabled"),
                 )
             )
-            group = client.connectors.add_connector_group(**group).to_dict()
+            group = client.connectors.add_connector_group(**normalized_group).to_dict()
             module.exit_json(changed=True, data=group)
     elif state == "absent":
         if existing_group is not None and existing_group.get("id") is not None:

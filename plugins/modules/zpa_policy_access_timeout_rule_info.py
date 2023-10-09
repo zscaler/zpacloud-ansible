@@ -25,10 +25,10 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: zpa_policy_forwarding_rule_info
-short_description: Retrieves policy forwarding rule information.
+module: zpa_policy_access_timeout_rule_info
+short_description: Retrieves policy timeout rule information.
 description:
-  - This module will allow the retrieval of information about a policy forwarding rule.
+  - This module will allow the retrieval of information about a policy timeout rule.
 author:
   - William Guilherme (@willguibr)
 version_added: "1.0.0"
@@ -49,31 +49,29 @@ options:
     type: str
   name:
     description:
-      - Name of the policy forwarding rule.
+      - Name of the policy timeout rule.
     required: false
     type: str
   id:
     description:
-      - ID of the policy forwarding rule.
+      - ID of the policy timeout rule.
     required: false
     type: str
 """
 
 EXAMPLES = """
-- name: Get Information About All Policy Forwarding Rules
-  zscaler.zpacloud.zpa_policy_forwarding_rule_info:
-
-- name: Get information About Forwarding Rules by Name
-  zscaler.zpacloud.zpa_policy_forwarding_rule_info:
-    name: "All Other Services"
-
-- name: Get information About Forwarding Rules by ID
-  zscaler.zpacloud.zpa_policy_forwarding_rule_info:
+- name: Gather information about all policy rules
+  zscaler.zpacloud.zpa_policy_access_timeout_rule_info:
+- name: Get Information About a Specific Timeout Rule by Name
+  zscaler.zpacloud.zpa_policy_access_timeout_rule_info:
+    name: "Example"
+- name: Get Information About a Specific Timeout Rule by ID
+  zscaler.zpacloud.zpa_policy_access_timeout_rule_info:
     id: "216196257331292020"
 """
 
 RETURN = """
-# Returns information on a specified policy forwarding rule.
+# Returns information on a specified policy timeout rule.
 """
 
 from traceback import format_exc
@@ -82,7 +80,6 @@ from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
-    deleteNone,
 )
 
 
@@ -93,13 +90,13 @@ def core(module):
     policy_rules = []
     if policy_rule_id is not None:
         policy_rule = client.policies.get_rule(
-            policy_type="client_forwarding", rule_id=policy_rule_id
+            policy_type="timeout", rule_id=policy_rule_id
         )
         if policy_rule is None:
             module.fail_json(msg="Failed to retrieve policy rule ID: '%s'" % (id))
         policy_rules = [policy_rule]
     elif policy_rule_name is not None:
-        rules = client.policies.list_rules(policy_type="client_forwarding").to_list()
+        rules = client.policies.list_rules(policy_type="timeout").to_list()
         found = False
         for rule in rules:
             if rule.get("name") == policy_rule_name:
@@ -108,12 +105,10 @@ def core(module):
                 break
         if not found:
             module.fail_json(
-                msg="Failed to retrieve policy rule Name: '%s'" % (policy_rule_name)
+                msg="Failed to retrieve policy timeout rule Name: '%s'" % (policy_rule_name)
             )
     else:
-        policy_rules = client.policies.list_rules(
-            policy_type="client_forwarding"
-        ).to_list()
+        policy_rules = client.policies.list_rules(policy_type="timeout").to_list()
     module.exit_json(changed=False, data=policy_rules)
 
 

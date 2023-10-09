@@ -25,10 +25,10 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: zpa_isolation_profiles_info
-short_description: Retrieves Isolation Profile information.
+module: zpa_policy_access_forwarding_rule_info
+short_description: Retrieves policy forwarding rule information.
 description:
-  - This module will allow the retrieval of information about an Cloud Browser Isolation Profile from the ZPA Cloud.
+  - This module will allow the retrieval of information about a policy forwarding rule.
 author:
   - William Guilherme (@willguibr)
 version_added: "1.0.0"
@@ -49,31 +49,31 @@ options:
     type: str
   name:
     description:
-      - Name of the Cloud Browser Isolation profile.
+      - Name of the policy forwarding rule.
     required: false
     type: str
   id:
     description:
-      - ID of the Cloud Browser Isolation profile.
+      - ID of the policy forwarding rule.
     required: false
     type: str
 """
 
 EXAMPLES = """
-- name: Get Details of All Cloud Browser Isolation profiles
-  zscaler.zpacloud.zpa_isolation_profiles_info:
+- name: Get Information About All Policy Forwarding Rules
+  zscaler.zpacloud.zpa_policy_access_forwarding_rule_info:
 
-- name: Get Details of a Specific Cloud Browser Isolation profile by Name
-  zscaler.zpacloud.zpa_isolation_profiles_info:
-    name: ZPA_CBI_Profile
+- name: Get information About Forwarding Rules by Name
+  zscaler.zpacloud.zpa_policy_access_forwarding_rule_info:
+    name: "All Other Services"
 
-- name: Get Details of a specific Cloud Browser Isolation profile by ID
-  zscaler.zpacloud.zpa_isolation_profiles_info:
-    id: "216196257331282583"
+- name: Get information About Forwarding Rules by ID
+  zscaler.zpacloud.zpa_policy_access_forwarding_rule_info:
+    id: "216196257331292020"
 """
 
 RETURN = """
-# Returns information on a specified Cloud Browser Isolation profile .
+# Returns information on a specified policy forwarding rule.
 """
 
 from traceback import format_exc
@@ -85,33 +85,35 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 )
 
 
-def core(module: AnsibleModule):
-    profile_id = module.params.get("id", None)
-    profile_name = module.params.get("name", None)
+def core(module):
+    policy_rule_name = module.params.get("name", None)
+    policy_rule_id = module.params.get("id", None)
     client = ZPAClientHelper(module)
-    profiles = []
-    if profile_id is not None:
-        profile_box = client.isolation_profile.get_profile(profile_id=profile_id)
-        if profile_box is None:
+    policy_rules = []
+    if policy_rule_id is not None:
+        policy_rule = client.policies.get_rule(
+            policy_type="client_forwarding", rule_id=policy_rule_id
+        )
+        if policy_rule is None:
+            module.fail_json(msg="Failed to retrieve policy rule ID: '%s'" % (id))
+        policy_rules = [policy_rule]
+    elif policy_rule_name is not None:
+        rules = client.policies.list_rules(policy_type="client_forwarding").to_list()
+        found = False
+        for rule in rules:
+            if rule.get("name") == policy_rule_name:
+                policy_rules = [rule]
+                found = True
+                break
+        if not found:
             module.fail_json(
-                msg="Failed to retrieve Cloud Browser Isolation profile ID: '%s'"
-                % (profile_id)
+                msg="Failed to retrieve policy rule Name: '%s'" % (policy_rule_name)
             )
-        profiles = [profile_box.to_dict()]
     else:
-        profiles = client.isolation_profile.list_profiles().to_list()
-        if profile_name is not None:
-            profile_found = False
-            for profile in profiles:
-                if profile.get("name") == profile_name:
-                    profile_found = True
-                    profiles = [profile]
-            if not profile_found:
-                module.fail_json(
-                    msg="Failed to retrieve Cloud Browser Isolation Name: '%s'"
-                    % (profile_name)
-                )
-    module.exit_json(changed=False, data=profiles)
+        policy_rules = client.policies.list_rules(
+            policy_type="client_forwarding"
+        ).to_list()
+    module.exit_json(changed=False, data=policy_rules)
 
 
 def main():

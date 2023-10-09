@@ -146,7 +146,7 @@ EXAMPLES = """
   zscaler.zpacloud.zpa_policy_access_app_protection_rule:
     name: "Policy App Protection Rule - Example"
     description: "Policy App Protection Rule"
-    action: "ISOLATE"
+    action: "INSPECT"
     rule_order: 1
     operator: "AND"
     zpn_inspection_profile_id: "216196257331286656"

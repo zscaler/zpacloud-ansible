@@ -6,18 +6,6 @@
 - name: Import Random String Generator Tasks
   ansible.builtin.import_tasks: "../../../generate_random_string.yml"
 
-- name: Create App Connector Group
-  ansible.builtin.include_tasks: "../../../helper_tasks/zpa_app_connector_group/create_app_connector_group.yml"
-
-- name: Verify App Connector Group
-  ansible.builtin.include_tasks: "../../../helper_tasks/zpa_app_connector_group/verify_app_connector_group.yml"
-
-- name: Create server group
-  ansible.builtin.include_tasks: "../../../helper_tasks/zpa_server_group/create_server_group.yml"
-
-- name: Verify server group
-  ansible.builtin.include_tasks: "../../../helper_tasks/zpa_server_group/verify_server_group.yml"
-
 - name: Import Posture UDID
   ansible.builtin.include_tasks: "../../../helper_tasks/zpa_posture_profile/zpa_posture_profile.yml"
 
@@ -46,60 +34,49 @@
   no_log: True
 
 - block:
-    - name: Ensure Policy Access Rule is absent (leftover)
-      zscaler.zpacloud.zpa_policy_access_rule:
+    - name: Ensure Policy Access Forwarding Rule is absent (leftover)
+      zscaler.zpacloud.zpa_policy_access_forwarding_rule:
         state: absent
         provider: "{{ zpa_cloud }}"
         name: "{{ appended_name }}"
       register: result
 
-    - name: Ensure Policy Access Rule is absent
-      zscaler.zpacloud.zpa_policy_access_rule:
+    - name: Ensure Policy Access Forwarding Rule is absent
+      zscaler.zpacloud.zpa_policy_access_forwarding_rule:
         state: absent
         provider: "{{ zpa_cloud }}"
         name: "{{ appended_name }}"
       register: result
 
-    - name: Verify Policy Access Rule is absent
+    - name: Verify Policy Access Forwarding Rule is absent
       ansible.builtin.assert:
         that:
           - not result.changed
           - result.data is defined
 
     # Create Policy Access (Present)
-    - name: Ensure Policy Access Rule is (Present)
-      zscaler.zpacloud.zpa_policy_access_rule:
+    - name: Ensure Policy Access Forwarding Rule is (Present)
+      zscaler.zpacloud.zpa_policy_access_forwarding_rule:
         state: present
         provider: "{{ zpa_cloud }}"
         name: "{{ appended_name }}"
         description: "{{ appended_description }}"
         action: "{{ action }}"
-        custom_msg: "{{ custom_msg }}"
-        operator: "AND"
-        app_connector_group_ids:
-          - "{{ app_connector_group_id }}"
-        app_server_group_ids:
-          - "{{ server_group_id }}"
+        operator: "{{ operator }}"
         conditions:
-          - operator: "AND"
-            negated: false
-            operands:
-              - object_type: "COUNTRY_CODE"
-                lhs: CA
-                rhs: "true"
-          - operator: "AND"
+          - operator: "{{ operator }}"
             negated: false
             operands:
               - object_type: "PLATFORM"
                 lhs: ios
                 rhs: "true"
-          - operator: "AND"
+          - operator: "{{ operator }}"
             negated: false
             operands:
               - object_type: "POSTURE"
                 lhs: "{{ posture_udid }}"
                 rhs: "false"
-          - operator: "AND"
+          - operator: "{{ operator }}"
             negated: false
             operands:
               - object_type: "TRUSTED_NETWORK"
@@ -116,26 +93,15 @@
           - result.data.name == appended_name
           - result.data.id is defined
 
-    - name: Create the Policy Access (again; idempotency check)
-      zscaler.zpacloud.zpa_policy_access_rule:
+    - name: Create the Policy Access Forwarding Rule (again; idempotency check)
+      zscaler.zpacloud.zpa_policy_access_forwarding_rule:
         state: present
         provider: "{{ zpa_cloud }}"
         name: "{{ appended_name }}"
         description: "{{ appended_description }}"
         action: "{{ action }}"
-        custom_msg: "{{ custom_msg }}"
         operator: "{{ operator }}"
-        app_connector_group_ids:
-          - "{{ app_connector_group_id }}"
-        app_server_group_ids:
-          - "{{ server_group_id }}"
         conditions:
-          - operator: "{{ operator }}"
-            negated: false
-            operands:
-              - object_type: "COUNTRY_CODE"
-                lhs: CA
-                rhs: "true"
           - operator: "{{ operator }}"
             negated: false
             operands:
@@ -156,29 +122,29 @@
                 rhs: "false"
       register: result
 
-    - name: Verify Policy Access Rule is present (again; idempotency check)
+    - name: Verify Policy Access Forwarding Rule is present (again; idempotency check)
       ansible.builtin.assert:
         that:
-          - result.changed
+          - not result.changed # Expect no changes on idempotent operation
 
-    - name: Fetch all Policy Access Rule
-      zscaler.zpacloud.zpa_policy_access_rule_info:
+    - name: Fetch all Policy Access Forwarding Rule
+      zscaler.zpacloud.zpa_policy_access_forwarding_rule_info:
         provider: "{{ zpa_cloud }}"
       register: result
 
-    - name: Ensure all Policy Access Rule found
+    - name: Ensure all Policy Access Forwarding Rule found
       ansible.builtin.assert:
         that:
           - not result.changed
           - result.data[0] is defined
 
-    - name: Fetch this Policy Access Rule
-      zscaler.zpacloud.zpa_policy_access_rule_info:
+    - name: Fetch this Policy Access Forwarding Rule
+      zscaler.zpacloud.zpa_policy_access_forwarding_rule_info:
         provider: "{{ zpa_cloud }}"
         name: "{{ appended_name }}"
       register: result
 
-    - name: Ensure this Policy Access Rule is found
+    - name: Ensure this Policy Access Forwarding Rule is found
       ansible.builtin.assert:
         that:
           - not result.changed
@@ -190,33 +156,27 @@
       ansible.builtin.pause:
         seconds: 5
 
-    - name: Delete Policy Access Rule
-      zscaler.zpacloud.zpa_policy_access_rule:
+    - name: Delete Policy Access Forwarding Rule
+      zscaler.zpacloud.zpa_policy_access_forwarding_rule:
         state: absent
         provider: "{{ zpa_cloud }}"
         name: "{{ appended_name }}"
       register: result
 
-    - name: Verify Policy Access Rule is absent
+    - name: Verify Policy Access Forwarding Rule is absent
       ansible.builtin.assert:
         that:
           - result.changed
 
-    - name: Delete Policy Access Rule (again; idempotency check)
-      zscaler.zpacloud.zpa_policy_access_rule:
+    - name: Delete Policy Access Forwarding Rule (again; idempotency check)
+      zscaler.zpacloud.zpa_policy_access_forwarding_rule:
         state: absent
         provider: "{{ zpa_cloud }}"
         name: "{{ appended_name }}"
       register: result
 
-    - name: Verify Policy Access is absent
+    - name: Verify Policy Access Forwarding Rule is absent
       ansible.builtin.assert:
         that:
           - not result.changed
           - result.data is defined
-
-- name: Clean up server group
-  include_tasks: "../../../helper_tasks/zpa_server_group/delete_server_group.yml"
-
-- name: Clean up App Connector group
-  include_tasks: "../../../helper_tasks/zpa_app_connector_group/delete_app_connector_group.yml"

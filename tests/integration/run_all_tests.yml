@@ -10,6 +10,7 @@
           client_secret: '{{ lookup("env", "ZPA_CLIENT_SECRET") | default(omit) }}'
           customer_id: '{{ lookup("env", "ZPA_CUSTOMER_ID") | default(omit) }}'
           cloud: '{{ lookup("env", "ZPA_CLOUD") | default(omit) }}'
+      no_log: true
 
     # - name: Run initial sweep to clean tenant
     #   include_tasks: ./sweep.yml
@@ -31,8 +32,13 @@
         # - targets/zpa_trusted_networks_info/tasks/main.yml
         # - targets/zpa_provisioning_key/tasks/main.yml
         # - targets/zpa_saml_attribute_info/tasks/main.yml
-        - targets/zpa_scim_attribute_header_info/tasks/main.yml
+        # - targets/zpa_scim_attribute_header_info/tasks/main.yml
+        - targets/zpa_scim_group_info/tasks/main.yml
         # - targets/zpa_idp_controller_info/tasks/main.yml
+        # - targets/zpa_policy_access_rule/tasks/main.yml
+        # - targets/zpa_policy_access_timeout_rule/tasks/main.yml
+        # - targets/zpa_policy_access_forwarding_rule/tasks/main.yml
+        # - targets/zpa_policy_access_isolation_rule/tasks/main.yml
 
     # - name: Run final sweep to clean tenant
     #   ansible.builtin.include_tasks: ./sweep.yml

@@ -31,8 +31,8 @@
         # - targets/zpa_trusted_networks_info/tasks/main.yml
         # - targets/zpa_provisioning_key/tasks/main.yml
         # - targets/zpa_saml_attribute_info/tasks/main.yml
-        # - targets/zpa_scim_attribute_header_info/tasks/main.yml
-        - targets/zpa_idp_controller_info/tasks/main.yml
+        - targets/zpa_scim_attribute_header_info/tasks/main.yml
+        # - targets/zpa_idp_controller_info/tasks/main.yml
 
     # - name: Run final sweep to clean tenant
     #   ansible.builtin.include_tasks: ./sweep.yml

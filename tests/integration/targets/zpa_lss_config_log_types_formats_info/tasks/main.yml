@@ -1,22 +1,30 @@
 ---
-- block:
-    - name: Ensure ZPA API Credential is Set
-      ansible.builtin.fail:
-        msg: client_id, client_secret and customer_id should be defined in tests/integration/integration_config.yml
-      when:
-        - client_id is not defined
-        - client_secret is not defined
-        - customer_id  is not defined
-        - client_id | length == 0
-        - client_secret | length == 0
-        - customer_id | length == 0
+- name: Include default variables
+  ansible.builtin.include_vars:
+    file: "../defaults/main.yml"
 
+- name: Ensure required environment variables are set
+  fail:
+    msg: "{{ item }} is not defined as environment variable"
+  when: lookup('env', item) is none
+  loop:
+    - ZPA_CLIENT_ID
+    - ZPA_CLIENT_SECRET
+    - ZPA_CUSTOMER_ID
+
+- ansible.builtin.set_fact:
+    zpa_cloud:
+      client_id: "{{ lookup('env', 'ZPA_CLIENT_ID') }}"
+      client_secret: "{{ lookup('env', 'ZPA_CLIENT_SECRET') }}"
+      customer_id: "{{ lookup('env', 'ZPA_CUSTOMER_ID') }}"
+      cloud: "{{ lookup('env', 'ZPA_CLOUD') | default(omit) }}"
+  no_log: True
+
+- block:
     - name: Gather LSS Log Type zpn_trans_log Information
       zscaler.zpacloud.zpa_lss_config_log_types_formats_info:
-        client_id: "{{ client_id }}"
-        client_secret: "{{ client_secret }}"
-        customer_id: "{{ customer_id }}"
-        log_type: "zpn_trans_log"
+        provider: "{{ zpa_cloud }}"
+        log_type: "{{ log_type1 }}"
       register: zpn_trans_log
 
     - name: Verify lss log type zpn_trans_log fetched
@@ -28,10 +36,8 @@
 
     - name: Gather LSS Log Type zpn_auth_log Information
       zscaler.zpacloud.zpa_lss_config_log_types_formats_info:
-        client_id: "{{ client_id }}"
-        client_secret: "{{ client_secret }}"
-        customer_id: "{{ customer_id }}"
-        log_type: "zpn_auth_log"
+        provider: "{{ zpa_cloud }}"
+        log_type: "{{ log_type2 }}"
       register: zpn_auth_log
 
     - name: Verify lss log type zpn_auth_log fetched
@@ -43,10 +49,8 @@
 
     - name: Gather LSS Log Type zpn_ast_auth_log Information
       zscaler.zpacloud.zpa_lss_config_log_types_formats_info:
-        client_id: "{{ client_id }}"
-        client_secret: "{{ client_secret }}"
-        customer_id: "{{ customer_id }}"
-        log_type: "zpn_ast_auth_log"
+        provider: "{{ zpa_cloud }}"
+        log_type: "{{ log_type3 }}"
       register: zpn_ast_auth_log
 
     - name: Verify lss log type zpn_ast_auth_log fetched
@@ -58,10 +62,8 @@
 
     - name: Gather LSS Log Type zpn_http_trans_log Information
       zscaler.zpacloud.zpa_lss_config_log_types_formats_info:
-        client_id: "{{ client_id }}"
-        client_secret: "{{ client_secret }}"
-        customer_id: "{{ customer_id }}"
-        log_type: "zpn_http_trans_log"
+        provider: "{{ zpa_cloud }}"
+        log_type: "{{ log_type4 }}"
       register: zpn_http_trans_log
 
     - name: Verify lss log type zpn_http_trans_log fetched
@@ -73,10 +75,8 @@
 
     - name: Gather LSS Log Type zpn_audit_log Information
       zscaler.zpacloud.zpa_lss_config_log_types_formats_info:
-        client_id: "{{ client_id }}"
-        client_secret: "{{ client_secret }}"
-        customer_id: "{{ customer_id }}"
-        log_type: "zpn_audit_log"
+        provider: "{{ zpa_cloud }}"
+        log_type: "{{ log_type5 }}"
       register: zpn_audit_log
 
     - name: Verify lss log type zpn_audit_log fetched
@@ -88,10 +88,8 @@
 
     - name: Gather LSS Log Type zpn_ast_comprehensive_stats Information
       zscaler.zpacloud.zpa_lss_config_log_types_formats_info:
-        client_id: "{{ client_id }}"
-        client_secret: "{{ client_secret }}"
-        customer_id: "{{ customer_id }}"
-        log_type: "zpn_ast_comprehensive_stats"
+        provider: "{{ zpa_cloud }}"
+        log_type: "{{ log_type6 }}"
       register: zpn_ast_comprehensive_stats
 
     - name: Verify lss log type zpn_ast_comprehensive_stats fetched
@@ -103,10 +101,8 @@
 
     - name: Gather LSS Log Type zpn_sys_auth_log Information
       zscaler.zpacloud.zpa_lss_config_log_types_formats_info:
-        client_id: "{{ client_id }}"
-        client_secret: "{{ client_secret }}"
-        customer_id: "{{ customer_id }}"
-        log_type: "zpn_sys_auth_log"
+        provider: "{{ zpa_cloud }}"
+        log_type: "{{ log_type7 }}"
       register: zpn_sys_auth_log
 
     - name: Verify lss log type zpn_sys_auth_log fetched
@@ -115,3 +111,29 @@
           - zpn_sys_auth_log.data.json is defined
           - zpn_sys_auth_log.data.csv is defined
           - zpn_sys_auth_log.data.tsv is defined
+
+    - name: Gather LSS Log Type zpn_waf_http_exchanges_log Information
+      zscaler.zpacloud.zpa_lss_config_log_types_formats_info:
+        provider: "{{ zpa_cloud }}"
+        log_type: "{{ log_type8 }}"
+      register: zpn_waf_http_exchanges_log
+
+    - name: Verify lss log type zpn_waf_http_exchanges_log fetched
+      ansible.builtin.assert:
+        that:
+          - zpn_waf_http_exchanges_log.data.json is defined
+          - zpn_waf_http_exchanges_log.data.csv is defined
+          - zpn_waf_http_exchanges_log.data.tsv is defined
+
+    - name: Gather LSS Log Type zpn_pbroker_comprehensive_stats Information
+      zscaler.zpacloud.zpa_lss_config_log_types_formats_info:
+        provider: "{{ zpa_cloud }}"
+        log_type: "{{ log_type9 }}"
+      register: zpn_pbroker_comprehensive_stats
+
+    - name: Verify lss log type zpn_pbroker_comprehensive_stats fetched
+      ansible.builtin.assert:
+        that:
+          - zpn_pbroker_comprehensive_stats.data.json is defined
+          - zpn_pbroker_comprehensive_stats.data.csv is defined
+          - zpn_pbroker_comprehensive_stats.data.tsv is defined

@@ -86,39 +86,33 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 )
 
 
-def core(module: AnsibleModule):
-    client_type_id = module.params.get("id", None)
-    client_type_name = module.params.get("name", None)
+def core(module):
     client = ZPAClientHelper(module)
-    client_types = []
-    if client_type_id is not None:
-        lss_box = client.lss.get_client_types(client_type_id=client_type_id)
-        if lss_box is None:
-            module.fail_json(
-                msg="Failed to retrieve Identity Provider ID: '%s'" % (client_type_id)
-            )
-        client_types = [lss_box.to_dict()]
-    else:
-        client_types = client.lss.get_client_types().to_list()
-        if client_type_name is not None:
-            client_type_found = False
-            for client_type in client_types:
-                if client_type.get("name") == client_type_name:
-                    client_type_found = True
-                    client_types = [client_type]
-            if not client_type_found:
-                module.fail_json(
-                    msg="Failed to retrieve client type Name: '%s'" % (client_type_name)
-                )
-    module.exit_json(changed=False, data=client_types)
+    log_type = module.params.get("log_type", None)
+    lss_log_formats = client.lss.get_client_types()
+    log_format = lss_log_formats.get(log_type, None)
+    module.exit_json(changed=False, data=log_format)
 
 
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
-        name=dict(type="str", required=False),
-        id=dict(type="str", required=False),
+        name=dict(
+            type="str",
+            required=False,
+            choices=[
+                "zpn_client_type_exporter",
+                "zpn_client_type_machine_tunnel",
+                "zpn_client_type_ip_anchoring",
+                "zpn_client_type_edge_connector",
+                "zpn_client_type_zapp",
+                "zpn_client_type_slogger",
+                "zpn_client_type_zapp_partner",
+                "zpn_client_type_branch_connector",
+            ],
+        ),
     )
+
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:
         core(module)

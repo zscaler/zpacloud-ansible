@@ -255,6 +255,5 @@
 
 - name: Clean up server group
   include_tasks: "../../../helper_tasks/zpa_server_group/delete_server_group.yml"
-
-- name: Clean up App Connector group
-  include_tasks: "../../../helper_tasks/zpa_app_connector_group/delete_app_connector_group.yml"
+# - name: Clean up App Connector group
+#   include_tasks: "../../../helper_tasks/zpa_app_connector_group/delete_app_connector_group.yml"

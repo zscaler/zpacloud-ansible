@@ -25,18 +25,18 @@
   loop: "{{ all_server_groups.data }}"
   when: all_server_groups.data is defined
 
-- name: List all App Connector Groups
-  zscaler.zpacloud.zpa_app_connector_groups_info:
-    provider: "{{ zpa_cloud }}"
-  register: all_app_connector_groups
+# - name: List all App Connector Groups
+#   zscaler.zpacloud.zpa_app_connector_groups_info:
+#     provider: "{{ zpa_cloud }}"
+#   register: all_app_connector_groups
 
-- name: Delete all App Connector Groups 💥
-  zscaler.zpacloud.zpa_app_connector_groups:
-    provider: "{{ zpa_cloud }}"
-    state: absent
-    name: "{{ item.name }}"
-  loop: "{{ all_app_connector_groups.data }}"
-  when: all_app_connector_groups.data is defined
+# - name: Delete all App Connector Groups 💥
+#   zscaler.zpacloud.zpa_app_connector_groups:
+#     provider: "{{ zpa_cloud }}"
+#     state: absent
+#     name: "{{ item.name }}"
+#   loop: "{{ all_app_connector_groups.data }}"
+#   when: all_app_connector_groups.data is defined
 
 - name: List all Segment Groups
   zscaler.zpacloud.zpa_segment_group_info:

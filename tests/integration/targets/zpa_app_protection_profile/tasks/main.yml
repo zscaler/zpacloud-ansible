@@ -21,47 +21,37 @@
   no_log: True
 
 - block:
-    - name: Fetch "Group1" Scim Group
-      zscaler.zpacloud.zpa_scim_group_info:
+    - name: Fetch all App Protection Profiles
+      zscaler.zpacloud.zpa_app_protection_profile_info:
         provider: "{{ zpa_cloud }}"
-        name: "{{ group1 }}"
-        idp_name: "{{ idp_name }}"
       register: result
 
-    - name: Ensure "Group1" Scim Group found
+    - name: Ensure all App Protection Profiles found
       ansible.builtin.assert:
         that:
           - not result.changed
           - result.data is defined
-          - result.data[0].name is defined
-          - result.data[0].name == "{{ group1 }}"
 
-    - name: Fetch "Group2" Scim Group
-      zscaler.zpacloud.zpa_scim_group_info:
+    - name: Fetch Profile1 App Protection Profile
+      zscaler.zpacloud.zpa_app_protection_profile_info:
         provider: "{{ zpa_cloud }}"
-        name: "{{ group2 }}"
-        idp_name: "{{ idp_name }}"
+        name: "{{ profile1 }}"
       register: result
 
-    - name: Ensure "Group2" Scim Group found
+    - name: Ensure Profile1 App Protection Profile found
       ansible.builtin.assert:
         that:
           - not result.changed
           - result.data is defined
-          - result.data[0].name is defined
-          - result.data[0].name == "{{ group2 }}"
 
-    - name: Fetch "Group3" Scim Group
-      zscaler.zpacloud.zpa_scim_group_info:
+    - name: Fetch Profile2 App Protection Profile
+      zscaler.zpacloud.zpa_app_protection_profile_info:
         provider: "{{ zpa_cloud }}"
-        name: "{{ group3 }}"
-        idp_name: "{{ idp_name }}"
+        name: "{{ profile2 }}"
       register: result
 
-    - name: Ensure "Group3" Scim Group found
+    - name: Ensure Profile2 App Protection Profile is found
       ansible.builtin.assert:
         that:
           - not result.changed
           - result.data is defined
-          - result.data[0].name is defined
-          - result.data[0].name == "{{ group3 }}"

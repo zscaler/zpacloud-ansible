@@ -1,6 +1,4 @@
 group1: Engineering
 group2: Executives
-group3: Sales
-group4: Z000
-idp_name: SGIO-User-Okta
-# idp_name: BD_Okta_Users
+group3: Z000
+idp_name: BD_Okta_Users

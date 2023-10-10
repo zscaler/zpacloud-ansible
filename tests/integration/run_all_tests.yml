@@ -26,6 +26,8 @@
         # - targets/zpa_segment_group/tasks/main.yml
         # - targets/zpa_server_group/tasks/main.yml
         # - targets/zpa_ba_certificate_info/tasks/main.yml
+        # - targets/zpa_isolation_profile_info/tasks/main.yml
+        - targets/zpa_app_protection_profile/tasks/main.yml
         # - targets/zpa_enrollement_certificate_info/tasks/main.yml
         # - targets/zpa_machine_group_info/tasks/main.yml
         # - targets/zpa_posture_profile_info/tasks/main.yml
@@ -39,9 +41,10 @@
         # - targets/zpa_policy_access_timeout_rule/tasks/main.yml
         # - targets/zpa_policy_access_forwarding_rule/tasks/main.yml
         # - targets/zpa_policy_access_isolation_rule/tasks/main.yml
+        # - targets/zpa_policy_access_app_protection_rule/tasks/main.yml
         # - targets/zpa_lss_config_log_types_formats_info/tasks/main.yml
         # - targets/zpa_lss_client_types_info/tasks/main.yml
         # - targets/zpa_lss_config_status_codes_info/tasks/main.yml
 
-    # - name: Run final sweep to clean tenant
-    #   ansible.builtin.include_tasks: ./sweep.yml
+    - name: Run final sweep to clean tenant
+      ansible.builtin.include_tasks: ./sweep.yml

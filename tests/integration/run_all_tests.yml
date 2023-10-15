@@ -18,7 +18,7 @@
     - name: Running ZPA Integration Tests
       ansible.builtin.include_tasks: "{{ item }}"
       loop:
-        # - targets/zpa_app_connector_groups/tasks/main.yml
+        - targets/zpa_app_connector_groups/tasks/main.yml
         # - targets/zpa_service_edge_groups/tasks/main.yml
         # - targets/zpa_application_segment/tasks/main.yml
         # - targets/zpa_application_segment_browser_access/tasks/main.yml
@@ -27,7 +27,7 @@
         # - targets/zpa_server_group/tasks/main.yml
         # - targets/zpa_ba_certificate_info/tasks/main.yml
         # - targets/zpa_isolation_profile_info/tasks/main.yml
-        - targets/zpa_app_protection_profile/tasks/main.yml
+        # - targets/zpa_app_protection_profile/tasks/main.yml
         # - targets/zpa_enrollement_certificate_info/tasks/main.yml
         # - targets/zpa_machine_group_info/tasks/main.yml
         # - targets/zpa_posture_profile_info/tasks/main.yml
@@ -46,5 +46,5 @@
         # - targets/zpa_lss_client_types_info/tasks/main.yml
         # - targets/zpa_lss_config_status_codes_info/tasks/main.yml
 
-    - name: Run final sweep to clean tenant
-      ansible.builtin.include_tasks: ./sweep.yml
+    # - name: Run final sweep to clean tenant
+    #   ansible.builtin.include_tasks: ./sweep.yml

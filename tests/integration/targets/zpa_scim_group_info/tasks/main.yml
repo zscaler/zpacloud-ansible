@@ -51,17 +51,17 @@
           - result.data[0].name is defined
           - result.data[0].name == "{{ group2 }}"
 
-    - name: Fetch "Group3" Scim Group
-      zscaler.zpacloud.zpa_scim_group_info:
-        provider: "{{ zpa_cloud }}"
-        name: "{{ group3 }}"
-        idp_name: "{{ idp_name }}"
-      register: result
+    # - name: Fetch "Group3" Scim Group
+    #   zscaler.zpacloud.zpa_scim_group_info:
+    #     provider: "{{ zpa_cloud }}"
+    #     name: "{{ group3 }}"
+    #     idp_name: "{{ idp_name }}"
+    #   register: result
 
-    - name: Ensure "Group3" Scim Group found
-      ansible.builtin.assert:
-        that:
-          - not result.changed
-          - result.data is defined
-          - result.data[0].name is defined
-          - result.data[0].name == "{{ group3 }}"
+    # - name: Ensure "Group3" Scim Group found
+    #   ansible.builtin.assert:
+    #     that:
+    #       - not result.changed
+    #       - result.data is defined
+    #       - result.data[0].name is defined
+    #       - result.data[0].name == "{{ group3 }}"

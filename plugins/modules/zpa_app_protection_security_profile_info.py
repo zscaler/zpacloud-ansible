@@ -25,8 +25,8 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: zpa_app_protection_profile_info
-short_description: Retrieves Isolation Profile information.
+module: zpa_app_protection_security_profile_info
+short_description: Retrieves App Protection Security Profile information.
 description:
   - This module will allow the retrieval of information about an App Protection Profile from the ZPA Cloud.
 author:
@@ -35,18 +35,6 @@ version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   name:
     description:
       - Name of the Cloud Browser Isolation profile.

@@ -421,3 +421,40 @@ def validate_iso3166_alpha2(country_code):
         return country is not None
     except AttributeError:
         return False
+
+#### This validation function supports the App Protection Custom Controls
+def is_number(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+def in_list(val, lst):
+    return val in lst
+
+def validate_rules(custom_ctl):
+    for rule in custom_ctl.get("rules", []):
+        if custom_ctl.get("type") == "RESPONSE":
+            if rule.get("type") not in ["RESPONSE_HEADERS", "RESPONSE_BODY"]:
+                raise ValueError("when type == RESPONSE rules.type must be: RESPONSE_HEADERS || RESPONSE_BODY")
+        elif custom_ctl.get("type") == "REQUEST":
+            if rule.get("type") in ["REQUEST_HEADERS", "REQUEST_COOKIES"] and not rule.get("names"):
+                raise ValueError("when type == REQUEST and rules.type is: REQUEST_HEADERS || REQUEST_COOKIES the rules.names must be set")
+            if rule.get("type") in ["REQUEST_URI", "QUERY_STRING", "REQUEST_BODY", "REQUEST_METHOD"] and rule.get("names"):
+                raise ValueError("when type == REQUEST and rules.type is: REQUEST_URI || QUERY_STRING || REQUEST_BODY || REQUEST_METHOD the rules.name is not allowed")
+
+        for cond in rule.get("conditions", []):
+            rule_types = ["REQUEST_HEADERS", "REQUEST_COOKIES", "REQUEST_URI", "QUERY_STRING", "REQUEST_BODY", "REQUEST_METHOD"]
+            if rule.get("type") in rule_types:
+                if cond.get("lhs") == "SIZE" and cond.get("op") not in ["EQ", "LE", "GE"] or not is_number(cond.get("rhs")):
+                    raise ValueError(f"when rules.type is: {rule.get('type')} the conditions.lhs must be == SIZE && conditions.op == EQ, LE, GE && condition.rhs must be a number(string)")
+                if cond.get("lhs") == "VALUE" and cond.get("op") not in ["CONTAINS", "STARTS_WITH", "ENDS_WITH", "RX"]:
+                    raise ValueError(f"when rules.type is: {rule.get('type')} the conditions.lhs must be == VALUE && conditions.op must be == CONTAINS, STARTS_WITH, ENDS_WITH, RX and rhs must be a string value")
+
+            if rule.get("type") == "REQUEST_METHOD":
+                if cond.get("lhs") == "SIZE" and cond.get("op") not in ["EQ", "LE", "GE"] or not is_number(cond.get("rhs")):
+                    raise ValueError(f"when rules.type is: {rule.get('type')} the conditions.lhs must be == SIZE && conditions.op == EQ, LE, GE && condition.rhs must be a number(string)")
+                if cond.get("lhs") == "VALUE" and cond.get("op") not in ["CONTAINS", "STARTS_WITH", "ENDS_WITH", "RX"] or cond.get("rhs") not in ["GET", "POST", "PUT", "PATCH", "CONNECT", "HEAD", "OPTIONS", "DELETE", "TRACE"]:
+                    raise ValueError(f"when rules.type is: {rule.get('type')} the conditions.lhs must be == VALUE && conditions.op must be == CONTAINS, STARTS_WITH, ENDS_WITH, RX && condition.rhs== GET,POST,PUT,PATCH,CONNECT,HEAD,OPTIONS,DELETE,TRACE")
+

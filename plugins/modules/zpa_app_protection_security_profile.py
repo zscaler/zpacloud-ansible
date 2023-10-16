@@ -26,63 +26,593 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: zpa_app_protection_security_profile
-short_description: Create an application server in the ZPA Cloud.
+short_description: Create, update, or delete Zscaler Private Access (ZPA) app protection security profiles.
 description:
-    - This module creates/update/delete an application server in the ZPA Cloud.
+    - This Ansible module enables you to manage Zscaler Private Access (ZPA) app protection security profiles in the ZPA Cloud.
+    - You can use this module to create new profiles, update existing ones, or delete profiles as needed.
 author:
   - William Guilherme (@willguibr)
 version_added: "1.0.0"
 requirements:
-    - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+    - The Zscaler SDK Python package must be installed. You can install it using pip:
+      $ pip install zscaler-sdk-python
 options:
-    client_id:
-        description: ""
-        required: false
-        type: str
-    client_secret:
-        description: ""
-        required: false
-        type: str
-    customer_id:
-        description: ""
-        required: false
-        type: str
-    id:
-        description: ""
-        required: false
-        type: str
     name:
-        description:
-            - This field defines the name of the server.
-        required: True
+        description: The name of the app protection security profile.
+        required: true
         type: str
     description:
-        description:
-            - This field defines the description of the server.
-        required: False
+        description: A description of the app protection security profile.
+        required: false
         type: str
-    enabled:
-        description:
-            - This field defines the status of the server, true or false.
-        required: False
-        type: bool
-    address:
-        description: "This field defines the domain or IP address of the server"
-        required: True
-        type: str
-    app_server_group_ids:
-        description:
-            - This field defines the list of server groups IDs
-        required: False
+    global_control_actions:
+        description: A list of global control actions.
+        required: false
         type: list
         elements: str
-    state:
-        description: "Whether the app should be present or absent."
+    incarnation_number:
+        description: The incarnation number of the profile.
+        required: false
+        type: str
+    paranoia_level:
+        description: The paranoia level of the profile.
+        required: false
+        type: str
+    check_control_deployment_status:
+        description: Check control deployment status.
+        required: false
+        type: bool
+    controls_info:
+        description: Information about controls.
+        required: false
+        type: list
+        elements: dict
+        options:
+            control_type:
+                description: The control type.
+                required: false
+                type: str
+                choices:
+                    - WEBSOCKET_PREDEFINED
+                    - WEBSOCKET_CUSTOM
+                    - THREATLABZ
+                    - CUSTOM
+                    - PREDEFINED
+            count:
+                description: The control count.
+                required: false
+                type: str
+    custom_controls:
+        description: Custom controls.
+        required: false
+        type: list
+        elements: dict
+        options:
+            id:
+                description: The control ID.
+                required: false
+                type: str
+            action:
+                description: The control action.
+                required: false
+                type: str
+                choices:
+                    - PASS
+                    - BLOCK
+                    - REDIRECT
+            action_value:
+                description: The control action value.
+                required: false
+                type: str
+            associated_inspection_profile_names:
+                description: Names of associated inspection profiles.
+                required: false
+                type: list
+                elements: dict
+                options:
+                    id:
+                        description: The inspection profile ID.
+                        required: false
+                        type: str
+                    name:
+                        description: The inspection profile name.
+                        required: false
+                        type: str
+            control_number:
+                description: The control number.
+                required: false
+                type: str
+            control_rule_json:
+                description: The control rule JSON.
+                required: false
+                type: str
+            control_type:
+                description: The control type.
+                required: false
+                type: str
+                choices:
+                    - WEBSOCKET_PREDEFINED
+                    - WEBSOCKET_CUSTOM
+                    - THREATLABZ
+                    - CUSTOM
+                    - PREDEFINED
+            default_action:
+                description: The default control action.
+                required: false
+                type: str
+                choices:
+                    - PASS
+                    - BLOCK
+                    - REDIRECT
+            default_action_value:
+                description: The default action value.
+                required: false
+                type: str
+            description:
+                description: The control description.
+                required: false
+                type: str
+            name:
+                description: The control name.
+                required: false
+                type: str
+            paranoia_level:
+                description: The paranoia level.
+                required: false
+                type: str
+            protocol_type:
+                description: The protocol type.
+                required: false
+                type: str
+                choices:
+                    - HTTP
+                    - HTTPS
+                    - FTP
+                    - RDP
+                    - SSH
+                    - WEBSOCKET
+                    - VNC
+                    - NONE
+            rules:
+                description: Control rules.
+                required: false
+                type: list
+                elements: dict
+                options:
+                    conditions:
+                        description: Rule conditions.
+                        required: false
+                        type: list
+                        elements: dict
+                        options:
+                            lhs:
+                                description: The left-hand side of the condition.
+                                required: false
+                                type: str
+                                choices:
+                                    - SIZE
+                                    - VALUE
+                            op:
+                                description: The operator for the condition.
+                                required: false
+                                type: str
+                                choices:
+                                    - RX
+                                    - CONTAINS
+                                    - STARTS_WITH
+                                    - ENDS_WITH
+                                    - EQ
+                                    - LE
+                                    - GE
+                            rhs:
+                                description: The right-hand side of the condition.
+                                required: false
+                                type: str
+                    names:
+                        description: Control rule names.
+                        required: false
+                        type: list
+                        elements: str
+                    type:
+                        description: Control rule type.
+                        required: false
+                        type: str
+                        choices:
+                            - REQUEST_HEADERS
+                            - REQUEST_URI
+                            - QUERY_STRING
+                            - REQUEST_COOKIES
+                            - REQUEST_METHOD
+                            - REQUEST_BODY
+                            - RESPONSE_HEADERS
+                            - RESPONSE_BODY
+                            - WS_MAX_PAYLOAD_SIZE
+                            - WS_MAX_FRAGMENT_PER_MESSAGE
+            severity:
+                description: The control severity.
+                required: false
+                type: str
+                choices:
+                    - CRITICAL
+                    - ERROR
+                    - WARNING
+                    - INFO
+            type:
+                description: The control type.
+                required: false
+                type: str
+                choices:
+                    - REQUEST
+                    - RESPONSE
+            version:
+                description: The control version.
+                required: false
+                type: str
+    predefined_controls:
+        description: Predefined controls.
+        required: false
+        type: list
+        elements: dict
+        options:
+            action:
+                description: The control action.
+                required: false
+                type: str
+                choices:
+                    - PASS
+                    - BLOCK
+                    - REDIRECT
+            action_value:
+                description: The control action value.
+                required: false
+                type: str
+            associated_inspection_profile_names:
+                description: Names of associated inspection profiles.
+                required: false
+                type: list
+                elements: dict
+                options:
+                    id:
+                        description: The inspection profile ID.
+                        required: false
+                        type: str
+                    name:
+                        description: The inspection profile name.
+                        required: false
+                        type: str
+            attachment:
+                description: The control attachment.
+                required: false
+                type: str
+            control_group:
+                description: The control group.
+                required: false
+                type: str
+            control_number:
+                description: The control number.
+                required: false
+                type: str
+            control_type:
+                description: The control type.
+                required: false
+                type: str
+                choices:
+                    - WEBSOCKET_PREDEFINED
+                    - WEBSOCKET_CUSTOM
+                    - THREATLABZ
+                    - CUSTOM
+                    - PREDEFINED
+            default_action:
+                description: The default control action.
+                required: false
+                type: str
+                choices:
+                    - PASS
+                    - BLOCK
+                    - REDIRECT
+            default_action_value:
+                description: The default action value.
+                required: false
+                type: str
+            description:
+                description: The control description.
+                required: false
+                type: str
+            name:
+                description: The control name.
+                required: false
+                type: str
+            paranoia_level:
+                description: The paranoia level.
+                required: false
+                type: str
+            protocol_type:
+                description: The protocol type.
+                required: false
+                type: str
+                choices:
+                    - HTTP
+                    - HTTPS
+                    - FTP
+                    - RDP
+                    - SSH
+                    - WEBSOCKET
+            severity:
+                description: The control severity.
+                required: false
+                type: str
+                choices:
+                    - CRITICAL
+                    - ERROR
+                    - WARNING
+                    - INFO
+            version:
+                description: The control version.
+                required: false
+                type: str
+        required: false
+    predef_controls_version:
+        description: The version of predefined controls.
+        required: false
+        type: str
+    threatlabz_controls:
+        description: ThreatLabZ controls.
+        required: false
+        type: list
+        elements: dict
+        options:
+            action:
+                description: The control action.
+                required: false
+                type: str
+                choices:
+                    - PASS
+                    - BLOCK
+                    - REDIRECT
+            action_value:
+                description: The control action value.
+                required: false
+                type: str
+            associated_customers:
+                description: Associated customers.
+                required: false
+                type: list
+                elements: dict
+                options:
+                    customer_id:
+                        description: The customer ID.
+                        required: false
+                        type: str
+                    exclude_constellation:
+                        description: Exclude constellation.
+                        required: false
+                        type: bool
+                    is_partner:
+                        description: Is partner.
+                        required: false
+                        type: bool
+                    name:
+                        description: The customer name.
+                        required: false
+                        type: str
+            associated_inspection_profile_names:
+                description: Names of associated inspection profiles.
+                required: false
+                type: list
+                elements: dict
+                options:
+                    id:
+                        description: The inspection profile ID.
+                        required: false
+                        type: str
+                    name:
+                        description: The inspection profile name.
+                        required: false
+                        type: str
+            attachment:
+                description: The control attachment.
+                required: false
+                type: str
+            control_group:
+                description: The control group.
+                required: false
+                type: str
+            control_number:
+                description: The control number.
+                required: false
+                type: str
+            control_type:
+                description: The control type.
+                required: false
+                type: str
+                choices:
+                    - WEBSOCKET_PREDEFINED
+                    - WEBSOCKET_CUSTOM
+                    - THREATLABZ
+                    - CUSTOM
+                    - PREDEFINED
+            default_action:
+                description: The default control action.
+                required: false
+                type: str
+                choices:
+                    - PASS
+                    - BLOCK
+                    - REDIRECT
+            default_action_value:
+                description: The default action value.
+                required: false
+                type: str
+            description:
+                description: The control description.
+                required: false
+                type: str
+            enabled:
+                description: Is the control enabled.
+                required: false
+                type: bool
+            engine_version:
+                description: The engine version.
+                required: false
+                type: str
+            id:
+                description: The control ID.
+                required: false
+                type: str
+            last_deployment_time:
+                description: The last deployment time.
+                required: false
+                type: str
+            name:
+                description: The control name.
+                required: false
+                type: str
+            paranoia_level:
+                description: The paranoia level.
+                required: false
+                type: str
+            rule_deployment_state:
+                description: The rule deployment state.
+                required: false
+                type: str
+                choices:
+                    - NEW
+                    - IN_PROGRESS
+                    - COMPLETED
+            rule_metadata:
+                description: The rule metadata.
+                required: false
+                type: str
+            rule_processor:
+                description: The rule processor.
+                required: false
+                type: str
+            ruleset_name:
+                description: The ruleset name.
+                required: false
+                type: str
+            ruleset_version:
+                description: The ruleset version.
+                required: false
+                type: str
+            severity:
+                description: The control severity.
+                required: false
+                type: str
+                choices:
+                    - CRITICAL
+                    - ERROR
+                    - WARNING
+                    - INFO
+            version:
+                description: The control version.
+                required: false
+                type: str
+            zscaler_info_url:
+                description: The Zscaler info URL.
+                required: false
+                type: str
+    websocket_controls:
+        description: WebSocket controls.
+        required: false
+        type: list
+        elements: dict
+        options:
+            action:
+                description: The control action.
+                required: false
+                type: str
+                choices:
+                    - PASS
+                    - BLOCK
+                    - REDIRECT
+            action_value:
+                description: The control action value.
+                required: false
+                type: str
+            associated_inspection_profile_names:
+                description: Names of associated inspection profiles.
+                required: false
+                type: list
+                elements: dict
+                options:
+                    id:
+                        description: The inspection profile ID.
+                        required: false
+                        type: str
+                    name:
+                        description: The inspection profile name.
+                        required: false
+                        type: str
+            control_number:
+                description: The control number.
+                required: false
+                type: str
+            control_type:
+                description: The control type.
+                required: false
+                type: str
+                choices:
+                    - WEBSOCKET_PREDEFINED
+                    - WEBSOCKET_CUSTOM
+                    - THREATLABZ
+                    - CUSTOM
+                    - PREDEFINED
+            default_action:
+                description: The default control action.
+                required: false
+                type: str
+                choices:
+                    - PASS
+                    - BLOCK
+                    - REDIRECT
+            default_action_value:
+                description: The default action value.
+                required: false
+                type: str
+            description:
+                description: The control description.
+                required: false
+                type: str
+            id:
+                description: The control ID.
+                required: false
+                type: str
+            name:
+                description: The control name.
+                required: false
+                type: str
+            paranoia_level:
+                description: The paranoia level.
+                required: false
+                type: str
+            severity:
+                description: The control severity.
+                required: false
+                type: str
+                choices:
+                    - CRITICAL
+                    - ERROR
+                    - WARNING
+                    - INFO
+            version:
+                description: The control version.
+                required: false
+                type: str
+    zs_defined_control_choice:
+        description: ZS defined control choice.
+        required: false
         type: str
         choices:
-            - present
-            - absent
-        default: present
+            - ALL
+            - SPECIFIC
+  state:
+    description: "Whether the app should be present or absent."
+    type: str
+    choices:
+        - present
+        - absent
+    default: present
 """
 
 EXAMPLES = """

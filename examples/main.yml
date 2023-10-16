@@ -1,4 +1,4 @@
-- name: App Connector Group
+- name: App Protection Custom Control
   hosts: localhost
 
   vars:
@@ -9,24 +9,63 @@
       cloud: "{{ lookup('env', 'ZPA_CLOUD') | default(omit) }}"
 
   tasks:
-    - name: Create a App Protection Security Profile
-      zscaler.zpacloud.zpa_app_protection_security_profile:
+    - name: Create a App Protection Custom Controls
+      zscaler.zpacloud.zpa_app_protection_custom_controls:
         state: present
+        provider: "{{ zpa_cloud }}"
         name: "Example_App_Protection_Security_Profile"
         description: "Example_App_Protection_Security_Profile"
+        action: "PASS"
+        default_action: "PASS"
         paranoia_level: "1"
-        incarnation_number: "6"
-        predef_controls_version: "OWASP_CRS/3.3.0"
-        # global_control_actions:
-          # - "PREDEFINED:NONE"
-          # - "CUSTOM:NONE"
-          # - "WEBSOCKET:NONE"
-          # - "THREATLABZ:NONE"
-          # - "OVERRIDE_ACTION:NONE"
-        -controls_info:
-          - control_type: "PREDEFINED"
-            count": "207"
-          - control_type": "THREATLABZ"
-            count": "23"
-          - control_type: "WEBSOCKET_PREDEFINED"
-            count": "11"
+        severity: "CRITICAL"
+        type: "REQUEST"
+        rules:
+          - conditions:
+              - lhs: SIZE
+                op: GE
+                rhs: "1000"
+            names:
+              - test1
+              - test2
+              - test3
+            type: RESPONSE_HEADERS
+
+          - conditions:
+              - lhs: SIZE
+                op: GE
+                rhs: "1000"
+            type: RESPONSE_BODY
+
+
+
+
+
+
+
+
+
+
+
+
+    # - name: Create a App Protection Security Profile
+    #   zscaler.zpacloud.zpa_app_protection_security_profile:
+    #     state: present
+    #     provider: "{{ zpa_cloud }}"
+    #     name: "Example_App_Protection_Security_Profile"
+    #     description: "Example_App_Protection_Security_Profile"
+    #     paranoia_level: "1"
+    #     incarnation_number: "6"
+    #     check_control_deployment_status: true
+    #     predef_controls_version: "OWASP_CRS/3.3.0"
+    #     global_control_actions:
+    #       - "PREDEFINED:NONE"
+    #       - "CUSTOM:NONE"
+    #       - "WEBSOCKET:NONE"
+    #       - "THREATLABZ:NONE"
+    #       - "OVERRIDE_ACTION:NONE"
+        # controls_info:
+        #   - control_type": "THREATLABZ"
+        #     count": "23"
+        #   - control_type: "WEBSOCKET_PREDEFINED"
+        #     count": "11"

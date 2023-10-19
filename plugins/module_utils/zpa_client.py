@@ -120,13 +120,6 @@ class ZPAClientHelper(ZPA):
             cloud=cloud_env,  # using the validated cloud environment
         )
 
-        super().__init__(
-            client_id=client_id,
-            client_secret=client_secret,
-            customer_id=customer_id,
-            cloud=cloud_env,  # using the validated cloud environment
-        )
-
         ansible_version = ansible.__version__  # Get the Ansible version
         self.user_agent = f"zpa-ansible/{ansible_version}/({platform.system().lower()} {platform.machine()})/customer_id:{customer_id}"
 

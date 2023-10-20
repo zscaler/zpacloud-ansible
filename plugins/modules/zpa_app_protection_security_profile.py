@@ -55,7 +55,7 @@ options:
         required: false
         type: str
     paranoia_level:
-        description: The paranoia level of the profile.
+        description: The OWASP Predefined Paranoia Level.
         required: false
         type: str
     check_control_deployment_status:
@@ -157,7 +157,7 @@ options:
                 required: false
                 type: str
             paranoia_level:
-                description: The paranoia level.
+                description: The OWASP Predefined Paranoia Level.
                 required: false
                 type: str
             protocol_type:
@@ -323,7 +323,7 @@ options:
                 required: false
                 type: str
             paranoia_level:
-                description: The paranoia level.
+                description: The OWASP Predefined Paranoia Level.
                 required: false
                 type: str
             protocol_type:
@@ -468,7 +468,7 @@ options:
                 required: false
                 type: str
             paranoia_level:
-                description: The paranoia level.
+                description: The OWASP Predefined Paranoia Level.
                 required: false
                 type: str
             rule_deployment_state:
@@ -583,7 +583,7 @@ options:
                 required: false
                 type: str
             paranoia_level:
-                description: The paranoia level.
+                description: The OWASP Predefined Paranoia Level.
                 required: false
                 type: str
             severity:
@@ -600,7 +600,10 @@ options:
                 required: false
                 type: str
     zs_defined_control_choice:
-        description: ZS defined control choice.
+        description:
+            - Indicates the user's choice for the ThreatLabZ Controls. Supported values
+            - ALL: Zscaler handles the ThreatLabZ Controls for the AppProtection profile
+            - SPECIFIC: User handles the ThreatLabZ Controls for the AppProtection profile
         required: false
         type: str
         choices:
@@ -636,12 +639,39 @@ from traceback import format_exc
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
-    deleteNone, normalize_app
+    deleteNone,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
 
+def normalize_app_protection_profile(profile):
+    """
+    Normalize app protection profile data by setting computed values.
+    """
+    normalized = profile.copy()
+
+    computed_values = [
+        "id",
+        "creation_time",
+        "modified_by",
+        "modified_time",
+        "name",
+        "description",
+        "predef_controls_version",
+        "predefined_controls",
+        "incarnation_number",
+        "controls_info",
+        "control_type",
+        "check_control_deployment_status",
+        "global_control_actions",
+        "paranoia_level",
+        "zs_defined_control_choice",
+    ]
+    for attr in computed_values:
+        normalized.pop(attr, None)
+
+    return normalized
 
 def core(module):
     state = module.params.get("state", None)
@@ -651,9 +681,9 @@ def core(module):
         "id",
         "name",
         "description",
-        "check_control_deployment_status",
         "controls_info",
         "custom_controls",
+        "check_control_deployment_status",
         "global_control_actions",
         "incarnation_number",
         "paranoia_level",
@@ -681,8 +711,8 @@ def core(module):
                 break
 
     # Normalize and compare existing and desired application data
-    desired_app = normalize_app(profile)
-    current_app = normalize_app(existing_profile) if existing_profile else {}
+    desired_app = normalize_app_protection_profile(profile)
+    current_app = normalize_app_protection_profile(existing_profile) if existing_profile else {}
 
     fields_to_exclude = ["id"]
     differences_detected = False
@@ -703,23 +733,33 @@ def core(module):
                 """Update"""
                 existing_profile = deleteNone(
                     dict(
-                        profile_id=existing_profile.get("id"),
-                        name=existing_profile.get("name"),
-                        description=existing_profile.get("description"),
-                        check_control_deployment_status=existing_profile.get("check_control_deployment_status"),
-                        controls_info=existing_profile.get("controls_info"),
-                        custom_controls=existing_profile.get("custom_controls"),
-                        global_control_actions=existing_profile.get("global_control_actions"),
-                        incarnation_number=existing_profile.get("incarnation_number"),
-                        paranoia_level=existing_profile.get("paranoia_level"),
-                        predefined_controls=existing_profile.get("predefined_controls"),
-                        predef_controls_version=existing_profile.get("predef_controls_version"),
-                        threatlabz_controls=existing_profile.get("threatlabz_controls"),
-                        web_socket_controls=existing_profile.get("web_socket_controls"),
-                        zs_defined_control_choice=existing_profile.get("zs_defined_control_choice"),
+                        profile_id=existing_profile.get("id", None),
+                        name=existing_profile.get("name", None),
+                        description=existing_profile.get("description", None),
+                        check_control_deployment_status=existing_profile.get(
+                            "check_control_deployment_status", None
+                        ),
+                        controls_info=existing_profile.get("controls_info", None),
+                        custom_controls=existing_profile.get("custom_controls", None),
+                        global_control_actions=existing_profile.get(
+                            "global_control_actions", None
+                        ),
+                        incarnation_number=existing_profile.get("incarnation_number", None),
+                        paranoia_level=existing_profile.get("paranoia_level", None),
+                        predefined_controls=existing_profile.get("predefined_controls", None),
+                        predef_controls_version=existing_profile.get(
+                            "predef_controls_version", None
+                        ),
+                        threatlabz_controls=existing_profile.get("threatlabz_controls", None),
+                        web_socket_controls=existing_profile.get("web_socket_controls", None),
+                        zs_defined_control_choice=existing_profile.get(
+                            "zs_defined_control_choice", None
+                        ),
                     )
                 )
-                existing_profile = client.inspection.update_profile(**existing_profile).to_dict()
+                existing_profile = client.inspection.update_profile(
+                    **existing_profile
+                ).to_dict()
                 module.exit_json(changed=True, data=existing_profile)
             else:
                 """No Changes Needed"""
@@ -728,19 +768,21 @@ def core(module):
             """Create"""
             profile = deleteNone(
                 dict(
-                        name=profile.get("name"),
-                        description=profile.get("description"),
-                        check_control_deployment_status=profile.get("check_control_deployment_status"),
-                        controls_info=profile.get("controls_info"),
-                        custom_controls=profile.get("custom_controls"),
-                        global_control_actions=profile.get("global_control_actions"),
-                        incarnation_number=profile.get("incarnation_number"),
-                        paranoia_level=profile.get("paranoia_level"),
-                        predefined_controls=profile.get("predefined_controls"),
-                        predef_controls_version=profile.get("predef_controls_version"),
-                        threatlabz_controls=profile.get("threatlabz_controls"),
-                        web_socket_controls=profile.get("web_socket_controls"),
-                        zs_defined_control_choice=profile.get("zs_defined_control_choice"),
+                    name=profile.get("name", None),
+                    description=profile.get("description", None),
+                    check_control_deployment_status=profile.get(
+                        "check_control_deployment_status", None
+                    ),
+                    controls_info=profile.get("controls_info", None),
+                    custom_controls=profile.get("custom_controls", None),
+                    global_control_actions=profile.get("global_control_actions", None),
+                    incarnation_number=profile.get("incarnation_number", None),
+                    paranoia_level=profile.get("paranoia_level", None),
+                    predefined_controls=profile.get("predefined_controls", None),
+                    predef_controls_version=profile.get("predef_controls_version", None),
+                    threatlabz_controls=profile.get("threatlabz_controls", None),
+                    web_socket_controls=profile.get("web_socket_controls", None),
+                    zs_defined_control_choice=profile.get("zs_defined_control_choice", None),
                 )
             )
             profile = client.inspection.add_profile(**profile).to_dict()
@@ -766,23 +808,33 @@ def main():
         incarnation_number=dict(type="str", required=False),
         paranoia_level=dict(type="str", required=False),
         check_control_deployment_status=dict(type="bool", required=False),
-
         controls_info=dict(
             type="list",
             elements="dict",
             options=dict(
-                control_type=dict(type="str", required=False, choices=["WEBSOCKET_PREDEFINED", "WEBSOCKET_CUSTOM", "THREATLABZ", "CUSTOM", "PREDEFINED"]),
+                control_type=dict(
+                    type="str",
+                    required=False,
+                    choices=[
+                        "WEBSOCKET_PREDEFINED",
+                        "WEBSOCKET_CUSTOM",
+                        "THREATLABZ",
+                        "CUSTOM",
+                        "PREDEFINED",
+                    ],
+                ),
                 count=dict(type="str", required=False),
             ),
             required=False,
         ),
-
         custom_controls=dict(
             type="list",
             elements="dict",
             options=dict(
                 id=dict(type="str", required=False),
-                action=dict(type="str", required=False, choices=["PASS", "BLOCK", "REDIRECT"]),
+                action=dict(
+                    type="str", required=False, choices=["PASS", "BLOCK", "REDIRECT"]
+                ),
                 action_value=dict(type="str", required=False),
                 associated_inspection_profile_names=dict(
                     type="list",
@@ -794,13 +846,38 @@ def main():
                 ),
                 control_number=dict(type="str", required=False),
                 control_rule_json=dict(type="str", required=False),
-                control_type=dict(type="str", required=False, choices=["WEBSOCKET_PREDEFINED", "WEBSOCKET_CUSTOM", "THREATLABZ", "CUSTOM", "PREDEFINED"]),
-                default_action=dict(type="str", required=False, choices=["PASS", "BLOCK", "REDIRECT"]),
+                control_type=dict(
+                    type="str",
+                    required=False,
+                    choices=[
+                        "WEBSOCKET_PREDEFINED",
+                        "WEBSOCKET_CUSTOM",
+                        "THREATLABZ",
+                        "CUSTOM",
+                        "PREDEFINED",
+                    ],
+                ),
+                default_action=dict(
+                    type="str", required=False, choices=["PASS", "BLOCK", "REDIRECT"]
+                ),
                 default_action_value=dict(type="str", required=False),
                 description=dict(type="str", required=False),
                 name=dict(type="str", required=False),
                 paranoia_level=dict(type="str", required=False),
-                protocol_type=dict(type="str", required=False, choices=["HTTP", "HTTPS", "FTP", "RDP", "SSH", "WEBSOCKET", "VNC", "NONE"]),
+                protocol_type=dict(
+                    type="str",
+                    required=False,
+                    choices=[
+                        "HTTP",
+                        "HTTPS",
+                        "FTP",
+                        "RDP",
+                        "SSH",
+                        "WEBSOCKET",
+                        "VNC",
+                        "NONE",
+                    ],
+                ),
                 rules=dict(
                     type="list",
                     elements="dict",
@@ -809,8 +886,24 @@ def main():
                             type="list",
                             elements="dict",
                             options=dict(
-                                lhs=dict(type="str", required=False, choices=["SIZE", "VALUE"]),
-                                op=dict(type="str", required=False, choices=["RX", "CONTAINS", "STARTS_WITH", "ENDS_WITH", "EQ", "LE", "GE"]),
+                                lhs=dict(
+                                    type="str",
+                                    required=False,
+                                    choices=["SIZE", "VALUE"],
+                                ),
+                                op=dict(
+                                    type="str",
+                                    required=False,
+                                    choices=[
+                                        "RX",
+                                        "CONTAINS",
+                                        "STARTS_WITH",
+                                        "ENDS_WITH",
+                                        "EQ",
+                                        "LE",
+                                        "GE",
+                                    ],
+                                ),
                                 rhs=dict(type="str", required=False),
                             ),
                         ),
@@ -818,21 +911,42 @@ def main():
                             type="list",
                             elements="str",
                         ),
-                        type=dict(type="str", required=False, choices=["REQUEST_HEADERS", "REQUEST_URI", "QUERY_STRING", "REQUEST_COOKIES", "REQUEST_METHOD", "REQUEST_BODY", "RESPONSE_HEADERS", "RESPONSE_BODY", "WS_MAX_PAYLOAD_SIZE", "WS_MAX_FRAGMENT_PER_MESSAGE"]),
+                        type=dict(
+                            type="str",
+                            required=False,
+                            choices=[
+                                "REQUEST_HEADERS",
+                                "REQUEST_URI",
+                                "QUERY_STRING",
+                                "REQUEST_COOKIES",
+                                "REQUEST_METHOD",
+                                "REQUEST_BODY",
+                                "RESPONSE_HEADERS",
+                                "RESPONSE_BODY",
+                                "WS_MAX_PAYLOAD_SIZE",
+                                "WS_MAX_FRAGMENT_PER_MESSAGE",
+                            ],
+                        ),
                     ),
                 ),
-                severity=dict(type="str", required=False, choices=["CRITICAL", "ERROR", "WARNING", "INFO"]),
+                severity=dict(
+                    type="str",
+                    required=False,
+                    choices=["CRITICAL", "ERROR", "WARNING", "INFO"],
+                ),
                 type=dict(type="str", required=False, choices=["REQUEST", "RESPONSE"]),
                 version=dict(type="str", required=False),
             ),
             required=False,
         ),
-
         predefined_controls=dict(
             type="list",
             elements="dict",
             options=dict(
-                action=dict(type="str", required=False, choices=["PASS", "BLOCK", "REDIRECT"]),
+                id=dict(type="str", required=False),
+                action=dict(
+                    type="str", required=False, choices=["PASS", "BLOCK", "REDIRECT"]
+                ),
                 action_value=dict(type="str", required=False),
                 associated_inspection_profile_names=dict(
                     type="list",
@@ -845,14 +959,34 @@ def main():
                 attachment=dict(type="str", required=False),
                 control_group=dict(type="str", required=False),
                 control_number=dict(type="str", required=False),
-                control_type=dict(type="str", required=False, choices=["WEBSOCKET_PREDEFINED", "WEBSOCKET_CUSTOM", "THREATLABZ", "CUSTOM", "PREDEFINED"]),
-                default_action=dict(type="str", required=False, choices=["PASS", "BLOCK", "REDIRECT"]),
+                control_type=dict(
+                    type="str",
+                    required=False,
+                    choices=[
+                        "WEBSOCKET_PREDEFINED",
+                        "WEBSOCKET_CUSTOM",
+                        "THREATLABZ",
+                        "CUSTOM",
+                        "PREDEFINED",
+                    ],
+                ),
+                default_action=dict(
+                    type="str", required=False, choices=["PASS", "BLOCK", "REDIRECT"]
+                ),
                 default_action_value=dict(type="str", required=False),
                 description=dict(type="str", required=False),
                 name=dict(type="str", required=False),
                 paranoia_level=dict(type="str", required=False),
-                protocol_type=dict(type="str", required=False, choices=["HTTP", "HTTPS", "FTP", "RDP", "SSH", "WEBSOCKET"]),
-                severity=dict(type="str", required=False, choices=["CRITICAL", "ERROR", "WARNING", "INFO"]),
+                protocol_type=dict(
+                    type="str",
+                    required=False,
+                    choices=["HTTP", "HTTPS", "FTP", "RDP", "SSH", "WEBSOCKET"],
+                ),
+                severity=dict(
+                    type="str",
+                    required=False,
+                    choices=["CRITICAL", "ERROR", "WARNING", "INFO"],
+                ),
                 version=dict(type="str", required=False),
             ),
             required=False,
@@ -862,7 +996,9 @@ def main():
             type="list",
             elements="dict",
             options=dict(
-                action=dict(type="str", required=False, choices=["PASS", "BLOCK", "REDIRECT"]),
+                action=dict(
+                    type="str", required=False, choices=["PASS", "BLOCK", "REDIRECT"]
+                ),
                 action_value=dict(type="str", required=False),
                 associated_customers=dict(
                     type="list",
@@ -885,8 +1021,20 @@ def main():
                 attachment=dict(type="str", required=False),
                 control_group=dict(type="str", required=False),
                 control_number=dict(type="str", required=False),
-                control_type=dict(type="str", required=False, choices=["WEBSOCKET_PREDEFINED", "WEBSOCKET_CUSTOM", "THREATLABZ", "CUSTOM", "PREDEFINED"]),
-                default_action=dict(type="str", required=False, choices=["PASS", "BLOCK", "REDIRECT"]),
+                control_type=dict(
+                    type="str",
+                    required=False,
+                    choices=[
+                        "WEBSOCKET_PREDEFINED",
+                        "WEBSOCKET_CUSTOM",
+                        "THREATLABZ",
+                        "CUSTOM",
+                        "PREDEFINED",
+                    ],
+                ),
+                default_action=dict(
+                    type="str", required=False, choices=["PASS", "BLOCK", "REDIRECT"]
+                ),
                 default_action_value=dict(type="str", required=False),
                 description=dict(type="str", required=False),
                 enabled=dict(type="bool", required=False),
@@ -895,12 +1043,20 @@ def main():
                 last_deployment_time=dict(type="str", required=False),
                 name=dict(type="str", required=False),
                 paranoia_level=dict(type="str", required=False),
-                rule_deployment_state=dict(type="str", required=False, choices=["NEW", "IN_PROGRESS", "COMPLETED"]),
+                rule_deployment_state=dict(
+                    type="str",
+                    required=False,
+                    choices=["NEW", "IN_PROGRESS", "COMPLETED"],
+                ),
                 rule_metadata=dict(type="str", required=False),
                 rule_processor=dict(type="str", required=False),
                 ruleset_name=dict(type="str", required=False),
                 ruleset_version=dict(type="str", required=False),
-                severity=dict(type="str", required=False, choices=["CRITICAL", "ERROR", "WARNING", "INFO"]),
+                severity=dict(
+                    type="str",
+                    required=False,
+                    choices=["CRITICAL", "ERROR", "WARNING", "INFO"],
+                ),
                 version=dict(type="str", required=False),
                 zscaler_info_url=dict(type="str", required=False),
             ),
@@ -910,7 +1066,9 @@ def main():
             type="list",
             elements="dict",
             options=dict(
-                action=dict(type="str", required=False, choices=["PASS", "BLOCK", "REDIRECT"]),
+                action=dict(
+                    type="str", required=False, choices=["PASS", "BLOCK", "REDIRECT"]
+                ),
                 action_value=dict(type="str", required=False),
                 associated_inspection_profile_names=dict(
                     type="list",
@@ -921,19 +1079,37 @@ def main():
                     ),
                 ),
                 control_number=dict(type="str", required=False),
-                control_type=dict(type="str", required=False, choices=["WEBSOCKET_PREDEFINED", "WEBSOCKET_CUSTOM", "THREATLABZ", "CUSTOM", "PREDEFINED"]),
-                default_action=dict(type="str", required=False, choices=["PASS", "BLOCK", "REDIRECT"]),
+                control_type=dict(
+                    type="str",
+                    required=False,
+                    choices=[
+                        "WEBSOCKET_PREDEFINED",
+                        "WEBSOCKET_CUSTOM",
+                        "THREATLABZ",
+                        "CUSTOM",
+                        "PREDEFINED",
+                    ],
+                ),
+                default_action=dict(
+                    type="str", required=False, choices=["PASS", "BLOCK", "REDIRECT"]
+                ),
                 default_action_value=dict(type="str", required=False),
                 description=dict(type="str", required=False),
                 id=dict(type="str", required=False),
                 name=dict(type="str", required=False),
                 paranoia_level=dict(type="str", required=False),
-                severity=dict(type="str", required=False, choices=["CRITICAL", "ERROR", "WARNING", "INFO"]),
+                severity=dict(
+                    type="str",
+                    required=False,
+                    choices=["CRITICAL", "ERROR", "WARNING", "INFO"],
+                ),
                 version=dict(type="str", required=False),
             ),
             required=False,
         ),
-        zs_defined_control_choice=dict(type="str", required=False, choices=["ALL", "SPECIFIC"]),
+        zs_defined_control_choice=dict(
+            type="str", required=False, choices=["ALL", "SPECIFIC"]
+        ),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
@@ -941,6 +1117,7 @@ def main():
         core(module)
     except Exception as e:
         module.fail_json(msg=to_native(e), exception=format_exc())
+
 
 if __name__ == "__main__":
     main()

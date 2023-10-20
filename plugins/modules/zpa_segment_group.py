@@ -91,11 +91,13 @@ from traceback import format_exc
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
-    deleteNone, normalize_app
+    deleteNone,
+    normalize_app,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+
 
 def core(module):
     state = module.params.get("state", None)
@@ -145,33 +147,42 @@ def core(module):
         if existing_group is not None:
             if differences_detected:
                 """Update"""
-                existing_group = deleteNone({
-                    "group_id": existing_group.get("id"),
-                    "name": existing_group.get("name"),
-                    "description": existing_group.get("description"),
-                    "enabled": existing_group.get("enabled"),
-                })
-                existing_group = client.segment_groups.update_group(**existing_group).to_dict()
+                existing_group = deleteNone(
+                    {
+                        "group_id": existing_group.get("id"),
+                        "name": existing_group.get("name"),
+                        "description": existing_group.get("description"),
+                        "enabled": existing_group.get("enabled"),
+                    }
+                )
+                existing_group = client.segment_groups.update_group(
+                    **existing_group
+                ).to_dict()
                 module.exit_json(changed=True, data=existing_group)
             else:
                 """No Changes Needed"""
                 module.exit_json(changed=False, data=existing_group)
         else:
             """Create"""
-            group = deleteNone({
-                "name": group.get("name"),
-                "description": group.get("description"),
-                "enabled": group.get("enabled"),
-            })
+            group = deleteNone(
+                {
+                    "name": group.get("name"),
+                    "description": group.get("description"),
+                    "enabled": group.get("enabled"),
+                }
+            )
             group = client.segment_groups.add_group(**group).to_dict()
             module.exit_json(changed=True, data=group)
-    elif state == "absent" and existing_group is not None and existing_group.get("id") is not None:
+    elif (
+        state == "absent"
+        and existing_group is not None
+        and existing_group.get("id") is not None
+    ):
         code = client.segment_groups.delete_group(group_id=existing_group.get("id"))
         if code > 299:
             module.exit_json(changed=False, data=None)
         module.exit_json(changed=True, data=existing_group)
     module.exit_json(changed=False, data={})
-
 
 
 def main():

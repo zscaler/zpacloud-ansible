@@ -93,19 +93,31 @@ class ZPAClientHelper(ZPA):
 
         provider = module.params.get("provider") or {}
 
-        client_id = provider.get("client_id") if provider else module.params.get("client_id")
+        client_id = (
+            provider.get("client_id") if provider else module.params.get("client_id")
+        )
         if not client_id:
             raise ValueError("client_id must be provided via provider or directly")
 
-        client_secret = provider.get("client_secret") if provider else module.params.get("client_secret")
+        client_secret = (
+            provider.get("client_secret")
+            if provider
+            else module.params.get("client_secret")
+        )
         if not client_secret:
             raise ValueError("client_secret must be provided via provider or directly")
 
-        customer_id = provider.get("customer_id") if provider else module.params.get("customer_id")
+        customer_id = (
+            provider.get("customer_id")
+            if provider
+            else module.params.get("customer_id")
+        )
         if not customer_id:
             raise ValueError("customer_id must be provided via provider or directly")
 
-        cloud_env = (provider.get("cloud") if provider else module.params.get("cloud")) or "PRODUCTION"
+        cloud_env = (
+            provider.get("cloud") if provider else module.params.get("cloud")
+        ) or "PRODUCTION"
         cloud_env = cloud_env.upper()
 
         if cloud_env not in VALID_ZPA_ENVIRONMENTS:

@@ -18,7 +18,7 @@
 
 - block:
     - name: Fetch the App Protection Profile
-      zscaler.zpacloud.zpa_app_protection_profile_info:
+      zscaler.zpacloud.zpa_app_protection_security_profile_info:
         provider: "{{ zpa_cloud }}"
         name: BD_AppProtection_Profile1
       register: profile_id

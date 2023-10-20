@@ -80,11 +80,12 @@ from traceback import format_exc
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
-    remove_cloud_suffix
+    remove_cloud_suffix,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+
 
 def core(module: AnsibleModule):
     network_id = module.params.get("id", None)
@@ -110,8 +111,7 @@ def core(module: AnsibleModule):
                     networks = [network]
             if not network_found:
                 module.fail_json(
-                    msg="Failed to retrieve Trusted Network Name: '%s'"
-                    % (network_name)
+                    msg="Failed to retrieve Trusted Network Name: '%s'" % (network_name)
                 )
     module.exit_json(changed=False, data=networks)
 

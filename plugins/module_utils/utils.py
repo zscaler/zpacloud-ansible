@@ -18,10 +18,12 @@ def deleteNone(_dict):
         _dict = type(_dict)(deleteNone(item) for item in _dict if item is not None)
     return _dict
 
+
 def remove_cloud_suffix(s: str) -> str:
     reg = re.compile(r"(.*)[\s]+\([a-zA-Z0-9\-_\.]*\)[\s]*$")
     res = reg.sub(r"\1", s)
     return res.strip()
+
 
 # Function to handle application segment port conversion list
 def convert_ports_list(obj_list):
@@ -112,6 +114,20 @@ def normalize_app(app):
         "adp_enabled",
         "app_id",
         "ip_anchored",
+        "action",
+        "control_number",
+        "control_rule_json",
+        "protocol_type",
+        "rules",
+        "version",
+        "threatlabz_controls",
+        "websocket_controls",
+        "zs_defined_control_choice",
+        "predef_controls_version",
+        "incarnation_number",
+        "control_type",
+        "check_control_deployment_status",
+        "controls_info",
     ]
     for attr in computed_values:
         normalized.pop(attr, None)
@@ -136,9 +152,17 @@ def normalize_app(app):
     # Normalizing clientless_app_ids attributes
     if "clientless_app_ids" in normalized:
         for clientless_app in normalized["clientless_app_ids"]:
-            for field in ["app_id", "id", "hidden", "portal", "path", "certificate_name", "cname", "local_domain"]:
+            for field in [
+                "app_id",
+                "id",
+                "hidden",
+                "portal",
+                "path",
+                "certificate_name",
+                "cname",
+                "local_domain",
+            ]:
                 clientless_app.pop(field, None)
-
 
     return normalized
 
@@ -422,6 +446,7 @@ def validate_iso3166_alpha2(country_code):
     except AttributeError:
         return False
 
+
 #### This validation function supports the App Protection Custom Controls
 def is_number(s):
     try:
@@ -430,31 +455,64 @@ def is_number(s):
     except ValueError:
         return False
 
+
 def in_list(val, lst):
     return val in lst
 
+
 def validate_rules(custom_ctl):
     for rule in custom_ctl.get("rules", []):
+        rule_type = rule.get("type")
+        conditions = rule.get("conditions", [])
+
+        # Common validation functions
+        def validate_size_condition(cond):
+            if cond.get("lhs") != "SIZE":
+                raise ValueError(f"Expected lhs == 'SIZE' for rule type {rule_type}")
+            if cond.get("op") not in ["EQ", "LE", "GE"]:
+                raise ValueError(f"Invalid op for rule type {rule_type} with lhs == 'SIZE'")
+            if not is_number(cond.get("rhs")):
+                raise ValueError(f"rhs must be a string number for rule type {rule_type} with lhs == 'SIZE'")
+
+        def validate_value_condition(cond):
+            if cond.get("lhs") != "VALUE":
+                raise ValueError(f"Expected lhs == 'VALUE' for rule type {rule_type}")
+            if cond.get("op") not in ["CONTAINS", "RX", "STARTS_WITH", "ENDS_WITH"]:
+                raise ValueError(f"Invalid op for rule type {rule_type} with lhs == 'VALUE'")
+
+        # Validating RESPONSE rules
         if custom_ctl.get("type") == "RESPONSE":
-            if rule.get("type") not in ["RESPONSE_HEADERS", "RESPONSE_BODY"]:
-                raise ValueError("when type == RESPONSE rules.type must be: RESPONSE_HEADERS || RESPONSE_BODY")
+            if rule_type not in ["RESPONSE_HEADERS", "RESPONSE_BODY"]:
+                raise ValueError("When type == RESPONSE, rules.type must be: RESPONSE_HEADERS or RESPONSE_BODY")
+
+            if not rule.get("names"):
+                raise ValueError("names must be set for RESPONSE rules")
+
+            for cond in conditions:
+                if cond.get("lhs") == "SIZE":
+                    validate_size_condition(cond)
+                elif cond.get("lhs") == "VALUE":
+                    validate_value_condition(cond)
+                else:
+                    raise ValueError(f"Invalid lhs for rule type {rule_type}")
+
+        # Validating REQUEST rules
         elif custom_ctl.get("type") == "REQUEST":
-            if rule.get("type") in ["REQUEST_HEADERS", "REQUEST_COOKIES"] and not rule.get("names"):
-                raise ValueError("when type == REQUEST and rules.type is: REQUEST_HEADERS || REQUEST_COOKIES the rules.names must be set")
-            if rule.get("type") in ["REQUEST_URI", "QUERY_STRING", "REQUEST_BODY", "REQUEST_METHOD"] and rule.get("names"):
-                raise ValueError("when type == REQUEST and rules.type is: REQUEST_URI || QUERY_STRING || REQUEST_BODY || REQUEST_METHOD the rules.name is not allowed")
+            for cond in conditions:
+                if rule_type in ["REQUEST_HEADERS", "REQUEST_URI", "QUERY_STRING", "REQUEST_COOKIES", "REQUEST_METHOD"]:
+                    if rule_type in ["REQUEST_HEADERS", "REQUEST_COOKIES"] and not rule.get("names"):
+                        raise ValueError(f"names must be set for rule type {rule_type}")
 
-        for cond in rule.get("conditions", []):
-            rule_types = ["REQUEST_HEADERS", "REQUEST_COOKIES", "REQUEST_URI", "QUERY_STRING", "REQUEST_BODY", "REQUEST_METHOD"]
-            if rule.get("type") in rule_types:
-                if cond.get("lhs") == "SIZE" and cond.get("op") not in ["EQ", "LE", "GE"] or not is_number(cond.get("rhs")):
-                    raise ValueError(f"when rules.type is: {rule.get('type')} the conditions.lhs must be == SIZE && conditions.op == EQ, LE, GE && condition.rhs must be a number(string)")
-                if cond.get("lhs") == "VALUE" and cond.get("op") not in ["CONTAINS", "STARTS_WITH", "ENDS_WITH", "RX"]:
-                    raise ValueError(f"when rules.type is: {rule.get('type')} the conditions.lhs must be == VALUE && conditions.op must be == CONTAINS, STARTS_WITH, ENDS_WITH, RX and rhs must be a string value")
-
-            if rule.get("type") == "REQUEST_METHOD":
-                if cond.get("lhs") == "SIZE" and cond.get("op") not in ["EQ", "LE", "GE"] or not is_number(cond.get("rhs")):
-                    raise ValueError(f"when rules.type is: {rule.get('type')} the conditions.lhs must be == SIZE && conditions.op == EQ, LE, GE && condition.rhs must be a number(string)")
-                if cond.get("lhs") == "VALUE" and cond.get("op") not in ["CONTAINS", "STARTS_WITH", "ENDS_WITH", "RX"] or cond.get("rhs") not in ["GET", "POST", "PUT", "PATCH", "CONNECT", "HEAD", "OPTIONS", "DELETE", "TRACE"]:
-                    raise ValueError(f"when rules.type is: {rule.get('type')} the conditions.lhs must be == VALUE && conditions.op must be == CONTAINS, STARTS_WITH, ENDS_WITH, RX && condition.rhs== GET,POST,PUT,PATCH,CONNECT,HEAD,OPTIONS,DELETE,TRACE")
-
+                    if cond.get("lhs") == "SIZE":
+                        validate_size_condition(cond)
+                    elif cond.get("lhs") == "VALUE":
+                        validate_value_condition(cond)
+                        if rule_type == "REQUEST_METHOD":
+                            if cond.get("rhs") not in ["GET", "POST", "PUT", "PATCH", "CONNECT", "HEAD", "OPTIONS", "DELETE", "TRACE"]:
+                                raise ValueError(f"Invalid rhs for rule type {rule_type} with lhs == 'VALUE'")
+                    else:
+                        raise ValueError(f"Invalid lhs for rule type {rule_type}")
+                else:
+                    raise ValueError(f"Invalid rule type for type == REQUEST: {rule_type}")
+        else:
+            raise ValueError("Invalid type value, it should be either RESPONSE or REQUEST")

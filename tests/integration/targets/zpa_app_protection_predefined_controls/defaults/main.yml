@@ -1,0 +1,6 @@
+---
+control1: Failed to parse request body
+control2: Exploitation of Java deserialization Apache Commons
+control3: "Detects classic SQL injection probings 3/3"
+control4: MySQL in-line comment detected
+control5: AngularJS client side template injection detected

@@ -25,10 +25,10 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: zpa_app_protection_security_profile_info
-short_description: Retrieves App Protection Security Profile information.
+module: zpa_app_protection_custom_control_info
+short_description: Retrieves App Protection Custom Control information.
 description:
-  - This module will allow the retrieval of information about an App Protection Profile from the ZPA Cloud.
+  - This module will allow the retrieval of information about an App Protection Custom Control from the ZPA Cloud.
 author:
   - William Guilherme (@willguibr)
 version_added: "1.0.0"
@@ -37,31 +37,31 @@ requirements:
 options:
   name:
     description:
-      - Name of the App Protection Security Profile.
+      - The name of the custom control.
     required: false
     type: str
   id:
     description:
-      - The unique identifier of the AppProtection profile.
+      - The unique identifier of the custom control..
     required: false
     type: str
 """
 
 EXAMPLES = """
-- name: Get Details of All App Protection profiles
-  zscaler.zpacloud.zpa_app_protection_security_profile_info:
+- name: Get Details of All App Protection Custom Control
+  zscaler.zpacloud.zpa_app_protection_custom_control_info:
 
-- name: Get Details of a Specific App Protection profiles by Name
-  zscaler.zpacloud.zpa_app_protection_security_profile_info:
+- name: Get Details of a Specific App Protection Custom Control by Name
+  zscaler.zpacloud.zpa_app_protection_custom_control_info:
     name: Example
 
-- name: Get Details of a specific App Protection profiles by ID
-  zscaler.zpacloud.zpa_app_protection_security_profile_info:
+- name: Get Details of a specific App Protection Custom Control by ID
+  zscaler.zpacloud.zpa_app_protection_custom_control_info:
     id: "216196257331282583"
 """
 
 RETURN = """
-# Returns information on a specified App Protection security profile.
+# Returns information on a specified App Protection Custom Control.
 """
 
 from traceback import format_exc
@@ -74,32 +74,32 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 
 
 def core(module: AnsibleModule):
-    profile_id = module.params.get("id", None)
-    profile_name = module.params.get("name", None)
+    control_id = module.params.get("id", None)
+    control_name = module.params.get("name", None)
     client = ZPAClientHelper(module)
-    profiles = []
-    if profile_id is not None:
-        profile_box = client.inspection.get_profile(profile_id=profile_id)
-        if profile_box is None:
+    controls = []
+    if control_id is not None:
+        control_box = client.inspection.get_custom_control(control_id=control_id)
+        if control_box is None:
             module.fail_json(
-                msg="Failed to retrieve App Protection Security Profile ID: '%s'"
-                % (profile_id)
+                msg="Failed to retrieve App Protection Custom Control ID: '%s'"
+                % (control_id)
             )
-        profiles = [profile_box.to_dict()]
+        controls = [control_box.to_dict()]
     else:
-        profiles = client.inspection.list_profiles().to_list()
-        if profile_name is not None:
-            profile_found = False
-            for profile in profiles:
-                if profile.get("name") == profile_name:
-                    profile_found = True
-                    profiles = [profile]
-            if not profile_found:
+        controls = client.inspection.list_custom_controls().to_list()
+        if control_name is not None:
+            control_found = False
+            for control in controls:
+                if control.get("name") == control_name:
+                    control_found = True
+                    controls = [control]
+            if not control_found:
                 module.fail_json(
-                    msg="Failed to retrieve App Protection Security Profile Name: '%s'"
-                    % (profile_name)
+                    msg="Failed to retrieve App Protection Custom Control Name: '%s'"
+                    % (control_name)
                 )
-    module.exit_json(changed=False, data=profiles)
+    module.exit_json(changed=False, data=controls)
 
 
 def main():

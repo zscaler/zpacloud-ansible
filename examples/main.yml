@@ -9,63 +9,102 @@
       cloud: "{{ lookup('env', 'ZPA_CLOUD') | default(omit) }}"
 
   tasks:
-    - name: Create a App Protection Custom Controls
-      zscaler.zpacloud.zpa_app_protection_custom_controls:
-        state: present
+    - name: Gather App Protection Predefined Control
+      zscaler.zpacloud.zpa_app_protection_predefined_control_info:
         provider: "{{ zpa_cloud }}"
-        name: "Example_App_Protection_Security_Profile"
-        description: "Example_App_Protection_Security_Profile"
-        action: "PASS"
-        default_action: "PASS"
-        paranoia_level: "1"
-        severity: "CRITICAL"
-        type: "REQUEST"
-        rules:
-          - conditions:
-              - lhs: SIZE
-                op: GE
-                rhs: "1000"
-            names:
-              - test1
-              - test2
-              - test3
-            type: RESPONSE_HEADERS
-
-          - conditions:
-              - lhs: SIZE
-                op: GE
-                rhs: "1000"
-            type: RESPONSE_BODY
+        name: "Failed to parse request body"
+      register: result
+    - name: predefined_controls
+      debug:
+        msg: "{{ result }}"
 
 
-
-
-
-
-
-
-
-
-
-
-    # - name: Create a App Protection Security Profile
-    #   zscaler.zpacloud.zpa_app_protection_security_profile:
-    #     state: present
+    # - name: Gather App Protection All Predefined Control
+    #   zscaler.zpacloud.zpa_app_protection_all_predefined_controls_info:
     #     provider: "{{ zpa_cloud }}"
-    #     name: "Example_App_Protection_Security_Profile"
-    #     description: "Example_App_Protection_Security_Profile"
-    #     paranoia_level: "1"
-    #     incarnation_number: "6"
-    #     check_control_deployment_status: true
-    #     predef_controls_version: "OWASP_CRS/3.3.0"
-    #     global_control_actions:
-    #       - "PREDEFINED:NONE"
-    #       - "CUSTOM:NONE"
-    #       - "WEBSOCKET:NONE"
-    #       - "THREATLABZ:NONE"
-    #       - "OVERRIDE_ACTION:NONE"
-        # controls_info:
-        #   - control_type": "THREATLABZ"
-        #     count": "23"
-        #   - control_type: "WEBSOCKET_PREDEFINED"
-        #     count": "11"
+    #     # verion: OWASP_CRS/3.3.0
+    #     # group_name: Preprocessors
+    #   register: result
+    # - name: predefined_controls
+    #   debug:
+    #     msg: "{{ result }}"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # - name: Create a App Protection Custom Controls (RESPONSE)
+    #   zscaler.zpacloud.zpa_app_protection_custom_control:
+    #     state: absent
+    #     provider: "{{ zpa_cloud }}"
+    #     name: "Example_App_Protection_Custom_Control"
+        # description: "Example_App_Protection_Custom_Control"
+        # action: "PASS"
+        # default_action: PASS
+        # paranoia_level: "2"
+        # severity: "CRITICAL"
+        # type: "REQUEST"
+        # protocol_type: "HTTP"
+        # rules:
+        #   - conditions:
+        #       - lhs: VALUE
+        #         op: RX
+        #         rhs: "test"
+        #       - lhs: SIZE
+        #         op: EQ
+        #         rhs: "1000"
+        #     names:
+        #       - example1
+        #       - example2
+        #       - example3
+        #     type: REQUEST_HEADERS
+
+        #   - conditions:
+        #       - lhs: VALUE
+        #         op: RX
+        #         rhs: "test"
+
+        #       - lhs: SIZE
+        #         op: LE
+        #         rhs: "1000"
+        #     names:
+        #       - example1
+        #       - example2
+        #       - example3
+        #     type: REQUEST_COOKIES
+
+        #   - conditions:
+        #       - lhs: SIZE
+        #         op: EQ
+        #         rhs: "1000"
+
+        #       - lhs: VALUE
+        #         op: CONTAINS
+        #         rhs: "test-ansible"
+        #     type: REQUEST_URI
+
+        #   - conditions:
+        #       - lhs: SIZE
+        #         op: EQ
+        #         rhs: "1000"
+
+        #       - lhs: VALUE
+        #         op: STARTS_WITH
+        #         rhs: "test-ansible"
+        #     type: QUERY_STRING
+
+# Add validation:
+# When action is REDIRECT, default_action_value must be set wiuth the redirect URL

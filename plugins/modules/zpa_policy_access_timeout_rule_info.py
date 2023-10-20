@@ -105,7 +105,8 @@ def core(module):
                 break
         if not found:
             module.fail_json(
-                msg="Failed to retrieve policy timeout rule Name: '%s'" % (policy_rule_name)
+                msg="Failed to retrieve policy timeout rule Name: '%s'"
+                % (policy_rule_name)
             )
     else:
         policy_rules = client.policies.list_rules(policy_type="timeout").to_list()

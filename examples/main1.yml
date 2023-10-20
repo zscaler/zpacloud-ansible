@@ -1,0 +1,40 @@
+- name: App Protection Profile
+  hosts: localhost
+
+  vars:
+    zpa_cloud:
+      client_id: "{{ lookup('env', 'ZPA_CLIENT_ID') }}"
+      client_secret: "{{ lookup('env', 'ZPA_CLIENT_SECRET') }}"
+      customer_id: "{{ lookup('env', 'ZPA_CUSTOMER_ID') }}"
+      cloud: "{{ lookup('env', 'ZPA_CLOUD') | default(omit) }}"
+
+  tasks:
+    # Gathering a specific predefined control
+    - name: Gather App Protection Predefined Control
+      zscaler.zpacloud.zpa_app_protection_predefined_control_info:
+        provider: "{{ zpa_cloud }}"
+        name: "Failed to parse request body"
+      register: result
+
+    - name: Create an App Protection Security Profile
+      zscaler.zpacloud.zpa_app_protection_security_profile:
+        state: present
+        provider: "{{ zpa_cloud }}"
+        name: "Example_App_Protection_Security_Profile"
+        description: "Example_App_Protection_Security_Profile"
+        paranoia_level: "4"
+        check_control_deployment_status: true
+        predef_controls_version: "OWASP_CRS/3.3.0"
+        zs_defined_control_choice: ALL
+        predefined_controls: "{{ result.data[0].id }}"
+        global_control_actions:
+          - "PREDEFINED:NONE"
+          - "CUSTOM:NONE"
+          - "WEBSOCKET:NONE"
+          - "THREATLABZ:NONE"
+          - "OVERRIDE_ACTION:NONE"
+        controls_info:
+          - control_type: "THREATLABZ"
+            count: "23"
+          - control_type: "WEBSOCKET_PREDEFINED"
+            count: "11"

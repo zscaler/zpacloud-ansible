@@ -310,6 +310,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
     ZPAClientHelper,
 )
 
+
 def core(module):
     state = module.params.get("state", None)
     client = ZPAClientHelper(module)
@@ -445,7 +446,9 @@ def core(module):
                         ),
                     )
                 )
-                module.warn("Prepared payload for update_segment: {}".format(existing_app))
+                module.warn(
+                    "Prepared payload for update_segment: {}".format(existing_app)
+                )
                 app = client.app_segments.update_segment(**existing_app)
                 module.exit_json(changed=True, data=app)
             else:

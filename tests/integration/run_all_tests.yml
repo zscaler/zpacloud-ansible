@@ -18,7 +18,7 @@
     - name: Running ZPA Integration Tests
       ansible.builtin.include_tasks: "{{ item }}"
       loop:
-        - targets/zpa_app_connector_groups/tasks/main.yml
+        # - targets/zpa_app_connector_groups/tasks/main.yml
         # - targets/zpa_service_edge_groups/tasks/main.yml
         # - targets/zpa_application_segment/tasks/main.yml
         # - targets/zpa_application_segment_browser_access/tasks/main.yml
@@ -27,6 +27,8 @@
         # - targets/zpa_server_group/tasks/main.yml
         # - targets/zpa_ba_certificate_info/tasks/main.yml
         # - targets/zpa_isolation_profile_info/tasks/main.yml
+        - targets/zpa_app_protection_predefined_controls/tasks/main.yml
+        # - targets/zpa_app_protection_custom_control/tasks/main.yml
         # - targets/zpa_app_protection_profile/tasks/main.yml
         # - targets/zpa_enrollement_certificate_info/tasks/main.yml
         # - targets/zpa_machine_group_info/tasks/main.yml

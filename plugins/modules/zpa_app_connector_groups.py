@@ -281,69 +281,71 @@ def core(module):
                 module.fail_json(msg=", ".join(all_errors))
 
         if existing_group is not None:
-          if differences_detected:
-            """Update"""
-            # Check if latitude and longitude need to be updated
-            existing_lat = existing_group.get("latitude")
-            new_lat = group.get("latitude")
-            if new_lat is not None:  # Check if new_lat is not None before comparing
-                if diff_suppress_func_coordinate(existing_lat, new_lat):
+            if differences_detected:
+                """Update"""
+                # Check if latitude and longitude need to be updated
+                existing_lat = existing_group.get("latitude")
+                new_lat = group.get("latitude")
+                if new_lat is not None:  # Check if new_lat is not None before comparing
+                    if diff_suppress_func_coordinate(existing_lat, new_lat):
+                        existing_group[
+                            "latitude"
+                        ] = existing_lat  # reset to original if they're deemed equal
+                else:
                     existing_group[
                         "latitude"
-                    ] = existing_lat  # reset to original if they're deemed equal
-            else:
-                existing_group[
-                    "latitude"
-                ] = existing_lat  # If new_lat is None, keep the existing value
+                    ] = existing_lat  # If new_lat is None, keep the existing value
 
-            existing_long = existing_group.get("longitude")
-            new_long = group.get("longitude")
-            if new_long is not None:  # Check if new_long is not None before comparing
-                if diff_suppress_func_coordinate(existing_long, new_long):
+                existing_long = existing_group.get("longitude")
+                new_long = group.get("longitude")
+                if (
+                    new_long is not None
+                ):  # Check if new_long is not None before comparing
+                    if diff_suppress_func_coordinate(existing_long, new_long):
+                        existing_group[
+                            "longitude"
+                        ] = existing_long  # reset to original if they're deemed equal
+                else:
                     existing_group[
                         "longitude"
-                    ] = existing_long  # reset to original if they're deemed equal
-            else:
-                existing_group[
-                    "longitude"
-                ] = existing_long  # If new_long is None, keep the existing value
+                    ] = existing_long  # If new_long is None, keep the existing value
 
-            existing_group = deleteNone(
-                dict(
-                    group_id=existing_group.get("id"),
-                    name=existing_group.get("name"),
-                    description=existing_group.get("description"),
-                    enabled=existing_group.get("enabled"),
-                    city_country=existing_group.get("city_country"),
-                    country_code=existing_group.get("country_code"),
-                    latitude=existing_group.get("latitude"),
-                    longitude=existing_group.get("longitude"),
-                    location=existing_group.get("location"),
-                    upgrade_day=existing_group.get("upgrade_day"),
-                    connector_ids=existing_group.get("connector_ids"),
-                    upgrade_time_in_secs=existing_group.get("upgrade_time_in_secs"),
-                    override_version_profile=existing_group.get(
-                        "override_version_profile"
-                    ),
-                    version_profile_id=existing_group.get("version_profile_id"),
-                    version_profile_name=existing_group.get("version_profile_name"),
-                    dns_query_type=existing_group.get("dns_query_type"),
-                    tcp_quick_ack_app=existing_group.get("tcp_quick_ack_app"),
-                    tcp_quick_ack_assistant=existing_group.get(
-                        "tcp_quick_ack_assistant"
-                    ),
-                    tcp_quick_ack_read_assistant=existing_group.get(
-                        "tcp_quick_ack_read_assistant"
-                    ),
-                    use_in_dr_mode=existing_group.get("use_in_dr_mode"),
-                    pra_enabled=existing_group.get("pra_enabled"),
-                    waf_disabled=existing_group.get("waf_disabled"),
+                existing_group = deleteNone(
+                    dict(
+                        group_id=existing_group.get("id"),
+                        name=existing_group.get("name"),
+                        description=existing_group.get("description"),
+                        enabled=existing_group.get("enabled"),
+                        city_country=existing_group.get("city_country"),
+                        country_code=existing_group.get("country_code"),
+                        latitude=existing_group.get("latitude"),
+                        longitude=existing_group.get("longitude"),
+                        location=existing_group.get("location"),
+                        upgrade_day=existing_group.get("upgrade_day"),
+                        connector_ids=existing_group.get("connector_ids"),
+                        upgrade_time_in_secs=existing_group.get("upgrade_time_in_secs"),
+                        override_version_profile=existing_group.get(
+                            "override_version_profile"
+                        ),
+                        version_profile_id=existing_group.get("version_profile_id"),
+                        version_profile_name=existing_group.get("version_profile_name"),
+                        dns_query_type=existing_group.get("dns_query_type"),
+                        tcp_quick_ack_app=existing_group.get("tcp_quick_ack_app"),
+                        tcp_quick_ack_assistant=existing_group.get(
+                            "tcp_quick_ack_assistant"
+                        ),
+                        tcp_quick_ack_read_assistant=existing_group.get(
+                            "tcp_quick_ack_read_assistant"
+                        ),
+                        use_in_dr_mode=existing_group.get("use_in_dr_mode"),
+                        pra_enabled=existing_group.get("pra_enabled"),
+                        waf_disabled=existing_group.get("waf_disabled"),
+                    )
                 )
-            )
-            existing_group = client.connectors.update_connector_group(
-                **existing_group
-            ).to_dict()
-            module.exit_json(changed=True, data=existing_group)
+                existing_group = client.connectors.update_connector_group(
+                    **existing_group
+                ).to_dict()
+                module.exit_json(changed=True, data=existing_group)
         else:
             """Create"""
             normalized_group = deleteNone(

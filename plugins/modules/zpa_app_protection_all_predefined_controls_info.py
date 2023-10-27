@@ -25,53 +25,42 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: zpa_policy_access_timeout_rule_info
-short_description: Retrieves policy timeout rule information.
+module: zpa_app_protection_all_predefined_controls_info
+short_description: Retrieves App Protection All Predefined Controls information.
 description:
-  - This module will allow the retrieval of information about a policy timeout rule.
+  - This module will allow the retrieval of information about an App Protection All Predefined Controls from the ZPA Cloud.
 author:
   - William Guilherme (@willguibr)
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   name:
     description:
-      - Name of the policy timeout rule.
+      - Name of the App Protection predefined control.
+    required: false
+    type: str
+  version:
+    description:
+      - The predefined control version.
     required: false
     type: str
   id:
     description:
-      - ID of the policy timeout rule.
+      - The unique identifier of the predefined control.
     required: false
     type: str
 """
 
 EXAMPLES = """
-- name: Gather information about all policy rules
-  zscaler.zpacloud.zpa_policy_access_timeout_rule_info:
-- name: Get Information About a Specific Timeout Rule by Name
-  zscaler.zpacloud.zpa_policy_access_timeout_rule_info:
-    name: "Example"
-- name: Get Information About a Specific Timeout Rule by ID
-  zscaler.zpacloud.zpa_policy_access_timeout_rule_info:
-    id: "216196257331292020"
+- name: Get Details of a Specific App All Predefined Controls
+  zscaler.zpacloud.zpa_app_protection_all_predefined_controls_info:
+  version    : "OWASP_CRS/3.3.0"
+  group_name : "Preprocessors"
 """
 
 RETURN = """
-# Returns information on a specified policy timeout rule.
+# Returns information on a specified App Protection All Predefined Controls.
 """
 
 from traceback import format_exc
@@ -82,42 +71,29 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
     ZPAClientHelper,
 )
 
-
-def core(module):
-    policy_rule_name = module.params.get("name", None)
-    policy_rule_id = module.params.get("id", None)
+def core(module: AnsibleModule):
+    group_name = module.params.get("group_name", None)
+    version = "OWASP_CRS/3.3.0"  # Implicitly set version
     client = ZPAClientHelper(module)
-    policy_rules = []
-    if policy_rule_id is not None:
-        policy_rule = client.policies.get_rule(
-            policy_type="timeout", rule_id=policy_rule_id
-        )
-        if policy_rule is None:
-            module.fail_json(msg="Failed to retrieve policy rule ID: '%s'" % (id))
-        policy_rules = [policy_rule]
-    elif policy_rule_name is not None:
-        rules = client.policies.list_rules(policy_type="timeout").to_list()
-        found = False
-        for rule in rules:
-            if rule.get("name") == policy_rule_name:
-                policy_rules = [rule]
-                found = True
-                break
-        if not found:
-            module.fail_json(
-                msg="Failed to retrieve policy timeout rule Name: '%s'"
-                % (policy_rule_name)
-            )
+
+    if group_name:
+        try:
+            # Use the new get_predef_control_group_by_name method
+            control_group = client.inspection.get_predef_control_group_by_name(group_name, version)
+            module.exit_json(changed=False, data=control_group.to_dict())
+        except ValueError as ve:
+            module.fail_json(msg=to_native(ve))
     else:
-        policy_rules = client.policies.list_rules(policy_type="timeout").to_list()
-    module.exit_json(changed=False, data=policy_rules)
+        # Fetch all control groups
+        all_control_groups = client.inspection.list_predef_controls(version=version).to_list()
+        module.exit_json(changed=False, data=all_control_groups)
 
 
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
-        name=dict(type="str", required=False),
-        id=dict(type="str", required=False),
+        group_name=dict(type="str", required=False),
+        version=dict(type="str", default="OWASP_CRS/3.3.0"),  # This is here for compatibility, but we'll always use the hardcoded version
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:

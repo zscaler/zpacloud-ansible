@@ -90,6 +90,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
     ZPAClientHelper,
 )
 
+
 def core(module):
     scim_group_name = module.params.get("name", None)
     scim_group_id = module.params.get("id", None)
@@ -97,15 +98,26 @@ def core(module):
     client = ZPAClientHelper(module)
 
     # Efficiently retrieve the idp_id and handle the case where idp_name is not found
-    idp_id = next((idp.get("id") for idp in client.idp.list_idps() if idp.get("name") == idp_name), None)
+    idp_id = next(
+        (
+            idp.get("id")
+            for idp in client.idp.list_idps()
+            if idp.get("name") == idp_name
+        ),
+        None,
+    )
     if not idp_id:
         module.fail_json(msg=f"IdP with name '{idp_name}' not found")
 
     # Optimized search using scim_group_name
     if scim_group_name:
-        scim_group = client.scim_groups.search_group(idp_id, scim_group_name) # Adjusted parameters
+        scim_group = client.scim_groups.search_group(
+            idp_id, scim_group_name
+        )  # Adjusted parameters
         if not scim_group:
-            module.fail_json(msg=f"Failed to retrieve SCIM Group Name: '{scim_group_name}'")
+            module.fail_json(
+                msg=f"Failed to retrieve SCIM Group Name: '{scim_group_name}'"
+            )
         module.exit_json(changed=False, data=[scim_group])
 
     # Handling the case when scim_group_id is provided
@@ -132,6 +144,7 @@ def main():
         core(module)
     except Exception as e:
         module.fail_json(msg=to_native(e), exception=format_exc())
+
 
 if __name__ == "__main__":
     main()

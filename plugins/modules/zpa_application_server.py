@@ -106,7 +106,8 @@ from traceback import format_exc
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
-    deleteNone, normalize_app
+    deleteNone,
+    normalize_app,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
@@ -170,10 +171,14 @@ def core(module):
                         description=existing_server.get("description"),
                         address=existing_server.get("address"),
                         enabled=existing_server.get("enabled"),
-                        app_server_group_ids=existing_server.get("app_server_group_ids"),
+                        app_server_group_ids=existing_server.get(
+                            "app_server_group_ids"
+                        ),
                     )
                 )
-                existing_server = client.servers.update_server(**existing_server).to_dict()
+                existing_server = client.servers.update_server(
+                    **existing_server
+                ).to_dict()
                 module.exit_json(changed=True, data=existing_server)
             else:
                 """No Changes Needed"""

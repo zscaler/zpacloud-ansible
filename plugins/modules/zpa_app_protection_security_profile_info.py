@@ -25,8 +25,8 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: zpa_app_protection_profile_info
-short_description: Retrieves Isolation Profile information.
+module: zpa_app_protection_security_profile_info
+short_description: Retrieves App Protection Security Profile information.
 description:
   - This module will allow the retrieval of information about an App Protection Profile from the ZPA Cloud.
 author:
@@ -35,45 +35,33 @@ version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   name:
     description:
-      - Name of the Cloud Browser Isolation profile.
+      - Name of the App Protection Security Profile.
     required: false
     type: str
   id:
     description:
-      - ID of the Cloud Browser Isolation profile.
+      - The unique identifier of the AppProtection profile.
     required: false
     type: str
 """
 
 EXAMPLES = """
 - name: Get Details of All App Protection profiles
-  zscaler.zpacloud.zpa_policy_access_app_protection_rule_info:
+  zscaler.zpacloud.zpa_app_protection_security_profile_info:
 
 - name: Get Details of a Specific App Protection profiles by Name
-  zscaler.zpacloud.zpa_policy_access_app_protection_rule_info:
+  zscaler.zpacloud.zpa_app_protection_security_profile_info:
     name: Example
 
 - name: Get Details of a specific App Protection profiles by ID
-  zscaler.zpacloud.zpa_policy_access_app_protection_rule_info:
+  zscaler.zpacloud.zpa_app_protection_security_profile_info:
     id: "216196257331282583"
 """
 
 RETURN = """
-# Returns information on a specified App Protection profiles .
+# Returns information on a specified App Protection security profile.
 """
 
 from traceback import format_exc
@@ -94,7 +82,7 @@ def core(module: AnsibleModule):
         profile_box = client.inspection.get_profile(profile_id=profile_id)
         if profile_box is None:
             module.fail_json(
-                msg="Failed to retrieve Cloud Browser Isolation profile ID: '%s'"
+                msg="Failed to retrieve App Protection Security Profile ID: '%s'"
                 % (profile_id)
             )
         profiles = [profile_box.to_dict()]
@@ -108,7 +96,7 @@ def core(module: AnsibleModule):
                     profiles = [profile]
             if not profile_found:
                 module.fail_json(
-                    msg="Failed to retrieve App Protection Profile Name: '%s'"
+                    msg="Failed to retrieve App Protection Security Profile Name: '%s'"
                     % (profile_name)
                 )
     module.exit_json(changed=False, data=profiles)

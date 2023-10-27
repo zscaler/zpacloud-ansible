@@ -262,17 +262,25 @@ def core(module):
             new_lat = group.get("latitude")
             if new_lat is not None:  # Check if new_lat is not None before comparing
                 if diff_suppress_func_coordinate(existing_lat, new_lat):
-                    existing_group["latitude"] = existing_lat  # reset to original if they're deemed equal
+                    existing_group[
+                        "latitude"
+                    ] = existing_lat  # reset to original if they're deemed equal
             else:
-                existing_group["latitude"] = existing_lat  # If new_lat is None, keep the existing value
+                existing_group[
+                    "latitude"
+                ] = existing_lat  # If new_lat is None, keep the existing value
 
             existing_long = existing_group.get("longitude")
             new_long = group.get("longitude")
             if new_long is not None:  # Check if new_long is not None before comparing
                 if diff_suppress_func_coordinate(existing_long, new_long):
-                    existing_group["longitude"] = existing_long  # reset to original if they're deemed equal
+                    existing_group[
+                        "longitude"
+                    ] = existing_long  # reset to original if they're deemed equal
             else:
-                existing_group["longitude"] = existing_long  # If new_long is None, keep the existing value
+                existing_group[
+                    "longitude"
+                ] = existing_long  # If new_long is None, keep the existing value
 
             existing_group = deleteNone(
                 dict(

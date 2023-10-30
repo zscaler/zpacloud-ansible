@@ -34,19 +34,11 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
+    - zscaler.zpacloud.fragments.enabled_state
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   name:
     description:
       - Name of the App Connector Group.
@@ -143,19 +135,12 @@ options:
       - Name of the version profile.
     required: false
     type: str
-  state:
-    description:
-      - Whether the app connector group should be present or absent.
-    type: str
-    choices:
-        - present
-        - absent
-    default: present
 """
 
 EXAMPLES = """
 - name: Create/Update/Delete an App Connector Group
   zscaler.zpacloud.zpa_app_connector_groups:
+    provider: "{{ zpa_cloud }}"
     name: "Example"
     description: "Example2"
     enabled: true
@@ -264,7 +249,7 @@ def core(module):
         if key not in fields_to_exclude and normalized_existing_group.get(key) != value:
             differences_detected = True
             module.warn(
-                f"Difference detected in {key}. Current: {normalized_existing_group.get(key)}, Desired: {value}"
+                "Difference detected in {key}. Current: {normalized_existing_group.get(key)}, Desired: {value}"
             )
 
     if existing_group is not None:
@@ -274,8 +259,8 @@ def core(module):
 
     if state == "present":
         if latitude is not None and longitude is not None:
-            _, lat_errors = validate_latitude(latitude)
-            _, lon_errors = validate_longitude(longitude)
+            lat_errors = validate_latitude(latitude)
+            lon_errors = validate_longitude(longitude)
             if lat_errors or lon_errors:
                 all_errors = lat_errors + lon_errors
                 module.fail_json(msg=", ".join(all_errors))

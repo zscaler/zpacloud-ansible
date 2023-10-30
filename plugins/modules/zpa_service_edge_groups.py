@@ -34,19 +34,11 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
+    - zscaler.zpacloud.fragments.enabled_state
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   name:
     description:
       - Name of the Service Edge Group.
@@ -151,19 +143,12 @@ options:
       - Name of the version profile.
     required: false
     type: str
-  state:
-    description:
-      - Whether the Service Edge Group should be present or absent.
-    type: str
-    choices:
-        - present
-        - absent
-    default: present
 """
 
 EXAMPLES = """
 - name: Create/Update/Delete an Service Edge Group
   zscaler.zpacloud.zpa_service_edge_groups:
+    provider: "{{ zpa_cloud }}"
     name: "Example"
     description: "Example2"
     enabled: true
@@ -248,8 +233,8 @@ def core(module):
 
     if state == "present":
         if latitude is not None and longitude is not None:
-            _, lat_errors = validate_latitude(latitude)
-            _, lon_errors = validate_longitude(longitude)
+            lat_errors = validate_latitude(latitude)
+            lon_errors = validate_longitude(longitude)
 
             if lat_errors or lon_errors:
                 all_errors = lat_errors + lon_errors

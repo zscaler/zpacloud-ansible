@@ -34,6 +34,9 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
 options:
   name:
     description:
@@ -55,13 +58,16 @@ options:
 EXAMPLES = """
 - name: Get Details of All App Protection Predefined Control
   zscaler.zpacloud.zpa_app_protection_predefined_control_info:
+    provider: "{{ zpa_cloud }}"
 
 - name: Get Details of a Specific App Predefined Control by Name
   zscaler.zpacloud.zpa_app_protection_predefined_control_info:
+    provider: "{{ zpa_cloud }}"
     name: Example
 
 - name: Get Details of a specific App Predefined Control by ID
   zscaler.zpacloud.zpa_app_protection_predefined_control_info:
+    provider: "{{ zpa_cloud }}"
     id: "216196257331282583"
 """
 
@@ -87,7 +93,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 )
 
 
-def core(module: AnsibleModule):
+def core(module):
     control_id = module.params.get("id")
     control_name = module.params.get("name")
     version = module.params.get("version")
@@ -98,13 +104,15 @@ def core(module: AnsibleModule):
         control_box = client.inspection.get_predef_control(control_id=control_id)
         if not control_box:
             module.fail_json(
-                msg=f"Failed to retrieve App Protection Predefined Control ID: '{control_id}'"
+                msg="Failed to retrieve App Protection Predefined Control ID: '{control_id}'"
             )
         controls = [control_box.to_dict()]
 
     elif control_name:
         try:
-            control = client.inspection.get_predef_control_by_name(control_name, version)
+            control = client.inspection.get_predef_control_by_name(
+                control_name, version
+            )
             controls = [control.to_dict()]
         except ValueError as ve:
             module.fail_json(msg=to_native(ve))

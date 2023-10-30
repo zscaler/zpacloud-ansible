@@ -34,19 +34,10 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   name:
     description:
       - Name of the saml attribute.
@@ -67,11 +58,16 @@ options:
 EXAMPLES = """
 - name: Get Information About All SAML Attributes
   zscaler.zpacloud.zpa_saml_attribute_info:
+    provider: "{{ zpa_cloud }}"
+
 - name: Get Information About Saml Attribute by Attribute Name
   zscaler.zpacloud.zpa_saml_attribute_info:
+    provider: "{{ zpa_cloud }}"
     name: DepartmentName_User
+
 - name: Get Information About Saml Attribute by Attribute ID
   zscaler.zpacloud.zpa_saml_attribute_info:
+    provider: "{{ zpa_cloud }}"
     id: 216196257331285827
 """
 
@@ -88,7 +84,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 )
 
 
-def core(module: AnsibleModule):
+def core(module):
     saml_attr_name = module.params.get("name", None)
     saml_attr_id = module.params.get("id", None)
     idp_name = module.params.get("idp_name", None)

@@ -34,19 +34,10 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   log_type:
     description:
       - Log type
@@ -58,11 +49,8 @@ options:
 EXAMPLES = """
     - name: Gather LSS Log types formats
       zscaler.zpacloud.zpa_lss_config_log_types_formats_info:
+        provider: "{{ zpa_cloud }}"
         log_type: zpn_trans_log
-      register: log_types_formats
-    - name: log_types_formats
-      debug:
-        msg: "{{ log_types_formats }}"
 """
 
 RETURN = """
@@ -80,7 +68,6 @@ data:
     ]
 """
 
-from re import T
 from traceback import format_exc
 
 from ansible.module_utils._text import to_native

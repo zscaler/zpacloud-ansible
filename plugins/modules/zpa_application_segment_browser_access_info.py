@@ -34,19 +34,10 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   name:
     description:
       - Name of the App Connector Group.
@@ -61,17 +52,17 @@ options:
 
 EXAMPLES = """
 - name: Gather information about all browser access application segments
-  zscaler.zpacloud.zpa_browser_access_info:
-  register: all_browser_access
-
-- debug:
-  msg: "{{ all_browser_access }}"
+  zscaler.zpacloud.zpa_application_segment_browser_access_info:
+    provider: "{{ zpa_cloud }}"
 
 - name: Browser Access Application Segment by Name
-  zscaler.zpacloud.zpa_browser_access_info:
+  zscaler.zpacloud.zpa_application_segment_browser_access_info:
+    provider: "{{ zpa_cloud }}"
     name: "Example"
+
 - name: Browser Access Application Segment by ID
-  zscaler.zpacloud.zpa_browser_access_info:
+  zscaler.zpacloud.zpa_application_segment_browser_access_info:
+    provider: "{{ zpa_cloud }}"
     id: "198288282"
 
 """
@@ -89,7 +80,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 )
 
 
-def core(module: AnsibleModule):
+def core(module):
     ba_appsegment_id = module.params.get("id", None)
     ba_appsegment_name = module.params.get("name", None)
     client = ZPAClientHelper(module)

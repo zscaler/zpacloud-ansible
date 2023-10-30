@@ -35,6 +35,9 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
 options:
   client_id:
     description: ""
@@ -53,9 +56,7 @@ options:
 EXAMPLES = """
 - name: Get Details About All LSS Client Types
   zscaler.zpacloud.zpa_lss_client_types_info:
-  register: lss_client_typeps
-- debug:
-    msg: "{{ lss_client_typeps }}"
+    provider: "{{ zpa_cloud }}"
 
 """
 

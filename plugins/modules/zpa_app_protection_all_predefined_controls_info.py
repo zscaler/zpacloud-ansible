@@ -34,6 +34,9 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
 options:
   name:
     description:
@@ -55,8 +58,9 @@ options:
 EXAMPLES = """
 - name: Get Details of a Specific App All Predefined Controls
   zscaler.zpacloud.zpa_app_protection_all_predefined_controls_info:
-  version    : "OWASP_CRS/3.3.0"
-  group_name : "Preprocessors"
+    provider: "{{ zpa_cloud }}"
+    version    : "OWASP_CRS/3.3.0"
+    group_name : "Preprocessors"
 """
 
 RETURN = """
@@ -71,7 +75,8 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
     ZPAClientHelper,
 )
 
-def core(module: AnsibleModule):
+
+def core(module):
     group_name = module.params.get("group_name", None)
     version = "OWASP_CRS/3.3.0"  # Implicitly set version
     client = ZPAClientHelper(module)
@@ -79,13 +84,17 @@ def core(module: AnsibleModule):
     if group_name:
         try:
             # Use the new get_predef_control_group_by_name method
-            control_group = client.inspection.get_predef_control_group_by_name(group_name, version)
+            control_group = client.inspection.get_predef_control_group_by_name(
+                group_name, version
+            )
             module.exit_json(changed=False, data=control_group.to_dict())
         except ValueError as ve:
             module.fail_json(msg=to_native(ve))
     else:
         # Fetch all control groups
-        all_control_groups = client.inspection.list_predef_controls(version=version).to_list()
+        all_control_groups = client.inspection.list_predef_controls(
+            version=version
+        ).to_list()
         module.exit_json(changed=False, data=all_control_groups)
 
 
@@ -93,7 +102,9 @@ def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
         group_name=dict(type="str", required=False),
-        version=dict(type="str", default="OWASP_CRS/3.3.0"),  # This is here for compatibility, but we'll always use the hardcoded version
+        version=dict(
+            type="str", default="OWASP_CRS/3.3.0"
+        ),  # This is here for compatibility, but we'll always use the hardcoded version
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:

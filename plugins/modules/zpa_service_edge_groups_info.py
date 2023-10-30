@@ -34,19 +34,10 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   name:
     description:
       - Name of the Service Edge Group..
@@ -63,12 +54,16 @@ options:
 EXAMPLES = """
 - name: Get information about all Service Edge Groups
   zscaler.zpacloud.zpa_service_edge_groups_info:
+    provider: "{{ zpa_cloud }}"
+
 - name: Get information about Service Edge Connector Group by ID
   zscaler.zpacloud.zpa_service_edge_groups_info:
+    provider: "{{ zpa_cloud }}"
     id: "198288282"
 
 - name: Get information about Service Edge Connector Group by Name
   zscaler.zpacloud.zpa_service_edge_groups_info:
+    provider: "{{ zpa_cloud }}"
     name: "Example"
 """
 
@@ -86,7 +81,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 )
 
 
-def core(module: AnsibleModule):
+def core(module):
     group_id = module.params.get("id", None)
     group_name = module.params.get("name", None)
     client = ZPAClientHelper(module)

@@ -34,19 +34,11 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
+    - zscaler.zpacloud.fragments.enabled_state
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   id:
     description:
       - ID of the application.
@@ -115,6 +107,7 @@ options:
       apps_config:
         description: "List of applications to be configured"
         type: list
+        elements: dict
         required: False
       name:
         description: "The name of the application"
@@ -256,43 +249,63 @@ options:
     type: list
     elements: str
     required: true
-  state:
-    description: "Whether the app should be present or absent."
-    type: str
-    choices:
-        - present
-        - absent
-    default: present
 """
 
 EXAMPLES = """
-- name: Create/Update/Delete an application segment.
-  zscaler.zpacloud.zpa_application_segment:
-    name: Example Application Segment
-    description: Example Application Segment
+- name: Create an Application Segment PRA
+  zscaler.zpacloud.zpa_application_segment_pra:
+    provider: "{{ zpa_cloud }}"
+    name: Ansible_Application_Segment_PRA
+    description: Ansible_Application_Segment_PRA
     enabled: true
-    health_reporting: ON_ACCESS
-    bypass_type: NEVER
     is_cname_enabled: true
+    tcp_keep_alive: true
+    passive_health_enabled: true
+    select_connector_close_to_app: false
+    health_check_type: "DEFAULT"
+    health_reporting: "ON_ACCESS"
+    bypass_type: "NEVER"
+    icmp_access_type: false
     tcp_port_range:
-      - from: "80"
-        to: "80"
+      - from: "22"
+        to: "22"
+      - from: "3389"
+        to: "3389"
     domain_names:
-      - crm.example.com
-    segment_group_id: "216196257331291896"
+      - ssh_pra.example.com
+      - rdp_pra.example.com
+    segment_group_id: "216196257331368720"
     server_group_ids:
-      - "216196257331291969"
+      - "216196257331368722"
+    common_apps_dto:
+      apps_config:
+        - name: "ssh_pra"
+          description: "Description for common app"
+          domain: ssh_pra.example.com
+          application_port: "22"  # Adjusted this to be a string
+          application_protocol: "SSH"
+          enabled: true
+          app_types:
+            - "SECURE_REMOTE_ACCESS"
+        - name: "rdp_pra"
+          description: "Description for common app"
+          domain: rdp_pra.example.com
+          application_port: "3389"  # Adjusted this to be a string
+          application_protocol: "RDP"
+          connection_security: "ANY"
+          enabled: true
+          app_types:
+            - "SECURE_REMOTE_ACCESS"
 """
 
 RETURN = """
-# The newly created application segment resource record.
+# The newly created privileged remote access application segment resource record.
 """
 
 from traceback import format_exc
 
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
-from zscaler.exceptions.exceptions import BadRequestError
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     deleteNone,
     convert_ports_list,
@@ -345,7 +358,7 @@ def core(module):
         ] = common_apps_dto  # Ensuring the key is set in the dictionary
 
     # For debugging purposes: Print the app dictionary before API calls
-    # module.warn(f"Final Payload before API call: {app}")
+    # module.warn("Final Payload before API call: {app}")
 
     # Usage for tcp_keep_alive
     tcp_keep_alive = module.params.get("tcp_keep_alive")
@@ -363,7 +376,9 @@ def core(module):
     else:
         # You might want to fail the module here since you only want to allow boolean values
         module.fail_json(
-            msg=f"Invalid value for icmp_access_type: {icmp_access_type}. Only boolean values are allowed."
+            msg="Invalid value for icmp_access_type: {}. Only boolean values are allowed.".format(
+                icmp_access_type
+            )
         )
 
     select_connector_close_to_app = module.params.get(
@@ -399,7 +414,7 @@ def core(module):
             differences_detected = True
             break
         module.warn(
-            f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+            "Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
         )
 
     if existing_app is not None:

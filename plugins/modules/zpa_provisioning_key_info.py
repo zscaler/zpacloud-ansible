@@ -34,19 +34,10 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   name:
     description:
       - Name of the provisioning key.
@@ -69,15 +60,18 @@ options:
 EXAMPLES = """
 - name: Gather Details of All SERVICE_EDGE_GRP Provisioning Keys
   zscaler.zpacloud.zpa_provisioning_key_info:
+    provider: "{{ zpa_cloud }}"
     association_type: "SERVICE_EDGE_GRP"
 
 - name: Gather Details of All SERVICE_EDGE_GRP Provisioning Keys by Name
   zscaler.zpacloud.zpa_provisioning_key_info:
+    provider: "{{ zpa_cloud }}"
     name: "Example Service Edge Group"
     association_type: "SERVICE_EDGE_GRP"
 
 - name: Gather Details of All SERVICE_EDGE_GRP Provisioning Keys by ID
   zscaler.zpacloud.zpa_provisioning_key_info:
+    provider: "{{ zpa_cloud }}"
     id: "8691"
     association_type: "SERVICE_EDGE_GRP"
 """
@@ -86,7 +80,6 @@ RETURN = """
 # Returns information on a specified provisioning key resource.
 """
 
-from re import T
 from traceback import format_exc
 
 from ansible.module_utils._text import to_native
@@ -101,7 +94,7 @@ from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 
 
-def core(module: AnsibleModule):
+def core(module):
     provisioning_key_id = module.params.get("id", None)
     provisioning_key_name = module.params.get("name", None)
     association_type = module.params.get("association_type", None)

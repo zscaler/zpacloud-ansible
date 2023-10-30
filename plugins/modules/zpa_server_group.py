@@ -34,34 +34,25 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
+    - zscaler.zpacloud.fragments.enabled_state
 options:
-  client_id:
-    description: ""
-    required: false
+  id:
     type: str
-  client_secret:
     description: ""
-    required: false
+    required: False
+  name:
     type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
-  applications:
-    type: list
-    elements: dict
-    suboptions:
-      name:
-        required: false
-        type: str
-        description: ""
-      id:
-        required: true
-        type: str
-        description: ""
-    required: false
+    required: True
     description:
-      - This field is a json array of server_group-connector-id objects only.
+      - This field defines the name of the server group.
+  description:
+    type: str
+    required: False
+    description:
+      - This field is the description of the server group.
   enabled:
     type: bool
     required: false
@@ -72,11 +63,6 @@ options:
     required: false
     description:
       - This field controls dynamic discovery of the servers.
-  name:
-    type: str
-    required: True
-    description:
-      - This field defines the name of the server group.
   server_ids:
     type: list
     elements: str
@@ -90,23 +76,6 @@ options:
     required: false
     description:
       - List of server_group-connector ID objects.
-  description:
-    type: str
-    required: False
-    description:
-      - This field is the description of the server group.
-  id:
-    type: str
-    description: ""
-  state:
-    description:
-      - Whether the server group should be present or absent.
-    default: present
-    choices:
-      - present
-      - absent
-    type: str
-
 """
 
 EXAMPLES = """
@@ -179,7 +148,7 @@ def core(module):
         if key not in fields_to_exclude and current_app.get(key) != value:
             differences_detected = True
             module.warn(
-                f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+                "Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
             )
 
     if existing_server_group is not None:

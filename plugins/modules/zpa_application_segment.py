@@ -34,19 +34,11 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
+    - zscaler.zpacloud.fragments.enabled_state
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   id:
     description:
       - ID of the application.
@@ -206,18 +198,12 @@ options:
     type: list
     elements: str
     required: true
-  state:
-    description: "Whether the app should be present or absent."
-    type: str
-    choices:
-        - present
-        - absent
-    default: present
 """
 
 EXAMPLES = """
 - name: Create/Update/Delete an application segment.
   zscaler.zpacloud.zpa_application_segment:
+    provider: "{{ zpa_cloud }}"
     name: Example Application Segment
     description: Example Application Segment
     enabled: true
@@ -302,7 +288,9 @@ def core(module):
     else:
         # You might want to fail the module here since you only want to allow boolean values
         module.fail_json(
-            msg=f"Invalid value for icmp_access_type: {icmp_access_type}. Only boolean values are allowed."
+            msg="Invalid value for icmp_access_type: {}. Only boolean values are allowed.".format(
+                icmp_access_type
+            )
         )
 
     select_connector_close_to_app = module.params.get(
@@ -336,7 +324,7 @@ def core(module):
         if key not in fields_to_exclude and current_app.get(key) != value:
             differences_detected = True
             module.warn(
-                f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+                "Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
             )
 
     if existing_app is not None:

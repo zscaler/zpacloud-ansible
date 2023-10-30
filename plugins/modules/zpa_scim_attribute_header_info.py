@@ -34,19 +34,10 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   name:
     description:
       - Name of the scim attribute.
@@ -67,13 +58,18 @@ options:
 EXAMPLES = """
 - name: Get Information About All SCIM Attribute of an IDP
   zscaler.zpacloud.zpa_scim_attribute_header_info:
+    provider: "{{ zpa_cloud }}"
     idp_name: IdP_Name
+
 - name: Get Information About the SCIM Attribute by Name
   zscaler.zpacloud.zpa_scim_attribute_header_info:
+    provider: "{{ zpa_cloud }}"
     name: costCenter
     idp_name: IdP_Name
+
 - name: Get Information About the SCIM Attribute by ID
   zscaler.zpacloud.zpa_scim_attribute_header_info:
+    provider: "{{ zpa_cloud }}"
     id: 216196257331285842
     idp_name: IdP_Name
 """
@@ -82,7 +78,6 @@ RETURN = """
 # Returns information on a specified SCIM Attribute Header.
 """
 
-from re import T
 from traceback import format_exc
 
 from ansible.module_utils._text import to_native

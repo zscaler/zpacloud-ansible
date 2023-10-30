@@ -34,19 +34,11 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
+    - zscaler.zpacloud.fragments.enabled_state
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   action:
     description:
       - This is for providing the rule action.
@@ -134,13 +126,13 @@ options:
             type: str
             required: False
           lhs:
-            description:
+            description: >
               - This signifies the key for the object type
               - String ID example: "id"
             type: str
             required: True
           rhs:
-            description:
+            description: >
               - This denotes the value for the given object type. Its value depends upon the key
               - For APP, APP_GROUP, and IDP, the supported value is entity id.
               - For CLIENT_TYPE, the supported values are zpn_client_type_zapp (for ZApp) and zpn_client_type_exporter (for Clientless).
@@ -149,7 +141,7 @@ options:
             type: str
             required: False
           object_type:
-            description:
+            description: >
               - This is for specifying the policy criteria
               - POSTURE and TRUSTED_NETWORK values are only supported for the CLIENT_TYPE.
             type: str
@@ -168,43 +160,42 @@ options:
               - EDGE_CONNECTOR_GROUP
               - COUNTRY_CODE
               - PLATFORM
-  state:
-    description: "Whether the app should be present or absent."
-    type: str
-    choices:
-        - present
-        - absent
-    default: present
 """
 
 EXAMPLES = """
 - name: Gather ID for Trusted Network Corp-Trusted-Networks
   zscaler.zpacloud.zpa_trusted_networks_info:
+    provider: "{{ zpa_cloud }}"
     name: Corp-Trusted-Networks
   register: network_id
 
 - name: Gather ID for Posture Profiles CrowdStrike_ZPA_ZTA_40
   zscaler.zpacloud.zpa_posture_profile_info:
+    provider: "{{ zpa_cloud }}"
     name: CrowdStrike_ZPA_ZTA_40
   register: posture1
 
 - name: Gather ID for Machine Group CrowdStrike_ZPA_ZTA_80
   zscaler.zpacloud.zpa_machine_group_info:
+    provider: "{{ zpa_cloud }}"
     name: Example MGR01
   register: machine_groups
 
 - name: Gather ID for Segment Group Example100
   zscaler.zpacloud.zpa_segment_group_info:
+    provider: "{{ zpa_cloud }}"
     name: "Example100"
   register: segment_group
 
 - name: Gather ID for App Segment app01
   zscaler.zpacloud.zpa_application_segment_info:
+    provider: "{{ zpa_cloud }}"
     name: "app01"
   register: app01
 
 - name: Create/update/delete a policy rule
   zscaler.zpacloud.zpa_policy_access_rule:
+    provider: "{{ zpa_cloud }}"
     name: "Ansible_Access_Policy_Rule"
     description: "Ansible_Access_Policy_Rule"
     action: "ALLOW"
@@ -257,7 +248,6 @@ RETURN = """
 """
 
 from traceback import format_exc
-
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
@@ -333,7 +323,7 @@ def core(module):
             if key not in fields_to_exclude and current_policy.get(key) != value:
                 differences_detected = True
                 module.warn(
-                    f"Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}"
+                    "Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}"
                 )
 
     if existing_policy is not None:
@@ -473,11 +463,11 @@ def main():
                     object_type is None or object_type == ""
                 ):  # Explicitly check for None or empty string
                     module.fail_json(
-                        msg=f"object_type cannot be empty or None. Must be one of: {', '.join(valid_object_types)}"
+                        msg="object_type cannot be empty or None. Must be one of: {', '.join(valid_object_types)}"
                     )
                 elif object_type not in valid_object_types:
                     module.fail_json(
-                        msg=f"Invalid object_type: {object_type}. Must be one of: {', '.join(valid_object_types)}"
+                        msg="Invalid object_type: {object_type}. Must be one of: {', '.join(valid_object_types)}"
                     )
     try:
         core(module)

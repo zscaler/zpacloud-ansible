@@ -8,20 +8,46 @@ __metaclass__ = type
 
 
 class ModuleDocFragment(object):
-    # Standard files documentation fragment
-    DOCUMENTATION = """
+    # Common configuration for all ZPA services
+
+    # Formatted for Modules
+    CREDENTIALS_SET = """
+options:
+    client_id:
+        description: ""
+        required: false
+        type: str
+    client_secret:
+        description: ""
+        required: false
+        type: str
+    customer_id:
+        description: ""
+        required: false
+        type: str
     """
 
-    STATE = """
+    PROVIDER = r"""
 options:
-    state:
+    provider:
         description:
-            - The state.
-        type: str
-        default: present
-        choices:
-            - present
-            - absent
+            - A dict object containing connection details.
+        version_added: 1.0.0
+        required: true
+        type: dict
+        suboptions:
+            client_id:
+                description: ""
+                type: str
+                required: true
+            client_secret:
+                description: ""
+                type: str
+                required: true
+            customer_id:
+                description: ""
+                type: str
+                required: true
 """
 
     ENABLED_STATE = """

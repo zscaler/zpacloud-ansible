@@ -34,19 +34,10 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   name:
     description:
       - Name of the policy rule.
@@ -62,11 +53,16 @@ options:
 EXAMPLES = """
 - name: Get Details of All Policy Access Rules
   zscaler.zpacloud.zpa_policy_access_rule_info:
+    provider: "{{ zpa_cloud }}"
+
 - name: Get Details of a Policy Access Rule by Name
   zscaler.zpacloud.zpa_policy_access_rule_info:
+    provider: "{{ zpa_cloud }}"
     name: "Policy Access Rule - Example"
+
 - name: Get Details of a Policy Access Rule by ID
   zscaler.zpacloud.zpa_policy_access_rule_info:
+    provider: "{{ zpa_cloud }}"
     id: "216196257331291979"
 """
 

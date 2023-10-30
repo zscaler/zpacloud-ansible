@@ -31,7 +31,7 @@ __metaclass__ = type
 
 from ansible.module_utils.basic import env_fallback
 import platform
-import ansible
+from ansible.module_utils import ansible_release
 import importlib
 from zscaler import ZPA
 
@@ -47,16 +47,22 @@ VALID_ZPA_ENVIRONMENTS = {
 
 
 def to_zscaler_sdk_cls(pkg_name, cls_name):
-    sdk_name = "zscaler"
-    try:
-        mod = importlib.import_module("{0}.{1}".format(sdk_name, pkg_name))
-    except ModuleNotFoundError:
-        raise Exception(f"Couldn't find the package named {pkg_name} in {sdk_name}")
-    else:
+    sdk_names = ("zscaler",)  # tuple with one item for now. You can add more SDK names if needed
+
+    for sdk_name in sdk_names:
         try:
-            return getattr(mod, cls_name)
-        except AttributeError:
-            raise Exception(f"{sdk_name}.{pkg_name}.{cls_name} does not exist")
+            mod = importlib.import_module("{0}.{1}".format(sdk_name, pkg_name))
+        except ModuleNotFoundError:
+            continue
+        else:
+            try:
+                return getattr(mod, cls_name)
+            except AttributeError:
+                raise Exception(
+                    "{0}.{1}.{2} does not exist".format(sdk_name, pkg_name, cls_name)
+                )
+
+    raise Exception("Couldn't find any sdk package named {0}".format(pkg_name))
 
 
 class ConnectionHelper:
@@ -139,7 +145,7 @@ class ZPAClientHelper(ZPA):
             cloud=cloud_env,  # using the validated cloud environment
         )
 
-        ansible_version = ansible.__version__  # Get the Ansible version
+        ansible_version = ansible_release.__version__  # Get the Ansible version
         self.user_agent = f"zpa-ansible/{ansible_version}/({platform.system().lower()} {platform.machine()})/customer_id:{customer_id}"
 
     @staticmethod

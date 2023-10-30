@@ -34,19 +34,10 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   name:
     description:
       - Name of the policy forwarding rule.
@@ -62,13 +53,16 @@ options:
 EXAMPLES = """
 - name: Get Information About All Policy Forwarding Rules
   zscaler.zpacloud.zpa_policy_access_forwarding_rule_info:
+    provider: "{{ zpa_cloud }}"
 
 - name: Get information About Forwarding Rules by Name
   zscaler.zpacloud.zpa_policy_access_forwarding_rule_info:
+    provider: "{{ zpa_cloud }}"
     name: "All Other Services"
 
 - name: Get information About Forwarding Rules by ID
   zscaler.zpacloud.zpa_policy_access_forwarding_rule_info:
+    provider: "{{ zpa_cloud }}"
     id: "216196257331292020"
 """
 

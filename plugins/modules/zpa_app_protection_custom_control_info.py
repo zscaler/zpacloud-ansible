@@ -34,6 +34,9 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
 options:
   name:
     description:
@@ -50,13 +53,16 @@ options:
 EXAMPLES = """
 - name: Get Details of All App Protection Custom Control
   zscaler.zpacloud.zpa_app_protection_custom_control_info:
+    provider: "{{ zpa_cloud }}"
 
 - name: Get Details of a Specific App Protection Custom Control by Name
   zscaler.zpacloud.zpa_app_protection_custom_control_info:
+    provider: "{{ zpa_cloud }}"
     name: Example
 
 - name: Get Details of a specific App Protection Custom Control by ID
   zscaler.zpacloud.zpa_app_protection_custom_control_info:
+    provider: "{{ zpa_cloud }}"
     id: "216196257331282583"
 """
 
@@ -65,7 +71,6 @@ RETURN = """
 """
 
 from traceback import format_exc
-
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
@@ -73,7 +78,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 )
 
 
-def core(module: AnsibleModule):
+def core(module):
     control_id = module.params.get("id", None)
     control_name = module.params.get("name", None)
     client = ZPAClientHelper(module)

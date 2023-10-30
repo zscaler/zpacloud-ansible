@@ -34,19 +34,10 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   name:
     description:
       - Name of the Cloud Browser Isolation profile.
@@ -62,13 +53,16 @@ options:
 EXAMPLES = """
 - name: Get Details of All Cloud Browser Isolation profiles
   zscaler.zpacloud.zpa_isolation_profile_info:
+    provider: "{{ zpa_cloud }}"
 
 - name: Get Details of a Specific Cloud Browser Isolation profile by Name
   zscaler.zpacloud.zpa_isolation_profile_info:
+    provider: "{{ zpa_cloud }}"
     name: ZPA_CBI_Profile
 
 - name: Get Details of a specific Cloud Browser Isolation profile by ID
   zscaler.zpacloud.zpa_isolation_profile_info:
+    provider: "{{ zpa_cloud }}"
     id: "216196257331282583"
 """
 
@@ -85,7 +79,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 )
 
 
-def core(module: AnsibleModule):
+def core(module):
     profile_id = module.params.get("id", None)
     profile_name = module.params.get("name", None)
     client = ZPAClientHelper(module)

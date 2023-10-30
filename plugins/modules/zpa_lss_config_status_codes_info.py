@@ -34,6 +34,9 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
 options:
   client_id:
     description: ""
@@ -52,9 +55,7 @@ options:
 EXAMPLES = """
 - name: Get Details About All LSS Status Codes
   zscaler.zpacloud.zpa_lss_config_status_codes_info:
-  register: lss_status_codes
-- debug:
-    msg: "{{ lss_status_codes }}"
+    provider: "{{ zpa_cloud }}"
 """
 
 RETURN = """
@@ -180,7 +181,6 @@ data:
 
 """
 
-from re import T
 from traceback import format_exc
 
 from ansible.module_utils._text import to_native

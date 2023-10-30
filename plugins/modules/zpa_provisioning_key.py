@@ -34,19 +34,11 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
+    - zscaler.zpacloud.fragments.enabled_state
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   enabled:
     description: ""
     type: bool
@@ -85,26 +77,24 @@ options:
     type: str
     choices: ['connector', 'service_edge']
     required: True
-  state:
-    description: ""
-    type: str
-    choices: ['present', 'absent']
-    default: present
 """
 
 EXAMPLES = """
 - name: Get ID Information of a Connector Enrollment Certificate
   zscaler.zpacloud.zpa_enrollement_certificate_info:
+    provider: "{{ zpa_cloud }}"
     name: "Connector"
   register: enrollment_cert_connector
 
 - name: Get ID Information of a App Connector Group
   zscaler.zpacloud.zpa_app_connector_groups_info:
+    provider: "{{ zpa_cloud }}"
     name: "Example"
   register: app_connector_group
 
 - name: "Create/Update/Delete App Connector Group Provisioning Key"
   zscaler.zpacloud.zpa_provisioning_key:
+    provider: "{{ zpa_cloud }}"
     name: "App Connector Group Provisioning Key"
     association_type: "connector"
     max_usage: "10"

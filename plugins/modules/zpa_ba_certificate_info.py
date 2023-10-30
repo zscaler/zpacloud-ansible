@@ -34,19 +34,10 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   name:
     description:
       - Name of the browser certificate.
@@ -62,13 +53,16 @@ options:
 EXAMPLES = """
 - name: Gather Details of All Browser Certificates
   zscaler.zpacloud.zpa_ba_certificate_info:
+    provider: "{{ zpa_cloud }}"
 
 - name: Gather Details of a Specific Browser Certificates by Name
   zscaler.zpacloud.zpa_ba_certificate_info:
+    provider: "{{ zpa_cloud }}"
     name: crm.acme.com
 
 - name: Gather Details of a Specific Browser Certificates by ID
   zscaler.zpacloud.zpa_ba_certificate_info:
+    provider: "{{ zpa_cloud }}"
     id: "216196257331282583"
 """
 
@@ -85,7 +79,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 )
 
 
-def core(module: AnsibleModule):
+def core(module):
     certificate_id = module.params.get("id", None)
     certificate_name = module.params.get("name", None)
     client = ZPAClientHelper(module)

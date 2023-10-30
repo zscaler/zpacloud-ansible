@@ -34,6 +34,9 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
 options:
   name:
     description:
@@ -50,13 +53,16 @@ options:
 EXAMPLES = """
 - name: Get Details of All App Protection profiles
   zscaler.zpacloud.zpa_app_protection_security_profile_info:
+    provider: "{{ zpa_cloud }}"
 
 - name: Get Details of a Specific App Protection profiles by Name
   zscaler.zpacloud.zpa_app_protection_security_profile_info:
+    provider: "{{ zpa_cloud }}"
     name: Example
 
 - name: Get Details of a specific App Protection profiles by ID
   zscaler.zpacloud.zpa_app_protection_security_profile_info:
+    provider: "{{ zpa_cloud }}"
     id: "216196257331282583"
 """
 
@@ -73,7 +79,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 )
 
 
-def core(module: AnsibleModule):
+def core(module):
     profile_id = module.params.get("id", None)
     profile_name = module.params.get("name", None)
     client = ZPAClientHelper(module)

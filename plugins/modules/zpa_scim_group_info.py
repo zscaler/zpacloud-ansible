@@ -34,19 +34,10 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   name:
     description:
       - Name of the scim group.
@@ -67,13 +58,18 @@ options:
 EXAMPLES = """
 - name: Get Information About All SCIM Groups from an IdP
   zscaler.zpacloud.zpa_scim_attribute_header_info:
+    provider: "{{ zpa_cloud }}"
     idp_name: "IdP_Name"
+
 - name: Get Information About a SCIM Group by ID
   zscaler.zpacloud.zpa_scim_attribute_header_info:
+    provider: "{{ zpa_cloud }}"
     id: 216196257331285827
     idp_name: "IdP_Name"
+
 - name: Get Information About a SCIM Group by Name
   zscaler.zpacloud.zpa_scim_attribute_header_info:
+    provider: "{{ zpa_cloud }}"
     name: "Finance"
     idp_name: "IdP_Name"
 """
@@ -107,7 +103,7 @@ def core(module):
         None,
     )
     if not idp_id:
-        module.fail_json(msg=f"IdP with name '{idp_name}' not found")
+        module.fail_json(msg="IdP with name '{idp_name}' not found")
 
     # Optimized search using scim_group_name
     if scim_group_name:
@@ -116,7 +112,7 @@ def core(module):
         )  # Adjusted parameters
         if not scim_group:
             module.fail_json(
-                msg=f"Failed to retrieve SCIM Group Name: '{scim_group_name}'"
+                msg="Failed to retrieve SCIM Group Name: '{scim_group_name}'"
             )
         module.exit_json(changed=False, data=[scim_group])
 
@@ -124,7 +120,7 @@ def core(module):
     if scim_group_id is not None:
         attribute_box = client.scim_groups.get_group(group_id=scim_group_id)
         if attribute_box is None:
-            module.fail_json(msg=f"Failed to retrieve SCIM group ID: '{scim_group_id}'")
+            module.fail_json(msg="Failed to retrieve SCIM group ID: '{scim_group_id}'")
         module.exit_json(changed=False, data=[attribute_box.to_dict()])
 
     # Fallback: List all groups if specific group is not provided

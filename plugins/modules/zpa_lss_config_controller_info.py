@@ -34,19 +34,10 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   name:
     description:
       - Name of the LSS Config controlle.
@@ -62,13 +53,16 @@ options:
 EXAMPLES = """
 - name: Get Information Details of All Cloud lss_configs
   zscaler.zpacloud.zpa_lss_config_controller_info:
+    provider: "{{ zpa_cloud }}"
 
 - name: Get Information Details of a LSS Config controlle by Name
   zscaler.zpacloud.zpa_lss_config_controller_info:
-    name: zs-cc-vpc-096108eb5d9e68d71-ca-central-1a
+    provider: "{{ zpa_cloud }}"
+    name: Example_LSS_Config_Controller
 
 - name: Get Information Details of a LSS Config controlle by ID
   zscaler.zpacloud.zpa_lss_config_controller_info:
+    provider: "{{ zpa_cloud }}"
     id: "216196257331292017"
 """
 
@@ -76,7 +70,6 @@ RETURN = """
 # Returns information on a specified LSS Config controlle.
 """
 
-from re import T
 from traceback import format_exc
 
 from ansible.module_utils._text import to_native

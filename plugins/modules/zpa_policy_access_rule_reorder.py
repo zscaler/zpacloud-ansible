@@ -34,19 +34,11 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
+    - zscaler.zpacloud.fragments.enabled_state
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   policy_type:
     description:
       - The name of the supported policy types.
@@ -75,6 +67,7 @@ options:
 EXAMPLES = """
     - name: Reorder Rules
       zscaler.zpacloud.zpa_policy_access_rule_reorder:
+        provider: "{{ zpa_cloud }}"
         policy_type: "access"
         rules:
           - id: "216196257331369420"
@@ -120,7 +113,7 @@ def core(module):
                 str(rule["id"]) for rule in rules if rule["order"] in duplicate_orders
             ]
             module.fail_json(
-                msg=f"duplicate order '{duplicate_orders[0]}' used by rules with IDs: {', '.join(duplicate_rules)}"
+                msg="duplicate order '{duplicate_orders[0]}' used by rules with IDs: {', '.join(duplicate_rules)}"
             )
 
         # Check for gaps in rule orders
@@ -129,7 +122,7 @@ def core(module):
         missing_orders = expected_orders - actual_orders
         if missing_orders:
             module.fail_json(
-                msg=f"missing rule order numbers: {', '.join(map(str, sorted(missing_orders)))}"
+                msg="missing rule order numbers: {', '.join(map(str, sorted(missing_orders)))}"
             )
 
         # Iterate and reorder rules

@@ -35,18 +35,6 @@ version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   id:
     description: ""
     type: str
@@ -64,21 +52,9 @@ options:
     required: False
     choices: ["INTERCEPT", "INTERCEPT_ACCESSIBLE", "BYPASS"]
     default: INTERCEPT
-  default_rule:
-        description: ""
-    type: bool
-    required: False
-  default_rule_name:
-    description: ""
-    type: str
-    required: False
   custom_msg:
     description: ""
     type: str
-    required: False
-  bypass_default_rule:
-    description: ""
-    type: bool
     required: False
   operator:
     description: ""
@@ -86,10 +62,6 @@ options:
     required: False
     choices: ["AND", "OR"]
   policy_type:
-    description: ""
-    type: str
-    required: False
-  priority:
     description: ""
     type: str
     required: False
@@ -163,16 +135,12 @@ options:
                 "POSTURE",
                 "EDGE_CONNECTOR_GROUP",
               ]
-  state:
-    description: ""
-    type: str
-    choices: ["present", "absent"]
-    default: present
 """
 
 EXAMPLES = """
 - name: Policy Forwarding Rule - Example
   zscaler.zpacloud.zpa_policy_access_forwarding_rule:
+    provider: "{{ zpa_cloud }}"
     name: "Policy Forwarding Rule - Example"
     description: "Policy Forwarding Rule - Example"
     action: "BYPASS"
@@ -295,7 +263,7 @@ def core(module):
             if key not in fields_to_exclude and current_policy.get(key) != value:
                 differences_detected = True
                 module.warn(
-                    f"Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}"
+                    "Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}"
                 )
 
     if existing_policy is not None:
@@ -445,11 +413,11 @@ def main():
                     object_type is None or object_type == ""
                 ):  # Explicitly check for None or empty string
                     module.fail_json(
-                        msg=f"object_type cannot be empty or None. Must be one of: {', '.join(valid_object_types)}"
+                        msg="object_type cannot be empty or None. Must be one of: {', '.join(valid_object_types)}"
                     )
                 elif object_type not in valid_object_types:
                     module.fail_json(
-                        msg=f"Invalid object_type: {object_type}. Must be one of: {', '.join(valid_object_types)}"
+                        msg="Invalid object_type: {object_type}. Must be one of: {', '.join(valid_object_types)}"
                     )
     try:
         core(module)

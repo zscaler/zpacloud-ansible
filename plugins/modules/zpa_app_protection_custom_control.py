@@ -34,8 +34,11 @@ author:
   - William Guilherme (@willguibr)
 version_added: "1.0.0"
 requirements:
-    - The Zscaler SDK Python package must be installed. You can install it using pip:
-      $ pip install zscaler-sdk-python
+    - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
+    - zscaler.zpacloud.fragments.enabled_state
 options:
     name:
         description: The name of the custom control.
@@ -118,131 +121,126 @@ options:
         required: false
         type: str
         choices:
-            - CRITICAL
-            - ERROR
-            - WARNING
-            - INFO
-  rules:
-    type: list
-    elements: dict
-    required: False
-    description: "The rules of the custom controls applied as conditions"
-    suboptions:
-      conditions:
-        required: False
-        description: "The conditions of the AppProtection rule"
+            - REQUEST
+            - RESPONSE
+    rules:
         type: list
         elements: dict
+        required: False
+        description: "The rules of the custom controls applied as conditions"
         suboptions:
-          lhs:
-            description: "The key for the object type"
-            type: str
-            required: False
-            choices:
-                - SIZE
-                - VALUE
-          op:
-            description: "The operation type"
-            type: str
-            required: False
-            choices:
-                - RX
-                - CONTAINS
-                - STARTS_WITH
-                - ENDS_WITH
-                - EQ
-                - LE
-                - GE
-          rhs:
-            description: "The value for the given object type. Its value depends upon the key."
-            type: str
-            required: False
-      names:
-        description: "The names of the AppProtection rule"
-        type: list
-        elements: str
-        required: true
-    type:
-        description: The type of the AppProtection rule.
-        required: false
-        type: str
-        choices:
-            - REQUEST_HEADERS
-            - REQUEST_URI
-            - QUERY_STRING
-            - REQUEST_COOKIES
-            - REQUEST_METHOD
-            - REQUEST_BODY
-            - RESPONSE_HEADERS
-            - RESPONSE_BODY
-            - WS_MAX_PAYLOAD_SIZE
-            - WS_MAX_FRAGMENT_PER_MESSAGE
+            conditions:
+                required: False
+                description: "The conditions of the AppProtection rule"
+                type: list
+                elements: dict
+                suboptions:
+                    lhs:
+                        description: "The key for the object type"
+                        type: str
+                        required: False
+                        choices:
+                            - SIZE
+                            - VALUE
+                    op:
+                        description: "The operation type"
+                        type: str
+                        required: False
+                        choices:
+                            - RX
+                            - CONTAINS
+                            - STARTS_WITH
+                            - ENDS_WITH
+                            - EQ
+                            - LE
+                            - GE
+                    rhs:
+                        description: "The value for the given object type. Its value depends upon the key."
+                        type: str
+                        required: False
+            names:
+                description: "The names of the AppProtection rule"
+                type: list
+                elements: str
+                required: true
+            type:
+                description: The type of the AppProtection rule.
+                required: false
+                type: str
+                choices:
+                    - REQUEST_HEADERS
+                    - REQUEST_URI
+                    - QUERY_STRING
+                    - REQUEST_COOKIES
+                    - REQUEST_METHOD
+                    - REQUEST_BODY
+                    - RESPONSE_HEADERS
+                    - RESPONSE_BODY
+                    - WS_MAX_PAYLOAD_SIZE
+                    - WS_MAX_FRAGMENT_PER_MESSAGE
 """
+
 EXAMPLES = """
 - name: Create App Protection Custom Control
-      zscaler.zpacloud.zpa_app_protection_custom_controls:
-        provider: "{{ zpa_cloud }}"
-        name: "Example_App_Protection_Custom_Control"
-        description: "Example_App_Protection_Custom_Control"
-        action: "PASS"
-        default_action: PASS
-        paranoia_level: "2"
-        severity: "CRITICAL"
-        type: "REQUEST"
-        protocol_type: "HTTP"
-        rules:
-          - conditions:
-              - lhs: VALUE
-                op: RX
-                rhs: "test"
-              - lhs: SIZE
-                op: EQ
-                rhs: "1000"
-            names:
-              - example1
-              - example2
-              - example3
-            type: REQUEST_HEADERS
+  zscaler.zpacloud.zpa_app_protection_custom_controls:
+    provider: "{{ zpa_cloud }}"
+    name: "Example_App_Protection_Custom_Control"
+    description: "Example_App_Protection_Custom_Control"
+    action: "PASS"
+    default_action: PASS
+    paranoia_level: "2"
+    severity: "CRITICAL"
+    type: "REQUEST"
+    protocol_type: "HTTP"
+    rules:
+      - conditions:
+          - lhs: VALUE
+            op: RX
+            rhs: "test"
+          - lhs: SIZE
+            op: EQ
+            rhs: "1000"
+        names:
+          - example1
+          - example2
+          - example3
+        type: REQUEST_HEADERS
 
-          - conditions:
-              - lhs: VALUE
-                op: RX
-                rhs: "test"
+      - conditions:
+          - lhs: VALUE
+            op: RX
+            rhs: "test"
+          - lhs: SIZE
+            op: LE
+            rhs: "1000"
+        names:
+          - example1
+          - example2
+          - example3
+        type: REQUEST_COOKIES
 
-              - lhs: SIZE
-                op: LE
-                rhs: "1000"
-            names:
-              - example1
-              - example2
-              - example3
-            type: REQUEST_COOKIES
+      - conditions:
+          - lhs: SIZE
+            op: EQ
+            rhs: "1000"
+          - lhs: VALUE
+            op: CONTAINS
+            rhs: "test-ansible"
+        type: REQUEST_URI
 
-          - conditions:
-              - lhs: SIZE
-                op: EQ
-                rhs: "1000"
-
-              - lhs: VALUE
-                op: CONTAINS
-                rhs: "test-ansible"
-            type: REQUEST_URI
-
-          - conditions:
-              - lhs: SIZE
-                op: EQ
-                rhs: "1000"
-
-              - lhs: VALUE
-                op: STARTS_WITH
-                rhs: "test-ansible"
-            type: QUERY_STRING
+      - conditions:
+          - lhs: SIZE
+            op: EQ
+            rhs: "1000"
+          - lhs: VALUE
+            op: STARTS_WITH
+            rhs: "test-ansible"
+        type: QUERY_STRING
 """
 
 RETURN = """
 # The newly created app protection custom control resource record.
 """
-
 
 from traceback import format_exc
 
@@ -252,16 +250,16 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     deleteNone,
     validate_rules,
 )
-import json
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+
 
 def deep_equal(a, b):
     """
     Deep comparison of two structures (dicts, lists, or simple values).
     """
-    if type(a) != type(b):
+    if not isinstance(a, type(b)):
         return False
     if isinstance(a, dict):
         if len(a) != len(b):
@@ -278,6 +276,7 @@ def deep_equal(a, b):
     else:
         return a == b
     return True
+
 
 def normalize_app_custom_controls(control):
     """
@@ -307,26 +306,27 @@ def normalize_app_custom_controls(control):
 
     return normalized
 
+
 def core(module):
     state = module.params.get("state", None)
     client = ZPAClientHelper(module)
     control = dict()
     params = [
-            "id",
-            "name",
-            "description",
-            "action",
-            "action_value",
-            "control_rule_json",
-            "default_action",
-            "default_action_value",
-            "paranoia_level",
-            "protocol_type",
-            "rules",
-            "severity",
-            "type",
-            "control_type",
-        ]
+        "id",
+        "name",
+        "description",
+        "action",
+        "action_value",
+        "control_rule_json",
+        "default_action",
+        "default_action_value",
+        "paranoia_level",
+        "protocol_type",
+        "rules",
+        "severity",
+        "type",
+        "control_type",
+    ]
     for param_name in params:
         control[param_name] = module.params.get(param_name, None)
     control_id = control.get("id", None)
@@ -347,7 +347,9 @@ def core(module):
 
     # Normalize and compare existing and desired control data
     desired_control = normalize_app_custom_controls(control)
-    current_control = normalize_app_custom_controls(existing_control) if existing_control else {}
+    current_control = (
+        normalize_app_custom_controls(existing_control) if existing_control else {}
+    )
 
     fields_to_exclude = ["id"]
     differences_detected = False
@@ -355,7 +357,9 @@ def core(module):
         if key not in fields_to_exclude:
             if not deep_equal(current_control.get(key), value):
                 differences_detected = True
-                module.warn(f"Difference detected in {key}. Current: {current_control.get(key)}, Desired: {value}")
+                module.warn(
+                    "Difference detected in {key}. Current: {current_control.get(key)}, Desired: {value}"
+                )
 
     # Validate the desired control values
     try:
@@ -367,7 +371,9 @@ def core(module):
     default_action_value = control.get("default_action_value", None)
     default_action = control.get("default_action", None)
     if default_action == "REDIRECT" and not default_action_value:
-        module.fail_json(msg="The default_action_value parameter is mandatory when default_action is set to REDIRECT.")
+        module.fail_json(
+            msg="The default_action_value parameter is mandatory when default_action is set to REDIRECT."
+        )
 
     if existing_control is not None:
         id = existing_control.get("id")
@@ -458,7 +464,9 @@ def main():
                 "PREDEFINED",
             ],
         ),
-        default_action=dict(type="str", required=False, choices=["PASS", "BLOCK", "REDIRECT"]),
+        default_action=dict(
+            type="str", required=False, choices=["PASS", "BLOCK", "REDIRECT"]
+        ),
         default_action_value=dict(type="str", required=False),
         paranoia_level=dict(type="str", required=False, choices=["1", "2", "3", "4"]),
         protocol_type=dict(
@@ -519,12 +527,14 @@ def main():
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     # Retrieve 'rules' parameter for validation
-    custom_ctl_rules = module.params.get('rules')
+    custom_ctl_rules = module.params.get("rules")
 
     # If rules are provided, validate them
     if custom_ctl_rules:
         try:
-            validate_rules({"rules": custom_ctl_rules, "type": module.params.get('type')})
+            validate_rules(
+                {"rules": custom_ctl_rules, "type": module.params.get("type")}
+            )
         except ValueError as validation_error:
             module.fail_json(msg=str(validation_error))
 
@@ -532,6 +542,7 @@ def main():
         core(module)
     except Exception as e:
         module.fail_json(msg=to_native(e), exception=format_exc())
+
 
 if __name__ == "__main__":
     main()

@@ -18,7 +18,7 @@
 
 - block:
     - name: Fetch the created Segment Group
-      zscaler.zpacloud.zpa_segment_group_info:
+      zscaler.zpacloud.zpa_segment_group_facts:
         provider: "{{ zpa_cloud }}"
         id: "{{ segment_group_id }}"
       register: fetched_sg

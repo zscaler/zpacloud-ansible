@@ -21,6 +21,8 @@
 
 from __future__ import absolute_import, division, print_function
 
+__metaclass__ = type
+
 DOCUMENTATION = """
 ---
 module: zpa_policy_access_isolation_rule
@@ -32,26 +34,19 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
+    - zscaler.zpacloud.fragments.enabled_state
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   action:
     description:
       - This is for providing the rule action.
     type: str
     required: false
     choices:
-      - RE_AUTH
+      - ISOLATE
+      - BYPASS_ISOLATE
   id:
     description: ""
     type: str
@@ -112,11 +107,11 @@ options:
             type: str
             required: false
           lhs:
-            description: "The key for the object type. String ID example: "id""
+            description: "The key for the object type. String ID example: id"
             type: str
             required: True
           rhs:
-            description:
+            description: >
                 - The value for the given object type. Its value depends upon the key
                 - For APP, APP_GROUP, and IDP, the supported value is entity id
                 - For CLIENT_TYPE, the supported values are: zpn_client_type_zapp (for Zscaler Client Connector), zpn_client_type_exporter (for Clientless)
@@ -125,25 +120,18 @@ options:
             type: str
             required: false
           object_type:
-            description:
+            description: >
               - This is for specifying the policy criteria
               - Supported values: APP, APP_GROUP, SAML, IDP, CLIENT_TYPE, POSTURE, TRUSTED_NETWORK, MACHINE_GRP, SCIM, SCIM_GROUP.
               - POSTURE and TRUSTED_NETWORK values are only supported for the CLIENT_TYPE.
             type: str
             required: false
-  state:
-    description: "Whether the app should be present or absent."
-    type: str
-    choices:
-      - present
-      - absent
-    default: present
-
 """
 
 EXAMPLES = """
 - name: "Policy Isolation Rule - Example"
   zscaler.zpacloud.zpa_policy_access_isolation_rule:
+    provider: "{{ zpa_cloud }}"
     name: "Policy Isolation Rule - Example"
     description: "Policy Isolation Rule - Example"
     action: "ISOLATE"
@@ -250,7 +238,7 @@ def core(module):
             if key not in fields_to_exclude and current_policy.get(key) != value:
                 differences_detected = True
                 module.warn(
-                    f"Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}"
+                    "Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}"
                 )
 
     if existing_policy is not None:
@@ -294,7 +282,7 @@ def core(module):
                 "conditions": map_conditions(policy.get("conditions", [])),
             }
             module.warn(
-                f"zpn_isolation_profile_id: {policy.get('zpn_isolation_profile_id', None)}"
+                "zpn_isolation_profile_id: {policy.get('zpn_isolation_profile_id', None)}"
             )
             cleaned_policy = deleteNone(new_policy)
             created_policy = client.policies.add_isolation_rule(**cleaned_policy)
@@ -378,11 +366,11 @@ def main():
                     object_type is None or object_type == ""
                 ):  # Explicitly check for None or empty string
                     module.fail_json(
-                        msg=f"object_type cannot be empty or None. Must be one of: {', '.join(valid_object_types)}"
+                        msg="object_type cannot be empty or None. Must be one of: {', '.join(valid_object_types)}"
                     )
                 elif object_type not in valid_object_types:
                     module.fail_json(
-                        msg=f"Invalid object_type: {object_type}. Must be one of: {', '.join(valid_object_types)}"
+                        msg="Invalid object_type: {object_type}. Must be one of: {', '.join(valid_object_types)}"
                     )
     try:
         core(module)

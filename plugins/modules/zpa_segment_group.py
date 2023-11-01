@@ -34,19 +34,11 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
+    - zscaler.zpacloud.fragments.enabled_state
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   id:
     description: "The unique identifier of the Segment Group"
     type: str
@@ -62,13 +54,6 @@ options:
     description: "Whether this segment group is enabled or not"
     type: bool
     required: False
-  state:
-      description: "Whether the app should be present or absent."
-      type: str
-      choices:
-          - present
-          - absent
-      default: present
 """
 
 EXAMPLES = """
@@ -135,7 +120,7 @@ def core(module):
         if key not in fields_to_exclude and current_app.get(key) != value:
             differences_detected = True
             module.warn(
-                f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+                "Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
             )
 
     if existing_group is not None:

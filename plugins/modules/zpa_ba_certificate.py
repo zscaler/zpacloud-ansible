@@ -35,19 +35,11 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
+    - zscaler.zpacloud.fragments.enabled_state
 options:
-    client_id:
-        description: ""
-        required: false
-        type: str
-    client_secret:
-        description: ""
-        required: false
-        type: str
-    customer_id:
-        description: ""
-        required: false
-        type: str
     id:
         description: ""
         required: false
@@ -66,19 +58,12 @@ options:
             - The cert_blob field must be in string format and must include the certificate and the private key (in PEM format).
         required: True
         type: str
-    state:
-        description: "Whether the app should be present or absent."
-        type: str
-        choices:
-            - present
-            - absent
-        default: present
 """
 
 EXAMPLES = """
 - name: Onboard ZPA BA Certificate
-    zscaler.zpacloud.zpa_ba_certificate:
-    state: present
+  zscaler.zpacloud.zpa_ba_certificate:
+    provider: "{{ zpa_cloud }}"
     name: server1.securitygeek.io
     description: server1.securitygeek.io
     cert_blob: "{{ lookup('file', 'server1.pem') }}"

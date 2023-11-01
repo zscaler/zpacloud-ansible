@@ -26,16 +26,19 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: zpa_app_protection_security_profile
-short_description: Create, update, or delete Zscaler Private Access (ZPA) app protection security profiles.
-description:
-    - This Ansible module enables you to manage Zscaler Private Access (ZPA) app protection security profiles in the ZPA Cloud.
-    - You can use this module to create new profiles, update existing ones, or delete profiles as needed.
+short_description: Create, update, or delete Zscaler Private Access (ZPA) app protection security profile.
+description: >
+    - This Ansible module enables you to manage Zscaler Private Access (ZPA) app protection security profile in the ZPA Cloud.
+    - You can use this module to create new app protection security profile, update existing ones, or delete app protection security profile as needed.
 author:
   - William Guilherme (@willguibr)
 version_added: "1.0.0"
 requirements:
-    - The Zscaler SDK Python package must be installed. You can install it using pip:
-      $ pip install zscaler-sdk-python
+    - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
+    - zscaler.zpacloud.fragments.enabled_state
 options:
     name:
         description: The name of the app protection security profile.
@@ -62,12 +65,12 @@ options:
         description: Check control deployment status.
         required: false
         type: bool
-    controls_info:
+    controls_facts:
         description: Information about controls.
         required: false
         type: list
         elements: dict
-        options:
+        suboptions:
             control_type:
                 description: The control type.
                 required: false
@@ -87,7 +90,7 @@ options:
         required: false
         type: list
         elements: dict
-        options:
+        suboptions:
             id:
                 description: The control ID.
                 required: false
@@ -109,7 +112,7 @@ options:
                 required: false
                 type: list
                 elements: dict
-                options:
+                suboptions:
                     id:
                         description: The inspection profile ID.
                         required: false
@@ -178,13 +181,13 @@ options:
                 required: false
                 type: list
                 elements: dict
-                options:
+                suboptions:
                     conditions:
                         description: Rule conditions.
                         required: false
                         type: list
                         elements: dict
-                        options:
+                        suboptions:
                             lhs:
                                 description: The left-hand side of the condition.
                                 required: false
@@ -253,7 +256,7 @@ options:
         required: false
         type: list
         elements: dict
-        options:
+        suboptions:
             action:
                 description: The control action.
                 required: false
@@ -271,7 +274,7 @@ options:
                 required: false
                 type: list
                 elements: dict
-                options:
+                suboptions:
                     id:
                         description: The inspection profile ID.
                         required: false
@@ -350,7 +353,6 @@ options:
                 description: The control version.
                 required: false
                 type: str
-        required: false
     predef_controls_version:
         description: The version of predefined controls.
         required: false
@@ -360,7 +362,7 @@ options:
         required: false
         type: list
         elements: dict
-        options:
+        suboptions:
             action:
                 description: The control action.
                 required: false
@@ -378,7 +380,7 @@ options:
                 required: false
                 type: list
                 elements: dict
-                options:
+                suboptions:
                     customer_id:
                         description: The customer ID.
                         required: false
@@ -400,7 +402,7 @@ options:
                 required: false
                 type: list
                 elements: dict
-                options:
+                suboptions:
                     id:
                         description: The inspection profile ID.
                         required: false
@@ -508,7 +510,7 @@ options:
                 description: The control version.
                 required: false
                 type: str
-            zscaler_info_url:
+            zscaler_facts_url:
                 description: The Zscaler info URL.
                 required: false
                 type: str
@@ -517,7 +519,7 @@ options:
         required: false
         type: list
         elements: dict
-        options:
+        suboptions:
             action:
                 description: The control action.
                 required: false
@@ -535,7 +537,7 @@ options:
                 required: false
                 type: list
                 elements: dict
-                options:
+                suboptions:
                     id:
                         description: The inspection profile ID.
                         required: false
@@ -600,7 +602,7 @@ options:
                 required: false
                 type: str
     zs_defined_control_choice:
-        description:
+        description: >
             - Indicates the user's choice for the ThreatLabZ Controls. Supported values
             - ALL: Zscaler handles the ThreatLabZ Controls for the AppProtection profile
             - SPECIFIC: User handles the ThreatLabZ Controls for the AppProtection profile
@@ -609,28 +611,34 @@ options:
         choices:
             - ALL
             - SPECIFIC
-  state:
-    description: "Whether the app should be present or absent."
-    type: str
-    choices:
-        - present
-        - absent
-    default: present
 """
 
 EXAMPLES = """
-- name: Create Second Application Server
-  zscaler.zpacloud.zpa_application_server:
-    provider: "{{ zpa_cloud }}"
-    name: Example1
-    description: Example1
-    address: example.acme.com
-    enabled: true
-    app_server_group_ids: []
+- name: Create an App Protection Security Profile
+  zscaler.zpacloud.zpa_app_protection_security_profile:
+      provider: "{{ zpa_cloud }}"
+      name: "Example_App_Protection_Security_Profile"
+      description: "Example_App_Protection_Security_Profile"
+      paranoia_level: "4"
+      check_control_deployment_status: true
+      predef_controls_version: "OWASP_CRS/3.3.0"
+      zs_defined_control_choice: ALL
+      predefined_controls: "{{ result.data[0].id }}"
+      global_control_actions:
+          - "PREDEFINED:NONE"
+          - "CUSTOM:NONE"
+          - "WEBSOCKET:NONE"
+          - "THREATLABZ:NONE"
+          - "OVERRIDE_ACTION:NONE"
+      controls_facts:
+          - control_type: "THREATLABZ"
+            count: "23"
+          - control_type: "WEBSOCKET_PREDEFINED"
+            count: "11"
 """
 
 RETURN = """
-# The newly created application server resource record.
+# The newly created app protection security profile resource record.
 """
 
 
@@ -644,6 +652,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+
 
 def normalize_app_protection_profile(profile):
     """
@@ -661,7 +670,7 @@ def normalize_app_protection_profile(profile):
         "predef_controls_version",
         "predefined_controls",
         "incarnation_number",
-        "controls_info",
+        "controls_facts",
         "control_type",
         "check_control_deployment_status",
         "global_control_actions",
@@ -673,6 +682,7 @@ def normalize_app_protection_profile(profile):
 
     return normalized
 
+
 def core(module):
     state = module.params.get("state", None)
     client = ZPAClientHelper(module)
@@ -681,7 +691,7 @@ def core(module):
         "id",
         "name",
         "description",
-        "controls_info",
+        "controls_facts",
         "custom_controls",
         "check_control_deployment_status",
         "global_control_actions",
@@ -712,7 +722,9 @@ def core(module):
 
     # Normalize and compare existing and desired application data
     desired_app = normalize_app_protection_profile(profile)
-    current_app = normalize_app_protection_profile(existing_profile) if existing_profile else {}
+    current_app = (
+        normalize_app_protection_profile(existing_profile) if existing_profile else {}
+    )
 
     fields_to_exclude = ["id"]
     differences_detected = False
@@ -720,7 +732,7 @@ def core(module):
         if key not in fields_to_exclude and current_app.get(key) != value:
             differences_detected = True
             module.warn(
-                f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+                "Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
             )
     if existing_profile is not None:
         id = existing_profile.get("id")
@@ -739,19 +751,27 @@ def core(module):
                         check_control_deployment_status=existing_profile.get(
                             "check_control_deployment_status", None
                         ),
-                        controls_info=existing_profile.get("controls_info", None),
+                        controls_facts=existing_profile.get("controls_facts", None),
                         custom_controls=existing_profile.get("custom_controls", None),
                         global_control_actions=existing_profile.get(
                             "global_control_actions", None
                         ),
-                        incarnation_number=existing_profile.get("incarnation_number", None),
+                        incarnation_number=existing_profile.get(
+                            "incarnation_number", None
+                        ),
                         paranoia_level=existing_profile.get("paranoia_level", None),
-                        predefined_controls=existing_profile.get("predefined_controls", None),
+                        predefined_controls=existing_profile.get(
+                            "predefined_controls", None
+                        ),
                         predef_controls_version=existing_profile.get(
                             "predef_controls_version", None
                         ),
-                        threatlabz_controls=existing_profile.get("threatlabz_controls", None),
-                        web_socket_controls=existing_profile.get("web_socket_controls", None),
+                        threatlabz_controls=existing_profile.get(
+                            "threatlabz_controls", None
+                        ),
+                        web_socket_controls=existing_profile.get(
+                            "web_socket_controls", None
+                        ),
                         zs_defined_control_choice=existing_profile.get(
                             "zs_defined_control_choice", None
                         ),
@@ -773,16 +793,20 @@ def core(module):
                     check_control_deployment_status=profile.get(
                         "check_control_deployment_status", None
                     ),
-                    controls_info=profile.get("controls_info", None),
+                    controls_facts=profile.get("controls_facts", None),
                     custom_controls=profile.get("custom_controls", None),
                     global_control_actions=profile.get("global_control_actions", None),
                     incarnation_number=profile.get("incarnation_number", None),
                     paranoia_level=profile.get("paranoia_level", None),
                     predefined_controls=profile.get("predefined_controls", None),
-                    predef_controls_version=profile.get("predef_controls_version", None),
+                    predef_controls_version=profile.get(
+                        "predef_controls_version", None
+                    ),
                     threatlabz_controls=profile.get("threatlabz_controls", None),
                     web_socket_controls=profile.get("web_socket_controls", None),
-                    zs_defined_control_choice=profile.get("zs_defined_control_choice", None),
+                    zs_defined_control_choice=profile.get(
+                        "zs_defined_control_choice", None
+                    ),
                 )
             )
             profile = client.inspection.add_profile(**profile).to_dict()
@@ -808,7 +832,7 @@ def main():
         incarnation_number=dict(type="str", required=False),
         paranoia_level=dict(type="str", required=False),
         check_control_deployment_status=dict(type="bool", required=False),
-        controls_info=dict(
+        controls_facts=dict(
             type="list",
             elements="dict",
             options=dict(
@@ -1058,7 +1082,7 @@ def main():
                     choices=["CRITICAL", "ERROR", "WARNING", "INFO"],
                 ),
                 version=dict(type="str", required=False),
-                zscaler_info_url=dict(type="str", required=False),
+                zscaler_facts_url=dict(type="str", required=False),
             ),
             required=False,
         ),

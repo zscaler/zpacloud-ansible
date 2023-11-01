@@ -1,12 +1,14 @@
 ---
 - name: Ensure required environment variables are set
   fail:
-    msg: "{{ item }} is not defined as environment variable"
-  when: lookup('env', item) is none
+    msg: "{{ env_var }} is not defined as environment variable"
+  when: lookup('env', env_var) is none
   loop:
     - ZPA_CLIENT_ID
     - ZPA_CLIENT_SECRET
     - ZPA_CUSTOMER_ID
+  loop_control:
+    loop_var: env_var
 
 - ansible.builtin.set_fact:
     zpa_cloud:
@@ -18,7 +20,7 @@
 
 - block:
     - name: Fetch the App Protection Profile
-      zscaler.zpacloud.zpa_app_protection_security_profile_info:
+      zscaler.zpacloud.zpa_app_protection_security_profile_facts:
         provider: "{{ zpa_cloud }}"
         name: BD_AppProtection_Profile1
       register: profile_id

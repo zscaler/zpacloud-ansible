@@ -2,7 +2,6 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-import pycountry
 import re
 
 
@@ -127,7 +126,7 @@ def normalize_app(app):
         "incarnation_number",
         "control_type",
         "check_control_deployment_status",
-        "controls_info",
+        "controls_facts",
     ]
     for attr in computed_values:
         normalized.pop(attr, None)
@@ -306,7 +305,7 @@ def normalize_policy(policy):
 def validate_operand(operand, module):
     def lhsWarn(object_type, expected, got, error=None):
         error_msg = (
-            f"Invalid LHS for '{object_type}'. Expected {expected}, but got '{got}'"
+            "Invalid LHS for '{object_type}'. Expected {expected}, but got '{got}'"
         )
         if error:
             error_msg += f". Error details: {error}"
@@ -441,13 +440,20 @@ def validate_iso3166_alpha2(country_code):
     :return: True if valid, False otherwise
     """
     try:
+        import pycountry
+    except ImportError:
+        raise ImportError(
+            "The pycountry module is required to validate ISO3166 Alpha2 country codes."
+        )
+
+    try:
         country = pycountry.countries.get(alpha_2=country_code)
         return country is not None
     except AttributeError:
         return False
 
 
-#### This validation function supports the App Protection Custom Controls
+# This validation function supports the App Protection Custom Controls
 def is_number(s):
     try:
         int(s)
@@ -470,20 +476,28 @@ def validate_rules(custom_ctl):
             if cond.get("lhs") != "SIZE":
                 raise ValueError(f"Expected lhs == 'SIZE' for rule type {rule_type}")
             if cond.get("op") not in ["EQ", "LE", "GE"]:
-                raise ValueError(f"Invalid op for rule type {rule_type} with lhs == 'SIZE'")
+                raise ValueError(
+                    f"Invalid op for rule type {rule_type} with lhs == 'SIZE'"
+                )
             if not is_number(cond.get("rhs")):
-                raise ValueError(f"rhs must be a string number for rule type {rule_type} with lhs == 'SIZE'")
+                raise ValueError(
+                    f"rhs must be a string number for rule type {rule_type} with lhs == 'SIZE'"
+                )
 
         def validate_value_condition(cond):
             if cond.get("lhs") != "VALUE":
                 raise ValueError(f"Expected lhs == 'VALUE' for rule type {rule_type}")
             if cond.get("op") not in ["CONTAINS", "RX", "STARTS_WITH", "ENDS_WITH"]:
-                raise ValueError(f"Invalid op for rule type {rule_type} with lhs == 'VALUE'")
+                raise ValueError(
+                    f"Invalid op for rule type {rule_type} with lhs == 'VALUE'"
+                )
 
         # Validating RESPONSE rules
         if custom_ctl.get("type") == "RESPONSE":
             if rule_type not in ["RESPONSE_HEADERS", "RESPONSE_BODY"]:
-                raise ValueError("When type == RESPONSE, rules.type must be: RESPONSE_HEADERS or RESPONSE_BODY")
+                raise ValueError(
+                    "When type == RESPONSE, rules.type must be: RESPONSE_HEADERS or RESPONSE_BODY"
+                )
 
             if not rule.get("names"):
                 raise ValueError("names must be set for RESPONSE rules")
@@ -499,8 +513,17 @@ def validate_rules(custom_ctl):
         # Validating REQUEST rules
         elif custom_ctl.get("type") == "REQUEST":
             for cond in conditions:
-                if rule_type in ["REQUEST_HEADERS", "REQUEST_URI", "QUERY_STRING", "REQUEST_COOKIES", "REQUEST_METHOD"]:
-                    if rule_type in ["REQUEST_HEADERS", "REQUEST_COOKIES"] and not rule.get("names"):
+                if rule_type in [
+                    "REQUEST_HEADERS",
+                    "REQUEST_URI",
+                    "QUERY_STRING",
+                    "REQUEST_COOKIES",
+                    "REQUEST_METHOD",
+                ]:
+                    if rule_type in [
+                        "REQUEST_HEADERS",
+                        "REQUEST_COOKIES",
+                    ] and not rule.get("names"):
                         raise ValueError(f"names must be set for rule type {rule_type}")
 
                     if cond.get("lhs") == "SIZE":
@@ -508,11 +531,27 @@ def validate_rules(custom_ctl):
                     elif cond.get("lhs") == "VALUE":
                         validate_value_condition(cond)
                         if rule_type == "REQUEST_METHOD":
-                            if cond.get("rhs") not in ["GET", "POST", "PUT", "PATCH", "CONNECT", "HEAD", "OPTIONS", "DELETE", "TRACE"]:
-                                raise ValueError(f"Invalid rhs for rule type {rule_type} with lhs == 'VALUE'")
+                            if cond.get("rhs") not in [
+                                "GET",
+                                "POST",
+                                "PUT",
+                                "PATCH",
+                                "CONNECT",
+                                "HEAD",
+                                "OPTIONS",
+                                "DELETE",
+                                "TRACE",
+                            ]:
+                                raise ValueError(
+                                    f"Invalid rhs for rule type {rule_type} with lhs == 'VALUE'"
+                                )
                     else:
                         raise ValueError(f"Invalid lhs for rule type {rule_type}")
                 else:
-                    raise ValueError(f"Invalid rule type for type == REQUEST: {rule_type}")
+                    raise ValueError(
+                        f"Invalid rule type for type == REQUEST: {rule_type}"
+                    )
         else:
-            raise ValueError("Invalid type value, it should be either RESPONSE or REQUEST")
+            raise ValueError(
+                "Invalid type value, it should be either RESPONSE or REQUEST"
+            )

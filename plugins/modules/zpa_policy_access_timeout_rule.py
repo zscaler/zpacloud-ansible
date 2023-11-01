@@ -21,6 +21,8 @@
 
 from __future__ import absolute_import, division, print_function
 
+__metaclass__ = type
+
 DOCUMENTATION = """
 ---
 module: zpa_policy_access_timeout_rule
@@ -32,19 +34,11 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
+    - zscaler.zpacloud.fragments.enabled_state
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   action:
     description:
       - This is for providing the rule action.
@@ -52,10 +46,6 @@ options:
     required: false
     choices:
       - RE_AUTH
-  priority:
-    type: str
-    required: false
-    description: ""
   reauth_default_rule:
     type: bool
     required: false
@@ -158,19 +148,13 @@ options:
             description: ""
             type: str
             required: True
-  state:
-    description: "Whether the app should be present or absent."
-    type: str
-    choices:
-      - present
-      - absent
-    default: present
 
 """
 
 EXAMPLES = """
 - name: "Policy Timeout Rule - Example"
   zscaler.zpacloud.zpa_policy_access_timeout_rule:
+    provider: "{{ zpa_cloud }}"
     name: "Policy Timeout Rule - Example"
     description: "Policy Timeout Rule - Example"
     action: "RE_AUTH"
@@ -246,7 +230,8 @@ def core(module):
         "id",
         "name",
         "description",
-        "custom_msg" "policy_type",
+        "custom_msg",
+        "policy_type",
         "action",
         "operator",
         "rule_order",
@@ -296,7 +281,7 @@ def core(module):
             if key not in fields_to_exclude and current_policy.get(key) != value:
                 differences_detected = True
                 module.warn(
-                    f"Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}"
+                    "Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}"
                 )
 
     if existing_policy is not None:
@@ -414,11 +399,11 @@ def main():
                     object_type is None or object_type == ""
                 ):  # Explicitly check for None or empty string
                     module.fail_json(
-                        msg=f"object_type cannot be empty or None. Must be one of: {', '.join(valid_object_types)}"
+                        msg="object_type cannot be empty or None. Must be one of: {', '.join(valid_object_types)}"
                     )
                 elif object_type not in valid_object_types:
                     module.fail_json(
-                        msg=f"Invalid object_type: {object_type}. Must be one of: {', '.join(valid_object_types)}"
+                        msg="Invalid object_type: {object_type}. Must be one of: {', '.join(valid_object_types)}"
                     )
     try:
         core(module)

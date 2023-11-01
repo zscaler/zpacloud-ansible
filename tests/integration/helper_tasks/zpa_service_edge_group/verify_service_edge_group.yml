@@ -1,12 +1,14 @@
 ---
 - name: Ensure required environment variables are set
   fail:
-    msg: "{{ item }} is not defined as environment variable"
-  when: lookup('env', item) is none
+    msg: "{{ env_var }} is not defined as environment variable"
+  when: lookup('env', env_var) is none
   loop:
     - ZPA_CLIENT_ID
     - ZPA_CLIENT_SECRET
     - ZPA_CUSTOMER_ID
+  loop_control:
+    loop_var: env_var
 
 - ansible.builtin.set_fact:
     zpa_cloud:
@@ -18,7 +20,7 @@
 
 - block:
     - name: Fetch the created Service Edge Group
-      zscaler.zpacloud.zpa_service_edge_groups_info:
+      zscaler.zpacloud.zpa_service_edge_groups_facts:
         provider: "{{ zpa_cloud }}"
         id: "{{ service_edge_group_id }}" # assuming you have the ID stored in this variable
       register: fetched_seg

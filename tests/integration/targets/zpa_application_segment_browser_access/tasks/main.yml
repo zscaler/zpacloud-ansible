@@ -18,7 +18,7 @@
   ansible.builtin.include_tasks: "../../../helper_tasks/zpa_server_group/verify_server_group.yml"
 
 - name: Import Certificate ID
-  ansible.builtin.include_tasks: "../../../helper_tasks/zpa_ba_certificate_info/zpa_ba_certificate_info.yml"
+  ansible.builtin.include_tasks: "../../../helper_tasks/zpa_ba_certificate_facts/zpa_ba_certificate_facts.yml"
 
 - ansible.builtin.set_fact:
     appended_name: "{{ name }}_{{ random_string }}"
@@ -26,12 +26,14 @@
 
 - name: Ensure required environment variables are set
   fail:
-    msg: "{{ item }} is not defined as environment variable"
-  when: lookup('env', item) is none
+    msg: "{{ env_var }} is not defined as environment variable"
+  when: lookup('env', env_var) is none
   loop:
     - ZPA_CLIENT_ID
     - ZPA_CLIENT_SECRET
     - ZPA_CUSTOMER_ID
+  loop_control:
+    loop_var: env_var
 
 - ansible.builtin.set_fact:
     zpa_cloud:
@@ -215,7 +217,7 @@
           - not result.changed
 
     - name: Fetch all Browser Access Application Segments
-      zscaler.zpacloud.zpa_application_segment_browser_access_info:
+      zscaler.zpacloud.zpa_application_segment_browser_access_facts:
         provider: "{{ zpa_cloud }}"
       register: result
     - name: Ensure all Browser Access Application Segments found

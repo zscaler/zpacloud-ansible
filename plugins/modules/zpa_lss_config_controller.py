@@ -34,19 +34,11 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+    - zscaler.zpacloud.fragments.credentials_set
+    - zscaler.zpacloud.fragments.provider
+    - zscaler.zpacloud.fragments.enabled_state
 options:
-  client_id:
-    description: ""
-    required: false
-    type: str
-  client_secret:
-    description: ""
-    required: false
-    type: str
-  customer_id:
-    description: ""
-    required: false
-    type: str
   config:
     type: dict
     required: False
@@ -220,14 +212,6 @@ options:
                 type: str
                 required: True
                 choices: ["APP", "APP_GROUP", "CLIENT_TYPE"]
-  state:
-    description: "Whether the config should be present or absent."
-    type: str
-    choices:
-      - present
-      - absent
-    default: present
-
 """
 EXAMPLES = """
 - name: LSS Controller
@@ -235,7 +219,7 @@ EXAMPLES = """
   tasks:
     - name: Create a LSS Controller
       zscaler.zpacloud.zpa_lss_config_controller:
-        state: present
+        provider: "{{ zpa_cloud }}"
         config:
           name: Status
           description: status
@@ -302,7 +286,6 @@ def core(module):
             policy_rule_resource = existing_lss_config.get("policy_rule_resource", None)
             policy_rules = []
             if policy_rule_resource is not None:
-                ## TODO: make sure this works
                 policy_rules.append(policy_rule_resource)
             """Update"""
             existing_lss_config = deleteNone(
@@ -341,7 +324,6 @@ def core(module):
             policy_rule_resource = lss_config.get("policy_rule_resource", None)
             policy_rules = []
             if policy_rule_resource is not None:
-                ## TODO: make sure this works
                 policy_rules.append(policy_rule_resource)
             lss_config = deleteNone(
                 dict(

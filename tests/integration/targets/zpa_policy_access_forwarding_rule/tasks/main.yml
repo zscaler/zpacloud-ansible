@@ -128,7 +128,7 @@
           - not result.changed # Expect no changes on idempotent operation
 
     - name: Fetch all Policy Access Forwarding Rule
-      zscaler.zpacloud.zpa_policy_access_forwarding_rule_info:
+      zscaler.zpacloud.zpa_policy_access_forwarding_rule_facts:
         provider: "{{ zpa_cloud }}"
       register: result
 
@@ -139,7 +139,7 @@
           - result.data[0] is defined
 
     - name: Fetch this Policy Access Forwarding Rule
-      zscaler.zpacloud.zpa_policy_access_forwarding_rule_info:
+      zscaler.zpacloud.zpa_policy_access_forwarding_rule_facts:
         provider: "{{ zpa_cloud }}"
         name: "{{ appended_name }}"
       register: result

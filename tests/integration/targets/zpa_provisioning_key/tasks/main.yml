@@ -100,7 +100,7 @@
           - result.changed
 
     - name: Fetch all Connector Provisioning Key
-      zscaler.zpacloud.zpa_provisioning_key_info:
+      zscaler.zpacloud.zpa_provisioning_key_facts:
         provider: "{{ zpa_cloud }}"
         association_type: "{{ acg_association_type }}"
       register: result
@@ -112,7 +112,7 @@
           - result.data[0] is defined
 
     - name: Fetch this Connector Provisioning Key
-      zscaler.zpacloud.zpa_provisioning_key_info:
+      zscaler.zpacloud.zpa_provisioning_key_facts:
         provider: "{{ zpa_cloud }}"
         name: "{{ acg_name }}"
         association_type: "{{ acg_association_type }}"
@@ -219,7 +219,7 @@
           - result.changed
 
     - name: Fetch all Service Edge Provisioning Key
-      zscaler.zpacloud.zpa_provisioning_key_info:
+      zscaler.zpacloud.zpa_provisioning_key_facts:
         provider: "{{ zpa_cloud }}"
         association_type: "{{ seg_association_type }}"
       register: result
@@ -231,7 +231,7 @@
           - result.data[0] is defined
 
     - name: Fetch this Service Edge Provisioning Key
-      zscaler.zpacloud.zpa_provisioning_key_info:
+      zscaler.zpacloud.zpa_provisioning_key_facts:
         provider: "{{ zpa_cloud }}"
         name: "{{ seg_name }}"
         association_type: "{{ seg_association_type }}"

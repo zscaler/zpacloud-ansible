@@ -101,7 +101,7 @@
           - result.changed
 
     - name: Fetch all Service Edge Groups
-      zscaler.zpacloud.zpa_service_edge_groups_info:
+      zscaler.zpacloud.zpa_service_edge_groups_facts:
         provider: "{{ zpa_cloud }}"
       register: result
 
@@ -112,7 +112,7 @@
           - result.data[0] is defined
 
     - name: Fetch this Service Edge Group
-      zscaler.zpacloud.zpa_service_edge_groups_info:
+      zscaler.zpacloud.zpa_service_edge_groups_facts:
         provider: "{{ zpa_cloud }}"
         name: "{{ seg_name }}"
       register: result

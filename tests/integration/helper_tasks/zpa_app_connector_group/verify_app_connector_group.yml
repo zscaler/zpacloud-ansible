@@ -18,7 +18,7 @@
 
 - block:
     - name: Fetch the created App Connector Group
-      zscaler.zpacloud.zpa_app_connector_groups_info:
+      zscaler.zpacloud.zpa_app_connector_groups_facts:
         provider: "{{ zpa_cloud }}"
         id: "{{ app_connector_group_id }}" # assuming you have the ID stored in this variable
       register: fetched_acg

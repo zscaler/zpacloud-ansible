@@ -115,7 +115,7 @@
           - result.changed
 
     - name: Fetch all App Connector Groups
-      zscaler.zpacloud.zpa_app_connector_groups_info:
+      zscaler.zpacloud.zpa_app_connector_groups_facts:
         provider: "{{ zpa_cloud }}"
       register: result
 
@@ -126,7 +126,7 @@
           - result.data[0] is defined
 
     - name: Fetch this App Connector Group
-      zscaler.zpacloud.zpa_app_connector_groups_info:
+      zscaler.zpacloud.zpa_app_connector_groups_facts:
         provider: "{{ zpa_cloud }}"
         name: "{{ appended_name }}"
       register: result

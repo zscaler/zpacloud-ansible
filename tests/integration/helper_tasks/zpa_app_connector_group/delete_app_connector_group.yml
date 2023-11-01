@@ -18,7 +18,7 @@
 
 - block:
     - name: List all App Connector Groups
-      zscaler.zpacloud.zpa_app_connector_groups_info:
+      zscaler.zpacloud.zpa_app_connector_groups_facts:
         provider: "{{ zpa_cloud }}"
       register: all_app_connector_groups
 

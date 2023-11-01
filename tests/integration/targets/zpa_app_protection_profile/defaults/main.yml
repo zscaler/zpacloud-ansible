@@ -5,7 +5,7 @@ paranoia_level: "1"
 incarnation_number: "6"
 check_control_deployment_status: true
 predef_controls_version: "OWASP_CRS/3.3.0"
-controls_info:
+controls_facts:
   - control_type: "THREATLABZ"
     count: "23"
   - control_type: "WEBSOCKET_PREDEFINED"

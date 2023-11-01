@@ -81,13 +81,13 @@ options:
 
 EXAMPLES = """
 - name: Get ID Information of a Connector Enrollment Certificate
-  zscaler.zpacloud.zpa_enrollement_certificate_info:
+  zscaler.zpacloud.zpa_enrollement_certificate_facts:
     provider: "{{ zpa_cloud }}"
     name: "Connector"
   register: enrollment_cert_connector
 
 - name: Get ID Information of a App Connector Group
-  zscaler.zpacloud.zpa_app_connector_groups_info:
+  zscaler.zpacloud.zpa_app_connector_groups_facts:
     provider: "{{ zpa_cloud }}"
     name: "Example"
   register: app_connector_group

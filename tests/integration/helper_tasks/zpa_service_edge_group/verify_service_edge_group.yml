@@ -18,7 +18,7 @@
 
 - block:
     - name: Fetch the created Service Edge Group
-      zscaler.zpacloud.zpa_service_edge_groups_info:
+      zscaler.zpacloud.zpa_service_edge_groups_facts:
         provider: "{{ zpa_cloud }}"
         id: "{{ service_edge_group_id }}" # assuming you have the ID stored in this variable
       register: fetched_seg

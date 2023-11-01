@@ -187,7 +187,7 @@
           - not result.changed
 
     - name: Fetch all App Protection Custom Control
-      zscaler.zpacloud.zpa_app_protection_custom_control_info:
+      zscaler.zpacloud.zpa_app_protection_custom_control_facts:
         provider: "{{ zpa_cloud }}"
       register: result
 
@@ -198,7 +198,7 @@
           - result.data[0] is defined
 
     - name: Fetch this App Protection Custom Control
-      zscaler.zpacloud.zpa_app_protection_custom_control_info:
+      zscaler.zpacloud.zpa_app_protection_custom_control_facts:
         provider: "{{ zpa_cloud }}"
         name: "{{ appended_name }}"
       register: result

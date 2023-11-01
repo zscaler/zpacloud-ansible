@@ -251,7 +251,6 @@ def core(module):
             module.warn(
                 "Difference detected in {key}. Current: {normalized_existing_group.get(key)}, Desired: {value}"
             )
-
     if existing_group is not None:
         id = existing_group.get("id")
         existing_group.update(normalized_group)
@@ -259,8 +258,8 @@ def core(module):
 
     if state == "present":
         if latitude is not None and longitude is not None:
-            lat_errors = validate_latitude(latitude)
-            lon_errors = validate_longitude(longitude)
+            _, lat_errors = validate_latitude(latitude)
+            _, lon_errors = validate_longitude(longitude)
             if lat_errors or lon_errors:
                 all_errors = lat_errors + lon_errors
                 module.fail_json(msg=", ".join(all_errors))

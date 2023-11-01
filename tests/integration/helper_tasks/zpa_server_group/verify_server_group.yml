@@ -18,7 +18,7 @@
 
 - block:
     - name: Fetch the created Server Group
-      zscaler.zpacloud.zpa_server_group_info:
+      zscaler.zpacloud.zpa_server_group_facts:
         provider: "{{ zpa_cloud }}"
         id: "{{ server_group_id }}"
       register: fetched_sg

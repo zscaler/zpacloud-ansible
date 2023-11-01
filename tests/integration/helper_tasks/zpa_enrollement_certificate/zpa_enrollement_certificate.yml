@@ -18,7 +18,7 @@
 
 - block:
     - name: Fetch Connector Certificate
-      zscaler.zpacloud.zpa_enrollement_certificate_info:
+      zscaler.zpacloud.zpa_enrollement_certificate_facts:
         provider: "{{ zpa_cloud }}"
         name: "Connector"
       register: connector_cert_id
@@ -28,7 +28,7 @@
         connector_cert_id: "{{ connector_cert_id.data[0].id }}"
 
     - name: Fetch Service Edge Certificate
-      zscaler.zpacloud.zpa_enrollement_certificate_info:
+      zscaler.zpacloud.zpa_enrollement_certificate_facts:
         provider: "{{ zpa_cloud }}"
         name: "Service Edge"
       register: service_edge_cert_id

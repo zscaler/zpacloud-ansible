@@ -65,7 +65,7 @@ options:
         description: Check control deployment status.
         required: false
         type: bool
-    controls_info:
+    controls_facts:
         description: Information about controls.
         required: false
         type: list
@@ -510,7 +510,7 @@ options:
                 description: The control version.
                 required: false
                 type: str
-            zscaler_info_url:
+            zscaler_facts_url:
                 description: The Zscaler info URL.
                 required: false
                 type: str
@@ -630,7 +630,7 @@ EXAMPLES = """
           - "WEBSOCKET:NONE"
           - "THREATLABZ:NONE"
           - "OVERRIDE_ACTION:NONE"
-      controls_info:
+      controls_facts:
           - control_type: "THREATLABZ"
             count: "23"
           - control_type: "WEBSOCKET_PREDEFINED"
@@ -670,7 +670,7 @@ def normalize_app_protection_profile(profile):
         "predef_controls_version",
         "predefined_controls",
         "incarnation_number",
-        "controls_info",
+        "controls_facts",
         "control_type",
         "check_control_deployment_status",
         "global_control_actions",
@@ -691,7 +691,7 @@ def core(module):
         "id",
         "name",
         "description",
-        "controls_info",
+        "controls_facts",
         "custom_controls",
         "check_control_deployment_status",
         "global_control_actions",
@@ -751,7 +751,7 @@ def core(module):
                         check_control_deployment_status=existing_profile.get(
                             "check_control_deployment_status", None
                         ),
-                        controls_info=existing_profile.get("controls_info", None),
+                        controls_facts=existing_profile.get("controls_facts", None),
                         custom_controls=existing_profile.get("custom_controls", None),
                         global_control_actions=existing_profile.get(
                             "global_control_actions", None
@@ -793,7 +793,7 @@ def core(module):
                     check_control_deployment_status=profile.get(
                         "check_control_deployment_status", None
                     ),
-                    controls_info=profile.get("controls_info", None),
+                    controls_facts=profile.get("controls_facts", None),
                     custom_controls=profile.get("custom_controls", None),
                     global_control_actions=profile.get("global_control_actions", None),
                     incarnation_number=profile.get("incarnation_number", None),
@@ -832,7 +832,7 @@ def main():
         incarnation_number=dict(type="str", required=False),
         paranoia_level=dict(type="str", required=False),
         check_control_deployment_status=dict(type="bool", required=False),
-        controls_info=dict(
+        controls_facts=dict(
             type="list",
             elements="dict",
             options=dict(
@@ -1082,7 +1082,7 @@ def main():
                     choices=["CRITICAL", "ERROR", "WARNING", "INFO"],
                 ),
                 version=dict(type="str", required=False),
-                zscaler_info_url=dict(type="str", required=False),
+                zscaler_facts_url=dict(type="str", required=False),
             ),
             required=False,
         ),

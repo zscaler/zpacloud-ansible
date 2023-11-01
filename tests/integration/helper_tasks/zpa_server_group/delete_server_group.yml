@@ -18,7 +18,7 @@
 
 - block:
     - name: List all Server Groups
-      zscaler.zpacloud.zpa_server_group_info:
+      zscaler.zpacloud.zpa_server_group_facts:
         provider: "{{ zpa_cloud }}"
       register: all_server_groups
 

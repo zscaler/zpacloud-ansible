@@ -82,7 +82,7 @@
           - not result.changed
 
     - name: Fetch all Application Servers
-      zscaler.zpacloud.zpa_application_server_info:
+      zscaler.zpacloud.zpa_application_server_facts:
         provider: "{{ zpa_cloud }}"
       register: result
 

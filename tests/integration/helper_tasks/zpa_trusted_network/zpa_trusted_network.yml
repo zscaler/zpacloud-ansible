@@ -18,7 +18,7 @@
 
 - block:
     - name: Fetch the Trusted Network ID
-      zscaler.zpacloud.zpa_trusted_networks_info:
+      zscaler.zpacloud.zpa_trusted_networks_facts:
         provider: "{{ zpa_cloud }}"
         name: BDTrustedNetwork01
       register: bd_trusted_network01

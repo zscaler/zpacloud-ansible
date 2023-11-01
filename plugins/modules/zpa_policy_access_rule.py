@@ -164,31 +164,31 @@ options:
 
 EXAMPLES = """
 - name: Gather ID for Trusted Network Corp-Trusted-Networks
-  zscaler.zpacloud.zpa_trusted_networks_info:
+  zscaler.zpacloud.zpa_trusted_networks_facts:
     provider: "{{ zpa_cloud }}"
     name: Corp-Trusted-Networks
   register: network_id
 
 - name: Gather ID for Posture Profiles CrowdStrike_ZPA_ZTA_40
-  zscaler.zpacloud.zpa_posture_profile_info:
+  zscaler.zpacloud.zpa_posture_profile_facts:
     provider: "{{ zpa_cloud }}"
     name: CrowdStrike_ZPA_ZTA_40
   register: posture1
 
 - name: Gather ID for Machine Group CrowdStrike_ZPA_ZTA_80
-  zscaler.zpacloud.zpa_machine_group_info:
+  zscaler.zpacloud.zpa_machine_group_facts:
     provider: "{{ zpa_cloud }}"
     name: Example MGR01
   register: machine_groups
 
 - name: Gather ID for Segment Group Example100
-  zscaler.zpacloud.zpa_segment_group_info:
+  zscaler.zpacloud.zpa_segment_group_facts:
     provider: "{{ zpa_cloud }}"
     name: "Example100"
   register: segment_group
 
 - name: Gather ID for App Segment app01
-  zscaler.zpacloud.zpa_application_segment_info:
+  zscaler.zpacloud.zpa_application_segment_facts:
     provider: "{{ zpa_cloud }}"
     name: "app01"
   register: app01

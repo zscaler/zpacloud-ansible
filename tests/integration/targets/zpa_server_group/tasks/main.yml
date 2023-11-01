@@ -94,7 +94,7 @@
           - result.changed
 
     - name: Fetch all Server Groups
-      zscaler.zpacloud.zpa_server_group_info:
+      zscaler.zpacloud.zpa_server_group_facts:
         provider: "{{ zpa_cloud }}"
       register: result
 
@@ -105,7 +105,7 @@
           - result.data[0] is defined
 
     - name: Fetch this Server Group
-      zscaler.zpacloud.zpa_server_group_info:
+      zscaler.zpacloud.zpa_server_group_facts:
         provider: "{{ zpa_cloud }}"
         name: "{{ appended_name }}"
       register: result

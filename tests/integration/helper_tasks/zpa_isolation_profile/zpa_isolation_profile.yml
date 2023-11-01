@@ -18,7 +18,7 @@
 
 - block:
     - name: Fetch the Isolation Profile ID
-      zscaler.zpacloud.zpa_isolation_profile_info:
+      zscaler.zpacloud.zpa_isolation_profile_facts:
         provider: "{{ zpa_cloud }}"
         name: BD_SA_Profile1
       register: profile_id

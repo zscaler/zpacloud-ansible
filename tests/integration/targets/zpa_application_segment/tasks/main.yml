@@ -170,7 +170,7 @@
           - not result.changed
 
     - name: Fetch all Application Segments
-      zscaler.zpacloud.zpa_application_segment_info:
+      zscaler.zpacloud.zpa_application_segment_facts:
         provider: "{{ zpa_cloud }}"
       register: result
 

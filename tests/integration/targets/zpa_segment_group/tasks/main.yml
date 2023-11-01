@@ -79,7 +79,7 @@
           - not result.changed
 
     - name: Fetch all Segment Groups
-      zscaler.zpacloud.zpa_segment_group_info:
+      zscaler.zpacloud.zpa_segment_group_facts:
         provider: "{{ zpa_cloud }}"
       register: result
 

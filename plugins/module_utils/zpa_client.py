@@ -47,7 +47,9 @@ VALID_ZPA_ENVIRONMENTS = {
 
 
 def to_zscaler_sdk_cls(pkg_name, cls_name):
-    sdk_names = ("zscaler",)  # tuple with one item for now. You can add more SDK names if needed
+    sdk_names = (
+        "zscaler",
+    )  # tuple with one item for now. You can add more SDK names if needed
 
     for sdk_name in sdk_names:
         try:

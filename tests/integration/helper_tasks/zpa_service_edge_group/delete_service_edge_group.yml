@@ -18,7 +18,7 @@
 
 - block:
     - name: List all Service Edge Groups
-      zscaler.zpacloud.zpa_service_edge_groups_info:
+      zscaler.zpacloud.zpa_service_edge_groups_facts:
         provider: "{{ zpa_cloud }}"
       register: all_service_edge_groups
 

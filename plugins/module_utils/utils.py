@@ -126,7 +126,7 @@ def normalize_app(app):
         "incarnation_number",
         "control_type",
         "check_control_deployment_status",
-        "controls_info",
+        "controls_facts",
     ]
     for attr in computed_values:
         normalized.pop(attr, None)

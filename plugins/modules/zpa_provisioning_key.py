@@ -116,6 +116,28 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 )
 
 
+def normalize_provisioning_key(group):
+    """
+    Normalize provisioning key data by setting computed values.
+    """
+    normalized = group.copy()
+
+    computed_values = [
+        "creation_time",
+        "modified_by",
+        "modified_time",
+        "association_type",
+        "usage_count",
+        "max_usage",
+        "enrollment_cert_id",
+        "zcomponent_id",
+    ]
+    for attr in computed_values:
+        normalized.pop(attr, None)
+
+    return normalized
+
+
 def core(module):
     state = module.params.get("state", None)
     client = ZPAClientHelper(module)
@@ -149,35 +171,61 @@ def core(module):
             if k.get("name") == provisioning_key_name:
                 existing_key = k
                 break
+
+    # Normalize and compare existing and desired application data
+    normalized_key = normalize_provisioning_key(provisioning_key)
+    normalized_existing_key = (
+        normalize_provisioning_key(existing_key) if existing_key else {}
+    )
+
+    fields_to_exclude = ["id"]
+    differences_detected = False
+    for key, value in normalized_key.items():
+        if key not in fields_to_exclude and normalized_existing_key.get(key) != value:
+            differences_detected = True
+            module.warn(
+                f"Difference detected in {key}. Current: {normalized_existing_key.get(key)}, Desired: {value}"
+            )
+
     if existing_key is not None:
         id = existing_key.get("id")
         existing_key.update(provisioning_key)
         existing_key["id"] = id
+
     if state == "present":
         if existing_key is not None:
-            """Update"""
-            existing_key = deleteNone(
-                dict(
-                    key_id=existing_key.get("id", None),
-                    key_type=association_type,
-                    name=existing_key.get("name", None),
-                    max_usage=existing_key.get("max_usage", None),
-                    enrollment_cert_id=existing_key.get("enrollment_cert_id", None),
-                    component_id=existing_key.get("zcomponent_id", None),
+            if differences_detected:
+                """Update"""
+                existing_key = deleteNone(
+                    dict(
+                        key_id=existing_key.get("id", None),
+                        key_type=association_type,
+                        name=existing_key.get("name", None),
+                        max_usage=existing_key.get("max_usage", None),
+                        enrollment_cert_id=existing_key.get("enrollment_cert_id", None),
+                        component_id=existing_key.get("zcomponent_id", None),
+                        provisioning_key=existing_key.get("provisioning_key", None),
+                    )
                 )
-            )
-            existing_key = client.provisioning.update_provisioning_key(**existing_key)
-            module.exit_json(changed=True, data=existing_key)
+                existing_key = client.provisioning.update_provisioning_key(
+                    **existing_key
+                )
+                module.exit_json(changed=True, data=existing_key)
+            else:
+                """No Changes Needed"""
+                module.exit_json(changed=False, data=existing_key)
         else:
             """Create"""
             provisioning_key = deleteNone(
                 dict(
                     key_type=association_type,
                     name=provisioning_key.get("name", None),
+                    enabled=provisioning_key.get("enabled", None),
                     max_usage=provisioning_key.get("max_usage", None),
                     enrollment_cert_id=provisioning_key.get("enrollment_cert_id", None),
                     component_id=provisioning_key.get("zcomponent_id", None),
-                    enabled=provisioning_key.get("enabled", None),
+                    provisioning_key=provisioning_key.get("provisioning_key", None),
+
                 )
             )
             provisioning_key = client.provisioning.add_provisioning_key(
@@ -202,7 +250,6 @@ def main():
         provisioning_key=dict(
             type="str",
             required=False,
-            no_log=True,
         ),
         enrollment_cert_id=dict(type="str", required=False),
         usage_count=dict(type="str", required=False),

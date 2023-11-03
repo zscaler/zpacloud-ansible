@@ -170,12 +170,30 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     validate_longitude,
     diff_suppress_func_coordinate,
     validate_tcp_quick_ack,
-    normalize_app,
     deleteNone,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+
+
+def normalize_app_connector_groups(group):
+    """
+    Normalize app connector groups data by setting computed values.
+    """
+    normalized = group.copy()
+
+    computed_values = [
+        "creation_time",
+        "modified_by",
+        "modified_time",
+        "lss_app_connector_group",
+        "version_profile_name",
+    ]
+    for attr in computed_values:
+        normalized.pop(attr, None)
+
+    return normalized
 
 
 def core(module):
@@ -229,19 +247,21 @@ def core(module):
 
     existing_group = None
     if group_id is not None:
-        group_box = client.connector_groups.get_connector_group(group_id=group_id)
+        group_box = client.connectors.get_connector_group(group_id=group_id)
         if group_box is not None:
             existing_group = group_box.to_dict()
     elif group_name is not None:
-        groups = client.connector_groups.list_connector_groups().to_list()
+        groups = client.connectors.list_connector_groups().to_list()
         for group_ in groups:
             if group_.get("name") == group_name:
                 existing_group = group_
                 break
 
     # Normalize and compare existing and desired application data
-    normalized_group = normalize_app(group)
-    normalized_existing_group = normalize_app(existing_group) if existing_group else {}
+    normalized_group = normalize_app_connector_groups(group)
+    normalized_existing_group = (
+        normalize_app_connector_groups(existing_group) if existing_group else {}
+    )
 
     fields_to_exclude = ["id"]
     differences_detected = False
@@ -249,8 +269,9 @@ def core(module):
         if key not in fields_to_exclude and normalized_existing_group.get(key) != value:
             differences_detected = True
             module.warn(
-                "Difference detected in {key}. Current: {normalized_existing_group.get(key)}, Desired: {value}"
+                f"Difference detected in {key}. Current: {normalized_existing_group.get(key)}, Desired: {value}"
             )
+
     if existing_group is not None:
         id = existing_group.get("id")
         existing_group.update(normalized_group)
@@ -330,6 +351,9 @@ def core(module):
                     **existing_group
                 ).to_dict()
                 module.exit_json(changed=True, data=existing_group)
+            else:
+                """No Changes Needed"""
+                module.exit_json(changed=False, data=existing_group)
         else:
             """Create"""
             normalized_group = deleteNone(
@@ -361,14 +385,17 @@ def core(module):
             )
             group = client.connectors.add_connector_group(**normalized_group).to_dict()
             module.exit_json(changed=True, data=group)
-    elif state == "absent":
-        if existing_group is not None and existing_group.get("id") is not None:
-            code = client.connectors.delete_connector_group(
-                group_id=existing_group.get("id")
-            )
-            if code > 299:
-                module.exit_json(changed=False, data=None)
-            module.exit_json(changed=True, data=existing_group)
+    elif (
+        state == "absent"
+        and existing_group is not None
+        and existing_group.get("id") is not None
+    ):
+        code = client.connectors.delete_connector_group(
+            group_id=existing_group.get("id")
+        )
+        if code > 299:
+            module.exit_json(changed=False, data=None)
+        module.exit_json(changed=True, data=existing_group)
     module.exit_json(changed=False, data={})
 
 

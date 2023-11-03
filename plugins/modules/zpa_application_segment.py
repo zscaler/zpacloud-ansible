@@ -324,7 +324,7 @@ def core(module):
         if key not in fields_to_exclude and current_app.get(key) != value:
             differences_detected = True
             module.warn(
-                "Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+                f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
             )
 
     if existing_app is not None:
@@ -367,10 +367,10 @@ def core(module):
                         ),
                         segment_group_id=existing_app.get("segment_group_id", None),
                         server_group_ids=existing_app.get("server_group_ids", None),
-                        tcp_ports=convert_ports(
+                        tcp_port_ranges=convert_ports(
                             existing_app.get("tcp_port_range", None)
                         ),
-                        udp_ports=convert_ports(
+                        udp_port_ranges=convert_ports(
                             existing_app.get("udp_port_range", None)
                         ),
                     )
@@ -406,8 +406,8 @@ def core(module):
                     adp_enabled=app.get("adp_enabled", None),
                     segment_group_id=app.get("segment_group_id", None),
                     server_group_ids=app.get("server_group_ids", None),
-                    tcp_ports=convert_ports_list(app.get("tcp_port_range", None)),
-                    udp_ports=convert_ports_list(app.get("udp_port_range", None)),
+                    tcp_port_ranges=convert_ports_list(app.get("tcp_port_range", None)),
+                    udp_port_ranges=convert_ports_list(app.get("udp_port_range", None)),
                 )
             )
             app = client.app_segments.add_segment(**app)

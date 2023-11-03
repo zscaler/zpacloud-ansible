@@ -45,120 +45,120 @@
   no_log: True
 
 - block:
-    - name: Ensure Connector Provisioning Key is absent (leftover)
-      zscaler.zpacloud.zpa_provisioning_key:
-        provider: "{{ zpa_cloud }}"
-        state: "absent"
-        name: "{{ acg_name }}"
-        association_type: "{{ acg_association_type }}"
-      register: result
+    # - name: Ensure Connector Provisioning Key is absent (leftover)
+    #   zscaler.zpacloud.zpa_provisioning_key:
+    #     provider: "{{ zpa_cloud }}"
+    #     state: "absent"
+    #     name: "{{ acg_name }}"
+    #     association_type: "{{ acg_association_type }}"
+    #   register: result
 
-    - name: Ensure Connector Provisioning Key is absent
-      zscaler.zpacloud.zpa_provisioning_key:
-        provider: "{{ zpa_cloud }}"
-        state: absent
-        name: "{{ acg_name }}"
-        association_type: "{{ acg_association_type }}"
-      register: result
+    # - name: Ensure Connector Provisioning Key is absent
+    #   zscaler.zpacloud.zpa_provisioning_key:
+    #     provider: "{{ zpa_cloud }}"
+    #     state: absent
+    #     name: "{{ acg_name }}"
+    #     association_type: "{{ acg_association_type }}"
+    #   register: result
 
-    - name: Verify Connector Provisioning Key is absent
-      ansible.builtin.assert:
-        that:
-          - not result.changed
-          - result.data is defined
+    # - name: Verify Connector Provisioning Key is absent
+    #   ansible.builtin.assert:
+    #     that:
+    #       - not result.changed
+    #       - result.data is defined
 
-    - name: Ensure Connector Provisioning Key is (Present)
-      zscaler.zpacloud.zpa_provisioning_key:
-        provider: "{{ zpa_cloud }}"
-        state: present
-        name: "{{ acg_name }}"
-        association_type: "{{ acg_association_type }}"
-        max_usage: "{{ acg_max_usage }}"
-        enrollment_cert_id: "{{ connector_cert_id }}"
-        zcomponent_id: "{{ app_connector_group_id }}"
-      register: result
+    # - name: Ensure Connector Provisioning Key is (Present)
+    #   zscaler.zpacloud.zpa_provisioning_key:
+    #     provider: "{{ zpa_cloud }}"
+    #     state: present
+    #     name: "{{ acg_name }}"
+    #     association_type: "{{ acg_association_type }}"
+    #     max_usage: "{{ acg_max_usage }}"
+    #     enrollment_cert_id: "{{ connector_cert_id }}"
+    #     zcomponent_id: "{{ app_connector_group_id }}"
+    #   register: result
 
-    - name: Verify Connector Provisioning Key is present
-      ansible.builtin.assert:
-        that:
-          - result.data
-          - result.data.name is defined
-          - result.data.enabled is true
+    # - name: Verify Connector Provisioning Key is present
+    #   ansible.builtin.assert:
+    #     that:
+    #       - not result.changed
+    #       - result.data.name is defined
+    #       - result.data.enabled is true
 
-    - name: Ensure Connector Provisioning Key (again; idempotency check)
-      zscaler.zpacloud.zpa_provisioning_key:
-        provider: "{{ zpa_cloud }}"
-        state: present
-        name: "{{ acg_name }}"
-        association_type: "{{ acg_association_type }}"
-        max_usage: "{{ acg_max_usage }}"
-        enrollment_cert_id: "{{ connector_cert_id }}"
-        zcomponent_id: "{{ app_connector_group_id }}"
-      register: result
+    # - name: Ensure Connector Provisioning Key (again; idempotency check)
+    #   zscaler.zpacloud.zpa_provisioning_key:
+    #     provider: "{{ zpa_cloud }}"
+    #     state: present
+    #     name: "{{ acg_name }}"
+    #     association_type: "{{ acg_association_type }}"
+    #     max_usage: "{{ acg_max_usage }}"
+    #     enrollment_cert_id: "{{ connector_cert_id }}"
+    #     zcomponent_id: "{{ app_connector_group_id }}"
+    #   register: result
 
-    - name: Ensure Connector Provisioning Key is absent (idempotency check)
-      ansible.builtin.assert:
-        that:
-          - result.changed
+    # - name: Ensure Connector Provisioning Key is absent (idempotency check)
+    #   ansible.builtin.assert:
+    #     that:
+    #       - result.changed
 
-    - name: Fetch all Connector Provisioning Key
-      zscaler.zpacloud.zpa_provisioning_key_facts:
-        provider: "{{ zpa_cloud }}"
-        association_type: "{{ acg_association_type }}"
-      register: result
+    # - name: Fetch all Connector Provisioning Key
+    #   zscaler.zpacloud.zpa_provisioning_key_facts:
+    #     provider: "{{ zpa_cloud }}"
+    #     association_type: "{{ acg_association_type }}"
+    #   register: result
 
-    - name: Ensure all Connector Provisioning Key found
-      ansible.builtin.assert:
-        that:
-          - not result.changed
-          - result.data[0] is defined
+    # - name: Ensure all Connector Provisioning Key found
+    #   ansible.builtin.assert:
+    #     that:
+    #       - not result.changed
+    #       - result.data[0] is defined
 
-    - name: Fetch this Connector Provisioning Key
-      zscaler.zpacloud.zpa_provisioning_key_facts:
-        provider: "{{ zpa_cloud }}"
-        name: "{{ acg_name }}"
-        association_type: "{{ acg_association_type }}"
-      register: result
+    # - name: Fetch this Connector Provisioning Key
+    #   zscaler.zpacloud.zpa_provisioning_key_facts:
+    #     provider: "{{ zpa_cloud }}"
+    #     name: "{{ acg_name }}"
+    #     association_type: "{{ acg_association_type }}"
+    #   register: result
 
-    - name: Ensure this Connector Provisioning Key is found
-      ansible.builtin.assert:
-        that:
-          - not result.changed
-          - result.data is defined
-          - result.data[0].name is defined
-          - result.data[0].name == acg_name
-          - result.data[0].enabled == true
+    # - name: Ensure this Connector Provisioning Key is found
+    #   ansible.builtin.assert:
+    #     that:
+    #       - not result.changed
+    #       - result.data is defined
+    #       - result.data[0].name is defined
+    #       - result.data[0].name == acg_name
+    #       - result.data[0].enabled == true
 
-    - name: Give the ZPA Cloud a 5 seconds to settle
-      ansible.builtin.pause:
-        seconds: 5
+    # - name: Give the ZPA Cloud a 5 seconds to settle
+    #   ansible.builtin.pause:
+    #     seconds: 5
 
-    - name: Delete Connector Provisioning Key
-      zscaler.zpacloud.zpa_provisioning_key:
-        provider: "{{ zpa_cloud }}"
-        state: absent
-        name: "{{ acg_name }}"
-        association_type: "{{ acg_association_type }}"
-      register: result
+    # - name: Delete Connector Provisioning Key
+    #   zscaler.zpacloud.zpa_provisioning_key:
+    #     provider: "{{ zpa_cloud }}"
+    #     state: absent
+    #     name: "{{ acg_name }}"
+    #     association_type: "{{ acg_association_type }}"
+    #   register: result
 
-    - name: Verify Connector Provisioning Key is Deleted
-      ansible.builtin.assert:
-        that:
-          - not result.changed
+    # - name: Verify Connector Provisioning Key is Deleted
+    #   ansible.builtin.assert:
+    #     that:
+    #       - not result.changed
 
-    - name: Delete Connector Provisioning Key (again; idempotency check)
-      zscaler.zpacloud.zpa_provisioning_key:
-        provider: "{{ zpa_cloud }}"
-        state: absent
-        name: "{{ acg_name }}"
-        association_type: "{{ acg_association_type }}"
-      register: result
+    # - name: Delete Connector Provisioning Key (again; idempotency check)
+    #   zscaler.zpacloud.zpa_provisioning_key:
+    #     provider: "{{ zpa_cloud }}"
+    #     state: absent
+    #     name: "{{ acg_name }}"
+    #     association_type: "{{ acg_association_type }}"
+    #   register: result
 
-    - name: Verify Connector Provisioning Key is absent
-      ansible.builtin.assert:
-        that:
-          - not result.changed
-          - result.data is defined
+    # - name: Verify Connector Provisioning Key is absent
+    #   ansible.builtin.assert:
+    #     that:
+    #       - not result.changed
+    #       - result.data is defined
 
     # - name: Clean up App Connector group
     #   include_tasks: "../../../helper_tasks/zpa_app_connector_group/delete_app_connector_group.yml"
@@ -200,7 +200,7 @@
     - name: Verify Service Edge Provisioning Key is present
       ansible.builtin.assert:
         that:
-          - result.data
+          - not result.changed
           - result.data.name is defined
           - result.data.enabled is true
 

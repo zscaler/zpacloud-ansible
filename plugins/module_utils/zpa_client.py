@@ -33,7 +33,7 @@ from ansible.module_utils.basic import env_fallback
 import platform
 from ansible.module_utils import ansible_release
 import importlib
-from zscaler import ZPA
+from zscaler.zpa import ZPAClientHelper as ZPA
 
 VALID_ZPA_ENVIRONMENTS = {
     "PRODUCTION",  # Default

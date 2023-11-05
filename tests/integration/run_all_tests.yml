@@ -18,35 +18,35 @@
     - name: Running ZPA Integration Tests
       ansible.builtin.include_tasks: "{{ item }}"
       loop:
-        # - targets/zpa_app_connector_groups/tasks/main.yml
-        # - targets/zpa_service_edge_groups/tasks/main.yml
-        # - targets/zpa_application_segment/tasks/main.yml
+        - targets/zpa_app_connector_groups/tasks/main.yml
+        - targets/zpa_service_edge_groups/tasks/main.yml
+        - targets/zpa_application_segment/tasks/main.yml
         # - targets/zpa_application_segment_browser_access/tasks/main.yml
-        # - targets/zpa_application_server/tasks/main.yml
-        # - targets/zpa_segment_group/tasks/main.yml
-        # - targets/zpa_server_group/tasks/main.yml
-        # - targets/zpa_ba_certificate_facts/tasks/main.yml
-        # - targets/zpa_isolation_profile_facts/tasks/main.yml
-        # - targets/zpa_app_protection_predefined_controls/tasks/main.yml
-        # - targets/zpa_app_protection_custom_control/tasks/main.yml
-        # - targets/zpa_app_protection_profile/tasks/main.yml
-        # - targets/zpa_enrollement_certificate_facts/tasks/main.yml
-        # - targets/zpa_machine_group_facts/tasks/main.yml
-        # - targets/zpa_posture_profile_facts/tasks/main.yml
-        # - targets/zpa_trusted_networks_facts/tasks/main.yml
+        - targets/zpa_application_server/tasks/main.yml
+        - targets/zpa_segment_group/tasks/main.yml
+        - targets/zpa_server_group/tasks/main.yml
+        - targets/zpa_ba_certificate_facts/tasks/main.yml
+        - targets/zpa_isolation_profile_facts/tasks/main.yml
+        - targets/zpa_app_protection_predefined_controls/tasks/main.yml
+        - targets/zpa_app_protection_custom_control/tasks/main.yml
+        - targets/zpa_app_protection_profile/tasks/main.yml
+        - targets/zpa_enrollement_certificate_facts/tasks/main.yml
+        - targets/zpa_machine_group_facts/tasks/main.yml
+        - targets/zpa_posture_profile_facts/tasks/main.yml
+        - targets/zpa_trusted_networks_facts/tasks/main.yml
         - targets/zpa_provisioning_key/tasks/main.yml
-        # - targets/zpa_saml_attribute_facts/tasks/main.yml
-        # - targets/zpa_scim_attribute_header_facts/tasks/main.yml
-        # - targets/zpa_scim_group_facts/tasks/main.yml
-        # - targets/zpa_idp_controller_facts/tasks/main.yml
-        # - targets/zpa_policy_access_rule/tasks/main.yml
-        # - targets/zpa_policy_access_timeout_rule/tasks/main.yml
-        # - targets/zpa_policy_access_forwarding_rule/tasks/main.yml
-        # - targets/zpa_policy_access_isolation_rule/tasks/main.yml
-        # - targets/zpa_policy_access_app_protection_rule/tasks/main.yml
-        # - targets/zpa_lss_config_log_types_formats_facts/tasks/main.yml
-        # - targets/zpa_lss_client_types_facts/tasks/main.yml
-        # - targets/zpa_lss_config_status_codes_facts/tasks/main.yml
+        - targets/zpa_saml_attribute_facts/tasks/main.yml
+        - targets/zpa_scim_attribute_header_facts/tasks/main.yml
+        - targets/zpa_scim_group_facts/tasks/main.yml
+        - targets/zpa_idp_controller_facts/tasks/main.yml
+        - targets/zpa_policy_access_rule/tasks/main.yml
+        - targets/zpa_policy_access_timeout_rule/tasks/main.yml
+        - targets/zpa_policy_access_forwarding_rule/tasks/main.yml
+        - targets/zpa_policy_access_isolation_rule/tasks/main.yml
+        - targets/zpa_policy_access_app_protection_rule/tasks/main.yml
+        - targets/zpa_lss_config_log_types_formats_facts/tasks/main.yml
+        - targets/zpa_lss_client_types_facts/tasks/main.yml
+        - targets/zpa_lss_config_status_codes_facts/tasks/main.yml
 
-    # - name: Run final sweep to clean tenant
-    #   ansible.builtin.include_tasks: ./sweep.yml
+    - name: Run final sweep to clean tenant
+      ansible.builtin.include_tasks: ./sweep.yml

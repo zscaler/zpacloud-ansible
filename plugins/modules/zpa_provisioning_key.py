@@ -131,6 +131,7 @@ def normalize_provisioning_key(group):
         "max_usage",
         "enrollment_cert_id",
         "zcomponent_id",
+        "enabled",
     ]
     for attr in computed_values:
         normalized.pop(attr, None)
@@ -225,7 +226,6 @@ def core(module):
                     enrollment_cert_id=provisioning_key.get("enrollment_cert_id", None),
                     component_id=provisioning_key.get("zcomponent_id", None),
                     provisioning_key=provisioning_key.get("provisioning_key", None),
-
                 )
             )
             provisioning_key = client.provisioning.add_provisioning_key(

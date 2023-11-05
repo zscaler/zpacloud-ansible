@@ -52,7 +52,7 @@
   when: all_segment_groups.data is defined
 
 - name: List all Application Servers
-  zscaler.zpacloud.zpa_application_server:
+  zscaler.zpacloud.zpa_application_server_facts:
     provider: "{{ zpa_cloud }}"
   register: all_application_servers
 

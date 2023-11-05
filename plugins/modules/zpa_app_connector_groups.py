@@ -189,6 +189,11 @@ def normalize_app_connector_groups(group):
         "modified_time",
         "lss_app_connector_group",
         "version_profile_name",
+        "use_in_dr_mode",
+        "tcp_quick_ack_app",
+        "tcp_quick_ack_assistant",
+        "tcp_quick_ack_read_assistant",
+        "pra_enabled",
     ]
     for attr in computed_values:
         normalized.pop(attr, None)
@@ -317,34 +322,40 @@ def core(module):
 
                 existing_group = deleteNone(
                     dict(
-                        group_id=existing_group.get("id"),
-                        name=existing_group.get("name"),
-                        description=existing_group.get("description"),
-                        enabled=existing_group.get("enabled"),
-                        city_country=existing_group.get("city_country"),
-                        country_code=existing_group.get("country_code"),
-                        latitude=existing_group.get("latitude"),
-                        longitude=existing_group.get("longitude"),
-                        location=existing_group.get("location"),
-                        upgrade_day=existing_group.get("upgrade_day"),
-                        connector_ids=existing_group.get("connector_ids"),
-                        upgrade_time_in_secs=existing_group.get("upgrade_time_in_secs"),
-                        override_version_profile=existing_group.get(
-                            "override_version_profile"
+                        group_id=existing_group.get("id", None),
+                        name=existing_group.get("name", None),
+                        description=existing_group.get("description", None),
+                        enabled=existing_group.get("enabled", None),
+                        city_country=existing_group.get("city_country", None),
+                        country_code=existing_group.get("country_code", None),
+                        latitude=existing_group.get("latitude", None),
+                        longitude=existing_group.get("longitude", None),
+                        location=existing_group.get("location", None),
+                        upgrade_day=existing_group.get("upgrade_day", None),
+                        connector_ids=existing_group.get("connector_ids", None),
+                        upgrade_time_in_secs=existing_group.get(
+                            "upgrade_time_in_secs", None
                         ),
-                        version_profile_id=existing_group.get("version_profile_id"),
-                        version_profile_name=existing_group.get("version_profile_name"),
-                        dns_query_type=existing_group.get("dns_query_type"),
-                        tcp_quick_ack_app=existing_group.get("tcp_quick_ack_app"),
+                        override_version_profile=existing_group.get(
+                            "override_version_profile", None
+                        ),
+                        version_profile_id=existing_group.get(
+                            "version_profile_id", None
+                        ),
+                        version_profile_name=existing_group.get(
+                            "version_profile_name", None
+                        ),
+                        dns_query_type=existing_group.get("dns_query_type", None),
+                        tcp_quick_ack_app=existing_group.get("tcp_quick_ack_app", None),
                         tcp_quick_ack_assistant=existing_group.get(
-                            "tcp_quick_ack_assistant"
+                            "tcp_quick_ack_assistant", None
                         ),
                         tcp_quick_ack_read_assistant=existing_group.get(
-                            "tcp_quick_ack_read_assistant"
+                            "tcp_quick_ack_read_assistant", None
                         ),
-                        use_in_dr_mode=existing_group.get("use_in_dr_mode"),
-                        pra_enabled=existing_group.get("pra_enabled"),
-                        waf_disabled=existing_group.get("waf_disabled"),
+                        use_in_dr_mode=existing_group.get("use_in_dr_mode", None),
+                        pra_enabled=existing_group.get("pra_enabled", None),
+                        waf_disabled=existing_group.get("waf_disabled", None),
                     )
                 )
                 existing_group = client.connectors.update_connector_group(
@@ -358,29 +369,31 @@ def core(module):
             """Create"""
             normalized_group = deleteNone(
                 dict(
-                    name=group.get("name"),
-                    description=group.get("description"),
-                    enabled=group.get("enabled"),
-                    city_country=group.get("city_country"),
-                    country_code=group.get("country_code"),
-                    latitude=group.get("latitude"),
-                    longitude=group.get("longitude"),
-                    location=group.get("location"),
-                    connector_ids=group.get("connector_ids"),
-                    upgrade_day=group.get("upgrade_day"),
-                    upgrade_time_in_secs=group.get("upgrade_time_in_secs"),
-                    override_version_profile=group.get("override_version_profile"),
-                    version_profile_id=group.get("version_profile_id"),
-                    version_profile_name=group.get("version_profile_name"),
-                    dns_query_type=group.get("dns_query_type"),
-                    tcp_quick_ack_app=group.get("tcp_quick_ack_app"),
-                    tcp_quick_ack_assistant=group.get("tcp_quick_ack_assistant"),
-                    tcp_quick_ack_read_assistant=group.get(
-                        "tcp_quick_ack_read_assistant"
+                    name=group.get("name", None),
+                    description=group.get("description", None),
+                    enabled=group.get("enabled", None),
+                    city_country=group.get("city_country", None),
+                    country_code=group.get("country_code", None),
+                    latitude=group.get("latitude", None),
+                    longitude=group.get("longitude", None),
+                    location=group.get("location", None),
+                    connector_ids=group.get("connector_ids", None),
+                    upgrade_day=group.get("upgrade_day", None),
+                    upgrade_time_in_secs=group.get("upgrade_time_in_secs", None),
+                    override_version_profile=group.get(
+                        "override_version_profile", None
                     ),
-                    use_in_dr_mode=group.get("use_in_dr_mode"),
-                    pra_enabled=group.get("pra_enabled"),
-                    waf_disabled=group.get("waf_disabled"),
+                    version_profile_id=group.get("version_profile_id", None),
+                    version_profile_name=group.get("version_profile_name", None),
+                    dns_query_type=group.get("dns_query_type", None),
+                    tcp_quick_ack_app=group.get("tcp_quick_ack_app", None),
+                    tcp_quick_ack_assistant=group.get("tcp_quick_ack_assistant", None),
+                    tcp_quick_ack_read_assistant=group.get(
+                        "tcp_quick_ack_read_assistant", None
+                    ),
+                    use_in_dr_mode=group.get("use_in_dr_mode", None),
+                    pra_enabled=group.get("pra_enabled", None),
+                    waf_disabled=group.get("waf_disabled", None),
                 )
             )
             group = client.connectors.add_connector_group(**normalized_group).to_dict()

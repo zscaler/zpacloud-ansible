@@ -148,7 +148,7 @@ def core(module):
         if key not in fields_to_exclude and current_app.get(key) != value:
             differences_detected = True
             module.warn(
-                "Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+                f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
             )
 
     if existing_server_group is not None:

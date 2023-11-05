@@ -375,8 +375,10 @@ def core(module):
                         ),
                     )
                 )
-                app = client.app_segments.update_segment(**existing_app)
-                module.exit_json(changed=True, data=app)
+                existing_app = client.app_segments.update_segment(
+                    **existing_app
+                ).to_dict()
+                module.exit_json(changed=True, data=existing_app)
             else:
                 """No Changes Needed"""
                 module.exit_json(changed=False, data=existing_app)
@@ -412,7 +414,11 @@ def core(module):
             )
             app = client.app_segments.add_segment(**app)
             module.exit_json(changed=True, data=app)
-    elif state == "absent" and existing_app is not None:
+    elif (
+        state == "absent"
+        and existing_app is not None
+        and existing_app.get("id") is not None
+    ):
         code = client.app_segments.delete_segment(
             segment_id=existing_app.get("id"), force_delete=True
         )

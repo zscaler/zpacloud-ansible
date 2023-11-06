@@ -69,11 +69,13 @@
         domain_names: "{{ domain_names }}"
         clientless_app_ids:
           - name: "{{ clientless_app_ids[0].name }}"
+            description: "{{ clientless_app_ids[0].description }}"
+            enabled: "{{ clientless_app_ids[0].enabled }}"
             application_protocol: "{{ clientless_app_ids[0].application_protocol }}"
             application_port: "{{ clientless_app_ids[0].application_port }}"
-            certificate_id: "{{ ba_certificate }}"
+            certificate_id: "{{ certificate_id }}"
             trust_untrusted_cert: "{{ clientless_app_ids[0].trust_untrusted_cert }}"
-            enabled: "{{ clientless_app_ids[0].enabled }}"
+            allow_options: "{{ clientless_app_ids[0].allow_options }}"
             domain: "{{ clientless_app_ids[0].domain }}"
         segment_group_id: "{{ segment_group_id }}"
         server_group_ids:
@@ -105,11 +107,13 @@
         domain_names: "{{ domain_names }}"
         clientless_app_ids:
           - name: "{{ clientless_app_ids[0].name }}"
+            description: "{{ clientless_app_ids[0].description }}"
+            enabled: "{{ clientless_app_ids[0].enabled }}"
             application_protocol: "{{ clientless_app_ids[0].application_protocol }}"
             application_port: "{{ clientless_app_ids[0].application_port }}"
-            certificate_id: "{{ ba_certificate }}"
+            certificate_id: "{{ certificate_id }}"
             trust_untrusted_cert: "{{ clientless_app_ids[0].trust_untrusted_cert }}"
-            enabled: "{{ clientless_app_ids[0].enabled }}"
+            allow_options: "{{ clientless_app_ids[0].allow_options }}"
             domain: "{{ clientless_app_ids[0].domain }}"
         segment_group_id: "{{ segment_group_id }}"
         server_group_ids:
@@ -120,6 +124,7 @@
       ansible.builtin.assert:
         that:
           - not result.changed
+          - result.data is defined
 
     # Create Browser Access Application Segments (Present)
     - name: Ensure Browser Access Application Segment is (Present)
@@ -147,33 +152,27 @@
         domain_names: "{{ domain_names }}"
         clientless_app_ids:
           - name: "{{ clientless_app_ids[0].name }}"
+            description: "{{ clientless_app_ids[0].description }}"
+            enabled: "{{ clientless_app_ids[0].enabled }}"
             application_protocol: "{{ clientless_app_ids[0].application_protocol }}"
             application_port: "{{ clientless_app_ids[0].application_port }}"
-            certificate_id: "{{ ba_certificate }}"
+            certificate_id: "{{ certificate_id }}"
             trust_untrusted_cert: "{{ clientless_app_ids[0].trust_untrusted_cert }}"
-            enabled: "{{ clientless_app_ids[0].enabled }}"
+            allow_options: "{{ clientless_app_ids[0].allow_options }}"
             domain: "{{ clientless_app_ids[0].domain }}"
         segment_group_id: "{{ segment_group_id }}"
         server_group_ids:
           - "{{ server_group_id }}"
       register: result
 
-    - name: Debug - Show appended_name
-      debug:
-        var: appended_name
-
-    - name: Debug - Show result.data
-      debug:
-        var: result.data
-
     - name: Verify Browser Access Application Segment is present
       ansible.builtin.assert:
         that:
-          - result is defined
-          - result.data is defined and result.data is not none and result.data | length > 0
-          - "result.data[0].name is defined and result.data[0].name == appended_name"
-          - "result.data[0].enabled is defined and result.data[0].enabled"
-        fail_msg: "Expected segment is not present or doesn't match the expected state."
+          - result.changed
+          - result.data is defined
+          - result.data.name is defined
+          - result.data.name == appended_name
+          - result.data.enabled == true
 
     - name: Create the Browser Access Application Segment (again; idempotency check)
       zscaler.zpacloud.zpa_application_segment_browser_access:
@@ -200,11 +199,13 @@
         domain_names: "{{ domain_names }}"
         clientless_app_ids:
           - name: "{{ clientless_app_ids[0].name }}"
+            description: "{{ clientless_app_ids[0].description }}"
+            enabled: "{{ clientless_app_ids[0].enabled }}"
             application_protocol: "{{ clientless_app_ids[0].application_protocol }}"
             application_port: "{{ clientless_app_ids[0].application_port }}"
-            certificate_id: "{{ ba_certificate }}"
+            certificate_id: "{{ certificate_id }}"
             trust_untrusted_cert: "{{ clientless_app_ids[0].trust_untrusted_cert }}"
-            enabled: "{{ clientless_app_ids[0].enabled }}"
+            allow_options: "{{ clientless_app_ids[0].allow_options }}"
             domain: "{{ clientless_app_ids[0].domain }}"
         segment_group_id: "{{ segment_group_id }}"
         server_group_ids:
@@ -214,17 +215,33 @@
     - name: Verify Browser Access Application Segment is present (again; idempotency check)
       ansible.builtin.assert:
         that:
-          - not result.changed
+          - result.changed
 
     - name: Fetch all Browser Access Application Segments
       zscaler.zpacloud.zpa_application_segment_browser_access_facts:
         provider: "{{ zpa_cloud }}"
       register: result
+
     - name: Ensure all Browser Access Application Segments found
       ansible.builtin.assert:
         that:
           - not result.changed
           - result.data[0] is defined
+
+    - name: Fetch this Browser Access Application Segment
+      zscaler.zpacloud.zpa_application_segment_browser_access_facts:
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+      register: result
+
+    - name: Ensure this Browser Access Application Segments is found
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.data is defined
+          - result.data[0].name is defined
+          - result.data[0].name == appended_name
+          - result.data[0].enabled == true
 
     - name: Give the ZPA Cloud a 5 seconds to settle
       ansible.builtin.pause:
@@ -255,11 +272,13 @@
         domain_names: "{{ domain_names }}"
         clientless_app_ids:
           - name: "{{ clientless_app_ids[0].name }}"
+            description: "{{ clientless_app_ids[0].description }}"
+            enabled: "{{ clientless_app_ids[0].enabled }}"
             application_protocol: "{{ clientless_app_ids[0].application_protocol }}"
             application_port: "{{ clientless_app_ids[0].application_port }}"
-            certificate_id: "{{ ba_certificate }}"
+            certificate_id: "{{ certificate_id }}"
             trust_untrusted_cert: "{{ clientless_app_ids[0].trust_untrusted_cert }}"
-            enabled: "{{ clientless_app_ids[0].enabled }}"
+            allow_options: "{{ clientless_app_ids[0].allow_options }}"
             domain: "{{ clientless_app_ids[0].domain }}"
         segment_group_id: "{{ segment_group_id }}"
         server_group_ids:
@@ -296,11 +315,13 @@
         domain_names: "{{ domain_names }}"
         clientless_app_ids:
           - name: "{{ clientless_app_ids[0].name }}"
+            description: "{{ clientless_app_ids[0].description }}"
+            enabled: "{{ clientless_app_ids[0].enabled }}"
             application_protocol: "{{ clientless_app_ids[0].application_protocol }}"
             application_port: "{{ clientless_app_ids[0].application_port }}"
-            certificate_id: "{{ ba_certificate }}"
+            certificate_id: "{{ certificate_id }}"
             trust_untrusted_cert: "{{ clientless_app_ids[0].trust_untrusted_cert }}"
-            enabled: "{{ clientless_app_ids[0].enabled }}"
+            allow_options: "{{ clientless_app_ids[0].allow_options }}"
             domain: "{{ clientless_app_ids[0].domain }}"
         segment_group_id: "{{ segment_group_id }}"
         server_group_ids:
@@ -311,6 +332,7 @@
       ansible.builtin.assert:
         that:
           - not result.changed
+          - result.data is defined
 
 - name: Clean up segment group
   include_tasks: "../../../helper_tasks/zpa_segment_group/delete_segment_group.yml"

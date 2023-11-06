@@ -18,10 +18,12 @@ bypass_type: NEVER
 icmp_access_type: false
 clientless_app_ids:
   - name: "sales.bd-hashicorp.com"
+    description: "sales.bd-hashicorp.com"
+    enabled: true
     application_protocol: "HTTPS"
     application_port: "443"
+    allow_options: true
     trust_untrusted_cert: true
-    enabled: true
     domain: "sales.bd-hashicorp.com"
 tcp_port_range:
   - from: "443"

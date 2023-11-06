@@ -185,7 +185,7 @@
           - not result.changed
           - result.data[0] is defined
 
-    - name: Fetch this Application Segments
+    - name: Fetch this Application Segment
       zscaler.zpacloud.zpa_application_segment_facts:
         provider: "{{ zpa_cloud }}"
         name: "{{ appended_name }}"
@@ -276,5 +276,6 @@
 
 - name: Clean up server group
   include_tasks: "../../../helper_tasks/zpa_server_group/delete_server_group.yml"
-# - name: Clean up App Connector group
-#   include_tasks: "../../../helper_tasks/zpa_app_connector_group/delete_app_connector_group.yml"
+
+- name: Clean up App Connector group
+  include_tasks: "../../../helper_tasks/zpa_app_connector_group/delete_app_connector_group.yml"

@@ -27,4 +27,4 @@
 
     - name: Set Certificate ID as fact
       ansible.builtin.set_fact:
-        segment_group_id: "{{ ba_certificate.data[0].id }}"
+        certificate_id: "{{ ba_certificate.data[0].id }}"

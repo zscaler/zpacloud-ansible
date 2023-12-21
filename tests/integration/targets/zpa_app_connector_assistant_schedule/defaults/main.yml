@@ -1,0 +1,9 @@
+enabled_true: true
+delete_disabled_true: true
+frequency: "days"
+frequency_interval: "5"
+
+# App Connector Schedule Update
+enabled_false: false
+delete_disabled_false: false
+frequency_interval_update: "7"

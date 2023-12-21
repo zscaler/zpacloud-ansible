@@ -4,7 +4,7 @@
     name: test_zpa_service_edge_group
     description: test_zpa_service_edge_group
     enabled: true
-    city_country: California, US
+    city_country: San Jose, US
     country_code: US
     latitude: "37.3382082"
     longitude: "-121.8863286"

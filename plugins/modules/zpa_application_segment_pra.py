@@ -308,14 +308,65 @@ from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     deleteNone,
-    convert_ports_list,
     convert_ports,
+    convert_ports_list,
     convert_bool_to_str,
-    normalize_app,
+    convert_str_to_bool,
+    normalize_common_apps,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+
+
+def normalize_app_segment_pra(app):
+    """
+    Normalize application segment pra data by setting computed values.
+    """
+    normalized = app.copy()
+
+    computed_values = [
+        "id",
+        "creation_time",
+        "modified_by",
+        "enabled",
+        "config_space",
+        "microtenant_name",
+        "segment_group_name",
+        "server_groups",
+        "adp_enabled",
+        "app_id",
+        "name",
+        "ip_anchored",
+        "is_incomplete_dr_config",
+        "inspect_traffic_with_zia",
+        "tcp_port_range",
+        "udp_port_range",
+        "description",
+        "bypass_type",
+        "health_reporting",
+        "use_in_dr_mode",
+    ]
+    for attr in computed_values:
+        normalized.pop(attr, None)
+
+    if "tcp_keep_alive" in normalized:
+        normalized["tcp_keep_alive"] = convert_str_to_bool(normalized["tcp_keep_alive"])
+
+    if "icmp_access_type" in normalized:
+        normalized["icmp_access_type"] = normalized["icmp_access_type"] in [
+            "PING",
+            "PING_TRACEROUTING",
+        ]
+
+    if "server_groups" in app:
+        normalized["server_group_ids"] = [group["id"] for group in app["server_groups"]]
+
+    if "common_apps_dto" in normalized and normalized["common_apps_dto"]:
+        normalized["common_apps_dto"] = normalize_common_apps(
+            normalized["common_apps_dto"]
+        )
+    return normalized
 
 
 def core(module):
@@ -391,11 +442,11 @@ def core(module):
             msg="Invalid configuration: 'select_connector_close_to_app' cannot be set to True when 'udp_port_range' is defined."
         )
 
-    appsegment_id = module.params.get("id", None)
+    segment_id = module.params.get("id", None)
     appsegment_name = module.params.get("name", None)
     existing_app = None
-    if appsegment_id is not None:
-        existing_app = client.app_segments_pra.get_segment_pra(segment_id=appsegment_id)
+    if segment_id is not None:
+        existing_app = client.app_segments_pra.get_segment_pra(segment_id=segment_id)
     elif appsegment_name is not None:
         ba_app_segments = client.app_segments_pra.list_segments_pra().to_list()
         for ba_app_segment in ba_app_segments:
@@ -404,8 +455,8 @@ def core(module):
                 break
 
     # Normalize and compare existing and desired application data
-    desired_app = normalize_app(app)
-    current_app = normalize_app(existing_app) if existing_app else {}
+    desired_app = normalize_app_segment_pra(app)
+    current_app = normalize_app_segment_pra(existing_app) if existing_app else {}
 
     fields_to_exclude = ["id"]
     differences_detected = False
@@ -414,7 +465,7 @@ def core(module):
             differences_detected = True
             break
         module.warn(
-            "Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+            f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
         )
 
     if existing_app is not None:
@@ -423,94 +474,102 @@ def core(module):
         existing_app["id"] = id
 
     if state == "present":
-        if existing_app is not None and differences_detected:
-            """Update"""
-            updated_app = {
-                "segment_id": existing_app.get("id"),
-                "bypass_type": existing_app.get("bypass_type", None),
-                "description": existing_app.get("description", None),
-                "domain_names": existing_app.get("domain_names", None),
-                "double_encrypt": existing_app.get("double_encrypt", None),
-                "enabled": existing_app.get("enabled", None),
-                "health_check_type": existing_app.get("health_check_type", None),
-                "health_reporting": existing_app.get("health_reporting", None),
-                "ip_anchored": existing_app.get("ip_anchored", None),
-                "is_cname_enabled": existing_app.get("is_cname_enabled", None),
-                "tcp_keep_alive": existing_app.get("tcp_keep_alive", None),
-                "icmp_access_type": existing_app.get("icmp_access_type", None),
-                "select_connector_close_to_app": existing_app.get(
-                    "select_connector_close_to_app", None
-                ),
-                "use_in_dr_mode": existing_app.get("use_in_dr_mode", None),
-                "is_incomplete_dr_config": existing_app.get(
-                    "is_incomplete_dr_config", None
-                ),
-                "inspect_traffic_with_zia": existing_app.get(
-                    "inspect_traffic_with_zia", None
-                ),
-                "adp_enabled": existing_app.get("adp_enabled", None),
-                "name": existing_app.get("name", None),
-                "common_apps_dto": existing_app.get(
-                    "common_apps_dto", None
-                ),  # Add this line
-                "passive_health_enabled": existing_app.get(
-                    "passive_health_enabled", None
-                ),
-                "segment_group_id": existing_app.get("segment_group_id", None),
-                "server_group_ids": existing_app.get("server_group_ids", None),
-                "tcp_ports": convert_ports(existing_app.get("tcp_port_range", None)),
-                "udp_ports": convert_ports(existing_app.get("udp_port_range", None)),
-            }
-            cleaned_app = deleteNone(updated_app)
-            updated_app = client.app_segments_pra.update_segment_pra(**cleaned_app)
-            module.exit_json(changed=True, data=updated_app)
-
-        elif existing_app is None:
-            """Create"""
-            new_app = {
-                "name": app.get("name", None),
-                "description": app.get("description", None),
-                "enabled": app.get("enabled", None),
-                "bypass_type": app.get("bypass_type", None),
-                "domain_names": app.get("domain_names", None),
-                "double_encrypt": app.get("double_encrypt", None),
-                "health_check_type": app.get("health_check_type", None),
-                "health_reporting": app.get("health_reporting", None),
-                "ip_anchored": app.get("ip_anchored", None),
-                "is_cname_enabled": app.get("is_cname_enabled", None),
-                "tcp_keep_alive": app.get("tcp_keep_alive", None),
-                "icmp_access_type": app.get("icmp_access_type", None),
-                "passive_health_enabled": app.get("passive_health_enabled", None),
-                "select_connector_close_to_app": app.get(
-                    "select_connector_close_to_app", None
-                ),
-                "use_in_dr_mode": app.get("use_in_dr_mode", None),
-                "common_apps_dto": app.get("common_apps_dto", None),  # Add this line
-                "is_incomplete_dr_config": app.get("is_incomplete_dr_config", None),
-                "inspect_traffic_with_zia": app.get("inspect_traffic_with_zia", None),
-                "adp_enabled": app.get("adp_enabled", None),
-                "segment_group_id": app.get("segment_group_id", None),
-                "server_group_ids": app.get("server_group_ids", None),
-                "tcp_ports": convert_ports_list(app.get("tcp_port_range", None)),
-                "udp_ports": convert_ports_list(app.get("udp_port_range", None)),
-            }
-            cleaned_app = deleteNone(new_app)
-            created_app = client.app_segments_pra.add_segment_pra(**cleaned_app)
-            module.exit_json(
-                changed=True, data=created_app
-            )  # Mark as changed since we are creating
-        else:
-            module.exit_json(
-                changed=False, data=existing_app
-            )  # If there's no change, exit without updating
-    elif state == "absent":
         if existing_app is not None:
-            code = client.app_segments_pra.delete_segment_pra(
-                segment_id=existing_app.get("id")
+            if differences_detected:
+                """Update"""
+                existing_app = deleteNone(
+                    dict(
+                        segment_id=existing_app.get("id"),
+                        bypass_type=existing_app.get("bypass_type", None),
+                        description=existing_app.get("description", None),
+                        domain_names=existing_app.get("domain_names", None),
+                        double_encrypt=existing_app.get("double_encrypt", None),
+                        enabled=existing_app.get("enabled", None),
+                        health_check_type=existing_app.get("health_check_type", None),
+                        health_reporting=existing_app.get("health_reporting", None),
+                        ip_anchored=existing_app.get("ip_anchored", None),
+                        is_cname_enabled=existing_app.get("is_cname_enabled", None),
+                        tcp_keep_alive=existing_app.get("tcp_keep_alive", None),
+                        icmp_access_type=existing_app.get("icmp_access_type", None),
+                        select_connector_close_to_app=existing_app.get(
+                            "select_connector_close_to_app", None
+                        ),
+                        use_in_dr_mode=existing_app.get("use_in_dr_mode", None),
+                        is_incomplete_dr_config=existing_app.get(
+                            "is_incomplete_dr_config", None
+                        ),
+                        inspect_traffic_with_zia=existing_app.get(
+                            "inspect_traffic_with_zia", None
+                        ),
+                        adp_enabled=existing_app.get("adp_enabled", None),
+                        name=existing_app.get("name", None),
+                        common_apps_dto=existing_app.get(
+                            "common_apps_dto", None
+                        ),  # Add this line
+                        passive_health_enabled=existing_app.get(
+                            "passive_health_enabled", None
+                        ),
+                        segment_group_id=existing_app.get("segment_group_id", None),
+                        server_group_ids=existing_app.get("server_group_ids", None),
+                        tcp_port_ranges=convert_ports(
+                            existing_app.get("tcp_port_range", None)
+                        ),
+                        udp_port_ranges=convert_ports(
+                            existing_app.get("udp_port_range", None)
+                        ),
+                    )
+                )
+                existing_app = client.app_segments_pra.update_segment_pra(
+                    **existing_app
+                )
+                module.exit_json(changed=True, data=existing_app)
+            else:
+                """No Changes Needed"""
+                module.exit_json(changed=False, data=existing_app)
+        else:
+            """Create"""
+            app = deleteNone(
+                dict(
+                    name=app.get("name", None),
+                    description=app.get("description", None),
+                    enabled=app.get("enabled", None),
+                    bypass_type=app.get("bypass_type", None),
+                    domain_names=app.get("domain_names", None),
+                    double_encrypt=app.get("double_encrypt", None),
+                    health_check_type=app.get("health_check_type", None),
+                    health_reporting=app.get("health_reporting", None),
+                    ip_anchored=app.get("ip_anchored", None),
+                    is_cname_enabled=app.get("is_cname_enabled", None),
+                    tcp_keep_alive=app.get("tcp_keep_alive", None),
+                    icmp_access_type=app.get("icmp_access_type", None),
+                    passive_health_enabled=app.get("passive_health_enabled", None),
+                    select_connector_close_to_app=app.get(
+                        "select_connector_close_to_app", None
+                    ),
+                    use_in_dr_mode=app.get("use_in_dr_mode", None),
+                    common_apps_dto=app.get("common_apps_dto", None),  # Add this line
+                    is_incomplete_dr_config=app.get("is_incomplete_dr_config", None),
+                    inspect_traffic_with_zia=app.get("inspect_traffic_with_zia", None),
+                    adp_enabled=app.get("adp_enabled", None),
+                    segment_group_id=app.get("segment_group_id", None),
+                    server_group_ids=app.get("server_group_ids", None),
+                    tcp_port_ranges=convert_ports_list(app.get("tcp_port_range", None)),
+                    udp_port_ranges=convert_ports_list(app.get("udp_port_range", None)),
+                )
             )
-            if code > 299:
-                module.exit_json(changed=False, data=None)
-            module.exit_json(changed=True, data=existing_app)
+            app = client.app_segments_pra.add_segment_pra(**app)
+            module.exit_json(changed=True, data=app)
+    elif (
+        state == "absent"
+        and existing_app is not None
+        and existing_app.get("id") is not None
+    ):
+        code = client.app_segments_pra.delete_segment_pra(
+            segment_id=existing_app.get("id"), force_delete=True
+        )
+        if code > 299:
+            module.exit_json(changed=False, data=None)
+        module.exit_json(changed=True, data=existing_app)
     module.exit_json(changed=False, data={})
 
 

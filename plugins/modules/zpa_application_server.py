@@ -138,7 +138,7 @@ def core(module):
         if key not in fields_to_exclude and current_app.get(key) != value:
             differences_detected = True
             module.warn(
-                "Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+                f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
             )
     if existing_server is not None:
         id = existing_server.get("id")
@@ -197,7 +197,7 @@ def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
         id=dict(type="str", required=False),
-        name=dict(type="str", required=True),
+        name=dict(type="str", required=False),
         description=dict(type="str", required=False),
         address=dict(type="str", required=False),
         enabled=dict(type="bool", default=True, required=False),

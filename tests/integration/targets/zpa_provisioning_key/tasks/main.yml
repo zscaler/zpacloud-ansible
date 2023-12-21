@@ -81,7 +81,7 @@
     - name: Verify Connector Provisioning Key is present
       ansible.builtin.assert:
         that:
-          - result.data
+          - not result.changed
           - result.data.name is defined
           - result.data.enabled is true
 
@@ -160,9 +160,6 @@
           - not result.changed
           - result.data is defined
 
-    # - name: Clean up App Connector group
-    #   include_tasks: "../../../helper_tasks/zpa_app_connector_group/delete_app_connector_group.yml"
-
     # Service Edge Group Provisioning Key Test
     - name: Ensure Service Edge Provisioning Key is absent (leftover)
       zscaler.zpacloud.zpa_provisioning_key:
@@ -200,7 +197,7 @@
     - name: Verify Service Edge Provisioning Key is present
       ansible.builtin.assert:
         that:
-          - result.data
+          - not result.changed
           - result.data.name is defined
           - result.data.enabled is true
 
@@ -278,6 +275,9 @@
         that:
           - not result.changed
           - result.data is defined
+
+    - name: Clean up App Connector group
+      include_tasks: "../../../helper_tasks/zpa_app_connector_group/delete_app_connector_group.yml"
 
     - name: Clean up Service Edge group
       include_tasks: "../../../helper_tasks/zpa_service_edge_group/delete_service_edge_group.yml"

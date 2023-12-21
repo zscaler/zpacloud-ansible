@@ -148,7 +148,7 @@ def core(module):
         if key not in fields_to_exclude and current_app.get(key) != value:
             differences_detected = True
             module.warn(
-                "Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+                f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
             )
 
     if existing_server_group is not None:
@@ -180,7 +180,7 @@ def core(module):
                 )
                 module.exit_json(changed=True, data=existing_server_group)
             else:
-                # No Changes Needed
+                """No Changes Needed"""
                 module.exit_json(changed=False, data=existing_server_group)
         else:
             """Create"""

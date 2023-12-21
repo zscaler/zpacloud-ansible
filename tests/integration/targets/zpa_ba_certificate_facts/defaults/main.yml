@@ -2,5 +2,3 @@
 wildcard_certificate: bd-hashicorp.com
 sales_certificate: sales.bd-hashicorp.com
 jenkins_certificate: jenkins.bd-hashicorp.com
-pra01_certificate: pra01.bd-hashicorp.com
-pra02_certificate: pra02.bd-hashicorp.com

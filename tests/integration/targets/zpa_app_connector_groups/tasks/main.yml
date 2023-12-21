@@ -108,13 +108,12 @@
         use_in_dr_mode: "{{ use_in_dr_mode }}"
         pra_enabled: "{{ pra_enabled }}"
         waf_disabled: "{{ waf_disabled }}"
-
       register: result
 
     - name: Ensure App Connector Group is absent (idempotency check)
       ansible.builtin.assert:
         that:
-          - result.changed
+          - not result.changed
 
     - name: Fetch all App Connector Groups
       zscaler.zpacloud.zpa_app_connector_groups_facts:
@@ -141,6 +140,10 @@
           - result.data[0].name is defined
           - result.data[0].name == appended_name
           - result.data[0].enabled == true
+
+    - name: Give the ZPA Cloud a 5 seconds to settle
+      ansible.builtin.pause:
+        seconds: 5
 
     - name: Delete App Connector Group
       zscaler.zpacloud.zpa_app_connector_groups:

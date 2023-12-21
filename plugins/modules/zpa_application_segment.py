@@ -324,7 +324,7 @@ def core(module):
         if key not in fields_to_exclude and current_app.get(key) != value:
             differences_detected = True
             module.warn(
-                "Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+                f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
             )
 
     if existing_app is not None:
@@ -332,6 +332,7 @@ def core(module):
         existing_app.update(app)
         existing_app["id"] = id
 
+    module.warn(f"Final payload being sent to SDK: {app}")
     if state == "present":
         if existing_app is not None:
             if differences_detected:
@@ -367,20 +368,24 @@ def core(module):
                         ),
                         segment_group_id=existing_app.get("segment_group_id", None),
                         server_group_ids=existing_app.get("server_group_ids", None),
-                        tcp_ports=convert_ports(
+                        tcp_port_ranges=convert_ports(
                             existing_app.get("tcp_port_range", None)
                         ),
-                        udp_ports=convert_ports(
+                        udp_port_ranges=convert_ports(
                             existing_app.get("udp_port_range", None)
                         ),
                     )
                 )
-                app = client.app_segments.update_segment(**existing_app)
-                module.exit_json(changed=True, data=app)
+                module.warn("Payload Update for SDK: {}".format(existing_app))
+                existing_app = client.app_segments.update_segment(
+                    **existing_app
+                ).to_dict()
+                module.exit_json(changed=True, data=existing_app)
             else:
                 """No Changes Needed"""
                 module.exit_json(changed=False, data=existing_app)
         else:
+            module.warn("Creating new rule as no existing rule found")
             """Create"""
             app = deleteNone(
                 dict(
@@ -406,13 +411,18 @@ def core(module):
                     adp_enabled=app.get("adp_enabled", None),
                     segment_group_id=app.get("segment_group_id", None),
                     server_group_ids=app.get("server_group_ids", None),
-                    tcp_ports=convert_ports_list(app.get("tcp_port_range", None)),
-                    udp_ports=convert_ports_list(app.get("udp_port_range", None)),
+                    tcp_port_ranges=convert_ports_list(app.get("tcp_port_range", None)),
+                    udp_port_ranges=convert_ports_list(app.get("udp_port_range", None)),
                 )
             )
+            module.warn("Payload for SDK: {}".format(app))
             app = client.app_segments.add_segment(**app)
             module.exit_json(changed=True, data=app)
-    elif state == "absent" and existing_app is not None:
+    elif (
+        state == "absent"
+        and existing_app is not None
+        and existing_app.get("id") is not None
+    ):
         code = client.app_segments.delete_segment(
             segment_id=existing_app.get("id"), force_delete=True
         )

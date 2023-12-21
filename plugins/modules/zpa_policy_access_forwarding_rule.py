@@ -263,7 +263,7 @@ def core(module):
             if key not in fields_to_exclude and current_policy.get(key) != value:
                 differences_detected = True
                 module.warn(
-                    "Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}"
+                    f"Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}"
                 )
 
     if existing_policy is not None:

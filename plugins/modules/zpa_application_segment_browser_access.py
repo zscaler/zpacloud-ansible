@@ -283,14 +283,63 @@ from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     deleteNone,
-    convert_ports_list,
     convert_ports,
+    convert_ports_list,
     convert_bool_to_str,
-    normalize_app,
+    convert_str_to_bool,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+
+
+def normalize_app_segment_ba(app):
+    """
+    Normalize application segment pra data by setting computed values.
+    """
+    normalized = app.copy()
+
+    computed_values = [
+        "id",
+        "creation_time",
+        "modified_by",
+        "enabled",
+        "config_space",
+        "microtenant_name",
+        "segment_group_name",
+        "server_groups",
+        "adp_enabled",
+        "app_id",
+        "name",
+        "ip_anchored",
+        "is_incomplete_dr_config",
+        "inspect_traffic_with_zia",
+        "tcp_port_range",
+        "udp_port_range",
+        "tcp_port_ranges",
+        "udp_port_ranges",
+        "description",
+        "bypass_type",
+        "health_reporting",
+        "use_in_dr_mode",
+        "clientless_apps",
+    ]
+    for attr in computed_values:
+        normalized.pop(attr, None)
+
+    if "tcp_keep_alive" in normalized:
+        normalized["tcp_keep_alive"] = convert_str_to_bool(normalized["tcp_keep_alive"])
+
+    if "icmp_access_type" in normalized:
+        normalized["icmp_access_type"] = normalized["icmp_access_type"] in [
+            "PING",
+            "PING_TRACEROUTING",
+        ]
+
+    if "server_groups" in app:
+        normalized["server_group_ids"] = [group["id"] for group in app["server_groups"]]
+
+    return normalized
 
 
 def core(module):
@@ -369,8 +418,8 @@ def core(module):
                 break
 
     # Normalize and compare existing and desired application data
-    desired_app = normalize_app(app)
-    current_app = normalize_app(existing_app) if existing_app else {}
+    desired_app = normalize_app_segment_ba(app)
+    current_app = normalize_app_segment_ba(existing_app) if existing_app else {}
 
     fields_to_exclude = ["id"]
     differences_detected = False
@@ -378,7 +427,7 @@ def core(module):
         if key not in fields_to_exclude and current_app.get(key) != value:
             differences_detected = True
             module.warn(
-                "Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+                f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
             )
 
     if existing_app is not None:
@@ -422,10 +471,10 @@ def core(module):
                         ),
                         segment_group_id=existing_app.get("segment_group_id", None),
                         server_group_ids=existing_app.get("server_group_ids", None),
-                        tcp_ports=convert_ports(
+                        tcp_port_ranges=convert_ports(
                             existing_app.get("tcp_port_range", None)
                         ),
-                        udp_ports=convert_ports(
+                        udp_port_ranges=convert_ports(
                             existing_app.get("udp_port_range", None)
                         ),
                     )
@@ -465,13 +514,17 @@ def core(module):
                     adp_enabled=app.get("adp_enabled", None),
                     segment_group_id=app.get("segment_group_id", None),
                     server_group_ids=app.get("server_group_ids", None),
-                    tcp_ports=convert_ports_list(app.get("tcp_port_range", None)),
-                    udp_ports=convert_ports_list(app.get("udp_port_range", None)),
+                    tcp_port_ranges=convert_ports_list(app.get("tcp_port_range", None)),
+                    udp_port_ranges=convert_ports_list(app.get("udp_port_range", None)),
                 )
             )
             app = client.app_segments.add_segment(**app)
             module.exit_json(changed=True, data=app)
-    elif state == "absent" and existing_app is not None:
+    elif (
+        state == "absent"
+        and existing_app is not None
+        and existing_app.get("id") is not None
+    ):
         code = client.app_segments.delete_segment(
             segment_id=existing_app.get("id"), force_delete=True
         )

@@ -1,0 +1,143 @@
+---
+- name: Include default variables
+  ansible.builtin.include_vars:
+    file: "../defaults/main.yml"
+
+- name: Ensure required environment variables are set
+  fail:
+    msg: "{{ env_var }} is not defined as environment variable"
+  when: lookup('env', env_var) is none
+  loop:
+    - ZPA_CLIENT_ID
+    - ZPA_CLIENT_SECRET
+    - ZPA_CUSTOMER_ID
+  loop_control:
+    loop_var: env_var
+
+- ansible.builtin.set_fact:
+    zpa_cloud:
+      client_id: "{{ lookup('env', 'ZPA_CLIENT_ID') }}"
+      client_secret: "{{ lookup('env', 'ZPA_CLIENT_SECRET') }}"
+      customer_id: "{{ lookup('env', 'ZPA_CUSTOMER_ID') }}"
+      cloud: "{{ lookup('env', 'ZPA_CLOUD') | default(omit) }}"
+  no_log: True
+
+- block:
+    - name: Ensure Schedule Assistant is Disabled
+      zscaler.zpacloud.zpa_app_connector_assistant_schedule:
+        provider: "{{ zpa_cloud }}"
+        enabled: "{{ enabled_false }}"
+        delete_disabled: "{{ delete_disabled_false }}"
+        frequency: "{{ frequency }}"
+        frequency_interval: "{{ frequency_interval }}"
+      register: result
+
+    - name: Ensure Schedule Assistant is Disabled
+      zscaler.zpacloud.zpa_app_connector_assistant_schedule:
+        provider: "{{ zpa_cloud }}"
+        enabled: "{{ enabled_false }}"
+        delete_disabled: "{{ delete_disabled_false }}"
+        frequency: "{{ frequency }}"
+        frequency_interval: "{{ frequency_interval }}"
+      register: result
+
+    - name: Verify Schedule Assistant is disabled
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+
+    - name: Ensure Schedule is Enabled (Present)
+      zscaler.zpacloud.zpa_app_connector_assistant_schedule:
+        state: present
+        provider: "{{ zpa_cloud }}"
+        enabled: "{{ enabled_true }}"
+        delete_disabled: "{{ delete_disabled_true }}"
+        frequency: "{{ frequency }}"
+        frequency_interval: "{{ frequency_interval }}"
+      register: result
+
+    # - name: Verify Schedule Assistant is Enabled
+    #   ansible.builtin.assert:
+    #     that:
+    #       - result.enabled is true
+    #       - result.delete_disabled is true
+
+    - name: Create the Schedule Assistant(again; idempotency check)
+      zscaler.zpacloud.zpa_app_connector_assistant_schedule:
+        state: present
+        provider: "{{ zpa_cloud }}"
+        enabled: "{{ enabled_true }}"
+        delete_disabled: "{{ delete_disabled_true }}"
+        frequency: "{{ frequency }}"
+        frequency_interval: "{{ frequency_interval }}"
+      register: result
+
+    - name: Ensure Schedule is present (again; idempotency check)
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+
+    - name: Fetch all Schedule Assistant
+      zscaler.zpacloud.zpa_app_connector_assistant_schedule_facts:
+        provider: "{{ zpa_cloud }}"
+      register: result
+
+    - name: Ensure all Schedule Assistant found
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.schedule is defined
+
+    - name: Update Assistant Schedule (Present)
+      zscaler.zpacloud.zpa_app_connector_assistant_schedule:
+        state: present
+        provider: "{{ zpa_cloud }}"
+        enabled: "{{ enabled_true }}"
+        delete_disabled: "{{ delete_disabled_true }}"
+        frequency: "{{ frequency }}"
+        frequency_interval: "{{ frequency_interval_update }}"
+      register: result
+
+    # - name: Verify Schedule Assistant is Enabled
+    #   ansible.builtin.assert:
+    #     that:
+    #       - result.enabled is true
+    #       - result.delete_disabled is true
+
+    - name: Create the Schedule Assistant(again; idempotency check)
+      zscaler.zpacloud.zpa_app_connector_assistant_schedule:
+        state: present
+        provider: "{{ zpa_cloud }}"
+        enabled: "{{ enabled_true }}"
+        delete_disabled: "{{ delete_disabled_true }}"
+        frequency: "{{ frequency }}"
+        frequency_interval: "{{ frequency_interval_update }}"
+      register: result
+
+    - name: Ensure Schedule is present (again; idempotency check)
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+
+    - name: Ensure Schedule Assistant is Disabled
+      zscaler.zpacloud.zpa_app_connector_assistant_schedule:
+        provider: "{{ zpa_cloud }}"
+        enabled: "{{ enabled_false }}"
+        delete_disabled: "{{ delete_disabled_false }}"
+        frequency: "{{ frequency }}"
+        frequency_interval: "{{ frequency_interval_update }}"
+      register: result
+
+    - name: Ensure Schedule Assistant is Disabled
+      zscaler.zpacloud.zpa_app_connector_assistant_schedule:
+        provider: "{{ zpa_cloud }}"
+        enabled: "{{ enabled_false }}"
+        delete_disabled: "{{ delete_disabled_false }}"
+        frequency: "{{ frequency }}"
+        frequency_interval: "{{ frequency_interval_update }}"
+      register: result
+
+    - name: Verify Schedule Assistant is disabled
+      ansible.builtin.assert:
+        that:
+          - not result.changed

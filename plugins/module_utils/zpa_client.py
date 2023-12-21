@@ -165,11 +165,11 @@ class ZPAClientHelper(ZPA):
                         fallback=(env_fallback, ["ZPA_CLIENT_SECRET"]),
                     ),
                     customer_id=dict(
-                        no_log=True,
+                        no_log=False,
                         fallback=(env_fallback, ["ZPA_CUSTOMER_ID"]),
                     ),
                     cloud=dict(
-                        no_log=True,
+                        no_log=False,
                         fallback=(env_fallback, ["ZPA_CLOUD"]),
                     ),
                 ),

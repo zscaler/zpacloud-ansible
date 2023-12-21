@@ -180,7 +180,7 @@ def core(module):
                 )
                 module.exit_json(changed=True, data=existing_server_group)
             else:
-                # No Changes Needed
+                """No Changes Needed"""
                 module.exit_json(changed=False, data=existing_server_group)
         else:
             """Create"""

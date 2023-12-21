@@ -332,6 +332,7 @@ def core(module):
         existing_app.update(app)
         existing_app["id"] = id
 
+    module.warn(f"Final payload being sent to SDK: {app}")
     if state == "present":
         if existing_app is not None:
             if differences_detected:
@@ -375,6 +376,7 @@ def core(module):
                         ),
                     )
                 )
+                module.warn("Payload Update for SDK: {}".format(existing_app))
                 existing_app = client.app_segments.update_segment(
                     **existing_app
                 ).to_dict()
@@ -383,6 +385,7 @@ def core(module):
                 """No Changes Needed"""
                 module.exit_json(changed=False, data=existing_app)
         else:
+            module.warn("Creating new rule as no existing rule found")
             """Create"""
             app = deleteNone(
                 dict(
@@ -412,6 +415,7 @@ def core(module):
                     udp_port_ranges=convert_ports_list(app.get("udp_port_range", None)),
                 )
             )
+            module.warn("Payload for SDK: {}".format(app))
             app = client.app_segments.add_segment(**app)
             module.exit_json(changed=True, data=app)
     elif (

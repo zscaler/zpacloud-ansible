@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "zpacloud-ansible"
-version = "2.10.0"
+version = "1.0.0"
 description = "Ansible collection for Zscaler Private Access (ZPA)"
 authors = ["Zscaler Technology Alliances <zscaler-partner-labs@z-bd.com>"]
 license = "MIT"

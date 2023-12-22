@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-#
+
 # Copyright 2023, Zscaler, Inc
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,51 +23,39 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-DOCUMENTATION = """
+DOCUMENTATION = r"""
 ---
 module: zpa_policy_access_forwarding_rule_facts
-short_description: Retrieves policy forwarding rule information.
+short_description: Create a Policy Forwarding Rule.
 description:
-  - This module will allow the retrieval of information about a policy forwarding rule.
+  - This module will create, update or delete a specific Policy Forwarding Rule
 author:
   - William Guilherme (@willguibr)
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
 extends_documentation_fragment:
-    - zscaler.zpacloud.fragments.credentials_set
-    - zscaler.zpacloud.fragments.provider
+  - zscaler.zpacloud.fragments.provider
+  - zscaler.zpacloud.fragments.credentials_set
 options:
-  name:
-    description:
-      - Name of the policy forwarding rule.
-    required: false
-    type: str
   id:
-    description:
-      - ID of the policy forwarding rule.
-    required: false
+    description: "The unique identifier of the policy set"
     type: str
+  name:
+    description: "The name of the forwarding rule"
+    type: str
+    required: True
 """
 
-EXAMPLES = """
-- name: Get Information About All Policy Forwarding Rules
+EXAMPLES = r"""
+- name: Policy Forwarding Rule - Example
   zscaler.zpacloud.zpa_policy_access_forwarding_rule_facts:
     provider: "{{ zpa_cloud }}"
-
-- name: Get information About Forwarding Rules by Name
-  zscaler.zpacloud.zpa_policy_access_forwarding_rule_facts:
-    provider: "{{ zpa_cloud }}"
-    name: "All Other Services"
-
-- name: Get information About Forwarding Rules by ID
-  zscaler.zpacloud.zpa_policy_access_forwarding_rule_facts:
-    provider: "{{ zpa_cloud }}"
-    id: "216196257331292020"
+    name: "Policy Forwarding Rule - Example"
 """
 
-RETURN = """
-# Returns information on a specified policy forwarding rule.
+RETURN = r"""
+# The newly created access client forwarding policy rule resource record.
 """
 
 from traceback import format_exc

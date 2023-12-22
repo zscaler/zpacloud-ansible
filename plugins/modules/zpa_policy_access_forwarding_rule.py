@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-#
+
 # Copyright 2023, Zscaler, Inc
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,7 +23,7 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-DOCUMENTATION = """
+DOCUMENTATION = r"""
 ---
 module: zpa_policy_access_forwarding_rule
 short_description: Create a Policy Forwarding Rule.
@@ -34,91 +34,87 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+extends_documentation_fragment:
+  - zscaler.zpacloud.fragments.provider
+  - zscaler.zpacloud.fragments.credentials_set
+  - zscaler.zpacloud.fragments.state
 options:
   id:
-    description: ""
+    description: "The unique identifier of the policy set"
     type: str
   name:
-    description: ""
+    description: "The name of the forwarding rule"
     type: str
     required: True
   description:
-    description: ""
+    description: "The description of the forwarding rule"
     type: str
     required: False
   action:
-    description: ""
+    description: "The action of the forwarding rule"
     type: str
     required: False
     choices: ["INTERCEPT", "INTERCEPT_ACCESSIBLE", "BYPASS"]
     default: INTERCEPT
-  custom_msg:
-    description: ""
-    type: str
-    required: False
   operator:
-    description: ""
+    description: "Denotes the operation type. These are operands used between criteria"
     type: str
     required: False
     choices: ["AND", "OR"]
   policy_type:
-    description: ""
-    type: str
-    required: False
-  rule_order:
-    description: ""
+    description: "Indicates the policy type. The following value is supported: client_forwarding"
     type: str
     required: False
   conditions:
-    description: ""
+    description: "Specifies the set of conditions for the policy rule"
     type: list
     elements: dict
     required: False
     suboptions:
       id:
-        description: ""
+        description: "The unique identifier of the condition set"
         type: str
       negated:
         description: ""
         type: bool
         required: False
       operator:
-        description: ""
+        description: "The operator of the condition set"
         type: str
         required: True
         choices: ["AND", "OR"]
       operands:
-        description: ""
+        description: "The operands of the condition set"
         type: list
         elements: dict
         required: False
         suboptions:
           id:
-            description: ""
+            description: "The unique identifier of the operand"
             type: str
           idp_id:
-            description: ""
+            description: "The unique identifier of the IdP"
             type: str
             required: False
           name:
-            description: ""
+            description: "The name of the operand"
             type: str
             required: False
           lhs:
-            description: ""
+            description: "The key for the object type"
             type: str
             required: True
           rhs:
-            description: ""
+            description: "The value for the given object type. Its value depends upon the key"
             type: str
             required: False
           rhs_list:
-            description: ""
+            description: "The value for the given object type. Its value depends upon the key"
             type: list
             elements: str
             required: False
           object_type:
-            description: ""
+            description: "The object type of the operand"
             type: str
             required: True
             choices:
@@ -137,7 +133,7 @@ options:
               ]
 """
 
-EXAMPLES = """
+EXAMPLES = r"""
 - name: Policy Forwarding Rule - Example
   zscaler.zpacloud.zpa_policy_access_forwarding_rule:
     provider: "{{ zpa_cloud }}"
@@ -185,7 +181,7 @@ EXAMPLES = """
             rhs: "false"
 """
 
-RETURN = """
+RETURN = r"""
 # The newly created access client forwarding policy rule resource record.
 """
 

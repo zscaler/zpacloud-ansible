@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-#
+
 # Copyright 2023, Zscaler, Inc
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,7 +23,7 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-DOCUMENTATION = """
+DOCUMENTATION = r"""
 ---
 module: zpa_app_connector_groups
 short_description: Create an App Connector Group in the ZPA Cloud.
@@ -35,9 +35,9 @@ version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
 extends_documentation_fragment:
-    - zscaler.zpacloud.fragments.credentials_set
-    - zscaler.zpacloud.fragments.provider
-    - zscaler.zpacloud.fragments.enabled_state
+  - zscaler.zpacloud.fragments.provider
+  - zscaler.zpacloud.fragments.credentials_set
+  - zscaler.zpacloud.fragments.state
 options:
   name:
     description:
@@ -45,12 +45,13 @@ options:
     required: true
     type: str
   description:
-    description: ""
+    description:
+      - The description of the App Connector Group
     required: false
     type: str
   city_country:
     description:
-        - City Country of the App Connector Group.
+        - City Country of the App Connector Group
     type: str
   country_code:
     description:
@@ -61,10 +62,9 @@ options:
       - Whether to enable IPv4 or IPv6, or both, for DNS resolution of all applications in the App Connector Group.
     type: str
     choices:
-        - IPV4_IPV6
-        - IPV4
-        - IPV6
-    default: IPV4_IPV6
+      - IPV4_IPV6
+      - IPV4
+      - IPV6
   enabled:
     description:
       - Whether this App Connector Group is enabled or not.
@@ -126,10 +126,7 @@ options:
     required: false
     type: str
     default: '0'
-    choices:
-      - '0'
-      - '1'
-      - '2'
+    choices: [ '0', '1', '2' ]
   version_profile_name:
     description:
       - Name of the version profile.
@@ -142,7 +139,7 @@ EXAMPLES = """
   zscaler.zpacloud.zpa_app_connector_groups:
     provider: "{{ zpa_cloud }}"
     name: "Example"
-    description: "Example2"
+    description: "Example"
     enabled: true
     city_country: "California, US"
     country_code: "US"
@@ -157,7 +154,7 @@ EXAMPLES = """
 """
 
 RETURN = """
-# The newly created app connector group resource record.
+# Default return values
 """
 
 

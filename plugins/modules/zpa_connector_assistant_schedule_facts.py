@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright 2023, Zscaler, Inc
-#
+
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -23,66 +23,50 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-DOCUMENTATION = """
+DOCUMENTATION = r"""
 ---
-module: zpa_app_connector_assistant_schedule_facts
-short_description: Auto Delete frequency of the App Connector
-description:
-    - Gets the Auto Delete frequency of the App Connector for the specified customer.
-author:
-  - William Guilherme (@willguibr)
+module: zpa_connector_assistant_schedule_facts
+short_description: Gets the Auto Delete frequency of the App Connector.
 version_added: "1.0.0"
+description:
+    - Gets the Auto Delete frequency configuration of the App Connector.
+author:
+    - William Guilherme (@willguibr)
 requirements:
-    - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+    - Zscaler SDK Python can be obtained from PyPI (https://pypi.org/project/zscaler-sdk-python/)
 extends_documentation_fragment:
-    - zscaler.zpacloud.fragments.credentials_set
-    - zscaler.zpacloud.fragments.provider
+  - zscaler.zpacloud.fragments.provider
+  - zscaler.zpacloud.fragments.credentials_set
 options:
-  id:
-    description:
-      - The unique identifier for the App Connector auto deletion configuration for a customer.
-      - This field is only required for the PUT request to update the frequency of the App Connector Settings.
-    required: false
-    type: str
-  customer_id:
-    description:
-      - The unique identifier of the ZPA tenant.
-      - If using the ZPA_CUSTOMER_ID environment variable the attribute can be ommitted.
-    required: false
-    type: str
+    id:
+        description:
+            - The unique identifier for the App Connector auto deletion configuration for a customer.
+            - This field is only required for the PUT request to update the frequency of the App Connector Settings.
+        type: str
+    customer_id:
+        description:
+            - The unique identifier of the ZPA tenant
+        type: str
 """
 
-EXAMPLES = """
+EXAMPLES = r"""
 - name: Gather Details of All Assistant Schedules
-  zscaler.zpacloud.zpa_app_connector_assistant_schedule_facts:
+  zscaler.zpacloud.zpa_connector_assistant_schedule_facts:
     provider: "{{ zpa_cloud }}"
 
-- name: Gather Details of All Assistant Schedules by ID
-  zscaler.zpacloud.zpa_app_connector_assistant_schedule_facts:
+- name: Gather Details of Assistant Schedules by ID
+  zscaler.zpacloud.zpa_connector_assistant_schedule_facts:
     provider: "{{ zpa_cloud }}"
     id: '1'
 
-- name: Gather Details of All Assistant Schedules by Customer ID
-  zscaler.zpacloud.zpa_app_connector_assistant_schedule_facts:
+- name: Gather Details of Assistant Schedules by Customer ID
+  zscaler.zpacloud.zpa_connector_assistant_schedule_facts:
     provider: "{{ zpa_cloud }}"
     customer_id: "216196257331282583"
 """
 
-RETURN = """
-ok: [localhost] => {
-    "msg": {
-        "changed": false,
-        "failed": false,
-        "schedule": {
-            "customer_id": "1234567878764",
-            "delete_disabled": true,
-            "enabled": true,
-            "frequency": "days",
-            "frequency_interval": "5",
-            "id": "1"
-        }
-    }
-}
+RETURN = r"""
+# Default return values
 """
 
 from traceback import format_exc
@@ -95,11 +79,6 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 )
 
 
-import os
-from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import ZPAClientHelper
-from ansible.module_utils._text import to_native
-
 def core(module):
     schedule_id = module.params.get("id")
     customer_id = module.params.get("customer_id")
@@ -109,18 +88,23 @@ def core(module):
     if schedule_id:
         schedule = client.connectors.get_connector_schedule(schedule_id=schedule_id)
         if schedule is None:
-            module.fail_json(msg=f"Failed to retrieve schedule assistant by ID: '{schedule_id}'")
+            module.fail_json(
+                msg=f"Failed to retrieve schedule assistant by ID: '{schedule_id}'"
+            )
         module.exit_json(changed=False, schedule=schedule)
     elif customer_id:
         schedule = client.connectors.get_connector_schedule(customer_id=customer_id)
         if schedule is None:
-            module.fail_json(msg=f"Failed to retrieve schedule assistant by customer ID: '{customer_id}'")
+            module.fail_json(
+                msg=f"Failed to retrieve schedule assistant by customer ID: '{customer_id}'"
+            )
         module.exit_json(changed=False, schedule=schedule)
     else:
         module.fail_json(msg="Either 'id' or 'customer_id' must be provided.")
 
+
 def main():
-    env_customer_id = os.getenv('ZPA_CUSTOMER_ID')
+    env_customer_id = os.getenv("ZPA_CUSTOMER_ID")
 
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
@@ -133,6 +117,7 @@ def main():
         core(module)
     except Exception as e:
         module.fail_json(msg=to_native(e), exception=format_exc())
+
 
 if __name__ == "__main__":
     main()

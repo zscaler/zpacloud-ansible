@@ -29,6 +29,8 @@ help:
 
 .PHONY: docs
 docs:		## Build collection documentation
+	sudo make install
+	rm -rf antsibull
 	mkdir antsibull
 	poetry run antsibull-docs collection --use-current --dest-dir antsibull --no-indexes collections zscaler.zpacloud
 	mkdir -p docs/source/modules
@@ -63,6 +65,7 @@ reqs:       ## Recreate the requirements.txt file
 	poetry export -f requirements.txt --output requirements.txt
 
 install:
+	cp -R /Users/wguilherme/ansible_collections/zscaler/zpacloud /opt/homebrew/lib/python3.11/site-packages/ansible_collections/zscaler/
 	rm -f zscaler*
 	ansible-galaxy collection build . --force
 	ansible-galaxy collection install zscaler* --force

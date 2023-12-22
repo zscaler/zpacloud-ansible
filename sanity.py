@@ -11,7 +11,9 @@ if not os.path.exists(sanity_tests_directory):
     os.makedirs(sanity_tests_directory)
 
 # Get a list of all module files in the modules directory, excluding __init__.py
-modules = [f for f in os.listdir(modules_directory) if f.endswith(".py") and f != "__init__.py"]
+modules = [
+    f for f in os.listdir(modules_directory) if f.endswith(".py") and f != "__init__.py"
+]
 
 # Ensure that there are no duplicate modules
 modules = list(set(modules))

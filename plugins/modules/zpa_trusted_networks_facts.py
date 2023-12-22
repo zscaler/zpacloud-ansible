@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-#
+
 # Copyright 2023, Zscaler, Inc
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,6 +25,7 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
+
 module: zpa_trusted_networks_facts
 short_description: Retrieves information about a Trusted Network.
 description:
@@ -35,20 +36,19 @@ version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
 extends_documentation_fragment:
-    - zscaler.zpacloud.fragments.credentials_set
-    - zscaler.zpacloud.fragments.provider
+  - zscaler.zpacloud.fragments.provider
+  - zscaler.zpacloud.fragments.credentials_set
 options:
-  name:
-    description:
-      - Name of the trusted network.
-    required: false
-    type: str
-  id:
-    description:
-      - ID of the trusted network.
-    required: false
-    type: str
-
+    id:
+        description:
+            - ID of the trusted network.
+        required: false
+        type: str
+    name:
+        description:
+            - Name of the trusted network.
+        required: false
+        type: str
 """
 
 EXAMPLES = """

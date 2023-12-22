@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-#
+
 # Copyright 2023, Zscaler, Inc
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -35,66 +35,72 @@ version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
 extends_documentation_fragment:
-    - zscaler.zpacloud.fragments.credentials_set
-    - zscaler.zpacloud.fragments.provider
-    - zscaler.zpacloud.fragments.enabled_state
+  - zscaler.zpacloud.fragments.provider
+  - zscaler.zpacloud.fragments.credentials_set
+  - zscaler.zpacloud.fragments.state
 options:
   id:
     description:
-      - ID of the application.
+      - The unique identifier of the application resource.
     required: false
     type: str
   name:
     description:
-      - Name of the application.
+      - The name of the application resource.
     required: true
     type: str
   description:
     description:
-      - Description of the application.
+      - The description of the application resource.
     required: false
     type: str
   enabled:
     description:
-      - Whether this application is enabled or not.
+      - Whether this application resource is enabled or not.
     type: bool
     required: false
   ip_anchored:
     description:
-      - Whether Source IP Anchoring for use with ZIA, is enabled or disabled for the app.
+      - Whether Source IP Anchoring for use with ZIA is enabled or disabled for the application.
     type: bool
     required: false
   tcp_port_range:
     type: list
     elements: dict
-    required: False
-    description: "The TCP port ranges used to access the application"
+    description:
+      - List of tcp port range pairs, e.g. [22, 22] for port 22-22, [80, 100] for 80-100.
+    required: false
     suboptions:
       from:
         type: str
-        required: False
-        description: "The starting port for a port range"
+        required: false
+        description:
+          - List of valid TCP ports. The application segment API supports multiple TCP and UDP port ranges.
       to:
         type: str
-        required: False
-        description: "The ending port for a port range"
+        required: false
+        description:
+          - List of valid TCP ports. The application segment API supports multiple TCP and UDP port ranges.
   udp_port_range:
     type: list
     elements: dict
-    required: False
-    description: "The UDP port ranges used to access the application"
+    description:
+      - List of udp port range pairs, e.g. ['35000', '35000'] for port 35000.
+    required: false
     suboptions:
       from:
         type: str
-        required: False
-        description: "The starting port for a port range"
+        required: false
+        description:
+          - List of valid UDP ports. The application segment API supports multiple TCP and UDP port ranges.
       to:
         type: str
-        required: False
-        description: "The ending port for a port range"
+        required: false
+        description:
+          - List of valid UDP ports. The application segment API supports multiple TCP and UDP port ranges.
   double_encrypt:
     description:
-      - Whether Double Encryption is enabled or disabled for the app.
+      - Whether Double Encryption is enabled or disabled for the application..
     type: bool
     required: false
   icmp_access_type:
@@ -117,7 +123,7 @@ options:
     default: false
   passive_health_enabled:
     description:
-      - passive health enabled.
+      - Indicates if passive health checks are enabled on the application..
     type: bool
     required: false
   use_in_dr_mode:
@@ -135,11 +141,6 @@ options:
       - and applies Data Loss Prevention policies to the application segment you are creating
     type: bool
     required: false
-  adp_enabled:
-    description:
-      - Indicates if Active Directory Inspection is enabled or not for the application
-      - This allows the application segment's traffic to be inspected by Active Directory (AD) Protection
-      - By default, this field is set to false
     type: bool
     required: false
   bypass_type:
@@ -172,16 +173,7 @@ options:
       - ID of the server group.
     type: list
     elements: dict
-    required: true
-    suboptions:
-      name:
-        required: false
-        type: str
-        description: ""
-      id:
-        required: true
-        type: str
-        description: ""
+    required: false
   segment_group_id:
     description:
       - ID of the segment group.
@@ -194,7 +186,8 @@ options:
     required: false
   domain_names:
     description:
-      - List of domains and IPs.
+      - The list of domains and IPs. The maximum limit for domains or IPs is 2,000 applications per application segment
+      - The maximum limit for domains or IPs for the whole customer is 6,000 applications.
     type: list
     elements: str
     required: true
@@ -262,7 +255,6 @@ def core(module):
         "use_in_dr_mode",
         "is_incomplete_dr_config",
         "inspect_traffic_with_zia",
-        "adp_enabled",
         "ip_anchored",
         "icmp_access_type",
         "segment_group_id",
@@ -361,7 +353,6 @@ def core(module):
                         inspect_traffic_with_zia=existing_app.get(
                             "inspect_traffic_with_zia", None
                         ),
-                        adp_enabled=existing_app.get("adp_enabled", None),
                         name=existing_app.get("name", None),
                         passive_health_enabled=existing_app.get(
                             "passive_health_enabled", None
@@ -408,7 +399,6 @@ def core(module):
                     use_in_dr_mode=app.get("use_in_dr_mode", None),
                     is_incomplete_dr_config=app.get("is_incomplete_dr_config", None),
                     inspect_traffic_with_zia=app.get("inspect_traffic_with_zia", None),
-                    adp_enabled=app.get("adp_enabled", None),
                     segment_group_id=app.get("segment_group_id", None),
                     server_group_ids=app.get("server_group_ids", None),
                     tcp_port_ranges=convert_ports_list(app.get("tcp_port_range", None)),
@@ -450,7 +440,6 @@ def main():
         use_in_dr_mode=dict(type="bool", required=False),
         is_incomplete_dr_config=dict(type="bool", required=False),
         inspect_traffic_with_zia=dict(type="bool", required=False),
-        adp_enabled=dict(type="bool", required=False),
         bypass_type=dict(
             type="str",
             required=False,

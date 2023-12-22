@@ -9,7 +9,7 @@ You can contribute in many ways:
 
 ### Report Bugs
 
-Report bugs at https://github.com/zscaler/zpacloud-ansible/issues
+Report bugs at <https://github.com/zscaler/zpacloud-ansible/issues>
 
 ### Fix Bugs
 
@@ -24,7 +24,7 @@ open to whoever wants to implement it.
 ### Submit Feedback
 
 The best way to send feedback is to file an issue at
-https://github.com/zscaler/zpacloud-ansible/issues.
+<https://github.com/zscaler/zpacloud-ansible/issues>.
 
 If you are proposing a feature:
 
@@ -33,7 +33,7 @@ If you are proposing a feature:
 - Remember that this is a volunteer-driven project, and that contributions
   are welcome :)
 
-## Get Started!
+## Get Started
 
 Ready to contribute some code? Here's how to set up `zpacloud-ansible` for local development.
 
@@ -47,16 +47,16 @@ Ready to contribute some code? Here's how to set up `zpacloud-ansible` for local
 3. Create a top level directory for your work, for example `ansible-hacking`:
 
 ```
-$ mkdir ansible-hacking
-$ cd ansible-hacking/
+mkdir ansible-hacking
+cd ansible-hacking/
 ```
 
 3. Clone your fork locally, using a special directory name so that Ansible understands
    it as a collection:
 
 ```
-$ mkdir -p ansible_collections/zscaler
-$ git clone https://github.com/your-username/zpacloud-ansible.git ansible_collections/zscaler/zpacloud
+mkdir -p ansible_collections/zscaler
+git clone https://github.com/your-username/zpacloud-ansible.git ansible_collections/zscaler/zpacloud
 ```
 
 4. Create a playbooks directory, and add our top level directory to `ansible.cfg`:
@@ -71,15 +71,15 @@ $ git clone https://github.com/your-username/zpacloud-ansible.git ansible_collec
    file.
 
 ```
-$ mkdir playbooks
-$ echo "[defaults]\ncollections_paths = .." > playbooks/ansible.cfg
+mkdir playbooks
+echo "[defaults]\ncollections_paths = .." > playbooks/ansible.cfg
 ```
 
 5. Create a branch for local development
 
 ```sh
-$ cd ansible_collections/zscaler/zpacloud
-$ git checkout -b name-of-your-bugfix-or-feature
+cd ansible_collections/zscaler/zpacloud
+git checkout -b name-of-your-bugfix-or-feature
 ```
 
 6. Now you can make your changes locally, and test them out by running
@@ -88,15 +88,15 @@ $ git checkout -b name-of-your-bugfix-or-feature
 7. When you're done making changes, check that your changes pass `ansible-test sanity`:
 
 ```
-$ ansible-test sanity --local
+ansible-test sanity --local
 ```
 
 8. Commit your changes and push your branch to GitHub:
 
 ```
-$ git add -A
-$ git commit -m "Your detailed description of your changes."
-$ git push origin name-of-your-bugfix-or-feature
+git add -A
+git commit -m "Your detailed description of your changes."
+git push origin name-of-your-bugfix-or-feature
 ```
 
 9. Submit a pull request through the GitHub website.
@@ -106,7 +106,7 @@ $ git push origin name-of-your-bugfix-or-feature
 This workflow requires node, npm, and semantic-release to be installed locally:
 
 ```sh
-$ npm install -g semantic-release@^17.1.1 @semantic-release/git@^9.0.0 @semantic-release/exec@^5.0.0 conventional-changelog-conventionalcommits@^4.4.0
+npm install -g semantic-release@^17.1.1 @semantic-release/git@^9.0.0 @semantic-release/exec@^5.0.0 conventional-changelog-conventionalcommits@^4.4.0
 ```
 
 ### Test the release process

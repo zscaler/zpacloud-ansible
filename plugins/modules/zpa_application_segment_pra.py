@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-#
+
 # Copyright 2023, Zscaler, Inc
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -35,9 +35,9 @@ version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
 extends_documentation_fragment:
-    - zscaler.zpacloud.fragments.credentials_set
-    - zscaler.zpacloud.fragments.provider
-    - zscaler.zpacloud.fragments.enabled_state
+  - zscaler.zpacloud.fragments.provider
+  - zscaler.zpacloud.fragments.credentials_set
+  - zscaler.zpacloud.fragments.state
 options:
   id:
     description:
@@ -144,11 +144,6 @@ options:
         description: "The domain of the application"
         type: str
         required: False
-      protocols:
-        description: "The domain of the application"
-        type: str
-        required: False
-        choices: ["NONE", "KERBEROS", "LDAP", "SMB"]
   double_encrypt:
     description:
       - Whether Double Encryption is enabled or disabled for the app.
@@ -178,19 +173,20 @@ options:
     type: bool
     required: false
   use_in_dr_mode:
-    description: ""
+    description: "Whether or not the application resource is designated for disaster recovery"
     type: bool
     required: false
   is_incomplete_dr_config:
-    description: ""
+    description: "Indicates whether or not the disaster recovery configuration is incomplete"
     type: bool
     required: false
   inspect_traffic_with_zia:
-    description: ""
+    description:
+      - Indicates if Inspect Traffic with ZIA is enabled for the application
+      - When enabled, this leverages a single posture for securing internet/SaaS and private applications
+      - and applies Data Loss Prevention policies to the application segment you are creating
     type: bool
     required: false
-  adp_enabled:
-    description: ""
     type: bool
     required: false
   bypass_type:
@@ -223,16 +219,7 @@ options:
       - ID of the server group.
     type: list
     elements: dict
-    required: true
-    suboptions:
-      name:
-        required: false
-        type: str
-        description: ""
-      id:
-        required: true
-        type: str
-        description: ""
+    required: false
   segment_group_id:
     description:
       - ID of the segment group.
@@ -550,7 +537,6 @@ def core(module):
                     common_apps_dto=app.get("common_apps_dto", None),  # Add this line
                     is_incomplete_dr_config=app.get("is_incomplete_dr_config", None),
                     inspect_traffic_with_zia=app.get("inspect_traffic_with_zia", None),
-                    adp_enabled=app.get("adp_enabled", None),
                     segment_group_id=app.get("segment_group_id", None),
                     server_group_ids=app.get("server_group_ids", None),
                     tcp_port_ranges=convert_ports_list(app.get("tcp_port_range", None)),
@@ -605,12 +591,6 @@ def main():
             required=False,
         ),
         domain=dict(type="str", required=True),
-        protocols=dict(
-            type="list",
-            elements="str",
-            choices=["NONE", "KERBEROS", "LDAP", "SMB"],
-            required=False,
-        ),
     )
     argument_spec.update(
         name=dict(type="str", required=True),
@@ -620,7 +600,6 @@ def main():
         use_in_dr_mode=dict(type="bool", required=False),
         is_incomplete_dr_config=dict(type="bool", required=False),
         inspect_traffic_with_zia=dict(type="bool", required=False),
-        adp_enabled=dict(type="bool", required=False),
         bypass_type=dict(
             type="str",
             required=False,

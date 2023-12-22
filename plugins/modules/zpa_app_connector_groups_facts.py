@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-#
+
 # Copyright 2023, Zscaler, Inc
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -35,8 +35,8 @@ version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
 extends_documentation_fragment:
-    - zscaler.zpacloud.fragments.credentials_set
-    - zscaler.zpacloud.fragments.provider
+  - zscaler.zpacloud.fragments.provider
+  - zscaler.zpacloud.fragments.credentials_set
 options:
   name:
     description:
@@ -48,26 +48,6 @@ options:
       - ID of the App Connector Group.
     required: false
     type: str
-"""
-
-EXAMPLES = """
-- name: Retrieve Details of all App Connector Groups
-  zscaler.zpacloud.zpa_app_connector_groups_facts:
-    provider: "{{ zpa_cloud }}"
-
-- name: Retrieve Details of a Specific App Connector Groups by Name
-  zscaler.zpacloud.zpa_app_connector_groups_facts:
-    provider: "{{ zpa_cloud }}"
-    name: "Example App Connector Group"
-
-- name: Retrieve Details of a Specific App Connector Groups by ID
-  zscaler.zpacloud.zpa_app_connector_groups_facts:
-    provider: "{{ zpa_cloud }}"
-    id: "216196257331292046"
-"""
-
-RETURN = """
-# Returns information on a specified App Connector Group.
 """
 
 from traceback import format_exc

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-#
+
 # Copyright 2023, Zscaler, Inc
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -35,28 +35,28 @@ version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
 extends_documentation_fragment:
-    - zscaler.zpacloud.fragments.credentials_set
-    - zscaler.zpacloud.fragments.provider
-    - zscaler.zpacloud.fragments.enabled_state
+  - zscaler.zpacloud.fragments.provider
+  - zscaler.zpacloud.fragments.credentials_set
+  - zscaler.zpacloud.fragments.state
 options:
   id:
     description:
-      - ID of the application.
+      - The unique identifier of the application resource.
     required: false
     type: str
   name:
     description:
-      - Name of the application.
+      - The name of the application resource.
     required: true
     type: str
   description:
     description:
-      - Description of the application.
+      - The description of the application resource.
     required: false
     type: str
   enabled:
     description:
-      - Whether this application is enabled or not.
+      - Whether this application resource is enabled or not.
     type: bool
     required: false
   ip_anchored:
@@ -98,6 +98,18 @@ options:
         required: false
         description:
           - List of valid UDP ports. The application segment API supports multiple TCP and UDP port ranges.
+  tcp_port_ranges:
+    description:
+      - The list of TCP port ranges used to access the application
+    type: list
+    elements: str
+    required: false
+  udp_port_ranges:
+    description:
+      - The list of UDP port ranges used to access the application
+    type: list
+    elements: str
+    required: false
   double_encrypt:
     description:
       - Whether Double Encryption is enabled or disabled for the app.
@@ -123,23 +135,31 @@ options:
     default: false
   passive_health_enabled:
     description:
-      - passive health enabled.
+      - Indicates if passive health checks are enabled on the application..
     type: bool
     required: false
   use_in_dr_mode:
-    description: ""
+    description: "Whether or not the application resource is designated for disaster recovery"
     type: bool
     required: false
   is_incomplete_dr_config:
-    description: ""
+    description: "Indicates whether or not the disaster recovery configuration is incomplete"
     type: bool
     required: false
   inspect_traffic_with_zia:
-    description: ""
+    description:
+      - Indicates if Inspect Traffic with ZIA is enabled for the application
+      - When enabled, this leverages a single posture for securing internet/SaaS and private applications
+      - and applies Data Loss Prevention policies to the application segment you are creating
+    type: bool
+    required: false
     type: bool
     required: false
   adp_enabled:
-    description: ""
+    description:
+      - Indicates if Active Directory Inspection is enabled or not for the application.
+      - This allows the application segment's traffic to be inspected by Active Directory (AD) Protection.
+      - By default, this field is set to false.
     type: bool
     required: false
   bypass_type:
@@ -167,21 +187,36 @@ options:
       - ON_ACCESS
       - CONTINUOUS
     default: NONE
+  tcp_protocols:
+    description:
+      - Indicates the AD Protection protocols to be inspected on the specified TCP port ranges.
+      - This field is only required if adpEnabled is set to true.
+    type: str
+    required: false
+    choices:
+      - NONE
+      - KERBEROS
+      - LDAP
+      - SMB
+    default: NONE
+  udp_protocols:
+    description:
+      - Indicates the AD Protection protocols to be inspected on the specified UDP port ranges
+      - This field is only required if adpEnabled is set to true.
+    type: str
+    required: false
+    choices:
+      - NONE
+      - KERBEROS
+      - LDAP
+      - SMB
+    default: NONE
   server_group_ids:
     description:
       - ID of the server group.
     type: list
     elements: dict
-    required: true
-    suboptions:
-      name:
-        required: false
-        type: str
-        description: ""
-      id:
-        required: true
-        type: str
-        description: ""
+    required: false
   segment_group_id:
     description:
       - ID of the segment group.
@@ -194,7 +229,8 @@ options:
     required: false
   domain_names:
     description:
-      - List of domains and IPs.
+      - The list of domains and IPs. The maximum limit for domains or IPs is 2,000 applications per application segment
+      - The maximum limit for domains or IPs for the whole customer is 6,000 applications.
     type: list
     elements: str
     required: true
@@ -264,6 +300,8 @@ def normalize_app_segment_inspection(app):
         "inspect_traffic_with_zia",
         "tcp_port_range",
         "udp_port_range",
+        "tcp_protocols",
+        "udp_protocols",
         "description",
         "bypass_type",
         "health_reporting",
@@ -301,6 +339,10 @@ def core(module):
         "description",
         "tcp_port_range",
         "udp_port_range",
+        "tcp_port_ranges",
+        "udp_port_ranges",
+        "tcp_protocols",
+        "udp_protocols",
         "enabled",
         "bypass_type",
         "health_reporting",
@@ -453,6 +495,8 @@ def core(module):
                         udp_port_ranges=convert_ports(
                             existing_app.get("udp_port_range", None)
                         ),
+                        tcp_protocols=existing_app.get("tcp_protocols", None),
+                        udp_protocols=existing_app.get("udp_protocols", None),
                     )
                 )
                 existing_app = client.app_segments_inspection.update_segment_inspection(
@@ -491,6 +535,8 @@ def core(module):
                     server_group_ids=app.get("server_group_ids", None),
                     tcp_port_ranges=convert_ports_list(app.get("tcp_port_range", None)),
                     udp_port_ranges=convert_ports_list(app.get("udp_port_range", None)),
+                    tcp_protocols=existing_app.get("tcp_protocols", None),
+                    udp_protocols=existing_app.get("udp_protocols", None),
                 )
             )
             app = client.app_segments_inspection.add_segment_inspection(**app)
@@ -562,6 +608,20 @@ def main():
         icmp_access_type=dict(type="bool", required=False, default=False),
         server_group_ids=id_name_spec,
         domain_names=dict(type="list", elements="str", required=True),
+        tcp_protocols=dict(
+            type="list",
+            elements="str",
+            required=False,
+            default="NONE",
+            choices=["NONE", "KERBEROS", "LDAP", "SMB"],
+        ),
+        udp_protocols=dict(
+            type="list",
+            elements="str",
+            required=False,
+            default="NONE",
+            choices=["NONE", "KERBEROS", "LDAP", "SMB"],
+        ),
         common_apps_dto=dict(
             type="dict",
             options={

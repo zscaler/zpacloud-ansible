@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-#
+
 # Copyright 2023, Zscaler, Inc
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -36,9 +36,9 @@ version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
 extends_documentation_fragment:
-    - zscaler.zpacloud.fragments.credentials_set
-    - zscaler.zpacloud.fragments.provider
-    - zscaler.zpacloud.fragments.enabled_state
+  - zscaler.zpacloud.fragments.provider
+  - zscaler.zpacloud.fragments.credentials_set
+  - zscaler.zpacloud.fragments.state
 options:
     name:
         description: The name of the custom control.
@@ -52,10 +52,7 @@ options:
         description: The action of the custom control.
         required: false
         type: str
-        choices:
-            - PASS
-            - BLOCK
-            - REDIRECT
+        choices: [ PASS, BLOCK, REDIRECT ]
     action_value:
         description: Denotes the action. Supports any string.
         required: false
@@ -64,10 +61,7 @@ options:
         description: The performed action.
         required: false
         type: str
-        choices:
-            - PASS
-            - BLOCK
-            - REDIRECT
+        choices: [ PASS, BLOCK, REDIRECT ]
     default_action_value:
         description: Used to provide the redirect URL if the default action is set to REDIRECT.
         required: false
@@ -80,49 +74,27 @@ options:
         description: The control type of the custom control.
         required: false
         type: str
-        choices:
-            - WEBSOCKET_PREDEFINED
-            - WEBSOCKET_CUSTOM
-            - THREATLABZ
-            - CUSTOM
-            - PREDEFINED
+        choices: [ WEBSOCKET_PREDEFINED, WEBSOCKET_CUSTOM, THREATLABZ, CUSTOM, PREDEFINED ]
     paranoia_level:
         description: The OWASP Predefined Paranoia Level.
         required: false
         type: str
-        choices:
-            - '1'
-            - '2'
-            - '3'
-            - '4'
+        choices: [ '1', '2', '3', '4' ]
     protocol_type:
         description: The protocol type of the custom control.
         required: false
         type: str
-        choices:
-            - HTTP
-            - HTTPS
-            - FTP
-            - RDP
-            - SSH
-            - WEBSOCKET
-            - VNC
+        choices: [ HTTP, HTTPS, FTP, FTP, RDP, SSH, WEBSOCKET, VNC]
     severity:
         description: The severity of the AppProtection control number.
         required: false
         type: str
-        choices:
-            - CRITICAL
-            - ERROR
-            - WARNING
-            - INFO
+        choices: [ CRITICAL, ERROR, WARNING, INFO ]
     type:
         description: The rules to be applied to the request or response type.
         required: false
         type: str
-        choices:
-            - REQUEST
-            - RESPONSE
+        choices: [ REQUEST, RESPONSE ]
     rules:
         type: list
         elements: dict
@@ -139,9 +111,7 @@ options:
                         description: "The key for the object type"
                         type: str
                         required: False
-                        choices:
-                            - SIZE
-                            - VALUE
+                        choices: [ SIZE, VALUE ]
                     op:
                         description: "The operation type"
                         type: str

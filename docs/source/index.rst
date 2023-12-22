@@ -9,8 +9,6 @@ automate configuration and operational tasks on Zscaler Private Access Cloud. Th
 underlying protocol uses API calls that are wrapped within the Ansible
 framework.
 
-This is a **community supported project**; hence, this project or the software module is not affiliated or supported by Zscaler engineering teams in any way.
-
 
 Installation
 ============

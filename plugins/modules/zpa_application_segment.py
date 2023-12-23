@@ -141,8 +141,6 @@ options:
       - and applies Data Loss Prevention policies to the application segment you are creating
     type: bool
     required: false
-    type: bool
-    required: false
   bypass_type:
     description:
       - Indicates whether users can bypass ZPA to access applications.

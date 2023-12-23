@@ -153,8 +153,6 @@ options:
       - and applies Data Loss Prevention policies to the application segment you are creating
     type: bool
     required: false
-    type: bool
-    required: false
   adp_enabled:
     description:
       - Indicates if Active Directory Inspection is enabled or not for the application.

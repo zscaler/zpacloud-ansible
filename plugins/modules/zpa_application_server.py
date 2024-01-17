@@ -87,7 +87,6 @@ RETURN = """
 
 
 from traceback import format_exc
-
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
@@ -97,7 +96,6 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
-
 
 def core(module):
     state = module.params.get("state", None)
@@ -128,6 +126,13 @@ def core(module):
                 existing_server = server_
                 break
 
+    if state == "gathered":
+        # In gathered state, return the current state of the server without making changes
+        if existing_server is None:
+            module.exit_json(changed=False, msg="Server not found.")
+        else:
+            module.exit_json(changed=False, data=existing_server)
+
     # Normalize and compare existing and desired application data
     desired_app = normalize_app(server)
     current_app = normalize_app(existing_server) if existing_server else {}
@@ -140,13 +145,13 @@ def core(module):
             module.warn(
                 f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
             )
+
     if existing_server is not None:
         id = existing_server.get("id")
         existing_server.update(server)
         existing_server["id"] = id
 
-    if state == "present":
-        if existing_server is not None:
+        if state == "present":
             if differences_detected:
                 """Update"""
                 existing_server = deleteNone(
@@ -168,28 +173,26 @@ def core(module):
             else:
                 """No Changes Needed"""
                 module.exit_json(changed=False, data=existing_server)
-        else:
+        elif state == "absent":
+            code = client.servers.delete_server(server_id=existing_server.get("id"))
+            if code > 299:
+                module.exit_json(changed=False, data=None)
+            module.exit_json(changed=True, data=existing_server)
+    else:
+        if state == "present":
             """Create"""
             server = deleteNone(
                 dict(
                     name=server.get("name"),
                     description=server.get("description"),
                     address=server.get("address"),
-                    enable=server.get("enable"),
+                    enabled=server.get("enabled"),
                     app_server_group_ids=server.get("app_server_group_ids"),
                 )
             )
             server = client.servers.add_server(**server).to_dict()
             module.exit_json(changed=True, data=server)
-    elif (
-        state == "absent"
-        and existing_server is not None
-        and existing_server.get("id") is not None
-    ):
-        code = client.servers.delete_server(server_id=existing_server.get("id"))
-        if code > 299:
-            module.exit_json(changed=False, data=None)
-        module.exit_json(changed=True, data=existing_server)
+
     module.exit_json(changed=False, data={})
 
 
@@ -202,14 +205,13 @@ def main():
         address=dict(type="str", required=False),
         enabled=dict(type="bool", default=True, required=False),
         app_server_group_ids=dict(type="list", elements="str", required=False),
-        state=dict(type="str", choices=["present", "absent"], default="present"),
+        state=dict(type="str", choices=["present", "absent", "gathered"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:
         core(module)
     except Exception as e:
         module.fail_json(msg=to_native(e), exception=format_exc())
-
 
 if __name__ == "__main__":
     main()

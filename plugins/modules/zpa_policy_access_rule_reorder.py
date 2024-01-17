@@ -82,7 +82,7 @@ RETURN = """
 # The newly created policy access rule reorder.
 """
 
-from traceback import format_exc
+import traceback
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
@@ -93,14 +93,27 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 def core(module):
     client = ZPAClientHelper(module)
     policy_type = module.params["policy_type"]
-    rules = module.params["rules"]
+    desired_rules = module.params["rules"]
 
     try:
+        # Fetch the current rules and their order
+        current_rules = client.policies.list_rules(policy_type)
+        current_rules_order = {rule["id"]: idx + 1 for idx, rule in enumerate(current_rules)}
+
+        # Check if the current order matches the desired order
+        is_order_correct = all(
+            current_rules_order.get(rule["id"]) == rule["order"] for rule in desired_rules
+        )
+
+        # If the current order is already as desired, exit without changes
+        if is_order_correct:
+            module.exit_json(changed=False, msg="Rules are already in the desired order")
+
         # Sort rules by order
-        rules.sort(key=lambda x: x["order"])
+        desired_rules.sort(key=lambda x: x["order"])
 
         # Validate rules (e.g., check for duplicates, order > 0, etc.)
-        orders = [rule["order"] for rule in rules]
+        orders = [rule["order"] for rule in desired_rules]
         if min(orders) <= 0:
             module.fail_json(msg="New order of rule should be greater than 0")
 
@@ -110,10 +123,10 @@ def core(module):
         duplicate_orders = [order for order, count in order_count.items() if count > 1]
         if duplicate_orders:
             duplicate_rules = [
-                str(rule["id"]) for rule in rules if rule["order"] in duplicate_orders
+                str(rule["id"]) for rule in desired_rules if rule["order"] in duplicate_orders
             ]
             module.fail_json(
-                msg="duplicate order '{duplicate_orders[0]}' used by rules with IDs: {', '.join(duplicate_rules)}"
+                msg=f"Duplicate order '{duplicate_orders[0]}' used by rules with IDs: {', '.join(duplicate_rules)}"
             )
 
         # Check for gaps in rule orders
@@ -122,22 +135,19 @@ def core(module):
         missing_orders = expected_orders - actual_orders
         if missing_orders:
             module.fail_json(
-                msg="missing rule order numbers: {', '.join(map(str, sorted(missing_orders)))}"
+                msg=f"Missing rule order numbers: {', '.join(map(str, sorted(missing_orders)))}"
             )
 
-        # Iterate and reorder rules
-        for rule in rules:
-            rule_id = rule["id"]
-            rule_order = rule["order"]
+        # Prepare the rules orders for bulk reorder
+        rules_orders = {rule["id"]: rule["order"] for rule in desired_rules}
 
-            # Call reorder method from SDK
-            client.policies.reorder_rule(policy_type, rule_id, str(rule_order))
+        # Call reorder method from SDK
+        client.policies.bulk_reorder_rules(policy_type, rules_orders)
 
         module.exit_json(changed=True, msg="Reordered successfully")
 
     except Exception as e:
-        module.fail_json(msg=str(e))
-
+        module.fail_json(msg=str(e), exception=traceback.format_exc())
 
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
@@ -167,8 +177,7 @@ def main():
     try:
         core(module)
     except Exception as e:
-        module.fail_json(msg=to_native(e), exception=format_exc())
-
+        module.fail_json(msg=to_native(e), exception=traceback.format_exc())
 
 if __name__ == "__main__":
     main()

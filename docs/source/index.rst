@@ -75,7 +75,7 @@ Author Information
 .. _documentation:
    https://zscaler.github.io/z_ansible_collections_doc/index.html
 .. _modules:
-   https://zscaler.github.io/zpacloud_ansible_collections_doc/ibm_zos_sysauto/docs/source/roles.html
+   https://zscaler.github.io/zpacloud_ansible_collections_doc/modules/docs/source/roles.html
 .. _samples repository:
    https://github.com/zscaler/zpacloud_ansible_collections_samples/blob/master/README.md
 

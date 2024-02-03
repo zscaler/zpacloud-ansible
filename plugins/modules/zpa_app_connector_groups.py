@@ -36,7 +36,6 @@ requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
-  - zscaler.zpacloud.fragments.credentials_set
   - zscaler.zpacloud.fragments.state
 options:
   name:
@@ -106,6 +105,7 @@ options:
       - List of valid days (i.e., Sunday, Monday).
     default: SUNDAY
     type: str
+    choices: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
   upgrade_time_in_secs:
     description:
       - App Connectors in this group will attempt to update to a newer version of the software during this specified time.
@@ -132,6 +132,28 @@ options:
       - Name of the version profile.
     required: false
     type: str
+    choices: [ 'Default', 'Previous Default', 'New Release' ]
+  tcp_quick_ack_app:
+    description:
+      - Whether TCP Quick Acknowledgement is enabled or disabled for the application.
+      - The tcpQuickAckApp, tcpQuickAckAssistant, and tcpQuickAckReadAssistant fields must all share the same values.
+    required: false
+    default: false
+    type: bool
+  tcp_quick_ack_assistant:
+    description:
+      - Whether TCP Quick Acknowledgement is enabled or disabled for the application.
+      - The tcpQuickAckApp, tcpQuickAckAssistant, and tcpQuickAckReadAssistant fields must all share the same values.
+    required: false
+    default: false
+    type: bool
+  tcp_quick_ack_read_assistant:
+    description:
+      - Whether TCP Quick Acknowledgement is enabled or disabled for the application.
+      - The tcpQuickAckApp, tcpQuickAckAssistant, and tcpQuickAckReadAssistant fields must all share the same values.
+    required: false
+    default: false
+    type: bool
 """
 
 EXAMPLES = """

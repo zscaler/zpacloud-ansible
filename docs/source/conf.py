@@ -93,7 +93,7 @@ html_theme = "sphinx_ansible_theme"
 html_context = {
     "display_github": True,
     "github_user": "zscaler",
-    "github_repo": "ziacloud-ansible",
+    "github_repo": "zpacloud-ansible",
     "github_version": "master",
     "conf_py_path": "/docs/source/",
 }

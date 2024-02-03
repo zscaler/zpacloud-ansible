@@ -16,16 +16,16 @@ Install the collection using `ansible-galaxy`:
 
 .. code-block:: bash
 
-    ansible-galaxy collection install zscaler.ziacloud
+    ansible-galaxy collection install zscaler.zpacloud
 
 Then in your playbooks you can specify that you want to use the
-`ziacloud` collection like so:
+`zpacloud` collection like so:
 
 .. code-block:: yaml
 
     collections:
-        - zscaler.ziacloud
+        - zscaler.zpacloud
 
-* Ansible Galaxy: https://galaxy.ansible.com/zscaler/ziacloud
-* Red Hat Catalog: https://catalog.redhat.com/software/collection/zscaler/ziacloud
-* GitHub repo:  https://github.com/zscaler/ziacloud-ansible
+* Ansible Galaxy: https://galaxy.ansible.com/zscaler/zpacloud
+* Red Hat Catalog: https://catalog.redhat.com/software/collection/zscaler/zpacloud
+* GitHub repo:  https://github.com/zscaler/zpacloud-ansible

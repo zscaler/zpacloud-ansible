@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Examples &mdash; Ansible Collections Documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5707b69d" />
+      <link rel="stylesheet" type="text/css" href="_static/css/ansible.css?v=c5b67dd2" />
+      <link rel="stylesheet" type="text/css" href="_static/antsibull-minimal.css?v=e982f427" />
+      <link rel="stylesheet" type="text/css" href="_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="_static/images/Ansible-Mark-RGB_Black.png"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=8d563738"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Module reference" href="modules.html" />
+    <link rel="prev" title="Installation" href="installation.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="/" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">Ansible Collections Documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Zscaler Private Access Ansible Collection
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="requirements.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-zscaler-private-access">What is Zscaler Private Access</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#app-connector-group">App Connector Group</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#service-edge-group">Service Edge Group</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#provisioning-key-app-connector-group">Provisioning Key - App Connector Group</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#provisioning-key-service-edge-group">Provisioning Key - Service Edge Group</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#application-segment">Application Segment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#browser-access-application-segment">Browser Access Application Segment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#application-segment-privileged-remote-access">Application Segment - Privileged Remote Access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#application-segment-app-protection">Application Segment - App Protection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#application-server">Application Server</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#server-group-dynamic-discovery-on">Server Group - Dynamic Discovery On</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#server-group-dynamic-discovery-off">Server Group - Dynamic Discovery Off</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#segment-group">Segment Group</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#policy-access-rule">Policy Access Rule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#policy-access-timeout-rule">Policy Access Timeout Rule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#policy-access-forwarding-rule">Policy Access Forwarding Rule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#policy-access-app-protection-rule">Policy Access App Protection Rule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#policy-access-isolation-rule">Policy Access Isolation Rule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#policy-access-reorder">Policy Access Reorder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#browser-access-certificate">Browser Access Certificate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enrollment-certificates">Enrollment Certificates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#identity-provider">Identity Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machine-group">Machine Group</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Module reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Release Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Releases</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community_guides.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Zscaler Private Access Ansible Collection</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Examples</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/zscaler/zpacloud-ansible/blob/master/docs/source/examples.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <section id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h1>
+<section id="what-is-zscaler-private-access">
+<h2>What is Zscaler Private Access<a class="headerlink" href="#what-is-zscaler-private-access" title="Link to this heading"></a></h2>
+<p>The Zscaler Private Access (ZPA) service enables organizations to provide access to internal applications and services while ensuring the security of their networks.
+ZPA is an easier to deploy, more cost-effective, and more secure alternative to VPNs. Unlike VPNs, which require users to connect to your network to access your enterprise applications,
+ZPA allows you to give users policy-based secure access only to the internal apps they need to get their work done. With ZPA, application access does not require network access.</p>
+<section id="app-connector-group">
+<h3>App Connector Group<a class="headerlink" href="#app-connector-group" title="Link to this heading"></a></h3>
+<p>The following module allows for interaction with the ZPA App Connector Group API endpoints.
+This module creates an app connector group, which in turn must be associated with a provisioning key resource.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create First App Connector Group</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_app_connector_groups</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">App</span><span class="nv"> </span><span class="s">Connector</span><span class="nv"> </span><span class="s">Group&#39;</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">App</span><span class="nv"> </span><span class="s">Connector</span><span class="nv"> </span><span class="s">Group&#39;</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">country_code</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;US&#39;</span>
+<span class="w">    </span><span class="nt">city_country</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;San</span><span class="nv"> </span><span class="s">Jose,</span><span class="nv"> </span><span class="s">US&#39;</span>
+<span class="w">    </span><span class="nt">location</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;San</span><span class="nv"> </span><span class="s">Jose,</span><span class="nv"> </span><span class="s">CA,</span><span class="nv"> </span><span class="s">USA&#39;</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;37.3382082&#39;</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;-121.8863286&#39;</span>
+<span class="w">    </span><span class="nt">dns_query_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;IPV4_IPV6&#39;</span>
+<span class="w">    </span><span class="nt">upgrade_day</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;SUNDAY&#39;</span>
+<span class="w">    </span><span class="nt">override_version_profile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">pra_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">waf_disabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">upgrade_time_in_secs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;66600&#39;</span>
+<span class="w">    </span><span class="nt">version_profile_id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="service-edge-group">
+<h3>Service Edge Group<a class="headerlink" href="#service-edge-group" title="Link to this heading"></a></h3>
+<p>The following module allows for interaction with the ZPA Service Edge Group API endpoints.
+This module creates an service edge group, which in turn must be associated with a provisioning key resource.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create/Update/Delete Service Edge Group</span>
+<span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">zscaler.zpacloud.zpa_service_edge_groups</span><span class="p p-Indicator">:</span>
+<span class="w">     </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">     </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Service</span><span class="nv"> </span><span class="s">Edge</span><span class="nv"> </span><span class="s">Group&#39;</span>
+<span class="w">     </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Service</span><span class="nv"> </span><span class="s">Edge</span><span class="nv"> </span><span class="s">Group&#39;</span>
+<span class="w">     </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">     </span><span class="nt">city_country</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;California,</span><span class="nv"> </span><span class="s">US&#39;</span>
+<span class="w">     </span><span class="nt">country_code</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;US&#39;</span>
+<span class="w">     </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;7.3382082&#39;</span>
+<span class="w">     </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;-121.8863286&#39;</span>
+<span class="w">     </span><span class="nt">location</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;San</span><span class="nv"> </span><span class="s">Jose,</span><span class="nv"> </span><span class="s">CA,</span><span class="nv"> </span><span class="s">USA&#39;</span>
+<span class="w">     </span><span class="nt">upgrade_day</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;SUNDAY&#39;</span>
+<span class="w">     </span><span class="nt">upgrade_time_in_secs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;66600&#39;</span>
+<span class="w">     </span><span class="nt">override_version_profile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">     </span><span class="nt">version_profile_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="provisioning-key-app-connector-group">
+<h3>Provisioning Key - App Connector Group<a class="headerlink" href="#provisioning-key-app-connector-group" title="Link to this heading"></a></h3>
+<p>The following module allows for interaction with the ZPA Provisioning Key API endpoints.
+This module creates a provisioning key resource, which is a text string that is generated when a new App Connector
+is added.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create/Update/Delete App Connector Group Provisioning Key</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_provisioning_key</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;App</span><span class="nv"> </span><span class="s">Connector</span><span class="nv"> </span><span class="s">Group</span><span class="nv"> </span><span class="s">Provisioning</span><span class="nv"> </span><span class="s">Key&#39;</span>
+<span class="w">    </span><span class="nt">association_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CONNECTOR_GRP&#39;</span>
+<span class="w">    </span><span class="s">max_usage:</span><span class="nv"> </span><span class="s">&#39;10&#39;</span>
+<span class="w">    </span><span class="s">enrollment_cert_id:</span><span class="nv"> </span><span class="s">&#39;6573&#39;</span>
+<span class="w">    </span><span class="s">zcomponent_id:</span><span class="nv"> </span><span class="s">&#39;216196257331291903&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="provisioning-key-service-edge-group">
+<h3>Provisioning Key - Service Edge Group<a class="headerlink" href="#provisioning-key-service-edge-group" title="Link to this heading"></a></h3>
+<p>The following module allows for interaction with the ZPA Provisioning Key API endpoints.
+This module creates a provisioning key resource, which is a text string that is generated when a new Private Service Edge is added.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create/Update/Delete Service Edge Connector Group Provisioning Key</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_provisioning_key</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Service</span><span class="nv"> </span><span class="s">Edge</span><span class="nv"> </span><span class="s">Connector</span><span class="nv"> </span><span class="s">Group</span><span class="nv"> </span><span class="s">Provisioning</span><span class="nv"> </span><span class="s">Key&#39;</span>
+<span class="w">    </span><span class="nt">association_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;CONNECTOR_GRP&#39;</span>
+<span class="w">    </span><span class="nt">max_usage</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;10&#39;</span>
+<span class="w">    </span><span class="nt">enrollment_cert_id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;6573&#39;</span>
+<span class="w">    </span><span class="nt">zcomponent_id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;216196257331291903&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="application-segment">
+<h3>Application Segment<a class="headerlink" href="#application-segment" title="Link to this heading"></a></h3>
+<p>The following module allows for interaction with the ZPA Application Segments endpoints.
+The module creates an application segment resource, which is a grouping of defined applications.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create a Application Segment</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_application_segment</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Application</span><span class="nv"> </span><span class="s">Segment</span><span class="nv"> </span><span class="s">1&#39;</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Application</span><span class="nv"> </span><span class="s">Segment</span><span class="nv"> </span><span class="s">1&#39;</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">health_reporting</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;ON_ACCESS&#39;</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">bypass_type:&#39; NEVER&#39;</span>
+<span class="w">    </span><span class="nt">is_cname_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">tcp_port_range</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">from</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;8080&#39;</span>
+<span class="w">        </span><span class="nt">to</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;8085&#39;</span>
+<span class="w">    </span><span class="nt">domain_names</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;server1.example.com&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;server2.example.com&#39;</span>
+<span class="w">    </span><span class="nt">segment_group_id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">segment_group_id</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">server_groups</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">server_group_id</span><span class="nv"> </span><span class="s">}}&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="browser-access-application-segment">
+<h3>Browser Access Application Segment<a class="headerlink" href="#browser-access-application-segment" title="Link to this heading"></a></h3>
+<p>The following module allows for interaction with the ZPA Application Segments endpoints.
+The module creates a Browser Access Application Segment resource, which allows you to leverage
+a web browser for user authentication and application access over ZPA, without requiring users
+to install the Zscaler Client Connector (formerly Zscaler App or Z App) on their devices.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Browser Access Application Segment</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_browser_access</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Browser</span><span class="nv"> </span><span class="s">Access</span><span class="nv"> </span><span class="s">Application</span><span class="nv"> </span><span class="s">Segment</span><span class="nv"> </span><span class="s">1&#39;</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Browser</span><span class="nv"> </span><span class="s">Access</span><span class="nv"> </span><span class="s">Application</span><span class="nv"> </span><span class="s">Segment</span><span class="nv"> </span><span class="s">1&#39;</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">health_reporting</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;ON_ACCESS&#39;</span>
+<span class="w">    </span><span class="nt">bypass_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;NEVER&#39;</span>
+<span class="w">    </span><span class="nt">is_cname_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">tcp_port_range</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">from</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;80&#39;</span>
+<span class="w">        </span><span class="nt">to</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;80&#39;</span>
+<span class="w">    </span><span class="nt">domain_names</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;sales.example.com&#39;</span>
+<span class="w">    </span><span class="nt">segment_group_id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">segment_group_id</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">server_groups</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">server_group_id</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">clientless_apps</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;sales.acme.com&#39;</span>
+<span class="w">        </span><span class="nt">application_protocol</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;HTTP&#39;</span>
+<span class="w">        </span><span class="nt">application_port</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;80&#39;</span>
+<span class="w">        </span><span class="nt">certificate_id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">certificate_id</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">        </span><span class="nt">trust_untrusted_cert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">domain</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;sales.acme.com&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="application-segment-privileged-remote-access">
+<h3>Application Segment - Privileged Remote Access<a class="headerlink" href="#application-segment-privileged-remote-access" title="Link to this heading"></a></h3>
+<p>The following module allows for interaction with the ZPA Application Segments endpoints.
+The module creates a Privileged Remote Access application segment resource.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create PRA Application Segment</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_application_segment_pra</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Application_Segment</span><span class="nv"> </span><span class="s">PRA&#39;</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Application_Segment</span><span class="nv"> </span><span class="s">PRA&#39;</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">is_cname_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">tcp_keep_alive</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">passive_health_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">select_connector_close_to_app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">health_check_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;DEFAULT&#39;</span>
+<span class="w">    </span><span class="nt">health_reporting</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;ON_ACCESS&#39;</span>
+<span class="w">    </span><span class="nt">bypass_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;NEVER&#39;</span>
+<span class="w">    </span><span class="nt">icmp_access_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">tcp_port_range</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">from</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;22&#39;</span>
+<span class="w">        </span><span class="nt">to</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;22&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">from</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3389&#39;</span>
+<span class="w">        </span><span class="nt">to</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3389&#39;</span>
+<span class="w">    </span><span class="nt">domain_names</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;ssh_pra.example.com&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;rdp_pra.example.com&#39;</span>
+<span class="w">    </span><span class="nt">segment_group_id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;216199618143268450&#39;</span>
+<span class="w">    </span><span class="nt">server_group_ids</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;216199618143268452&#39;</span>
+<span class="w">    </span><span class="nt">common_apps_dto</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">apps_config</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;ssh_pra&#39;</span>
+<span class="w">          </span><span class="nt">domain</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;ssh_pra.example.com&#39;</span>
+<span class="w">          </span><span class="nt">application_port</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;22&#39;</span>
+<span class="w">          </span><span class="nt">application_protocol</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;SH&#39;</span>
+<span class="w">          </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="nt">app_types</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;SECURE_REMOTE_ACCESS&#39;</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;rdp_pra&#39;</span>
+<span class="w">          </span><span class="nt">domain</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;rdp_pra.example.com&#39;</span>
+<span class="w">          </span><span class="nt">application_port</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3389&#39;</span>
+<span class="w">          </span><span class="nt">application_protocol</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;RDP&#39;</span>
+<span class="w">          </span><span class="nt">connection_security</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;ANY&#39;</span>
+<span class="w">          </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="nt">app_types</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;SECURE_REMOTE_ACCESS&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="application-segment-app-protection">
+<h3>Application Segment - App Protection<a class="headerlink" href="#application-segment-app-protection" title="Link to this heading"></a></h3>
+<p>The following module allows for interaction with the ZPA Application Segments endpoints.
+The module creates a App Protection application segment resource.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create App Protection Application Segment</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_application_segment_inspection</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Application</span><span class="nv"> </span><span class="s">Segment</span><span class="nv"> </span><span class="s">AppProtection&#39;</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Application</span><span class="nv"> </span><span class="s">Segment</span><span class="nv"> </span><span class="s">AppProtection&#39;</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">is_cname_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">tcp_keep_alive</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">passive_health_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">select_connector_close_to_app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">health_check_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;DEFAULT&#39;</span>
+<span class="w">    </span><span class="nt">health_reporting</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;ON_ACCESS&#39;</span>
+<span class="w">    </span><span class="nt">bypass_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;NEVER&#39;</span>
+<span class="w">    </span><span class="nt">icmp_access_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">tcp_port_range</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">from</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;443&#39;</span>
+<span class="w">        </span><span class="nt">to</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;443&#39;</span>
+<span class="w">    </span><span class="nt">domain_names</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;server.example.com&#39;</span>
+<span class="w">    </span><span class="nt">segment_group_id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;216199618143268450&#39;</span>
+<span class="w">    </span><span class="nt">server_group_ids</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;216199618143268452&#39;</span>
+<span class="w">    </span><span class="nt">common_apps_dto</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">apps_config</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;server.example.com&#39;</span>
+<span class="w">          </span><span class="nt">domain</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;server.example.com&#39;</span>
+<span class="w">          </span><span class="nt">application_port</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;443&#39;</span>
+<span class="w">          </span><span class="nt">application_protocol</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;HTTPS&#39;</span>
+<span class="w">          </span><span class="nt">certificate_id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;216199618143247243&#39;</span>
+<span class="w">          </span><span class="nt">allow_options</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="nt">trust_untrusted_cert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="nt">app_types</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;INSPECT&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="application-server">
+<h3>Application Server<a class="headerlink" href="#application-server" title="Link to this heading"></a></h3>
+<p>The following module allows for interaction with the ZPA Application Server endpoints.
+The module creates a Application Server resource, which can then be associated with a Server Group, where the <cite>dynamic_discovery</cite> is disabled.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create/Update/Delete an Application Server</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_application_server</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Ansible</span><span class="nv"> </span><span class="s">Application</span><span class="nv"> </span><span class="s">Server&quot;</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Ansible</span><span class="nv"> </span><span class="s">Application</span><span class="nv"> </span><span class="s">Server&quot;</span>
+<span class="w">    </span><span class="nt">address</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;server.example.com&quot;</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</section>
+<section id="server-group-dynamic-discovery-on">
+<h3>Server Group - Dynamic Discovery On<a class="headerlink" href="#server-group-dynamic-discovery-on" title="Link to this heading"></a></h3>
+<p>The following module allows for interaction with the ZPA Server Groups endpoints.
+The module creates a Server Group resource, which can be created to manually define servers,
+or it can be created with the option of <cite>dynamic_discovery</cite> enabled so that ZPA discovers the appropriate servers,
+for each application as users request them.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create/Update/Delete a Server Group (Dynamic Discovery ON)</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_server_group</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Server</span><span class="nv"> </span><span class="s">Group</span><span class="nv"> </span><span class="s">Example&#39;</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Server</span><span class="nv"> </span><span class="s">Group</span><span class="nv"> </span><span class="s">Example&#39;</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">dynamic_discovery</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">app_connector_groups</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;216196257331291924&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="server-group-dynamic-discovery-off">
+<h3>Server Group - Dynamic Discovery Off<a class="headerlink" href="#server-group-dynamic-discovery-off" title="Link to this heading"></a></h3>
+<p>The following module allows for interaction with the ZPA Server Groups endpoints.
+The module creates a Server Group resource, which can be created to manually define servers,
+when <cite>dynamic_discovery</cite> is disabled.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create/Update/Delete a Server Group (Dynamic Discovery OFF)</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_server_group</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Server</span><span class="nv"> </span><span class="s">Group</span><span class="nv"> </span><span class="s">Example&#39;</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Server</span><span class="nv"> </span><span class="s">Group</span><span class="nv"> </span><span class="s">Example&#39;</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">dynamic_discovery</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">app_connector_groups</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;216196257331291924&#39;</span>
+<span class="w">    </span><span class="nt">servers</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;216196257331291921&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="segment-group">
+<h3>Segment Group<a class="headerlink" href="#segment-group" title="Link to this heading"></a></h3>
+<p>The following module allows for interaction with the ZPA Segment Groups endpoints.
+This resource can then be referenced within Application Segment (s), and Access Policies.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create/Update/Delete a Segment Groups</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_segment_group</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Segment</span><span class="nv"> </span><span class="s">Group&#39;</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Segment</span><span class="nv"> </span><span class="s">Group&#39;</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</section>
+<section id="policy-access-rule">
+<h3>Policy Access Rule<a class="headerlink" href="#policy-access-rule" title="Link to this heading"></a></h3>
+<p>The following module allows for interaction with the the ZPA Policy Controller endpoints.
+This resource creates and manages policy access rules in the Zscaler Private Access cloud.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create/Update/Delete an Access Policy Rule</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_policy_access_rule</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Policy</span><span class="nv"> </span><span class="s">Access</span><span class="nv"> </span><span class="s">Rule&#39;</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Policy</span><span class="nv"> </span><span class="s">Access</span><span class="nv"> </span><span class="s">Rule&#39;</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ALLOW&quot;</span>
+<span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;AND&quot;</span>
+<span class="w">    </span><span class="nt">conditions</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">negated</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;OR&quot;</span>
+<span class="w">        </span><span class="nt">operands</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;APP&quot;</span>
+<span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;id&quot;</span>
+<span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;216196257331291979&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="policy-access-timeout-rule">
+<h3>Policy Access Timeout Rule<a class="headerlink" href="#policy-access-timeout-rule" title="Link to this heading"></a></h3>
+<p>The following module allows for interaction with the the ZPA Policy Controller endpoints.
+This resource creates a policy timeout rule in the Zscaler Private Access cloud.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create/Update/Delete a Policy Timeout Rule</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_policy_access_timeout_rule</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Policy</span><span class="nv"> </span><span class="s">Timeout</span><span class="nv"> </span><span class="s">Rule&#39;</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Policy</span><span class="nv"> </span><span class="s">Timeout</span><span class="nv"> </span><span class="s">Rule&#39;</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;RE_AUTH&#39;</span>
+<span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;AND&#39;</span>
+<span class="w">    </span><span class="nt">conditions</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">negated</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;OR&#39;</span>
+<span class="w">        </span><span class="nt">operands</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;APP&#39;</span>
+<span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;id&#39;</span>
+<span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;216196257331291979&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="policy-access-forwarding-rule">
+<h3>Policy Access Forwarding Rule<a class="headerlink" href="#policy-access-forwarding-rule" title="Link to this heading"></a></h3>
+<p>The following module allows for interaction with the the ZPA Policy Controller endpoints.
+This resource creates a policy forwarding access rule in the Zscaler Private Access cloud.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create/Update/Delete a Policy Forwarding Rule</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_policy_access_forwarding_rule</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Policy</span><span class="nv"> </span><span class="s">Forwarding</span><span class="nv"> </span><span class="s">Rule&#39;</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Policy</span><span class="nv"> </span><span class="s">Forwarding</span><span class="nv"> </span><span class="s">Rule&#39;</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;BYPASS&#39;</span>
+<span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;AND&#39;</span>
+<span class="w">    </span><span class="nt">conditions</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">negated</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;OR&#39;</span>
+<span class="w">        </span><span class="nt">operands</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;APP&#39;</span>
+<span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;id&#39;</span>
+<span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;216196257331291979&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="policy-access-app-protection-rule">
+<h3>Policy Access App Protection Rule<a class="headerlink" href="#policy-access-app-protection-rule" title="Link to this heading"></a></h3>
+<p>The following module allows for interaction with the the ZPA Policy Controller endpoints.
+This resource creates an App Protection access rule in the Zscaler Private Access cloud.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather information about a app protection profile</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_app_protection_security_profile_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Ansible</span><span class="nv"> </span><span class="s">Security</span><span class="nv"> </span><span class="s">Profile&quot;</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">profile</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create/Update/Delete a App Protection Access Policy Rule</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_policy_access_app_protection_rule</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">App</span><span class="nv"> </span><span class="s">Protection</span><span class="nv"> </span><span class="s">Policy</span><span class="nv"> </span><span class="s">Rule&#39;</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">App</span><span class="nv"> </span><span class="s">Protection</span><span class="nv"> </span><span class="s">Policy</span><span class="nv"> </span><span class="s">Rule&#39;</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;INSPECT&#39;</span>
+<span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;AND&#39;</span>
+<span class="w">    </span><span class="nt">zpn_inspection_profile_id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">profile.data[0].id</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">conditions</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">negated</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;OR&#39;</span>
+<span class="w">        </span><span class="nt">operands</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;APP&#39;</span>
+<span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;id&#39;</span>
+<span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;216196257331368729&#39;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;APP_GROUP&#39;</span>
+<span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;id&#39;</span>
+<span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;216196257331368720&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;AND&#39;</span>
+<span class="w">        </span><span class="nt">negated</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="nt">operands</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;POSTURE&#39;</span>
+<span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;13ba3d97-aefb-4acc-9e54-6cc230dee4a5&#39;</span>
+<span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;false&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;AND&#39;</span>
+<span class="w">        </span><span class="nt">negated</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="nt">operands</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;TRUSTED_NETWORK&#39;</span>
+<span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;869fbea4-799d-422a-984f-d40fbe53bc02&#39;</span>
+<span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;true&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;AND&#39;</span>
+<span class="w">        </span><span class="nt">negated</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="nt">operands</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;PLATFORM&#39;</span>
+<span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ios</span>
+<span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;true&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="policy-access-isolation-rule">
+<h3>Policy Access Isolation Rule<a class="headerlink" href="#policy-access-isolation-rule" title="Link to this heading"></a></h3>
+<p>The following module allows for interaction with the the ZPA Policy Controller endpoints.
+This resource creates an Isolation access rule in the Zscaler Private Access cloud.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather information about all CBI Profile</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_isolation_profiles_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Isolation</span><span class="nv"> </span><span class="s">Profile&#39;</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cbi_profile</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create/Update/Delete a Policy Isolation Rule</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_policy_access_isolation_rule</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Isolation</span><span class="nv"> </span><span class="s">Policy</span><span class="nv"> </span><span class="s">Rule&#39;</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Isolation</span><span class="nv"> </span><span class="s">Policy</span><span class="nv"> </span><span class="s">Rule&#39;</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;ISOLATE&#39;</span>
+<span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;AND&#39;</span>
+<span class="w">    </span><span class="nt">zpn_isolation_profile_id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">cbi_profile.data[0].id</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">conditions</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">negated</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;OR&#39;</span>
+<span class="w">        </span><span class="nt">operands</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;APP&#39;</span>
+<span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;id&#39;</span>
+<span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;216196257331368729&#39;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;APP_GROUP&#39;</span>
+<span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;id&#39;</span>
+<span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;216196257331368720&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">negated</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;OR&#39;</span>
+<span class="w">        </span><span class="nt">operands</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;CLIENT_TYPE&#39;</span>
+<span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;id&#39;</span>
+<span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;zpn_client_type_exporter&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="policy-access-reorder">
+<h3>Policy Access Reorder<a class="headerlink" href="#policy-access-reorder" title="Link to this heading"></a></h3>
+<p>The following module allows for interaction with the the ZPA Policy Controller endpoints.
+This is a dedicated resource to manage and update rule_orders in any of the supported ZPA Policy Access types Zscaler Private Access cloud.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">Reorder Policy Access Rules</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_policy_access_rule_reorder</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">policy_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;access&quot;</span>
+<span class="w">    </span><span class="nt">rules</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;216196257331369420&quot;</span>
+<span class="w">        </span><span class="nt">order</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;216196257331369421&quot;</span>
+<span class="w">        </span><span class="nt">order</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;216196257331369422&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="browser-access-certificate">
+<h3>Browser Access Certificate<a class="headerlink" href="#browser-access-certificate" title="Link to this heading"></a></h3>
+<p>The following module allows for interaction with the the ZPA Certificate endpoint and creates a browser access certificate with a private key in the Zscaler Private Access cloud.
+This resource is required when creating a browser access application segment resource.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Onboard ZPA Browser Access Certificate</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">zscaler.zpacloud.zpa_ba_certificate</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">provider</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;server1.example.com&#39;</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;server1.example.com&#39;</span>
+<span class="w">    </span><span class="nt">cert_blob</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">lookup(&#39;</span><span class="l l-Scalar l-Scalar-Plain">file&#39;, &#39;server1.example.com.pem&#39;) }}&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="enrollment-certificates">
+<h3>Enrollment Certificates<a class="headerlink" href="#enrollment-certificates" title="Link to this heading"></a></h3>
+<p>Use the <cite>zpa_enrollement_certificate_facts</cite> to gather facts about built-in configured enrollment certificate details created in the Zscaler Private Access cloud.
+This resource is required when creating provisioning key resources or type <cite>Connector</cite> or <cite>Service Edge</cite></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather information about App Connector Certificate</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Connector&#39;</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather information about Service Edge Certificate</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Service</span><span class="nv"> </span><span class="s">Edge&#39;</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather information about Root Certificate</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Root&#39;</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather information about Client Certificate</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Client&#39;</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather information about Isolation Client Certificate</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Isolation</span><span class="nv"> </span><span class="s">Client&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="identity-provider">
+<h3>Identity Provider<a class="headerlink" href="#identity-provider" title="Link to this heading"></a></h3>
+<p>Use the <cite>zpa_idp_controller_facts</cite> resource to gather information about an Identity Provider created in the Zscaler Private Access cloud.
+This resource can then be referenced when configuring the following resources.</p>
+<ol class="arabic simple">
+<li><p>Access policy Rules</p></li>
+<li><p>Access policy timeout rules</p></li>
+<li><p>Access policy forwarding rules</p></li>
+<li><p>Access policy inspection rules</p></li>
+<li><p>Access policy isolation rules</p></li>
+<li><p>Access policy App Protection rules</p></li>
+</ol>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather information about all IDP Controller</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_idp_controller_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Azure_AD_IdP</span>
+</pre></div>
+</div>
+</section>
+<section id="machine-group">
+<h3>Machine Group<a class="headerlink" href="#machine-group" title="Link to this heading"></a></h3>
+<p>Use the <cite>zpa_machine_group_facts</cite> resource to gather information about a machine group created in the Zscaler Private Access cloud.
+This resource can then be referenced in an Access Policy, Timeout policy, Forwarding Policy, Inspection Policy or Isolation Policy.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather information about a Machine Group</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_machine_group_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ansible_Machine_Group</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="modules.html" class="btn btn-neutral float-right" title="Module reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Zscaler Inc.</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

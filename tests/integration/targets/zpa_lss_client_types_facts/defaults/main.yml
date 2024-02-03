@@ -1,8 +1,0 @@
-client_type1: zpn_client_type_exporter
-client_type2: zpn_client_type_machine_tunnel
-client_type3: zpn_client_type_ip_anchoring
-client_type4: zpn_client_type_edge_connector
-client_type5: zpn_client_type_zapp
-client_type6: zpn_client_type_slogger
-client_type7: zpn_client_type_zapp_partner
-client_type8: zpn_client_type_branch_connector

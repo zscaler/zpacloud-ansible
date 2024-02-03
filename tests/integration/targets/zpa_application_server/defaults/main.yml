@@ -1,4 +1,0 @@
-name: test_zpa_application_server
-description: test_zpa_application_server
-enabled: true
-address: "192.168.1.1"

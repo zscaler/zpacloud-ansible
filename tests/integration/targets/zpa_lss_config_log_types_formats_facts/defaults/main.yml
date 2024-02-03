@@ -1,9 +1,0 @@
-log_type1: zpn_trans_log
-log_type2: zpn_auth_log
-log_type3: zpn_ast_auth_log
-log_type4: zpn_http_trans_log
-log_type5: zpn_audit_log
-log_type6: zpn_ast_comprehensive_stats
-log_type7: zpn_sys_auth_log
-log_type8: zpn_waf_http_exchanges_log
-log_type9: zpn_pbroker_comprehensive_stats

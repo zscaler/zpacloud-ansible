@@ -1,4 +1,0 @@
----
-wildcard_certificate: bd-hashicorp.com
-sales_certificate: sales.bd-hashicorp.com
-jenkins_certificate: jenkins.bd-hashicorp.com

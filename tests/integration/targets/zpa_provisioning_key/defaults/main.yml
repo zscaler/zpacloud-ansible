@@ -1,8 +1,0 @@
----
-acg_name: test_acg_zpa_provisioning_key
-acg_association_type: connector
-acg_max_usage: "10"
-
-seg_name: test_seg_zpa_provisioning_key
-seg_association_type: service_edge
-seg_max_usage: "10"

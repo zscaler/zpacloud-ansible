@@ -1,5 +1,0 @@
----
-name: "test_zpa_server_group"
-description: "test_zpa_server_group"
-enabled: true
-dynamic_discovery: true

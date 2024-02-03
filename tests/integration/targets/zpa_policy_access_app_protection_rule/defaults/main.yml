@@ -1,5 +1,0 @@
----
-name: test_zpa_policy_access_app_protection_rule
-description: test_zpa_policy_access_app_protection_rule
-action: inspect
-operator: AND

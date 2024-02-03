@@ -31,14 +31,13 @@ description:
     - This Ansible module enables you to manage Zscaler Private Access (ZPA) app protection custom controls in the ZPA Cloud.
     - You can use this module to create new custom controls, update existing ones, or delete custom controls as needed.
 author:
-  - William Guilherme (@willguibr)
+    - William Guilherme (@willguibr)
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
 extends_documentation_fragment:
-  - zscaler.zpacloud.fragments.provider
-  - zscaler.zpacloud.fragments.credentials_set
-  - zscaler.zpacloud.fragments.state
+    - zscaler.zpacloud.fragments.provider
+    - zscaler.zpacloud.fragments.state
 options:
     name:
         description: The name of the custom control.

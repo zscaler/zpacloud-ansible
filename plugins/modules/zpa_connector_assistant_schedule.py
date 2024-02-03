@@ -36,7 +36,7 @@ requirements:
     - Zscaler SDK Python can be obtained from PyPI (https://pypi.org/project/zscaler-sdk-python/)
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
-  - zscaler.zpacloud.fragments.credentials_set
+
   - zscaler.zpacloud.fragments.state
 options:
     id:

@@ -27,7 +27,7 @@ DOCUMENTATION = """
 ---
 module: zpa_app_protection_security_profile
 short_description: Create, update, or delete Zscaler Private Access (ZPA) app protection security profile.
-description: >
+description:
     - This Ansible module enables you to manage Zscaler Private Access (ZPA) app protection security profile in the ZPA Cloud.
     - You can use this module to create new app protection security profile, update existing ones, or delete app protection security profile as needed.
 author:
@@ -37,7 +37,6 @@ requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
-  - zscaler.zpacloud.fragments.credentials_set
   - zscaler.zpacloud.fragments.state
 options:
     name:

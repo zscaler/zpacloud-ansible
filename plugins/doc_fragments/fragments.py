@@ -25,45 +25,40 @@ __metaclass__ = type
 
 class ModuleDocFragment(object):
     # Standard files documentation fragment
-    DOCUMENTATION = r"""
-options:
-    client_id:
-        description:
-            - The unique API identifier for the API.
-        type: str
-        required: true
-    client_secret:
-        description:
-            - Confidential key associated with the client ID.
-        type: str
-        required: true
-    customer_id:
-        description:
-            - The unique identifier of the ZPA tenant.
-        type: str
-        required: true
-"""
-    # Formatted for Modules
-    CREDENTIALS_SET = r"""
-options:
-    client_id:
-        description:
-            - The unique API identifier for the API.
-        type: str
-        required: true
-    client_secret:
-        description:
-            - Confidential key associated with the client ID.
-        type: str
-        required: true
-    customer_id:
-        description:
-            - The unique identifier of the ZPA tenant.
-        type: str
-        required: true
-"""
 
-    PROVIDER = r"""
+    DOCUMENTATION = r'''
+options:
+    client_id:
+        description:
+            - The unique API identifier for the API.
+        type: str
+        required: true
+    client_secret:
+        description:
+            - Confidential key associated with the client ID.
+        type: str
+        required: true
+    customer_id:
+        description:
+            - The unique identifier of the ZPA tenant.
+        type: str
+        required: true
+    cloud:
+        description:
+            - The ZPA cloud provisioned for your organization
+        required: true
+        type: str
+        choices:
+            - PRODUCTION
+            - BETA
+            - QA
+            - QA2
+            - GOV
+            - GOVUS
+            - PREVIEW
+'''
+
+    PROVIDER = r'''
 options:
     provider:
         description:
@@ -87,9 +82,22 @@ options:
                     - The unique identifier of the ZPA tenant.
                 type: str
                 required: true
-"""
+            cloud:
+                description:
+                    - The ZPA cloud provisioned for your organization
+                required: true
+                type: str
+                choices:
+                    - PRODUCTION
+                    - BETA
+                    - QA
+                    - QA2
+                    - GOV
+                    - GOVUS
+                    - PREVIEW
+'''
 
-    STATE = r"""
+    STATE = r'''
 options:
     state:
         description:
@@ -99,9 +107,9 @@ options:
         choices:
             - present
             - absent
-"""
+'''
 
-    ENABLED_STATE = r"""
+    ENABLED_STATE = r'''
 options:
     state:
         description:
@@ -113,4 +121,4 @@ options:
             - absent
             - enabled
             - disabled
-"""
+'''

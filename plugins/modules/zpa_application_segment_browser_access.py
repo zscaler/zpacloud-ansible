@@ -36,31 +36,30 @@ requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
-
   - zscaler.zpacloud.fragments.state
 options:
   id:
     type: str
-    description: "Unique ID."
+    description: "The unique identifier of the application resource."
   name:
     type: str
-    required: True
-    description: "Name of the application."
+    required: true
+    description: "The name of the application resource."
   description:
     type: str
-    required: False
-    description: "Description of the application."
+    required: false
+    description: "The description of the application resource."
   enabled:
     type: bool
-    required: False
+    required: false
     description: "Whether this application is enabled or not."
   ip_anchored:
     type: bool
-    required: False
-    description: "ip_anchored"
+    required: false
+    description: "Whether Source IP Anchoring for use with ZIA is enabled or disabled for the application."
   double_encrypt:
     type: bool
-    required: False
+    required: false
     description: "Whether Double Encryption is enabled or disabled for the app."
   icmp_access_type:
     description:
@@ -109,132 +108,117 @@ options:
     required: false
   bypass_type:
     type: str
-    required: False
+    required: false
     description: "Indicates whether users can bypass ZPA to access applications."
-    choices: ["ALWAYS", "NEVER", "ON_NET"]
+    choices:
+      - ALWAYS
+      - NEVER
+      - ON_NET
   is_cname_enabled:
     type: bool
-    required: False
+    required: false
+    default: false
     description: "Indicates if the Zscaler Client Connector (formerly Zscaler App or Z App) receives CNAME DNS records from the connectors."
   health_reporting:
     type: str
-    required: False
+    required: false
     description: "Whether health reporting for the app is Continuous or On Access. Supported values: NONE, ON_ACCESS, CONTINUOUS."
     default: "NONE"
-    choices: ["NONE", "ON_ACCESS", "CONTINUOUS"]
+    choices:
+      - NONE
+      - ON_ACCESS
+      - CONTINUOUS
   server_group_ids:
     type: list
     elements: str
-    required: True
+    required: true
     description: "List of the server group IDs."
   segment_group_id:
     type: str
-    required: True
-    description: "segment group id."
+    required: true
+    description: "The unique identifier of the Segment Group."
   health_check_type:
     type: str
     description: "health check type."
   tcp_port_range:
     type: list
     elements: dict
-    required: False
+    required: false
     description: "The TCP port ranges used to access the application"
     suboptions:
       from:
         type: str
-        required: False
+        required: false
         description: "The starting port for a port range"
       to:
         type: str
-        required: False
+        required: false
         description: "The ending port for a port range"
   udp_port_range:
     type: list
     elements: dict
-    required: False
+    required: false
     description: "The UDP port ranges used to access the application"
     suboptions:
       from:
         type: str
-        required: False
+        required: false
         description: "The starting port for a port range"
       to:
         type: str
-        required: False
+        required: false
         description: "The ending port for a port range"
   domain_names:
     type: list
     elements: str
-    required: True
+    required: true
     description: "List of domains and IPs."
   clientless_app_ids:
-    description: ""
+    description: "List of clientless or browser access applications"
     type: list
     elements: dict
     suboptions:
-      path:
-        type: str
-        required: False
-        description: ""
-      trust_untrusted_cert:
-        type: bool
-        required: False
-        description: ""
-      allow_options:
-        type: bool
-        required: False
-        description: ""
-      description:
-        type: str
-        required: False
-        description: ""
-      id:
-        type: str
-        description: ""
-      cname:
-        type: str
-        required: False
-        description: ""
-      hidden:
-        type: bool
-        required: False
-        description: ""
-      app_id:
-        type: str
-        description: ""
-      application_port:
-        type: str
-        required: False
-        description: ""
-      application_protocol:
-        type: str
-        required: True
-        description: ""
       name:
         type: str
-        required: True
-        description: ""
-      certificate_id:
+        required: false
+        description: "The name of the Browser Access application."
+      description:
         type: str
-        required: True
-        description: ""
-      certificate_name:
-        type: str
-        required: False
-        description: ""
-      domain:
-        type: str
-        required: False
-        description: ""
+        required: false
+        description: "The description of the Browser Access application."
       enabled:
         type: bool
-        required: False
-        description: ""
-      local_domain:
+        required: false
+        description: "Whether the Browser Access application is enabled or not."
+      trust_untrusted_cert:
+        type: bool
+        required: false
+        default: false
+        description: "Whether the use of untrusted certificates is enabled or disabled for the Browser Access application."
+      allow_options:
+        type: bool
+        required: false
+        default: false
+        description: "Whether the options are enabled for the Browser Access application or not."
+      application_port:
         type: str
-        required: False
-        description: ""
-    required: False
+        required: false
+        description: "The port for the Browser Access application."
+      application_protocol:
+        type: str
+        required: true
+        description: "The protocol for the Browser Access application."
+        choices:
+          - HTTP
+          - HTTPS
+      certificate_id:
+        type: str
+        required: true
+        description: "The unique identifier of the Browser Access certificate."
+      domain:
+        type: str
+        required: false
+        description: "The domain of the Browser Access application."
 """
 
 EXAMPLES = """
@@ -583,22 +567,18 @@ def main():
             type="list",
             elements="dict",
             options=dict(
-                path=dict(type="str", required=False),
                 trust_untrusted_cert=dict(type="bool", required=False),
                 allow_options=dict(type="bool", required=False),
                 description=dict(type="str", required=False),
                 id=dict(type="str"),
-                cname=dict(type="str", required=False),
                 hidden=dict(type="bool", required=False),
                 app_id=dict(type="str"),
                 application_port=dict(type="str", required=False),
                 application_protocol=dict(type="str", required=True),
                 name=dict(type="str", required=True),
                 certificate_id=dict(type="str", required=True),
-                certificate_name=dict(type="str", required=False),
                 domain=dict(type="str", required=False),
                 enabled=dict(type="bool", required=False),
-                local_domain=dict(type="str", required=False),
             ),
             required=False,
         ),

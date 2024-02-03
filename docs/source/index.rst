@@ -44,16 +44,29 @@ contributed by the **Zscaler's Technology Alliances** team.
    :maxdepth: 1
    :caption: Getting Started
 
-   requirements
-   installation
-   examples
+   requirements/requirements
+   installation/installation
+   examples/examples
    modules
+   playbooks/playbooks
 
 .. toctree::
    :maxdepth: 1
    :caption: Release Notes
 
-   release_notes
+   release/release
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Troubleshooting
+
+   troubleshooting/errorsandmessages
+
+.. toctree::
+   :maxdepth: 1
+   :caption: FAQs
+
+   faqs/faqs
 
 .. toctree::
    :maxdepth: 1

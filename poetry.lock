@@ -1024,13 +1024,13 @@ files = [
 
 [[package]]
 name = "idna"
-version = "2.8"
+version = "3.7"
 description = "Internationalized Domain Names in Applications (IDNA)"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+python-versions = ">=3.5"
 files = [
-    {file = "idna-2.8-py2.py3-none-any.whl", hash = "sha256:ea8b7f6188e6fa117537c3df7da9fc686d485087abf6ac197f9c46432f7e4a3c"},
-    {file = "idna-2.8.tar.gz", hash = "sha256:c357b3f628cf53ae2c4c05627ecc484553142ca23264e593d327bcde5e9c3407"},
+    {file = "idna-3.7-py3-none-any.whl", hash = "sha256:82fee1fc78add43492d3a1898bfa6d8a904cc97d8427f683ed8e798d07761aa0"},
+    {file = "idna-3.7.tar.gz", hash = "sha256:028ff3aadf0609c1fd278d8ea3089299412a7a8b9bd005dd08b9f8285bcb5cfc"},
 ]
 
 [[package]]
@@ -2914,4 +2914,4 @@ dev = ["aenum", "black", "isort", "pydash", "pyfakefs", "pytest", "pytest-asynci
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "b236793bde86485a70bbcc85295610ac4da4acb9df47a6dac80aca359dc276f6"
+content-hash = "7240b58d0b85fc09a013e750c6ed202812d4eb8db9311045982d484e504e02d3"

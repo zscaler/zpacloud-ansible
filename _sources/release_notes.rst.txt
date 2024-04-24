@@ -29,7 +29,7 @@ Availability
    https://github.com/zscaler/zpacloud-ansible
 
 .. _Galaxy:
-   https://galaxy.ansible.com/zscaler/zpacloud-ansible
+   https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/
 
 .. _Automation Hub:
    https://www.ansible.com/products/automation-hub

@@ -7,7 +7,7 @@
     :trim:
 
 .. meta::
-  :antsibull-docs: 2.7.0
+  :antsibull-docs: 2.10.0
 
 .. Anchors
 
@@ -170,6 +170,121 @@ Parameters
   * - .. raw:: html
 
         <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-client_id"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_app_protection_custom_control_module__parameter-client_id:
+
+      .. rst-class:: ansible-option-title
+
+      **client_id**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-client_id" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string` / :ansible-option-required:`required`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The ZPA API client ID generated from the ZPA console.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-client_secret"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_app_protection_custom_control_module__parameter-client_secret:
+
+      .. rst-class:: ansible-option-title
+
+      **client_secret**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-client_secret" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string` / :ansible-option-required:`required`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The ZPA API client secret generated from the ZPA console.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-cloud"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_app_protection_custom_control_module__parameter-cloud:
+
+      .. rst-class:: ansible-option-title
+
+      **cloud**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-cloud" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string` / :ansible-option-required:`required`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The ZPA cloud provisioned for your organization
+
+
+      .. rst-class:: ansible-option-line
+
+      :ansible-option-choices:`Choices:`
+
+      - :ansible-option-choices-entry:`"PRODUCTION"`
+      - :ansible-option-choices-entry:`"BETA"`
+      - :ansible-option-choices-entry:`"QA"`
+      - :ansible-option-choices-entry:`"QA2"`
+      - :ansible-option-choices-entry:`"GOV"`
+      - :ansible-option-choices-entry:`"GOVUS"`
+      - :ansible-option-choices-entry:`"PREVIEW"`
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
         <div class="ansibleOptionAnchor" id="parameter-control_rule_json"></div>
 
       .. _ansible_collections.zscaler.zpacloud.zpa_app_protection_custom_control_module__parameter-control_rule_json:
@@ -240,6 +355,44 @@ Parameters
       - :ansible-option-choices-entry:`"THREATLABZ"`
       - :ansible-option-choices-entry:`"CUSTOM"`
       - :ansible-option-choices-entry:`"PREDEFINED"`
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-customer_id"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_app_protection_custom_control_module__parameter-customer_id:
+
+      .. rst-class:: ansible-option-title
+
+      **customer_id**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-customer_id" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string` / :ansible-option-required:`required`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The ZPA tenant ID found in the Administration
+
+      Company menu in the ZPA console.
+
+      The ZPA tenant ID found in the Administration Company menu in the ZPA console.
 
 
       .. raw:: html
@@ -351,6 +504,40 @@ Parameters
         <div class="ansible-option-cell">
 
       The description of the custom control.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-id"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_app_protection_custom_control_module__parameter-id:
+
+      .. rst-class:: ansible-option-title
+
+      **id**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-id" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The unique identifier of the custom control.
 
 
       .. raw:: html
@@ -472,7 +659,6 @@ Parameters
       - :ansible-option-choices-entry:`"HTTP"`
       - :ansible-option-choices-entry:`"HTTPS"`
       - :ansible-option-choices-entry:`"FTP"`
-      - :ansible-option-choices-entry:`"FTP"`
       - :ansible-option-choices-entry:`"RDP"`
       - :ansible-option-choices-entry:`"SSH"`
       - :ansible-option-choices-entry:`"WEBSOCKET"`
@@ -500,10 +686,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`dictionary` / :ansible-option-required:`required`
-
-      :ansible-option-versionadded:`added in zscaler.zpacloud 1.0.0`
-
+        :ansible-option-type:`dictionary`
 
       .. raw:: html
 
@@ -555,7 +738,7 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      The unique API identifier for the API.
+      The ZPA API client ID generated from the ZPA console.
 
 
       .. raw:: html
@@ -597,7 +780,7 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      Confidential key associated with the client ID.
+      The ZPA API client secret generated from the ZPA console.
 
 
       .. raw:: html
@@ -694,7 +877,11 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      The unique identifier of the ZPA tenant.
+      The ZPA tenant ID found in the Administration
+
+      Company menu in the ZPA console.
+
+      The ZPA tenant ID found in the Administration Company menu in the ZPA console.
 
 
       .. raw:: html

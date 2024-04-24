@@ -7,7 +7,7 @@
     :trim:
 
 .. meta::
-  :antsibull-docs: 2.7.0
+  :antsibull-docs: 2.10.0
 
 .. Anchors
 
@@ -123,7 +123,125 @@ Parameters
 
       :ansible-option-choices:`Choices:`
 
-      - :ansible-option-choices-entry:`"RE\_AUTH"`
+      - :ansible-option-choices-entry:`"INSPECT"`
+      - :ansible-option-choices-entry:`"BYPASS\_INSPECT"`
+      - :ansible-option-choices-entry:`"inspect"`
+      - :ansible-option-choices-entry:`"bypass\_inspect"`
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-client_id"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_policy_access_app_protection_rule_module__parameter-client_id:
+
+      .. rst-class:: ansible-option-title
+
+      **client_id**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-client_id" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string` / :ansible-option-required:`required`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The ZPA API client ID generated from the ZPA console.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-client_secret"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_policy_access_app_protection_rule_module__parameter-client_secret:
+
+      .. rst-class:: ansible-option-title
+
+      **client_secret**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-client_secret" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string` / :ansible-option-required:`required`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The ZPA API client secret generated from the ZPA console.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-cloud"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_policy_access_app_protection_rule_module__parameter-cloud:
+
+      .. rst-class:: ansible-option-title
+
+      **cloud**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-cloud" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string` / :ansible-option-required:`required`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The ZPA cloud provisioned for your organization
+
+
+      .. rst-class:: ansible-option-line
+
+      :ansible-option-choices:`Choices:`
+
+      - :ansible-option-choices-entry:`"PRODUCTION"`
+      - :ansible-option-choices-entry:`"BETA"`
+      - :ansible-option-choices-entry:`"QA"`
+      - :ansible-option-choices-entry:`"QA2"`
+      - :ansible-option-choices-entry:`"GOV"`
+      - :ansible-option-choices-entry:`"GOVUS"`
+      - :ansible-option-choices-entry:`"PREVIEW"`
 
 
       .. raw:: html
@@ -164,56 +282,6 @@ Parameters
 
         </div>
     
-  * - .. raw:: html
-
-        <div class="ansible-option-indent"></div><div class="ansible-option-cell">
-        <div class="ansibleOptionAnchor" id="parameter-conditions/negated"></div>
-
-      .. raw:: latex
-
-        \hspace{0.02\textwidth}\begin{minipage}[t]{0.3\textwidth}
-
-      .. _ansible_collections.zscaler.zpacloud.zpa_policy_access_app_protection_rule_module__parameter-conditions/negated:
-
-      .. rst-class:: ansible-option-title
-
-      **negated**
-
-      .. raw:: html
-
-        <a class="ansibleOptionLink" href="#parameter-conditions/negated" title="Permalink to this option"></a>
-
-      .. ansible-option-type-line::
-
-        :ansible-option-type:`boolean`
-
-      .. raw:: html
-
-        </div>
-
-      .. raw:: latex
-
-        \end{minipage}
-
-    - .. raw:: html
-
-        <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
-
-      
-
-
-      .. rst-class:: ansible-option-line
-
-      :ansible-option-choices:`Choices:`
-
-      - :ansible-option-choices-entry:`false`
-      - :ansible-option-choices-entry:`true`
-
-
-      .. raw:: html
-
-        </div>
-
   * - .. raw:: html
 
         <div class="ansible-option-indent"></div><div class="ansible-option-cell">
@@ -319,7 +387,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -465,10 +533,56 @@ Parameters
       The operation type. Supported values: AND, OR
 
 
+      .. rst-class:: ansible-option-line
+
+      :ansible-option-choices:`Choices:`
+
+      - :ansible-option-choices-entry:`"AND"`
+      - :ansible-option-choices-entry:`"OR"`
+
+
       .. raw:: html
 
         </div>
 
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-customer_id"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_policy_access_app_protection_rule_module__parameter-customer_id:
+
+      .. rst-class:: ansible-option-title
+
+      **customer_id**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-customer_id" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string` / :ansible-option-required:`required`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The ZPA tenant ID found in the Administration
+
+      Company menu in the ZPA console.
+
+      The ZPA tenant ID found in the Administration Company menu in the ZPA console.
+
+
+      .. raw:: html
+
+        </div>
 
   * - .. raw:: html
 
@@ -531,7 +645,7 @@ Parameters
 
         <div class="ansible-option-cell">
 
-      
+      The unique identifier of the policy rule
 
 
       .. raw:: html
@@ -599,7 +713,9 @@ Parameters
 
         <div class="ansible-option-cell">
 
-      This denotes the operation type.
+      Denotes the operation type
+
+      These are operands used between criteria
 
 
       .. rst-class:: ansible-option-line
@@ -641,7 +757,7 @@ Parameters
 
         <div class="ansible-option-cell">
 
-      
+      Indicates the policy type. The following value is supported: client\_forwarding
 
 
       .. raw:: html
@@ -665,10 +781,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`dictionary` / :ansible-option-required:`required`
-
-      :ansible-option-versionadded:`added in zscaler.zpacloud 1.0.0`
-
+        :ansible-option-type:`dictionary`
 
       .. raw:: html
 
@@ -720,7 +833,7 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      The unique API identifier for the API.
+      The ZPA API client ID generated from the ZPA console.
 
 
       .. raw:: html
@@ -762,7 +875,7 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      Confidential key associated with the client ID.
+      The ZPA API client secret generated from the ZPA console.
 
 
       .. raw:: html
@@ -859,7 +972,11 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      The unique identifier of the ZPA tenant.
+      The ZPA tenant ID found in the Administration
+
+      Company menu in the ZPA console.
+
+      The ZPA tenant ID found in the Administration Company menu in the ZPA console.
 
 
       .. raw:: html
@@ -894,7 +1011,7 @@ Parameters
 
         <div class="ansible-option-cell">
 
-      
+      The policy evaluation order number of the rule.
 
 
       .. raw:: html
@@ -1000,13 +1117,12 @@ Examples
         provider: "{{ zpa_cloud }}"
         name: "Policy App Protection Rule - Example"
         description: "Policy App Protection Rule"
-        action: "INSPECT"
         rule_order: 1
+        action: "INSPECT"
         operator: "AND"
         zpn_inspection_profile_id: "216196257331286656"
         conditions:
-          - negated: false
-            operator: "OR"
+          - operator: "OR"
             operands:
               - object_type: "APP"
                 lhs: "id"
@@ -1014,14 +1130,12 @@ Examples
               - object_type: "APP_GROUP"
                 lhs: "id"
                 rhs: "216196257331292103"
-          - negated: false
-            operator: "OR"
+          - operator: "OR"
             operands:
               - name:
                 object_type: "CLIENT_TYPE"
                 lhs: "id"
                 rhs: "zpn_client_type_zapp"
-
 
 
 

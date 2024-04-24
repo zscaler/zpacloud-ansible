@@ -7,7 +7,7 @@
     :trim:
 
 .. meta::
-  :antsibull-docs: 2.7.0
+  :antsibull-docs: 2.10.0
 
 .. Anchors
 
@@ -92,17 +92,17 @@ Parameters
   * - .. raw:: html
 
         <div class="ansible-option-cell">
-        <div class="ansibleOptionAnchor" id="parameter-association_type"></div>
+        <div class="ansibleOptionAnchor" id="parameter-client_id"></div>
 
-      .. _ansible_collections.zscaler.zpacloud.zpa_provisioning_key_module__parameter-association_type:
+      .. _ansible_collections.zscaler.zpacloud.zpa_provisioning_key_module__parameter-client_id:
 
       .. rst-class:: ansible-option-title
 
-      **association_type**
+      **client_id**
 
       .. raw:: html
 
-        <a class="ansibleOptionLink" href="#parameter-association_type" title="Permalink to this option"></a>
+        <a class="ansibleOptionLink" href="#parameter-client_id" title="Permalink to this option"></a>
 
       .. ansible-option-type-line::
 
@@ -116,15 +116,160 @@ Parameters
 
         <div class="ansible-option-cell">
 
-      
+      The ZPA API client ID generated from the ZPA console.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-client_secret"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_provisioning_key_module__parameter-client_secret:
+
+      .. rst-class:: ansible-option-title
+
+      **client_secret**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-client_secret" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string` / :ansible-option-required:`required`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The ZPA API client secret generated from the ZPA console.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-cloud"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_provisioning_key_module__parameter-cloud:
+
+      .. rst-class:: ansible-option-title
+
+      **cloud**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-cloud" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string` / :ansible-option-required:`required`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The ZPA cloud provisioned for your organization
 
 
       .. rst-class:: ansible-option-line
 
       :ansible-option-choices:`Choices:`
 
-      - :ansible-option-choices-entry:`"connector"`
-      - :ansible-option-choices-entry:`"service\_edge"`
+      - :ansible-option-choices-entry:`"PRODUCTION"`
+      - :ansible-option-choices-entry:`"BETA"`
+      - :ansible-option-choices-entry:`"QA"`
+      - :ansible-option-choices-entry:`"QA2"`
+      - :ansible-option-choices-entry:`"GOV"`
+      - :ansible-option-choices-entry:`"GOVUS"`
+      - :ansible-option-choices-entry:`"PREVIEW"`
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-component_id"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_provisioning_key_module__parameter-component_id:
+
+      .. rst-class:: ansible-option-title
+
+      **component_id**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-component_id" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string` / :ansible-option-required:`required`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The unique identifier of the App Connector or Service Edge
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-customer_id"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_provisioning_key_module__parameter-customer_id:
+
+      .. rst-class:: ansible-option-title
+
+      **customer_id**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-customer_id" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string` / :ansible-option-required:`required`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The ZPA tenant ID found in the Administration
+
+      Company menu in the ZPA console.
+
+      The ZPA tenant ID found in the Administration Company menu in the ZPA console.
 
 
       .. raw:: html
@@ -158,7 +303,7 @@ Parameters
 
         <div class="ansible-option-cell">
 
-      
+      Whether or not this provisioning key is enabled
 
 
       .. rst-class:: ansible-option-line
@@ -166,41 +311,7 @@ Parameters
       :ansible-option-choices:`Choices:`
 
       - :ansible-option-choices-entry:`false`
-      - :ansible-option-choices-entry-default:`true` :ansible-option-choices-default-mark:`← (default)`
-
-
-      .. raw:: html
-
-        </div>
-
-  * - .. raw:: html
-
-        <div class="ansible-option-cell">
-        <div class="ansibleOptionAnchor" id="parameter-enrollment_cert_id"></div>
-
-      .. _ansible_collections.zscaler.zpacloud.zpa_provisioning_key_module__parameter-enrollment_cert_id:
-
-      .. rst-class:: ansible-option-title
-
-      **enrollment_cert_id**
-
-      .. raw:: html
-
-        <a class="ansibleOptionLink" href="#parameter-enrollment_cert_id" title="Permalink to this option"></a>
-
-      .. ansible-option-type-line::
-
-        :ansible-option-type:`string` / :ansible-option-required:`required`
-
-      .. raw:: html
-
-        </div>
-
-    - .. raw:: html
-
-        <div class="ansible-option-cell">
-
-      
+      - :ansible-option-choices-entry:`true`
 
 
       .. raw:: html
@@ -234,7 +345,51 @@ Parameters
 
         <div class="ansible-option-cell">
 
-      
+      The unique identifier of the provisioning key
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-key_type"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_provisioning_key_module__parameter-key_type:
+
+      .. rst-class:: ansible-option-title
+
+      **key_type**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-key_type" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string` / :ansible-option-required:`required`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      Specifies the provisioning key type for App Connectors or ZPA Private Service Edges.
+
+      The supported values are CONNECTOR\_GRP (App Connector group) and SERVICE\_EDGE\_GRP (ZPA Private Service Edge group).
+
+
+      .. rst-class:: ansible-option-line
+
+      :ansible-option-choices:`Choices:`
+
+      - :ansible-option-choices-entry:`"connector"`
+      - :ansible-option-choices-entry:`"service\_edge"`
 
 
       .. raw:: html
@@ -268,7 +423,7 @@ Parameters
 
         <div class="ansible-option-cell">
 
-      
+      The maximum usage of the provisioning key
 
 
       .. raw:: html
@@ -302,7 +457,7 @@ Parameters
 
         <div class="ansible-option-cell">
 
-      
+      The name of the provisioning key
 
 
       .. raw:: html
@@ -326,10 +481,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`dictionary` / :ansible-option-required:`required`
-
-      :ansible-option-versionadded:`added in zscaler.zpacloud 1.0.0`
-
+        :ansible-option-type:`dictionary`
 
       .. raw:: html
 
@@ -381,7 +533,7 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      The unique API identifier for the API.
+      The ZPA API client ID generated from the ZPA console.
 
 
       .. raw:: html
@@ -423,7 +575,7 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      Confidential key associated with the client ID.
+      The ZPA API client secret generated from the ZPA console.
 
 
       .. raw:: html
@@ -520,47 +672,17 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      The unique identifier of the ZPA tenant.
+      The ZPA tenant ID found in the Administration
+
+      Company menu in the ZPA console.
+
+      The ZPA tenant ID found in the Administration Company menu in the ZPA console.
 
 
       .. raw:: html
 
         </div>
 
-
-  * - .. raw:: html
-
-        <div class="ansible-option-cell">
-        <div class="ansibleOptionAnchor" id="parameter-provisioning_key"></div>
-
-      .. _ansible_collections.zscaler.zpacloud.zpa_provisioning_key_module__parameter-provisioning_key:
-
-      .. rst-class:: ansible-option-title
-
-      **provisioning_key**
-
-      .. raw:: html
-
-        <a class="ansibleOptionLink" href="#parameter-provisioning_key" title="Permalink to this option"></a>
-
-      .. ansible-option-type-line::
-
-        :ansible-option-type:`string`
-
-      .. raw:: html
-
-        </div>
-
-    - .. raw:: html
-
-        <div class="ansible-option-cell">
-
-      
-
-
-      .. raw:: html
-
-        </div>
 
   * - .. raw:: html
 
@@ -604,74 +726,6 @@ Parameters
 
         </div>
 
-  * - .. raw:: html
-
-        <div class="ansible-option-cell">
-        <div class="ansibleOptionAnchor" id="parameter-usage_count"></div>
-
-      .. _ansible_collections.zscaler.zpacloud.zpa_provisioning_key_module__parameter-usage_count:
-
-      .. rst-class:: ansible-option-title
-
-      **usage_count**
-
-      .. raw:: html
-
-        <a class="ansibleOptionLink" href="#parameter-usage_count" title="Permalink to this option"></a>
-
-      .. ansible-option-type-line::
-
-        :ansible-option-type:`string`
-
-      .. raw:: html
-
-        </div>
-
-    - .. raw:: html
-
-        <div class="ansible-option-cell">
-
-      
-
-
-      .. raw:: html
-
-        </div>
-
-  * - .. raw:: html
-
-        <div class="ansible-option-cell">
-        <div class="ansibleOptionAnchor" id="parameter-zcomponent_id"></div>
-
-      .. _ansible_collections.zscaler.zpacloud.zpa_provisioning_key_module__parameter-zcomponent_id:
-
-      .. rst-class:: ansible-option-title
-
-      **zcomponent_id**
-
-      .. raw:: html
-
-        <a class="ansibleOptionLink" href="#parameter-zcomponent_id" title="Permalink to this option"></a>
-
-      .. ansible-option-type-line::
-
-        :ansible-option-type:`string` / :ansible-option-required:`required`
-
-      .. raw:: html
-
-        </div>
-
-    - .. raw:: html
-
-        <div class="ansible-option-cell">
-
-      
-
-
-      .. raw:: html
-
-        </div>
-
 
 .. Attributes
 
@@ -697,7 +751,7 @@ Examples
       register: enrollment_cert_connector
 
     - name: Get ID Information of a App Connector Group
-      zscaler.zpacloud.zpa_app_connector_groups_facts:
+      zscaler.zpacloud.zpa_app_connector_group_facts:
         provider: "{{ zpa_cloud }}"
         name: "Example"
       register: app_connector_group
@@ -706,10 +760,10 @@ Examples
       zscaler.zpacloud.zpa_provisioning_key:
         provider: "{{ zpa_cloud }}"
         name: "App Connector Group Provisioning Key"
-        association_type: "connector"
+        key_type: "connector"
         max_usage: "10"
         enrollment_cert_id: "{{ enrollment_cert_connector.data[0].id }}"
-        zcomponent_id: "{{ enrollment_cert_connector.data[0].id }}"
+        component_id: "{{ enrollment_cert_connector.data[0].id }}"
 
 
 

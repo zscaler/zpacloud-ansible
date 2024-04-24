@@ -7,7 +7,7 @@
     :trim:
 
 .. meta::
-  :antsibull-docs: 2.7.0
+  :antsibull-docs: 2.10.0
 
 .. Anchors
 
@@ -88,6 +88,121 @@ Parameters
 
   * - Parameter
     - Comments
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-client_id"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_connector_assistant_schedule_module__parameter-client_id:
+
+      .. rst-class:: ansible-option-title
+
+      **client_id**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-client_id" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string` / :ansible-option-required:`required`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The ZPA API client ID generated from the ZPA console.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-client_secret"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_connector_assistant_schedule_module__parameter-client_secret:
+
+      .. rst-class:: ansible-option-title
+
+      **client_secret**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-client_secret" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string` / :ansible-option-required:`required`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The ZPA API client secret generated from the ZPA console.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-cloud"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_connector_assistant_schedule_module__parameter-cloud:
+
+      .. rst-class:: ansible-option-title
+
+      **cloud**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-cloud" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string` / :ansible-option-required:`required`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The ZPA cloud provisioned for your organization
+
+
+      .. rst-class:: ansible-option-line
+
+      :ansible-option-choices:`Choices:`
+
+      - :ansible-option-choices-entry:`"PRODUCTION"`
+      - :ansible-option-choices-entry:`"BETA"`
+      - :ansible-option-choices-entry:`"QA"`
+      - :ansible-option-choices-entry:`"QA2"`
+      - :ansible-option-choices-entry:`"GOV"`
+      - :ansible-option-choices-entry:`"GOVUS"`
+      - :ansible-option-choices-entry:`"PREVIEW"`
+
+
+      .. raw:: html
+
+        </div>
 
   * - .. raw:: html
 
@@ -237,6 +352,10 @@ Parameters
       The scheduled frequency at which the disconnected App Connectors are deleted
 
 
+      .. rst-class:: ansible-option-line
+
+      :ansible-option-default-bold:`Default:` :ansible-option-default:`"days"`
+
       .. raw:: html
 
         </div>
@@ -269,6 +388,18 @@ Parameters
         <div class="ansible-option-cell">
 
       The interval for the configured frequency value. The minimum supported value is 5.
+
+
+      .. rst-class:: ansible-option-line
+
+      :ansible-option-choices:`Choices:`
+
+      - :ansible-option-choices-entry-default:`"5"` :ansible-option-choices-default-mark:`← (default)`
+      - :ansible-option-choices-entry:`"7"`
+      - :ansible-option-choices-entry:`"14"`
+      - :ansible-option-choices-entry:`"30"`
+      - :ansible-option-choices-entry:`"60"`
+      - :ansible-option-choices-entry:`"90"`
 
 
       .. raw:: html
@@ -328,10 +459,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`dictionary` / :ansible-option-required:`required`
-
-      :ansible-option-versionadded:`added in zscaler.zpacloud 1.0.0`
-
+        :ansible-option-type:`dictionary`
 
       .. raw:: html
 
@@ -383,7 +511,7 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      The unique API identifier for the API.
+      The ZPA API client ID generated from the ZPA console.
 
 
       .. raw:: html
@@ -425,7 +553,7 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      Confidential key associated with the client ID.
+      The ZPA API client secret generated from the ZPA console.
 
 
       .. raw:: html
@@ -522,7 +650,11 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      The unique identifier of the ZPA tenant.
+      The ZPA tenant ID found in the Administration
+
+      Company menu in the ZPA console.
+
+      The ZPA tenant ID found in the Administration Company menu in the ZPA console.
 
 
       .. raw:: html
@@ -557,7 +689,7 @@ Parameters
 
         <div class="ansible-option-cell">
 
-      The state.
+      The state of the module, which determines if the settings are to be applied.
 
 
       .. rst-class:: ansible-option-line
@@ -565,7 +697,6 @@ Parameters
       :ansible-option-choices:`Choices:`
 
       - :ansible-option-choices-entry-default:`"present"` :ansible-option-choices-default-mark:`← (default)`
-      - :ansible-option-choices-entry:`"absent"`
 
 
       .. raw:: html

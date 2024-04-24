@@ -586,7 +586,7 @@ def parse_human_readable_timeout(input):
     if input.lower() == "never":
         return -1  # Return -1 for 'Never'
 
-    value, unit = 0, ''
+    value, unit = 0, ""
     try:
         parts = input.split()
         value = int(parts[0])
@@ -595,12 +595,12 @@ def parse_human_readable_timeout(input):
         return None, "Error parsing timeout value: '{}'".format(input)
 
     multipliers = {
-        'minute': 60,
-        'minutes': 60,
-        'hour': 3600,
-        'hours': 3600,
-        'day': 86400,
-        'days': 86400
+        "minute": 60,
+        "minutes": 60,
+        "hour": 3600,
+        "hours": 3600,
+        "day": 86400,
+        "days": 86400,
     }
 
     if unit in multipliers:

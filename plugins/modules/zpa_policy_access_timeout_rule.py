@@ -190,7 +190,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     validate_operand,
     normalize_policy,
     deleteNone,
-    validate_timeout_intervals
+    validate_timeout_intervals,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,

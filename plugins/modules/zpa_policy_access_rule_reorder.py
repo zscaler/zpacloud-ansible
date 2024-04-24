@@ -111,7 +111,9 @@ def core(module):
 
     # Currently, state can only be 'present', which is for checking/reordering rules
     if state != "present":
-        module.fail_json(msg="Invalid state. Only 'present' is supported for this module.")
+        module.fail_json(
+            msg="Invalid state. Only 'present' is supported for this module."
+        )
 
     try:
         # Fetch the current rules and their order

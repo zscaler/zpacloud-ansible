@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2023 Zscaler Inc, <devrel@zscaler.com>
 
-# Copyright 2023, Zscaler, Inc
-
+#                             MIT License
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -13,11 +14,13 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from __future__ import absolute_import, division, print_function
 
@@ -34,10 +37,12 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
-
+  - zscaler.zpacloud.fragments.documentation
   - zscaler.zpacloud.fragments.state
+
 options:
   id:
     description:
@@ -98,52 +103,65 @@ options:
         required: false
         description:
           - List of valid UDP ports. The application segment API supports multiple TCP and UDP port ranges.
-  common_apps_dto:
+  tcp_port_ranges:
+    description:
+      - The list of TCP port ranges used to access the application
     type: list
-    elements: dict
-    required: False
-    description: "List of applications (e.g., inspection or Browser Access)"
+    elements: str
+    required: false
+  udp_port_ranges:
+    description:
+      - The list of UDP port ranges used to access the application
+    type: list
+    elements: str
+    required: false
+  common_apps_dto:
+    type: dict
+    required: true
+    description: "Configuration of common applications, e.g., inspection or Browser Access."
     suboptions:
       apps_config:
-        description: "List of applications to be configured"
         type: list
         elements: dict
-        required: False
-      name:
-        description: "The name of the application"
-        type: str
-        required: False
-      description:
-        description: "The description of the application"
-        type: str
-        required: False
-      enabled:
-        description: "The description of the application"
-        type: bool
-        required: False
-      app_types:
-        description: "This denotes the operation type"
-        type: str
-        required: False
-        choices: ["BROWSER_ACCESS", "SIPA", "INSPECT", "SECURE_REMOTE_ACCESS"]
-      application_port:
-        description: "Port for the inspection application"
-        type: str
-        required: False
-      application_protocol:
-        description: "Port for the inspection application"
-        type: str
-        required: False
-        choices: ["HTTP", "HTTPS", "FTP", "RDP", "SSH", "WEBSOCKET", "VNC", "NONE"]
-      connection_security:
-        description: "The security type of the connection"
-        type: str
-        required: False
-        choices: ["ANY", "NLA", "NLA_EXT", "TLS", "VM_CONNECT", "RDP"]
-      domain:
-        description: "The domain of the application"
-        type: str
-        required: False
+        required: true
+        description: "Detailed configuration for each application."
+        suboptions:
+          name:
+            description: "The name of the application."
+            type: str
+            required: true
+          description:
+            description: "The description of the application."
+            type: str
+            required: false
+          enabled:
+            description: "Whether the application is enabled."
+            type: bool
+            required: false
+          app_types:
+            description: "This denotes the operation type."
+            type: list
+            elements: str
+            required: true
+            choices: ["BROWSER_ACCESS", "SIPA", "INSPECT", "SECURE_REMOTE_ACCESS"]
+          application_port:
+            description: "Port for the application."
+            type: str
+            required: true
+          application_protocol:
+            description: "Protocol for the application."
+            type: str
+            required: true
+            choices: ["HTTP", "HTTPS", "FTP", "RDP", "SSH", "WEBSOCKET", "VNC", "NONE"]
+          connection_security:
+            description: "The security type of the connection."
+            type: str
+            required: false
+            choices: ["ANY", "NLA", "NLA_EXT", "TLS", "VM_CONNECT", "RDP"]
+          domain:
+            description: "The domain of the application."
+            type: str
+            required: true
   double_encrypt:
     description:
       - Whether Double Encryption is enabled or disabled for the app.
@@ -154,19 +172,16 @@ options:
       - Indicates the ICMP access type.
     type: bool
     required: false
-    default: false
   tcp_keep_alive:
     description:
       - Indicates whether TCP communication sockets are enabled or disabled.
     type: bool
     required: false
-    default: false
   select_connector_close_to_app:
     description:
       - Whether the App Connector is closest to the application (True) or closest to the user (False).
     type: bool
     required: false
-    default: false
   passive_health_enabled:
     description:
       - passive health enabled.
@@ -216,8 +231,8 @@ options:
     description:
       - ID of the server group.
     type: list
-    elements: dict
-    required: false
+    elements: str
+    required: true
   segment_group_id:
     description:
       - ID of the segment group.
@@ -389,9 +404,9 @@ def core(module):
 
     common_apps_dto = module.params.get("common_apps_dto")
     if common_apps_dto:
-        app[
-            "common_apps_dto"
-        ] = common_apps_dto  # Ensuring the key is set in the dictionary
+        app["common_apps_dto"] = (
+            common_apps_dto  # Ensuring the key is set in the dictionary
+        )
 
     # For debugging purposes: Print the app dictionary before API calls
     # module.warn("Final Payload before API call: {app}")
@@ -569,20 +584,19 @@ def main():
     apps_config_spec = dict(
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
-        enabled=dict(type="bool", required=False, default=True),
+        enabled=dict(type="bool", required=False),
         app_types=dict(
             type="list",
             elements="str",
             choices=["BROWSER_ACCESS", "SIPA", "INSPECT", "SECURE_REMOTE_ACCESS"],
             required=True,
         ),
-        application_port=dict(type="str", required=False),
+        application_port=dict(type="str", required=True),
         application_protocol=dict(
             type="str",
             choices=["HTTP", "HTTPS", "FTP", "RDP", "SSH", "WEBSOCKET", "VNC", "NONE"],
             required=True,
         ),
-        certificate_id=dict(type="str", required=False),
         connection_security=dict(
             type="str",
             choices=["ANY", "NLA", "NLA_EXT", "TLS", "VM_CONNECT", "RDP"],
@@ -610,14 +624,14 @@ def main():
             default="NONE",
             choices=["NONE", "ON_ACCESS", "CONTINUOUS"],
         ),
-        tcp_keep_alive=dict(type="bool", required=False, default=False),
+        tcp_keep_alive=dict(type="bool", required=False),
         segment_group_id=dict(type="str", required=True),
         double_encrypt=dict(type="bool", required=False),
         health_check_type=dict(type="str"),
         is_cname_enabled=dict(type="bool", required=False),
         passive_health_enabled=dict(type="bool", required=False),
         ip_anchored=dict(type="bool", required=False),
-        icmp_access_type=dict(type="bool", required=False, default=False),
+        icmp_access_type=dict(type="bool", required=False),
         id=dict(type="str", required=False),
         server_group_ids=id_name_spec,
         domain_names=dict(type="list", elements="str", required=True),
@@ -631,8 +645,10 @@ def main():
                     required=True,
                 ),
             },
-            required=False,
+            required=True,
         ),
+        tcp_port_ranges=dict(type="list", elements="str", required=False),
+        udp_port_ranges=dict(type="list", elements="str", required=False),
         tcp_port_range=dict(
             type="list", elements="dict", options=port_spec, required=False
         ),

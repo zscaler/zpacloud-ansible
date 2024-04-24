@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2023 Zscaler Inc, <devrel@zscaler.com>
 
-# Copyright 2023, Zscaler, Inc
-
+#                             MIT License
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -13,11 +14,13 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from __future__ import absolute_import, division, print_function
 
@@ -35,28 +38,30 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
-
+  - zscaler.zpacloud.fragments.documentation
   - zscaler.zpacloud.fragments.state
+
 options:
     id:
-        description: ""
+        description: "The unique identifier of the certificate."
         required: false
         type: str
     name:
         description: The name of the certificate.
-        required: True
+        required: true
         type: str
     description:
         description: The description of the certificate
-        required: False
+        required: false
         type: str
     cert_blob:
         description:
             - The content of the certificate.
             - The cert_blob field must be in string format and must include the certificate and the private key (in PEM format).
-        required: True
+        required: true
         type: str
 """
 
@@ -142,7 +147,7 @@ def main():
     argument_spec.update(
         id=dict(type="str", required=False),
         name=dict(type="str", required=True),
-        description=dict(type="str", required=True),
+        description=dict(type="str", required=False),
         cert_blob=dict(type="str", required=True),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )

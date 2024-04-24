@@ -34,8 +34,10 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
+  - zscaler.zpacloud.fragments.documentation
 
 options:
   name:
@@ -48,6 +50,12 @@ options:
       - ID of the Identity Provider.
     required: false
     type: str
+  state:
+      description:
+          - The state of the module, which determines if the settings are to be applied.
+      type: str
+      choices: ['gathered']
+      default: 'gathered'
 """
 
 EXAMPLES = """
@@ -73,7 +81,10 @@ RETURN = """
 from traceback import format_exc
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import ZPAClientHelper
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
+    ZPAClientHelper,
+)
+
 
 def core(module):
     idp_id = module.params.get("id", None)
@@ -101,22 +112,27 @@ def core(module):
                         idps = [idp]
                 if not idp_found:
                     module.fail_json(
-                        msg="Failed to retrieve Identity Provider Name: '%s'" % (idp_name)
+                        msg="Failed to retrieve Identity Provider Name: '%s'"
+                        % (idp_name)
                     )
         module.exit_json(changed=False, data=idps)
+
 
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
         name=dict(type="str", required=False),
         id=dict(type="str", required=False),
-        state=dict(type="str", choices=["gathered"], default="gathered"),  # Add state parameter
+        state=dict(
+            type="str", choices=["gathered"], default="gathered"
+        ),  # Add state parameter
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:
         core(module)
     except Exception as e:
         module.fail_json(msg=to_native(e), exception=format_exc())
+
 
 if __name__ == "__main__":
     main()

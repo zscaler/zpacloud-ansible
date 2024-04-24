@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2023 Zscaler Inc, <devrel@zscaler.com>
 
-# Copyright 2023, Zscaler, Inc
-
+#                             MIT License
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -13,11 +14,13 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from __future__ import absolute_import, division, print_function
 
@@ -34,10 +37,12 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
-
+  - zscaler.zpacloud.fragments.documentation
   - zscaler.zpacloud.fragments.state
+
 options:
   id:
     description:
@@ -132,7 +137,6 @@ options:
       - Whether the App Connector is closest to the application (True) or closest to the user (False).
     type: bool
     required: false
-    default: false
   passive_health_enabled:
     description:
       - Indicates if passive health checks are enabled on the application..
@@ -190,36 +194,12 @@ options:
       - ON_ACCESS
       - CONTINUOUS
     default: NONE
-  tcp_protocols:
-    description:
-      - Indicates the AD Protection protocols to be inspected on the specified TCP port ranges.
-      - This field is only required if adpEnabled is set to true.
-    type: str
-    required: false
-    choices:
-      - NONE
-      - KERBEROS
-      - LDAP
-      - SMB
-    default: NONE
-  udp_protocols:
-    description:
-      - Indicates the AD Protection protocols to be inspected on the specified UDP port ranges
-      - This field is only required if adpEnabled is set to true.
-    type: str
-    required: false
-    choices:
-      - NONE
-      - KERBEROS
-      - LDAP
-      - SMB
-    default: NONE
   server_group_ids:
     description:
       - ID of the server group.
     type: list
-    elements: dict
-    required: false
+    elements: str
+    required: true
   segment_group_id:
     description:
       - ID of the segment group.
@@ -237,6 +217,60 @@ options:
     type: list
     elements: str
     required: true
+  common_apps_dto:
+    type: dict
+    required: true
+    description: "List of applications e.g., inspection or Browser Access"
+    suboptions:
+      apps_config:
+        type: list
+        elements: dict
+        required: true
+        description: "List of applications to be configured"
+        suboptions:
+          name:
+            description: "The name of the application"
+            type: str
+            required: true
+          description:
+            description: "The description of the application"
+            type: str
+            required: false
+          enabled:
+            description: "Whether the application is enabled"
+            type: bool
+            required: false
+          trust_untrusted_cert:
+            description: "Whether the use of untrusted certificates is enabled or disabled for the Browser Access application"
+            type: bool
+            required: false
+          allow_options:
+            description: "Whether the options are enabled for the Browser Access application or not"
+            type: bool
+            required: false
+          app_types:
+            description: "This denotes the operation type"
+            type: list
+            elements: str
+            required: true
+            choices: ["INSPECT"]
+          application_port:
+            description: "Port for the inspection application"
+            type: str
+            required: true
+          application_protocol:
+            description: "Protocol for the inspection application"
+            type: str
+            required: true
+            choices: ["HTTP", "HTTPS"]
+          certificate_id:
+            description: "The unique identifier of the Browser Access certificate."
+            type: str
+            required: false
+          domain:
+            description: "The domain of the application"
+            type: str
+            required: true
 """
 
 EXAMPLES = """
@@ -303,8 +337,6 @@ def normalize_app_segment_inspection(app):
         "inspect_traffic_with_zia",
         "tcp_port_range",
         "udp_port_range",
-        "tcp_protocols",
-        "udp_protocols",
         "description",
         "bypass_type",
         "health_reporting",
@@ -344,8 +376,6 @@ def core(module):
         "udp_port_range",
         "tcp_port_ranges",
         "udp_port_ranges",
-        "tcp_protocols",
-        "udp_protocols",
         "enabled",
         "bypass_type",
         "bypass_on_reauth",
@@ -372,9 +402,9 @@ def core(module):
 
     common_apps_dto = module.params.get("common_apps_dto")
     if common_apps_dto:
-        app[
-            "common_apps_dto"
-        ] = common_apps_dto  # Ensuring the key is set in the dictionary
+        app["common_apps_dto"] = (
+            common_apps_dto  # Ensuring the key is set in the dictionary
+        )
 
     # For debugging purposes: Print the app dictionary before API calls
     # module.warn("Final Payload before API call: {app}")
@@ -500,8 +530,6 @@ def core(module):
                         udp_port_ranges=convert_ports(
                             existing_app.get("udp_port_range", None)
                         ),
-                        tcp_protocols=existing_app.get("tcp_protocols", None),
-                        udp_protocols=existing_app.get("udp_protocols", None),
                     )
                 )
                 existing_app = client.app_segments_inspection.update_segment_inspection(
@@ -541,8 +569,6 @@ def core(module):
                     server_group_ids=app.get("server_group_ids", None),
                     tcp_port_ranges=convert_ports_list(app.get("tcp_port_range", None)),
                     udp_port_ranges=convert_ports_list(app.get("udp_port_range", None)),
-                    tcp_protocols=app.get("tcp_protocols", None),
-                    udp_protocols=app.get("udp_protocols", None),
                 )
             )
             app = client.app_segments_inspection.add_segment_inspection(**app)
@@ -573,15 +599,14 @@ def main():
     apps_config_spec = dict(
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
-        enabled=dict(type="bool", required=False, default=False),
-        app_types=dict(type="list", elements="str", choices=["INSPECT"], required=False),
-        application_port=dict(type="str", required=False),
-        application_protocol=dict(type="str", choices=["NONE", "HTTP", "HTTPS"], required=False),
+        enabled=dict(type="bool", required=False),
+        app_types=dict(type="list", elements="str", choices=["INSPECT"], required=True),
+        application_port=dict(type="str", required=True),
+        application_protocol=dict(type="str", choices=["HTTP", "HTTPS"], required=True),
         certificate_id=dict(type="str", required=False),
         trust_untrusted_cert=dict(type="bool", required=False),
         allow_options=dict(type="bool", required=False),
-        domain=dict(type="str", required=False),
-        protocols=dict(type="list", elements="str", choices=["SMB", "LDAP", "KERBEROS"], required=False),
+        domain=dict(type="str", required=True),
     )
     argument_spec.update(
         id=dict(type="str", required=False),
@@ -616,20 +641,6 @@ def main():
         icmp_access_type=dict(type="bool", required=False, default=False),
         server_group_ids=id_name_spec,
         domain_names=dict(type="list", elements="str", required=True),
-        tcp_protocols=dict(
-            type="list",
-            elements="str",
-            required=False,
-            default="NONE",
-            choices=["NONE", "KERBEROS", "LDAP", "SMB"],
-        ),
-        udp_protocols=dict(
-            type="list",
-            elements="str",
-            required=False,
-            default="NONE",
-            choices=["NONE", "KERBEROS", "LDAP", "SMB"],
-        ),
         common_apps_dto=dict(
             type="dict",
             options={
@@ -640,8 +651,10 @@ def main():
                     required=True,
                 ),
             },
-            required=False,
+            required=True,
         ),
+        tcp_port_ranges=dict(type="list", elements="str", required=False),
+        udp_port_ranges=dict(type="list", elements="str", required=False),
         tcp_port_range=dict(
             type="list", elements="dict", options=port_spec, required=False
         ),

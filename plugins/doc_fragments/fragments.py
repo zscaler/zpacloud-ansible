@@ -26,21 +26,23 @@ __metaclass__ = type
 class ModuleDocFragment(object):
     # Standard files documentation fragment
 
-    DOCUMENTATION = r'''
+    DOCUMENTATION = r"""
 options:
     client_id:
         description:
-            - The unique API identifier for the API.
+            - The ZPA API client ID generated from the ZPA console.
         type: str
         required: true
     client_secret:
         description:
-            - Confidential key associated with the client ID.
+            - The ZPA API client secret generated from the ZPA console.
         type: str
         required: true
     customer_id:
         description:
-            - The unique identifier of the ZPA tenant.
+            - The ZPA tenant ID found in the Administration
+            - Company menu in the ZPA console.
+            - The ZPA tenant ID found in the Administration Company menu in the ZPA console.
         type: str
         required: true
     cloud:
@@ -56,30 +58,30 @@ options:
             - GOV
             - GOVUS
             - PREVIEW
-'''
+"""
 
-    PROVIDER = r'''
+    PROVIDER = r"""
 options:
     provider:
         description:
             - A dict object containing authentication details.
-        version_added: 1.0.0
-        required: true
         type: dict
         suboptions:
             client_id:
                 description:
-                    - The unique API identifier for the API.
+                    - The ZPA API client ID generated from the ZPA console.
                 type: str
                 required: true
             client_secret:
                 description:
-                    - Confidential key associated with the client ID.
+                    - The ZPA API client secret generated from the ZPA console.
                 type: str
                 required: true
             customer_id:
                 description:
-                    - The unique identifier of the ZPA tenant.
+                    - The ZPA tenant ID found in the Administration
+                    - Company menu in the ZPA console.
+                    - The ZPA tenant ID found in the Administration Company menu in the ZPA console.
                 type: str
                 required: true
             cloud:
@@ -95,9 +97,9 @@ options:
                     - GOV
                     - GOVUS
                     - PREVIEW
-'''
+"""
 
-    STATE = r'''
+    STATE = r"""
 options:
     state:
         description:
@@ -107,9 +109,9 @@ options:
         choices:
             - present
             - absent
-'''
+"""
 
-    ENABLED_STATE = r'''
+    ENABLED_STATE = r"""
 options:
     state:
         description:
@@ -121,4 +123,4 @@ options:
             - absent
             - enabled
             - disabled
-'''
+"""

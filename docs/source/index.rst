@@ -10,6 +10,8 @@ is a collection of modules that automate configuration and operational tasks on 
 This collection is part of the broader initiative to bring Ansible Automation to Zscaler Zero Trust Platform through the offering
 **Red Hat® Ansible Certified Content**.
 
+Version: 1.0.0
+
 Red Hat Ansible Certified Content for Zscaler
 =============================================
 **Red Hat® Ansible Certified Content for Zscaler Private Access** provides the ability to
@@ -62,6 +64,12 @@ contributed by the **Zscaler's Technology Alliances** team.
    community_guides
    license
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Support Guide
+
+   support
+   troubleshooting
 
 Author Information
 ==================
@@ -69,15 +77,15 @@ Author Information
 **Zscaler Private Access Collection** is maintained by the Zscaler's Technology Alliances team.
 
 .. _Ansible Galaxy:
-   https://galaxy.ansible.com/search?keywords=zos_&order_by=-relevance&deprecated=false&type=collection&page=1
+   https://galaxy.ansible.com/ui/search/?keywords=zpa_&order_by=-relevance&deprecated=false&type=collection&page=1
 .. _Ansible Automation Hub:
    https://www.ansible.com/products/automation-hub
 .. _documentation:
-   https://zscaler.github.io/z_ansible_collections_doc/index.html
+   https://zscaler.github.io/zpacloud-ansible/index.html
 .. _modules:
-   https://zscaler.github.io/zpacloud_ansible_collections_doc/modules/docs/source/roles.html
+   https://zscaler.github.io/zpacloud-ansible/modules.html
 .. _samples repository:
-   https://github.com/zscaler/zpacloud_ansible_collections_samples/blob/master/README.md
+   https://github.com/zscaler/zpacloud-playbooks/blob/master/README.md
 
 
 Development Leads
@@ -93,13 +101,13 @@ Credits
 
 Support
 =======
-As of version 1.0.0, this Collection of Ansible Modules for Zscaler Private Access is
-[certified on Ansible Automation Hub](https://console.redhat.com/ansible/automation-hub/repo/published/zscaler/zpacloud)
+As of version 1.0.0, this Collection of Ansible Modules for Zscaler Internet Access is
+`certified on Ansible Automation Hub <https://console.redhat.com/ansible/automation-hub/repo/published/zscaler/zpacloud>`_,
 and officially supported for Ansible subscribers. Ansible subscribers can engage
 for support through their usual route towards Red Hat.
 
 For those who are not Ansible subscribers, this Collection of Ansible Modules is
-also [published on Ansible Galaxy](https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud)
+also `published on Ansible Galaxy <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud>`_,
 to be freely used under an as-is, best effort, support
 policy. These scripts should be seen as community supported and Zscaler
 Technology Alliances Team will contribute our expertise as and when possible.
@@ -112,8 +120,8 @@ product functionality and not for help in deploying or using the template or
 script itself.
 
 Unless explicitly tagged, all projects or work posted in our
-[GitHub repository](https://github.com/zscaler) or sites other
-than our official [Downloads page](https://help.zscaler.com/login-tickets)
+`GitHub repository <https://https://github.com/zscaler>`_ or sites other
+`Downloads page <https://help.zscaler.com/login-tickets>`_ than our official
 are provided under the best effort policy.
 
 Indices and tables

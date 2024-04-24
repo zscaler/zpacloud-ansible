@@ -1,7 +1,7 @@
 ---
-name: test_zpa_policy_access_timeout_rule
+rule_name: test_zpa_policy_access_timeout_rule
 description: test_zpa_policy_access_timeout_rule
-action: RE_AUTH
+rule_action: RE_AUTH
 reauth_idle_timeout: "600"
 reauth_timeout: "172800"
 operator: AND

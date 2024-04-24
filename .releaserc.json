@@ -37,7 +37,7 @@
             "path": "*.tar.gz"
           }
         ],
-        "successComment": ":tada: This ${issue.pull_request ? 'PR is included' : 'issue has been resolved'} in version ${nextRelease.version} :tada:\n\nThe release is available on [Ansible Galaxy](https://galaxy.ansible.com/zscaler/zpacloud) and [GitHub release](https://github.com/zscaler/zpacloud-ansible/releases)\n\n> Posted by [semantic-release](https://github.com/semantic-release/semantic-release) bot"
+        "successComment": ":tada: This ${issue.pull_request ? 'PR is included' : 'issue has been resolved'} in version ${nextRelease.version} :tada:\n\nThe release is available on [Ansible Galaxy](https://galaxy.ansible.com/zscaler/ziacloud) and [GitHub release](https://github.com/zscaler/ziacloud-ansible/releases)\n\n> Posted by [semantic-release](https://github.com/semantic-release/semantic-release) bot"
       }
     ]
   ],

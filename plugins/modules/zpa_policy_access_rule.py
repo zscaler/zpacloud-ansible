@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2023 Zscaler Inc, <devrel@zscaler.com>
 
-# Copyright 2023, Zscaler, Inc
-
+#                             MIT License
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -13,11 +14,13 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from __future__ import absolute_import, division, print_function
 
@@ -34,10 +37,12 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
-
+  - zscaler.zpacloud.fragments.documentation
   - zscaler.zpacloud.fragments.state
+
 options:
   action:
     description:
@@ -48,9 +53,12 @@ options:
       - ALLOW
       - DENY
       - REQUIRE_APPROVAL
+      - allow
+      - deny
+      - require_approval
   id:
     type: str
-    description: ""
+    description: "The unique identifier of the policy rule."
   name:
     description:
       - This is the name of the policy.
@@ -60,104 +68,72 @@ options:
     type: str
     description: "This is the description of the access rule"
   policy_type:
-    description: ""
+    description: "The value for differentiating policy types."
     type: str
-    required: false
   rule_order:
-    description: ""
+    description: "The policy evaluation order number of the rule."
     type: str
-    required: false
   operator:
     description:
       - This denotes the operation type.
     type: str
-    required: false
     choices:
       - AND
       - OR
   custom_msg:
     description:
-      - This is for providing a customer message for the user
+      - This is for providing a customer message for the user.
     type: str
-    required: false
   app_connector_group_ids:
     description:
-      - List of App Connector Group IDs
-    type: str
-    required: false
+      - List of App Connector Group IDs.
+    type: list
+    elements: str
   app_server_group_ids:
     description:
-      - List of Server Group IDs
-    type: str
-    required: false
+      - List of Server Group IDs.
+    type: list
+    elements: str
   conditions:
+    description: "This is for providing the set of conditions for the policy."
     type: list
     elements: dict
-    required: False
-    description: "This is for providing the set of conditions for the policy"
     suboptions:
-      id:
-        description: ""
-        type: str
-      negated:
-        description: ""
-        type: bool
-        required: False
       operator:
-        description: "This denotes the operation type"
+        description: "This denotes the operation type."
         type: str
-        required: True
         choices: ["AND", "OR"]
       operands:
-        required: False
-        description: "This signifies the various policy criteria"
+        description: "This signifies the various policy criteria."
         type: list
         elements: dict
         suboptions:
-          id:
-            description: ""
-            type: str
           idp_id:
-            description: ""
+            description: "The unique identifier of the IdP."
             type: str
-            required: False
-          name:
-            description: ""
-            type: str
-            required: False
           lhs:
-            description: >
-              - This signifies the key for the object type
-              - String ID example: "id"
+            description: "This signifies the key for the object type."
             type: str
-            required: True
           rhs:
-            description: >
-              - This denotes the value for the given object type. Its value depends upon the key
-              - For APP, APP_GROUP, and IDP, the supported value is entity id.
-              - For CLIENT_TYPE, the supported values are zpn_client_type_zapp (for ZApp) and zpn_client_type_exporter (for Clientless).
-              - For POSTURE, the supported values are: true (verified), false (verification failed).
-              - For TRUSTED_NETWORK, the supported value is true.
+            description: "This denotes the value for the given object type."
             type: str
-            required: False
           object_type:
-            description: >
-              - This is for specifying the policy criteria
-              - POSTURE and TRUSTED_NETWORK values are only supported for the CLIENT_TYPE.
+            description: "This is for specifying the policy criteria."
             type: str
-            required: True
             choices:
               - APP
               - APP_GROUP
-              - SAML
+              - LOCATION
               - IDP
-              - CLIENT_TYPE
-              - TRUSTED_NETWORK
-              - MACHINE_GRP
-              - POSTURE
+              - SAML
               - SCIM
               - SCIM_GROUP
+              - CLIENT_TYPE
+              - POSTURE
+              - TRUSTED_NETWORK
+              - BRANCH_CONNECTOR_GROUP
               - EDGE_CONNECTOR_GROUP
+              - MACHINE_GRP
               - COUNTRY_CODE
               - PLATFORM
 """
@@ -340,9 +316,11 @@ def core(module):
                 "name": existing_policy.get("name", None),
                 "description": existing_policy.get("description", None),
                 "rule_order": existing_policy.get("rule_order", None),
-                "action": existing_policy.get("action", "").upper()
-                if existing_policy.get("action")
-                else None,
+                "action": (
+                    existing_policy.get("action", "").upper()
+                    if existing_policy.get("action")
+                    else None
+                ),
                 "conditions": map_conditions(existing_policy.get("conditions", [])),
                 "custom_msg": existing_policy.get("custom_msg", None),
                 "app_connector_group_ids": existing_policy.get(
@@ -360,9 +338,9 @@ def core(module):
             new_policy = {
                 "name": policy.get("name", None),
                 "description": policy.get("description", None),
-                "action": policy.get("action", "").upper()
-                if policy.get("action")
-                else None,
+                "action": (
+                    policy.get("action", "").upper() if policy.get("action") else None
+                ),
                 "rule_order": policy.get("rule_order", None),
                 "conditions": map_conditions(policy.get("conditions", [])),
                 "custom_msg": policy.get("custom_msg", None),
@@ -401,7 +379,14 @@ def main():
         action=dict(
             type="str",
             required=False,
-            choices=["allow", "deny", "ALLOW", "DENY", "REQUIRE_APPROVAL"],
+            choices=[
+                "ALLOW",
+                "DENY",
+                "REQUIRE_APPROVAL",
+                "allow",
+                "deny",
+                "require_approval",
+            ],
         ),
         operator=dict(type="str", required=False, choices=["AND", "OR"]),
         rule_order=dict(type="str", required=False),
@@ -409,21 +394,34 @@ def main():
             type="list",
             elements="dict",
             options=dict(
-                id=dict(type="str", required=False),
-                negated=dict(type="bool", required=False),
                 operator=dict(type="str", required=False, choices=["AND", "OR"]),
                 operands=dict(
                     type="list",
                     elements="dict",
                     options=dict(
-                        id=dict(type="str", required=False),
                         idp_id=dict(type="str", required=False),
-                        name=dict(type="str", required=False),
                         lhs=dict(type="str", required=False),
                         rhs=dict(type="str", required=False),
                         object_type=dict(
                             type="str",
                             required=False,
+                            choices=[
+                                "APP",
+                                "APP_GROUP",
+                                "LOCATION",
+                                "IDP",
+                                "SAML",
+                                "SCIM",
+                                "SCIM_GROUP",
+                                "CLIENT_TYPE",
+                                "POSTURE",
+                                "TRUSTED_NETWORK",
+                                "BRANCH_CONNECTOR_GROUP",
+                                "EDGE_CONNECTOR_GROUP",
+                                "MACHINE_GRP",
+                                "COUNTRY_CODE",
+                                "PLATFORM",
+                            ],
                         ),
                     ),
                     required=False,

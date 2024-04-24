@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2023 Zscaler Inc, <devrel@zscaler.com>
 
-# Copyright 2023, Zscaler, Inc
-
+#                             MIT License
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -13,11 +14,13 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from __future__ import absolute_import, division, print_function
 
@@ -34,26 +37,29 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
-
+  - zscaler.zpacloud.fragments.documentation
   - zscaler.zpacloud.fragments.state
+
 options:
   id:
     description: "The unique identifier of the Segment Group"
     type: str
+    required: false
   name:
     description: "Name of the segment group"
     type: str
-    required: True
+    required: true
   description:
     description: "Description of the segment group"
     type: str
-    required: False
+    required: false
   enabled:
     description: "Whether this segment group is enabled or not"
     type: bool
-    required: False
+    required: false
 """
 
 EXAMPLES = """
@@ -88,9 +94,9 @@ def core(module):
     group = dict()
     params = [
         "id",
+        "name",
         "description",
         "enabled",
-        "name",
     ]
     for param_name in params:
         group[param_name] = module.params.get(param_name, None)
@@ -171,10 +177,10 @@ def core(module):
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
-        description=dict(type="str", required=False),
-        enabled=dict(type="bool", required=False, default=True),
-        id=dict(type="str"),
+        id=dict(type="str", required=False),
         name=dict(type="str", required=True),
+        description=dict(type="str", required=False),
+        enabled=dict(type="bool", required=False),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

@@ -1,5 +1,5 @@
 ---
-name: test_BD_AppProtection_Profile1
+profile_name: test_BD_AppProtection_Profile1
 description: test_BD_AppProtection_Profile1
 paranoia_level: "1"
 incarnation_number: "6"

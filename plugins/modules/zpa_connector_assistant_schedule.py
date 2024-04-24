@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2023 Zscaler Inc, <devrel@zscaler.com>
 
-# Copyright 2023, Zscaler, Inc
-
+#                             MIT License
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -13,11 +14,13 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from __future__ import absolute_import, division, print_function
 
@@ -34,10 +37,11 @@ author:
 version_added: '1.0.0'
 requirements:
     - Zscaler SDK Python can be obtained from PyPI (https://pypi.org/project/zscaler-sdk-python/)
+
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
+  - zscaler.zpacloud.fragments.documentation
 
-  - zscaler.zpacloud.fragments.state
 options:
     id:
         description:
@@ -48,6 +52,7 @@ options:
         description:
             - The unique identifier of the ZPA tenant
         type: str
+        required: false
     delete_disabled:
         description:
             - Indicates if the App Connectors are included for deletion if they are in a disconnected state based on frequencyInterval and frequency values
@@ -60,12 +65,20 @@ options:
         description:
             - The scheduled frequency at which the disconnected App Connectors are deleted
         type: str
+        default: days
     frequency_interval:
         description:
             - The interval for the configured frequency value. The minimum supported value is 5.
         type: str
+        default: '5'
+        choices: ['5', '7', '14', '30', '60', '90']
+    state:
+        description:
+            - The state of the module, which determines if the settings are to be applied.
+        type: str
+        choices: ['present']
+        default: 'present'
 """
-
 
 EXAMPLES = r"""
 - name: Enable or Update Auto Delete for disconnected App Connector

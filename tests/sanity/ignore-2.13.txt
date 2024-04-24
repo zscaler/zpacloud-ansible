@@ -20,7 +20,7 @@ plugins/modules/zpa_isolation_profile_facts.py validate-modules:missing-gplv3-li
 plugins/modules/zpa_policy_access_timeout_rule.py validate-modules:missing-gplv3-license
 plugins/modules/zpa_policy_access_timeout_rule_facts.py validate-modules:missing-gplv3-license
 plugins/modules/zpa_policy_access_isolation_rule.py validate-modules:missing-gplv3-license
-plugins/modules/zpa_app_connector_groups_facts.py validate-modules:missing-gplv3-license
+plugins/modules/zpa_app_connector_group_facts.py validate-modules:missing-gplv3-license
 plugins/modules/zpa_policy_access_isolation_rule_facts.py validate-modules:missing-gplv3-license
 plugins/modules/zpa_policy_access_rule_facts.py validate-modules:missing-gplv3-license
 plugins/modules/zpa_enrollement_certificate_facts.py validate-modules:missing-gplv3-license

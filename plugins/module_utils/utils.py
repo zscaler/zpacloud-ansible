@@ -1,3 +1,26 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2023 Zscaler Inc, <devrel@zscaler.com>
+
+#                              MIT License
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
@@ -127,6 +150,7 @@ def normalize_app(app):
         "control_type",
         "check_control_deployment_status",
         "controls_facts",
+        "lss_app_connector_group",
     ]
     for attr in computed_values:
         normalized.pop(attr, None)
@@ -555,3 +579,65 @@ def validate_rules(custom_ctl):
             raise ValueError(
                 "Invalid type value, it should be either RESPONSE or REQUEST"
             )
+
+
+# Conversion function for Timeout Policy Rule
+def parse_human_readable_timeout(input):
+    if input.lower() == "never":
+        return -1  # Return -1 for 'Never'
+
+    value, unit = 0, ""
+    try:
+        parts = input.split()
+        value = int(parts[0])
+        unit = parts[1].lower()
+    except (IndexError, ValueError):
+        return None, "Error parsing timeout value: '{}'".format(input)
+
+    multipliers = {
+        "minute": 60,
+        "minutes": 60,
+        "hour": 3600,
+        "hours": 3600,
+        "day": 86400,
+        "days": 86400,
+    }
+
+    if unit in multipliers:
+        return value * multipliers[unit], None
+    else:
+        return None, "Unsupported time unit: '{}'".format(unit)
+
+
+def validate_timeout_intervals(input, minimum=600):
+    if input.lower() == "never":
+        return -1  # Special case for "never"
+
+    timeout_in_seconds, error = parse_human_readable_timeout(input)
+    if error:
+        return None, error
+    if timeout_in_seconds < minimum and timeout_in_seconds != -1:
+        return None, "Timeout interval must be at least 10 minutes or 'Never'"
+    return timeout_in_seconds, None
+
+
+def seconds_to_human_readable(seconds):
+    try:
+        sec = int(seconds)
+    except ValueError:
+        return "", "Failed to parse seconds as integer"
+
+    if sec == -1:
+        return "Never", None
+
+    days = sec // 86400
+    hours = (sec % 86400) // 3600
+    minutes = (sec % 3600) // 60
+
+    if days > 0:
+        return "{} Day{}".format(days, "s" if days > 1 else ""), None
+    elif hours > 0:
+        return "{} Hour{}".format(hours, "s" if hours > 1 else ""), None
+    elif minutes > 0:
+        return "{} Minute{}".format(minutes, "s" if minutes > 1 else ""), None
+    return "{} Second{}".format(sec, "s" if sec != 1 else ""), None

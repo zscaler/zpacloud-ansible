@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2023 Zscaler Inc, <devrel@zscaler.com>
 
-# Copyright 2023, Zscaler, Inc
-
+#                             MIT License
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -13,11 +14,13 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from __future__ import absolute_import, division, print_function
 
@@ -34,67 +37,72 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
-
+  - zscaler.zpacloud.fragments.documentation
   - zscaler.zpacloud.fragments.state
+
 options:
+  id:
+    description: "The unique identifier of the policy rule"
+    type: str
+    required: false
+  name:
+    type: str
+    required: true
+    description:
+      - The name of the isolation rule.
+  description:
+    description:
+      - This is the description of the access policy.
+    type: str
+    required: false
   action:
     description:
       - This is for providing the rule action.
     type: str
     required: false
     choices:
-      - RE_AUTH
-  id:
-    description: ""
+      - INSPECT
+      - BYPASS_INSPECT
+      - inspect
+      - bypass_inspect
+  rule_order:
+    description: "The policy evaluation order number of the rule."
     type: str
     required: false
   policy_type:
-    description: ""
-    type: str
-    required: false
-  rule_order:
-    description: ""
+    description: "Indicates the policy type. The following value is supported: client_forwarding"
     type: str
     required: false
   operator:
     description:
-      - This denotes the operation type.
+      - Denotes the operation type
+      - These are operands used between criteria
     type: str
     required: false
     choices:
       - AND
       - OR
-  description:
-    description:
-      - This is the description of the access policy.
-    type: str
-    required: false
   zpn_inspection_profile_id:
     description:
       - The isolation profile ID associated with the rule.
     type: str
     required: true
-  name:
-    type: str
-    required: true
-    description:
-      - The name of the isolation rule.
   conditions:
     type: list
     elements: dict
     required: false
     description: "This is for providing the set of conditions for the policy"
     suboptions:
-      negated:
-        description: ""
-        type: bool
-        required: false
       operator:
         description: "The operation type. Supported values: AND, OR"
         type: str
         required: false
+        choices:
+          - AND
+          - OR
       operands:
         description: "The various policy criteria. Array of attributes (e.g., objectType, lhs, rhs, name)"
         type: list
@@ -108,7 +116,7 @@ options:
           lhs:
             description: "The key for the object type. String ID example: id"
             type: str
-            required: True
+            required: false
           rhs:
             description: >
                 - The value for the given object type. Its value depends upon the key
@@ -133,13 +141,12 @@ EXAMPLES = """
     provider: "{{ zpa_cloud }}"
     name: "Policy App Protection Rule - Example"
     description: "Policy App Protection Rule"
-    action: "INSPECT"
     rule_order: 1
+    action: "INSPECT"
     operator: "AND"
     zpn_inspection_profile_id: "216196257331286656"
     conditions:
-      - negated: false
-        operator: "OR"
+      - operator: "OR"
         operands:
           - object_type: "APP"
             lhs: "id"
@@ -147,14 +154,12 @@ EXAMPLES = """
           - object_type: "APP_GROUP"
             lhs: "id"
             rhs: "216196257331292103"
-      - negated: false
-        operator: "OR"
+      - operator: "OR"
         operands:
           - name:
             object_type: "CLIENT_TYPE"
             lhs: "id"
             rhs: "zpn_client_type_zapp"
-
 """
 
 RETURN = """
@@ -187,9 +192,9 @@ def core(module):
         "name",
         "description",
         "policy_type",
+        "rule_order",
         "action",
         "operator",
-        "rule_order",
         "zpn_inspection_profile_id",
         "conditions",
     ]
@@ -253,14 +258,16 @@ def core(module):
                 "rule_id": existing_policy.get("id", None),
                 "name": existing_policy.get("name", None),
                 "description": existing_policy.get("description", None),
-                "action": existing_policy.get("action", "").upper()
-                if existing_policy.get("action")
-                else None,
+                "rule_order": existing_policy.get("rule_order", None),
+                "action": (
+                    existing_policy.get("action", "").upper()
+                    if existing_policy.get("action")
+                    else None
+                ),
                 "zpn_inspection_profile_id": existing_policy.get(
                     "zpn_inspection_profile_id", None
                 ),
                 "conditions": map_conditions(existing_policy.get("conditions", [])),
-                "rule_order": existing_policy.get("rule_order", None),
             }
 
             cleaned_policy = deleteNone(updated_policy)
@@ -271,10 +278,10 @@ def core(module):
             new_policy = {
                 "name": policy.get("name", None),
                 "description": policy.get("description", None),
-                "action": policy.get("action", "").upper()
-                if policy.get("action")
-                else None,
                 "rule_order": policy.get("rule_order", None),
+                "action": (
+                    policy.get("action", "").upper() if policy.get("action") else None
+                ),
                 "zpn_inspection_profile_id": policy.get(
                     "zpn_inspection_profile_id", None
                 ),
@@ -301,10 +308,10 @@ def core(module):
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
-        id=dict(type="str"),
+        id=dict(type="str", required=False),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
-        zpn_inspection_profile_id=dict(type="str", required=False),
+        zpn_inspection_profile_id=dict(type="str", required=True),
         policy_type=dict(type="str", required=False),
         action=dict(
             type="str",
@@ -317,17 +324,13 @@ def main():
             type="list",
             elements="dict",
             options=dict(
-                id=dict(type="str"),
-                negated=dict(type="bool", required=False),
-                operator=dict(type="str", required=True, choices=["AND", "OR"]),
+                operator=dict(type="str", required=False, choices=["AND", "OR"]),
                 operands=dict(
                     type="list",
                     elements="dict",
                     options=dict(
-                        id=dict(type="str"),
                         idp_id=dict(type="str", required=False),
-                        name=dict(type="str", required=False),
-                        lhs=dict(type="str", required=True),
+                        lhs=dict(type="str", required=False),
                         rhs=dict(type="str", required=False),
                         object_type=dict(
                             type="str",

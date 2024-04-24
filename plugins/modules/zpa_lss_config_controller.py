@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2023 Zscaler Inc, <devrel@zscaler.com>
 
-# Copyright 2023, Zscaler, Inc
-
+#                             MIT License
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -13,17 +14,19 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-DOCUMENTATION = """
+DOCUMENTATION = r"""
 ---
 module: zpa_lss_config_controller
 short_description: Create a LSS CONFIG.
@@ -34,10 +37,12 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
-
+  - zscaler.zpacloud.fragments.documentation
   - zscaler.zpacloud.fragments.state
+
 options:
   config:
     type: dict
@@ -55,8 +60,7 @@ options:
       enabled:
         description: "Whether this LSS configuration is enabled or not"
         type: bool
-        required: False
-        default: True
+        required: false
       filter:
         description: "Filter for the LSS configuration"
         type: list
@@ -65,7 +69,7 @@ options:
       source_log_format:
         description: "Format of the log type"
         type: str
-        required: True
+        required: false
         choices:
           - json
           - csv
@@ -97,11 +101,11 @@ options:
           - private_svc_edge_status
           - user_activity
           - user_status
+          - web_inspection
       use_tls:
         description: "Whether TLS is enabled or not"
         type: bool
-        required: False
-        default: False
+        required: false
   app_connector_group_ids:
     type: list
     elements: str
@@ -213,7 +217,7 @@ options:
                 required: True
                 choices: ["APP", "APP_GROUP", "CLIENT_TYPE"]
 """
-EXAMPLES = """
+EXAMPLES = r"""
 - name: LSS Controller
   hosts: localhost
   tasks:
@@ -231,12 +235,9 @@ EXAMPLES = """
         app_connector_group_ids:
           - "11111"
       register: lss_controller
-    - name: lss_controller
-      debug:
-        msg: "{{ lss_controller }}"
 """
 
-RETURN = """
+RETURN = r"""
 # The newly created policy access rule resource record.
 """
 
@@ -439,15 +440,14 @@ def main():
                 audit_message=dict(type="str", required=False),
                 lss_port=dict(type="str", required=True),
                 lss_host=dict(type="str", required=True),
-                use_tls=dict(type="bool", required=False, default=False),
-                enabled=dict(type="bool", required=False, default=True),
+                use_tls=dict(type="bool", required=False),
+                enabled=dict(type="bool", required=False),
                 description=dict(type="str", required=False),
                 filter=dict(type="list", elements="str", required=False),
                 source_log_type=dict(
                     type="str",
                     required=True,
                     choices=[
-                        "",
                         "app_connector_metrics",
                         "app_connector_status",
                         "audit_logs",

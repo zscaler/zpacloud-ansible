@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2023 Zscaler Inc, <devrel@zscaler.com>
 
-# Copyright 2023, Zscaler, Inc
-
+#                             MIT License
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -13,11 +14,13 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from __future__ import absolute_import, division, print_function
 
@@ -34,10 +37,12 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
-
+  - zscaler.zpacloud.fragments.documentation
   - zscaler.zpacloud.fragments.state
+
 options:
   id:
     description:
@@ -98,6 +103,18 @@ options:
         required: false
         description:
           - List of valid UDP ports. The application segment API supports multiple TCP and UDP port ranges.
+  tcp_port_ranges:
+    description:
+      - The list of TCP port ranges used to access the application
+    type: list
+    elements: str
+    required: false
+  udp_port_ranges:
+    description:
+      - The list of UDP port ranges used to access the application
+    type: list
+    elements: str
+    required: false
   double_encrypt:
     description:
       - Whether Double Encryption is enabled or disabled for the application..
@@ -120,7 +137,6 @@ options:
       - Whether the App Connector is closest to the application (True) or closest to the user (False).
     type: bool
     required: false
-    default: false
   passive_health_enabled:
     description:
       - Indicates if passive health checks are enabled on the application..
@@ -170,8 +186,8 @@ options:
     description:
       - ID of the server group.
     type: list
-    elements: dict
-    required: false
+    elements: str
+    required: true
   segment_group_id:
     description:
       - ID of the segment group.
@@ -427,7 +443,7 @@ def main():
     id_name_spec = dict(
         type="list",
         elements="str",
-        required=False,
+        required=True,
     )
     argument_spec.update(
         id=dict(type="str"),
@@ -451,7 +467,7 @@ def main():
             choices=["NONE", "ON_ACCESS", "CONTINUOUS"],
         ),
         tcp_keep_alive=dict(type="bool", required=False, default=False),
-        segment_group_id=dict(type="str", required=False),
+        segment_group_id=dict(type="str", required=True),
         double_encrypt=dict(type="bool", required=False),
         health_check_type=dict(type="str"),
         is_cname_enabled=dict(type="bool", required=False),
@@ -459,7 +475,9 @@ def main():
         ip_anchored=dict(type="bool", required=False),
         icmp_access_type=dict(type="bool", required=False, default=False),
         server_group_ids=id_name_spec,
-        domain_names=dict(type="list", elements="str", required=False),
+        domain_names=dict(type="list", elements="str", required=True),
+        tcp_port_ranges=dict(type="list", elements="str", required=False),
+        udp_port_ranges=dict(type="list", elements="str", required=False),
         tcp_port_range=dict(
             type="list", elements="dict", options=port_spec, required=False
         ),

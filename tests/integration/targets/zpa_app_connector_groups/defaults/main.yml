@@ -1,5 +1,5 @@
 ---
-name: test_zpa_app_connector_group
+group_name: test_zpa_app_connector_group
 description: test_zpa_app_connector_group
 enabled: true
 city_country: San Jose, US

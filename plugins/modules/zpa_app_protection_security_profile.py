@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2023 Zscaler Inc, <devrel@zscaler.com>
 
-# Copyright 2023, Zscaler, Inc
-
+#                             MIT License
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -13,17 +14,19 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-DOCUMENTATION = """
+DOCUMENTATION = r"""
 ---
 module: zpa_app_protection_security_profile
 short_description: Create, update, or delete Zscaler Private Access (ZPA) app protection security profile.
@@ -35,10 +38,17 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
+  - zscaler.zpacloud.fragments.documentation
   - zscaler.zpacloud.fragments.state
+
 options:
+    id:
+        description: The unique identifier of the security profile.
+        required: false
+        type: str
     name:
         description: The name of the app protection security profile.
         required: true
@@ -612,7 +622,7 @@ options:
             - SPECIFIC
 """
 
-EXAMPLES = """
+EXAMPLES = r"""
 - name: Create an App Protection Security Profile
   zscaler.zpacloud.zpa_app_protection_security_profile:
       provider: "{{ zpa_cloud }}"
@@ -636,7 +646,7 @@ EXAMPLES = """
             count: "11"
 """
 
-RETURN = """
+RETURN = r"""
 # The newly created app protection security profile resource record.
 """
 
@@ -825,6 +835,7 @@ def core(module):
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
+        id=dict(type="str", required=False),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
         global_control_actions=dict(type="list", elements="str", required=False),
@@ -966,7 +977,6 @@ def main():
             type="list",
             elements="dict",
             options=dict(
-                id=dict(type="str", required=False),
                 action=dict(
                     type="str", required=False, choices=["PASS", "BLOCK", "REDIRECT"]
                 ),

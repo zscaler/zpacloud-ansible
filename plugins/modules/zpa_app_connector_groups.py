@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2023 Zscaler Inc, <devrel@zscaler.com>
 
-# Copyright 2023, Zscaler, Inc
-
+#                             MIT License
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -13,11 +14,13 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from __future__ import absolute_import, division, print_function
 
@@ -34,10 +37,18 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
+  - zscaler.zpacloud.fragments.documentation
   - zscaler.zpacloud.fragments.state
+
 options:
+  id:
+    description:
+      - The unique identifier of the App Connector Group.
+    required: false
+    type: str
   name:
     description:
       - Name of the App Connector Group.
@@ -68,17 +79,14 @@ options:
     description:
       - Whether this App Connector Group is enabled or not.
     type: bool
-    default: true
   pra_enabled:
     description:
       - Whether or not privileged remote access is enabled for the App Connector Group.
     type: bool
-    default: false
   waf_disabled:
     description:
       - Whether or not AppProtection is disabled for the App Connector Group.
     type: bool
-    default: false
   latitude:
     description:
       - Latitude of the App Connector Group. Integer or decimal. With values in the range of -90 to 90.
@@ -118,7 +126,6 @@ options:
       - Integer in seconds (i.e., -66600). The integer should be greater than or equal to 0 and less than 86400, in 15 minute intervals.
     required: false
     type: bool
-    default: false
   version_profile_id:
     description:
       - ID of the version profile. To learn more, see Version Profile Use Cases.
@@ -127,32 +134,28 @@ options:
     type: str
     default: '0'
     choices: [ '0', '1', '2' ]
-  version_profile_name:
-    description:
-      - Name of the version profile.
-    required: false
-    type: str
-    choices: [ 'Default', 'Previous Default', 'New Release' ]
   tcp_quick_ack_app:
     description:
       - Whether TCP Quick Acknowledgement is enabled or disabled for the application.
       - The tcpQuickAckApp, tcpQuickAckAssistant, and tcpQuickAckReadAssistant fields must all share the same values.
     required: false
-    default: false
     type: bool
   tcp_quick_ack_assistant:
     description:
       - Whether TCP Quick Acknowledgement is enabled or disabled for the application.
       - The tcpQuickAckApp, tcpQuickAckAssistant, and tcpQuickAckReadAssistant fields must all share the same values.
     required: false
-    default: false
     type: bool
   tcp_quick_ack_read_assistant:
     description:
       - Whether TCP Quick Acknowledgement is enabled or disabled for the application.
       - The tcpQuickAckApp, tcpQuickAckAssistant, and tcpQuickAckReadAssistant fields must all share the same values.
     required: false
-    default: false
+    type: bool
+  use_in_dr_mode:
+    description:
+      - Whether or not the App Connector Group is designated for disaster recovery.
+    required: false
     type: bool
 """
 
@@ -189,6 +192,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     validate_longitude,
     diff_suppress_func_coordinate,
     validate_tcp_quick_ack,
+    normalize_app,
     deleteNone,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
@@ -196,28 +200,23 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 )
 
 
-def normalize_app_connector_groups(group):
-    """
-    Normalize app connector groups data by setting computed values.
-    """
-    normalized = group.copy()
+# def normalize_app_connector_groups(group):
+#     """
+#     Normalize app connector groups data by setting computed values.
+#     """
+#     normalized = group.copy()
 
-    computed_values = [
-        "creation_time",
-        "modified_by",
-        "modified_time",
-        "lss_app_connector_group",
-        "version_profile_name",
-        "use_in_dr_mode",
-        "tcp_quick_ack_app",
-        "tcp_quick_ack_assistant",
-        "tcp_quick_ack_read_assistant",
-        "pra_enabled",
-    ]
-    for attr in computed_values:
-        normalized.pop(attr, None)
+#     computed_values = [
+#         "id",
+#         "creation_time",
+#         "modified_by",
+#         "modified_time",
+#         "lss_app_connector_group"
+#     ]
+#     for attr in computed_values:
+#         normalized.pop(attr, None)
 
-    return normalized
+#     return normalized
 
 
 def core(module):
@@ -254,7 +253,6 @@ def core(module):
         "upgrade_time_in_secs",
         "override_version_profile",
         "version_profile_id",
-        "version_profile_name",
         "dns_query_type",
         "lss_app_connector_group",
         "tcp_quick_ack_app",
@@ -266,6 +264,7 @@ def core(module):
     ]
     for param_name in params:
         group[param_name] = module.params.get(param_name, None)
+
     group_id = group.get("id", None)
     group_name = group.get("name", None)
 
@@ -279,26 +278,29 @@ def core(module):
         for group_ in groups:
             if group_.get("name") == group_name:
                 existing_group = group_
-                break
+
+    # Normalize and compare existing and desired data
+    desired_group = normalize_app(group)
+    current_group = normalize_app(existing_group) if existing_group else {}
 
     # Normalize and compare existing and desired application data
-    normalized_group = normalize_app_connector_groups(group)
-    normalized_existing_group = (
-        normalize_app_connector_groups(existing_group) if existing_group else {}
-    )
+    # normalized_group = normalize_app_connector_groups(group)
+    # normalized_existing_group = (
+    #     normalize_app_connector_groups(existing_group) if existing_group else {}
+    # )
 
     fields_to_exclude = ["id"]
     differences_detected = False
-    for key, value in normalized_group.items():
-        if key not in fields_to_exclude and normalized_existing_group.get(key) != value:
+    for key, value in desired_group.items():
+        if key not in fields_to_exclude and current_group.get(key) != value:
             differences_detected = True
             module.warn(
-                f"Difference detected in {key}. Current: {normalized_existing_group.get(key)}, Desired: {value}"
+                f"Difference detected in {key}. Current: {current_group.get(key)}, Desired: {value}"
             )
 
     if existing_group is not None:
         id = existing_group.get("id")
-        existing_group.update(normalized_group)
+        existing_group.update(group)
         existing_group["id"] = id
 
     if state == "present":
@@ -317,13 +319,13 @@ def core(module):
                 new_lat = group.get("latitude")
                 if new_lat is not None:  # Check if new_lat is not None before comparing
                     if diff_suppress_func_coordinate(existing_lat, new_lat):
-                        existing_group[
-                            "latitude"
-                        ] = existing_lat  # reset to original if they're deemed equal
+                        existing_group["latitude"] = (
+                            existing_lat  # reset to original if they're deemed equal
+                        )
                 else:
-                    existing_group[
-                        "latitude"
-                    ] = existing_lat  # If new_lat is None, keep the existing value
+                    existing_group["latitude"] = (
+                        existing_lat  # If new_lat is None, keep the existing value
+                    )
 
                 existing_long = existing_group.get("longitude")
                 new_long = group.get("longitude")
@@ -331,13 +333,13 @@ def core(module):
                     new_long is not None
                 ):  # Check if new_long is not None before comparing
                     if diff_suppress_func_coordinate(existing_long, new_long):
-                        existing_group[
-                            "longitude"
-                        ] = existing_long  # reset to original if they're deemed equal
+                        existing_group["longitude"] = (
+                            existing_long  # reset to original if they're deemed equal
+                        )
                 else:
-                    existing_group[
-                        "longitude"
-                    ] = existing_long  # If new_long is None, keep the existing value
+                    existing_group["longitude"] = (
+                        existing_long  # If new_long is None, keep the existing value
+                    )
 
                 existing_group = deleteNone(
                     dict(
@@ -351,7 +353,6 @@ def core(module):
                         longitude=existing_group.get("longitude", None),
                         location=existing_group.get("location", None),
                         upgrade_day=existing_group.get("upgrade_day", None),
-                        connector_ids=existing_group.get("connector_ids", None),
                         upgrade_time_in_secs=existing_group.get(
                             "upgrade_time_in_secs", None
                         ),
@@ -361,8 +362,8 @@ def core(module):
                         version_profile_id=existing_group.get(
                             "version_profile_id", None
                         ),
-                        version_profile_name=existing_group.get(
-                            "version_profile_name", None
+                        lss_app_connector_group=existing_group.get(
+                            "lss_app_connector_group", None
                         ),
                         dns_query_type=existing_group.get("dns_query_type", None),
                         tcp_quick_ack_app=existing_group.get("tcp_quick_ack_app", None),
@@ -396,14 +397,13 @@ def core(module):
                     latitude=group.get("latitude", None),
                     longitude=group.get("longitude", None),
                     location=group.get("location", None),
-                    connector_ids=group.get("connector_ids", None),
                     upgrade_day=group.get("upgrade_day", None),
                     upgrade_time_in_secs=group.get("upgrade_time_in_secs", None),
                     override_version_profile=group.get(
                         "override_version_profile", None
                     ),
                     version_profile_id=group.get("version_profile_id", None),
-                    version_profile_name=group.get("version_profile_name", None),
+                    lss_app_connector_group=group.get("lss_app_connector_group", None),
                     dns_query_type=group.get("dns_query_type", None),
                     tcp_quick_ack_app=group.get("tcp_quick_ack_app", None),
                     tcp_quick_ack_assistant=group.get("tcp_quick_ack_assistant", None),
@@ -442,7 +442,6 @@ def main():
         required=False,
     )
     argument_spec.update(
-        connector_ids=id_name_spec,
         name=dict(type="str", required=True),
         id=dict(type="str", required=False),
         city_country=dict(type="str", required=False),
@@ -452,9 +451,8 @@ def main():
             type="str",
             choices=["IPV4_IPV6", "IPV4", "IPV6"],
             required=False,
-            default="IPV4_IPV6",
         ),
-        enabled=dict(type="bool", default=True, required=False),
+        enabled=dict(type="bool", required=False),
         latitude=dict(type="str", required=False),
         location=dict(type="str", required=False),
         longitude=dict(type="str", required=False),
@@ -474,21 +472,16 @@ def main():
             required=False,
         ),
         upgrade_time_in_secs=dict(type="str", default="66600", required=False),
-        override_version_profile=dict(type="bool", default=False, required=False),
+        override_version_profile=dict(type="bool", required=False),
         version_profile_id=dict(
             type="str", default="0", choices=["0", "1", "2"], required=False
         ),
-        version_profile_name=dict(
-            type="str",
-            choices=["Default", "Previous Default", "New Release"],
-            required=False,
-        ),
-        tcp_quick_ack_app=dict(type="bool", default=False, required=False),
-        tcp_quick_ack_assistant=dict(type="bool", default=False, required=False),
-        tcp_quick_ack_read_assistant=dict(type="bool", default=False, required=False),
-        use_in_dr_mode=dict(type="bool", default=False, required=False),
-        pra_enabled=dict(type="bool", default=False, required=False),
-        waf_disabled=dict(type="bool", default=False, required=False),
+        tcp_quick_ack_app=dict(type="bool", required=False),
+        tcp_quick_ack_assistant=dict(type="bool", required=False),
+        tcp_quick_ack_read_assistant=dict(type="bool", required=False),
+        use_in_dr_mode=dict(type="bool", required=False),
+        pra_enabled=dict(type="bool", required=False),
+        waf_disabled=dict(type="bool", required=False),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

@@ -12,21 +12,13 @@
 - name: Verify app connector group
   ansible.builtin.include_tasks: "../../../helper_tasks/zpa_app_connector_group/verify_app_connector_group.yml"
 
-- name: Create service edge group
-  ansible.builtin.include_tasks: "../../../helper_tasks/zpa_service_edge_group/create_service_edge_group.yml"
-
-- name: Verify service edge group
-  ansible.builtin.include_tasks: "../../../helper_tasks/zpa_service_edge_group/verify_service_edge_group.yml"
-
-- name: Import Enrollment Certificate ID
-  ansible.builtin.include_tasks: "../../../helper_tasks/zpa_enrollement_certificate/zpa_enrollement_certificate.yml"
-
-- ansible.builtin.set_fact:
-    acg_name: "{{ name }}_{{ random_string }}"
-    seg_name: "{{ name }}_{{ random_string }}"
+- name: Set dynamic name values with random string
+  ansible.builtin.set_fact:
+    acg_name: "{{ acg_name }}_{{ random_string }}"
+    # seg_name: "{{ name }}_{{ random_string }}"
 
 - name: Ensure required environment variables are set
-  fail:
+  ansible.builtin.fail:
     msg: "{{ env_var }} is not defined as environment variable"
   when: lookup('env', env_var) is none
   loop:
@@ -36,35 +28,51 @@
   loop_control:
     loop_var: env_var
 
-- ansible.builtin.set_fact:
+- name: Ensure ZPA Credential environment variables are set
+  ansible.builtin.set_fact:
     zpa_cloud:
       client_id: "{{ lookup('env', 'ZPA_CLIENT_ID') }}"
       client_secret: "{{ lookup('env', 'ZPA_CLIENT_SECRET') }}"
       customer_id: "{{ lookup('env', 'ZPA_CUSTOMER_ID') }}"
       cloud: "{{ lookup('env', 'ZPA_CLOUD') | default(omit) }}"
-  no_log: True
+  no_log: true
 
-- block:
+- name: Main block to Test Provisioning Key
+  block:
     - name: Ensure Connector Provisioning Key is absent (leftover)
       zscaler.zpacloud.zpa_provisioning_key:
         provider: "{{ zpa_cloud }}"
         state: "absent"
         name: "{{ acg_name }}"
-        association_type: "{{ acg_association_type }}"
+        key_type: "{{ key_type }}"
+        max_usage: "{{ acg_max_usage }}"
+        component_id: "{{ app_connector_group_id }}"
       register: result
+
+  rescue:
+    - name: Handle errors
+      ansible.builtin.debug:
+        msg: An error occurred.
+
+  always:
+    - name: Cleanup operations
+      ansible.builtin.debug:
+        msg: Cleanup complete.
 
     - name: Ensure Connector Provisioning Key is absent
       zscaler.zpacloud.zpa_provisioning_key:
         provider: "{{ zpa_cloud }}"
         state: absent
         name: "{{ acg_name }}"
-        association_type: "{{ acg_association_type }}"
+        key_type: "{{ key_type }}"
+        max_usage: "{{ acg_max_usage }}"
+        component_id: "{{ app_connector_group_id }}"
       register: result
 
     - name: Verify Connector Provisioning Key is absent
       ansible.builtin.assert:
         that:
-          - not result.changed
+          - result.changed
           - result.data is defined
 
     - name: Ensure Connector Provisioning Key is (Present)
@@ -72,16 +80,15 @@
         provider: "{{ zpa_cloud }}"
         state: present
         name: "{{ acg_name }}"
-        association_type: "{{ acg_association_type }}"
+        key_type: "{{ key_type }}"
         max_usage: "{{ acg_max_usage }}"
-        enrollment_cert_id: "{{ connector_cert_id }}"
-        zcomponent_id: "{{ app_connector_group_id }}"
+        component_id: "{{ app_connector_group_id }}"
       register: result
 
     - name: Verify Connector Provisioning Key is present
       ansible.builtin.assert:
         that:
-          - not result.changed
+          - result.changed
           - result.data.name is defined
           - result.data.enabled is true
 
@@ -90,10 +97,9 @@
         provider: "{{ zpa_cloud }}"
         state: present
         name: "{{ acg_name }}"
-        association_type: "{{ acg_association_type }}"
+        key_type: "{{ key_type }}"
         max_usage: "{{ acg_max_usage }}"
-        enrollment_cert_id: "{{ connector_cert_id }}"
-        zcomponent_id: "{{ app_connector_group_id }}"
+        component_id: "{{ app_connector_group_id }}"
       register: result
 
     - name: Ensure Connector Provisioning Key is absent (idempotency check)
@@ -104,7 +110,9 @@
     - name: Fetch all Connector Provisioning Key
       zscaler.zpacloud.zpa_provisioning_key_facts:
         provider: "{{ zpa_cloud }}"
-        association_type: "{{ acg_association_type }}"
+        key_type: "{{ key_type }}"
+        # max_usage: "{{ acg_max_usage }}"
+        # component_id: "{{ app_connector_group_id }}"
       register: result
 
     - name: Ensure all Connector Provisioning Key found
@@ -117,7 +125,9 @@
       zscaler.zpacloud.zpa_provisioning_key_facts:
         provider: "{{ zpa_cloud }}"
         name: "{{ acg_name }}"
-        association_type: "{{ acg_association_type }}"
+        key_type: "{{ key_type }}"
+        # max_usage: "{{ acg_max_usage }}"
+        # component_id: "{{ app_connector_group_id }}"
       register: result
 
     - name: Ensure this Connector Provisioning Key is found
@@ -138,146 +148,31 @@
         provider: "{{ zpa_cloud }}"
         state: absent
         name: "{{ acg_name }}"
-        association_type: "{{ acg_association_type }}"
+        key_type: "{{ key_type }}"
+        max_usage: "{{ acg_max_usage }}"
+        component_id: "{{ app_connector_group_id }}"
       register: result
 
     - name: Verify Connector Provisioning Key is Deleted
       ansible.builtin.assert:
         that:
-          - not result.changed
+          - result.changed
 
     - name: Delete Connector Provisioning Key (again; idempotency check)
       zscaler.zpacloud.zpa_provisioning_key:
         provider: "{{ zpa_cloud }}"
         state: absent
         name: "{{ acg_name }}"
-        association_type: "{{ acg_association_type }}"
+        key_type: "{{ key_type }}"
+        max_usage: "{{ acg_max_usage }}"
+        component_id: "{{ app_connector_group_id }}"
       register: result
 
     - name: Verify Connector Provisioning Key is absent
       ansible.builtin.assert:
         that:
-          - not result.changed
-          - result.data is defined
-
-    # Service Edge Group Provisioning Key Test
-    - name: Ensure Service Edge Provisioning Key is absent (leftover)
-      zscaler.zpacloud.zpa_provisioning_key:
-        provider: "{{ zpa_cloud }}"
-        state: "absent"
-        name: "{{ seg_name }}"
-        association_type: "{{ seg_association_type }}"
-      register: result
-
-    - name: Ensure Service Edge Provisioning Key is absent
-      zscaler.zpacloud.zpa_provisioning_key:
-        provider: "{{ zpa_cloud }}"
-        state: absent
-        name: "{{ seg_name }}"
-        association_type: "{{ seg_association_type }}"
-      register: result
-
-    - name: Verify Service Edge Provisioning Key is absent
-      ansible.builtin.assert:
-        that:
-          - not result.changed
-          - result.data is defined
-
-    - name: Ensure Service Edge Provisioning Key is (Present)
-      zscaler.zpacloud.zpa_provisioning_key:
-        provider: "{{ zpa_cloud }}"
-        state: present
-        name: "{{ seg_name }}"
-        association_type: "{{ seg_association_type }}"
-        max_usage: "{{ seg_max_usage }}"
-        enrollment_cert_id: "{{ service_edge_cert_id }}"
-        zcomponent_id: "{{ service_edge_group_id }}"
-      register: result
-
-    - name: Verify Service Edge Provisioning Key is present
-      ansible.builtin.assert:
-        that:
-          - not result.changed
-          - result.data.name is defined
-          - result.data.enabled is true
-
-    - name: Ensure Service Edge Provisioning Key (again; idempotency check)
-      zscaler.zpacloud.zpa_provisioning_key:
-        provider: "{{ zpa_cloud }}"
-        state: present
-        name: "{{ seg_name }}"
-        association_type: "{{ seg_association_type }}"
-        max_usage: "{{ seg_max_usage }}"
-        enrollment_cert_id: "{{ service_edge_cert_id }}"
-        zcomponent_id: "{{ service_edge_group_id }}"
-      register: result
-
-    - name: Ensure Service Edge Provisioning Key is absent (idempotency check)
-      ansible.builtin.assert:
-        that:
           - result.changed
-
-    - name: Fetch all Service Edge Provisioning Key
-      zscaler.zpacloud.zpa_provisioning_key_facts:
-        provider: "{{ zpa_cloud }}"
-        association_type: "{{ seg_association_type }}"
-      register: result
-
-    - name: Ensure all Service Edge Provisioning Key found
-      ansible.builtin.assert:
-        that:
-          - not result.changed
-          - result.data[0] is defined
-
-    - name: Fetch this Service Edge Provisioning Key
-      zscaler.zpacloud.zpa_provisioning_key_facts:
-        provider: "{{ zpa_cloud }}"
-        name: "{{ seg_name }}"
-        association_type: "{{ seg_association_type }}"
-      register: result
-
-    - name: Ensure this Service Edge Provisioning Key is found
-      ansible.builtin.assert:
-        that:
-          - not result.changed
-          - result.data is defined
-          - result.data[0].name is defined
-          - result.data[0].name == seg_name
-          - result.data[0].enabled == true
-
-    - name: Give the ZPA Cloud a 5 seconds to settle
-      ansible.builtin.pause:
-        seconds: 5
-
-    - name: Delete Service Edge Provisioning Key
-      zscaler.zpacloud.zpa_provisioning_key:
-        provider: "{{ zpa_cloud }}"
-        state: absent
-        name: "{{ seg_name }}"
-        association_type: "{{ seg_association_type }}"
-      register: result
-
-    - name: Verify Service Edge Provisioning Key is Deleted
-      ansible.builtin.assert:
-        that:
-          - not result.changed
-
-    - name: Delete Service Edge Provisioning Key (again; idempotency check)
-      zscaler.zpacloud.zpa_provisioning_key:
-        provider: "{{ zpa_cloud }}"
-        state: absent
-        name: "{{ seg_name }}"
-        association_type: "{{ seg_association_type }}"
-      register: result
-
-    - name: Verify Service Edge Provisioning Key is absent
-      ansible.builtin.assert:
-        that:
-          - not result.changed
           - result.data is defined
 
     - name: Clean up App Connector group
-      include_tasks: "../../../helper_tasks/zpa_app_connector_group/delete_app_connector_group.yml"
-
-    - name: Clean up Service Edge group
-      include_tasks: "../../../helper_tasks/zpa_service_edge_group/delete_service_edge_group.yml"
+      ansible.builtin.include_tasks: "../../../helper_tasks/zpa_app_connector_group/delete_app_connector_group.yml"

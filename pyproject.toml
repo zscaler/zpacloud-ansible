@@ -22,6 +22,7 @@ netaddr = "*"
 pycountry = "*"
 sphinx-ansible-theme = "^0.10.3"
 
+
 [tool.poetry.dev-dependencies]
 black = "24.3.0"
 pytest = "*"
@@ -45,7 +46,7 @@ pycodestyle = "*"
 # from requirements.txt
 certifi = "^2023.11.17"
 chardet = "3.0.4"
-idna = "2.8"
+idna = "^3.7"
 requests = "^2.22.0"
 
 [build-system]

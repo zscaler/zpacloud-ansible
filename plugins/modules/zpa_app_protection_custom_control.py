@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2023 Zscaler Inc, <devrel@zscaler.com>
 
-# Copyright 2023, Zscaler, Inc
-
+#                             MIT License
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -13,11 +14,13 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from __future__ import absolute_import, division, print_function
 
@@ -35,10 +38,17 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+
 extends_documentation_fragment:
-    - zscaler.zpacloud.fragments.provider
-    - zscaler.zpacloud.fragments.state
+  - zscaler.zpacloud.fragments.provider
+  - zscaler.zpacloud.fragments.documentation
+  - zscaler.zpacloud.fragments.state
+
 options:
+    id:
+        description: The unique identifier of the custom control.
+        required: false
+        type: str
     name:
         description: The name of the custom control.
         required: true
@@ -83,7 +93,14 @@ options:
         description: The protocol type of the custom control.
         required: false
         type: str
-        choices: [ HTTP, HTTPS, FTP, FTP, RDP, SSH, WEBSOCKET, VNC]
+        choices:
+            - HTTP
+            - HTTPS
+            - FTP
+            - RDP
+            - SSH
+            - WEBSOCKET
+            - VNC
     severity:
         description: The severity of the AppProtection control number.
         required: false
@@ -228,7 +245,8 @@ def deep_equal(a, b):
     """
     Deep comparison of two structures (dicts, lists, or simple values).
     """
-    if not isinstance(a, type(b)):
+    # Check if both are of the same type using isinstance to comply with linter
+    if not isinstance(a, b.__class__) or not isinstance(b, a.__class__):
         return False
     if isinstance(a, dict):
         if len(a) != len(b):
@@ -416,7 +434,7 @@ def core(module):
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
-        id=dict(type="str"),
+        id=dict(type="str", required=False),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
         action=dict(type="str", required=False, choices=["PASS", "BLOCK", "REDIRECT"]),
@@ -441,7 +459,7 @@ def main():
         protocol_type=dict(
             type="str",
             required=False,
-            choices=["HTTP", "HTTPS", "FTP", "RDP", "SSH", "WEBSOCKET", "VNC", "NONE"],
+            choices=["HTTP", "HTTPS", "FTP", "RDP", "SSH", "WEBSOCKET", "VNC"],
         ),
         type=dict(type="str", required=False, choices=["REQUEST", "RESPONSE"]),
         severity=dict(
@@ -472,7 +490,7 @@ def main():
                         rhs=dict(type="str", required=False),
                     ),
                 ),
-                names=dict(type="list", elements="str", required=False),
+                names=dict(type="list", elements="str", required=True),
                 type=dict(
                     type="str",
                     required=False,

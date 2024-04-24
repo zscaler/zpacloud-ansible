@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2023 Zscaler Inc, <devrel@zscaler.com>
 
-# Copyright 2023, Zscaler, Inc
-
+#                             MIT License
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -13,17 +14,19 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-DOCUMENTATION = """
+DOCUMENTATION = r"""
 ---
 module: zpa_policy_access_timeout_rule
 short_description: Create a Policy Timeout Rule
@@ -34,11 +37,26 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
-
+  - zscaler.zpacloud.fragments.documentation
   - zscaler.zpacloud.fragments.state
+
 options:
+  id:
+    description: "The unique identifier of the policy set"
+    type: str
+  name:
+    type: str
+    required: True
+    description:
+      - This is the name of the timeout policy.
+  description:
+    description:
+      - This is the description of the access policy.
+    type: str
+    required: false
   action:
     description:
       - This is for providing the rule action.
@@ -46,112 +64,80 @@ options:
     required: false
     choices:
       - RE_AUTH
-  reauth_default_rule:
-    type: bool
-    required: false
-    description: ""
-  id:
-    description: ""
-    type: str
-    required: false
   policy_type:
-    description: ""
+    description: "Indicates the policy type. The following value is supported: client_forwarding"
     type: str
     required: false
   rule_order:
-    description: ""
+    description: "The policy evaluation order number of the rule."
     type: str
-    required: false
-  default_rule:
-    description:
-      - This is for providing a customer message for the user.
-    type: bool
     required: false
   operator:
     description:
       - This denotes the operation type.
     type: str
     required: false
-    choices:
-      - AND
-      - OR
-  description:
-    description:
-      - This is the description of the access policy.
-    type: str
-    required: false
+    choices: ["AND", "OR"]
   custom_msg:
     description:
       - This is for providing a customer message for the user.
     type: str
     required: false
-  name:
-    type: str
-    required: True
-    description:
-      - This is the name of the timeout policy.
-  default_rule_name:
-    type: str
-    required: false
-    description: ""
   reauth_idle_timeout:
     type: str
-    required: false
-    description: ""
+    required: true
+    description: "The reauthentication idle timeout"
   reauth_timeout:
     type: str
-    required: false
-    description: ""
+    required: true
+    description: "The reauthentication timeout."
   conditions:
     type: list
     elements: dict
     required: False
-    description: ""
+    description: "Specifies the set of conditions for the policy rule"
     suboptions:
-      id:
-        description: ""
-        type: str
-      negated:
-        description: ""
-        type: bool
-        required: False
       operator:
-        description: ""
+        description: "The operator of the condition set"
         type: str
         required: True
+        choices: ["AND", "OR"]
       operands:
-        description: ""
+        description: "The operands of the condition set"
         type: list
         elements: dict
-        required: False
+        required: false
         suboptions:
-          id:
-            description: ""
-            type: str
           idp_id:
-            description: ""
+            description: "The unique identifier of the IdP"
             type: str
-            required: False
-          name:
-            description: ""
-            type: str
-            required: False
+            required: false
           lhs:
-            description: ""
+            description: "The key for the object type"
             type: str
-            required: True
+            required: false
           rhs:
-            description: ""
+            description: "The value for the given object type. Its value depends upon the key"
             type: str
-            required: False
+            required: false
           object_type:
-            description: ""
+            description: "The object type of the operand"
             type: str
-            required: True
+            required: false
+            choices:
+              - APP
+              - APP_GROUP
+              - CLIENT_TYPE
+              - SAML
+              - IDP
+              - SCIM
+              - SCIM_GROUP
+              - POSTURE
+              - PLATFORM
 
 """
 
-EXAMPLES = """
+EXAMPLES = r"""
 - name: "Policy Timeout Rule - Example"
   zscaler.zpacloud.zpa_policy_access_timeout_rule:
     provider: "{{ zpa_cloud }}"
@@ -159,49 +145,39 @@ EXAMPLES = """
     description: "Policy Timeout Rule - Example"
     action: "RE_AUTH"
     rule_order: 1
-    reauth_idle_timeout: '600'
-    reauth_timeout: '172800'
+    reauth_idle_timeout: '1 day'
+    reauth_timeout: '10 days'
     operator: "AND"
     conditions:
-      - negated: false
-        operator: "OR"
+      - operator: "OR"
         operands:
-          - name: "app_segment"
-            object_type: "APP"
+          - object_type: "APP"
             lhs: "id"
             rhs: "216196257331292105"
-      - negated: false
-        operator: "OR"
+      - operator: "OR"
         operands:
-          - name: "segment_group"
-            object_type: "APP_GROUP"
+          - object_type: "APP_GROUP"
             lhs: "id"
             rhs: "216196257331292103"
-      - negated: false
-        operator: "OR"
+      - operator: "OR"
         operands:
-          - name: "zpn_client_type_exporter"
-            object_type: "CLIENT_TYPE"
+          - object_type: "CLIENT_TYPE"
             lhs: "id"
             rhs: "zpn_client_type_exporter"
-          - name: "zpn_client_type_browser_isolation"
-            object_type: "CLIENT_TYPE"
+          - object_type: "CLIENT_TYPE"
             lhs: "id"
             rhs: "zpn_client_type_browser_isolation"
-          - name: "zpn_client_type_zapp"
-            object_type: "CLIENT_TYPE"
+          - object_type: "CLIENT_TYPE"
             lhs: "id"
             rhs: "zpn_client_type_zapp"
-      - negated: false
-        operator: "OR"
+      - operator: "OR"
         operands:
-          - name: "CrowdStrike_ZPA_ZTA_40"
-            object_type: "POSTURE"
+          - object_type: "POSTURE"
             lhs: "13ba3d97-aefb-4acc-9e54-6cc230dee4a5"
             rhs: "true"
 """
 
-RETURN = """
+RETURN = r"""
 # The newly created policy access timeout rule resource record.
 """
 
@@ -214,6 +190,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     validate_operand,
     normalize_policy,
     deleteNone,
+    validate_timeout_intervals
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
@@ -221,8 +198,23 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 
 
 def core(module):
-    state = module.params.get("state", "present")
+    state = module.params.get("state", None)
     client = ZPAClientHelper(module)
+    reauth_idle_timeout = module.params.get("reauth_idle_timeout")
+    reauth_timeout = module.params.get("reauth_timeout")
+
+    # Validate and convert timeout intervals
+    reauth_idle_timeout_seconds, error = validate_timeout_intervals(reauth_idle_timeout)
+    if error:
+        module.fail_json(msg=error)
+    reauth_timeout_seconds, error = validate_timeout_intervals(reauth_timeout)
+    if error:
+        module.fail_json(msg=error)
+
+    # Assign converted values back to params to be used in API calls or other logic
+    module.params["reauth_idle_timeout"] = reauth_idle_timeout_seconds
+    module.params["reauth_timeout"] = reauth_timeout_seconds
+
     policy_rule_id = module.params.get("id", None)
     policy_rule_name = module.params.get("name", None)
     policy = dict()
@@ -236,6 +228,8 @@ def core(module):
         "operator",
         "rule_order",
         "conditions",
+        "reauth_idle_timeout",
+        "reauth_timeout",
     ]
 
     for param_name in params:
@@ -297,9 +291,13 @@ def core(module):
                 "rule_id": existing_policy.get("id", None),
                 "name": existing_policy.get("name", None),
                 "description": existing_policy.get("description", None),
-                "action": existing_policy.get("action", "").upper()
-                if existing_policy.get("action")
-                else None,
+                "action": (
+                    existing_policy.get("action", "").upper()
+                    if existing_policy.get("action")
+                    else None
+                ),
+                "reauth_idle_timeout": existing_policy.get("reauth_idle_timeout", None),
+                "reauth_timeout": existing_policy.get("reauth_timeout", None),
                 "custom_msg": existing_policy.get("custom_msg", None),
                 "conditions": map_conditions(existing_policy.get("conditions", [])),
                 "rule_order": existing_policy.get("rule_order", None),
@@ -307,14 +305,17 @@ def core(module):
             cleaned_policy = deleteNone(updated_policy)
             updated_policy = client.policies.update_rule(**cleaned_policy)
             module.exit_json(changed=True, data=updated_policy)
+
         elif existing_policy is None:
             """Create"""
             new_policy = {
                 "name": policy.get("name", None),
                 "description": policy.get("description", None),
-                "action": policy.get("action", "").upper()
-                if policy.get("action")
-                else None,
+                "action": (
+                    policy.get("action", "").upper() if policy.get("action") else None
+                ),
+                "reauth_idle_timeout": policy.get("reauth_idle_timeout", None),
+                "reauth_timeout": policy.get("reauth_timeout", None),
                 "custom_msg": policy.get("custom_msg", None),
                 "rule_order": policy.get("rule_order", None),
                 "conditions": map_conditions(policy.get("conditions", [])),
@@ -343,29 +344,36 @@ def main():
         custom_msg=dict(type="str", required=False),
         policy_type=dict(type="str", required=False),
         action=dict(type="str", required=False, choices=["RE_AUTH"]),
-        reauth_idle_timeout=dict(type="str", required=False),
-        reauth_timeout=dict(type="str", required=False),
+        reauth_idle_timeout=dict(type="str", required=True),
+        reauth_timeout=dict(type="str", required=True),
         operator=dict(type="str", required=False, choices=["AND", "OR"]),
         rule_order=dict(type="str", required=False),
         conditions=dict(
             type="list",
             elements="dict",
             options=dict(
-                id=dict(type="str"),
-                negated=dict(type="bool", required=False),
                 operator=dict(type="str", required=True, choices=["AND", "OR"]),
                 operands=dict(
                     type="list",
                     elements="dict",
                     options=dict(
-                        id=dict(type="str"),
                         idp_id=dict(type="str", required=False),
-                        name=dict(type="str", required=False),
-                        lhs=dict(type="str", required=True),
+                        lhs=dict(type="str", required=False),
                         rhs=dict(type="str", required=False),
                         object_type=dict(
                             type="str",
                             required=False,
+                            choices=[
+                                "APP",
+                                "APP_GROUP",
+                                "CLIENT_TYPE",
+                                "POSTURE",
+                                "PLATFORM",
+                                "IDP",
+                                "SAML",
+                                "SCIM",
+                                "SCIM_GROUP",
+                            ],
                         ),
                     ),
                     required=False,

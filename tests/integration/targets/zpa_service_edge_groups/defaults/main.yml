@@ -1,4 +1,4 @@
-name: test_zpa_service_edge_group
+group_name: test_zpa_service_edge_group
 description: test_zpa_service_edge_group
 enabled: true
 city_country: San Jose, US
@@ -7,7 +7,7 @@ latitude: "37.3382082"
 longitude: "-121.8863286"
 location: San Jose, CA, USA
 upgrade_day: SUNDAY
-is_public: "TRUE"
+is_public: true
 upgrade_time_in_secs: "66600"
 override_version_profile: true
 version_profile_id: "2"

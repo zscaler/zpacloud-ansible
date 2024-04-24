@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2023 Zscaler Inc, <devrel@zscaler.com>
 
-# Copyright 2023, Zscaler, Inc
-
+#                             MIT License
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -13,20 +14,22 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-DOCUMENTATION = """
+DOCUMENTATION = r"""
 ---
 module: zpa_server_group
-short_description: Create a Server Group .
+short_description: Create a Server Group
 description:
   - This module create/update/delete a Server Group resource in the ZPA Cloud.
 author:
@@ -34,10 +37,12 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
-
+  - zscaler.zpacloud.fragments.documentation
   - zscaler.zpacloud.fragments.state
+
 options:
   id:
     type: str
@@ -78,13 +83,23 @@ options:
       - List of server_group-connector ID objects.
 """
 
-EXAMPLES = """
+EXAMPLES = r"""
+- name: Create/Update/Delete a Server Group - Dynamic Discovery On
+  zscaler.zpacloud.zpa_server_group:
+    provider: "{{ zpa_cloud }}"
+    name: "Example"
+    description: "Example"
+    enabled: true
+    dynamic_discovery: true
+    app_connector_group_ids:
+      - id: "216196257331291921"
+
 - name: Create/Update/Delete a Server Group - Dynamic Discovery Off
   zscaler.zpacloud.zpa_server_group:
     provider: "{{ zpa_cloud }}"
     name: "Example"
     description: "Example"
-    enabled: false
+    enabled: true
     dynamic_discovery: false
     app_connector_group_ids:
       - id: "216196257331291921"
@@ -92,7 +107,7 @@ EXAMPLES = """
       - id: "216196257331291921"
 """
 
-RETURN = """
+RETURN = r"""
 # The newly created server group resource record.
 """
 
@@ -211,7 +226,7 @@ def main():
     argument_spec.update(
         id=dict(type="str"),
         name=dict(type="str", required=True),
-        enabled=dict(type="bool", required=False, default=True),
+        enabled=dict(type="bool", required=False),
         description=dict(type="str", required=False),
         dynamic_discovery=dict(type="bool", required=False),
         server_ids=dict(type="list", elements="str", required=False),

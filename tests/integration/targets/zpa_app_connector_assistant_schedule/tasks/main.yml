@@ -4,7 +4,7 @@
     file: "../defaults/main.yml"
 
 - name: Ensure required environment variables are set
-  fail:
+  ansible.builtin.fail:
     msg: "{{ env_var }} is not defined as environment variable"
   when: lookup('env', env_var) is none
   loop:
@@ -14,17 +14,19 @@
   loop_control:
     loop_var: env_var
 
-- ansible.builtin.set_fact:
+- name: Ensure ZPA Credential environment variables are set
+  ansible.builtin.set_fact:
     zpa_cloud:
       client_id: "{{ lookup('env', 'ZPA_CLIENT_ID') }}"
       client_secret: "{{ lookup('env', 'ZPA_CLIENT_SECRET') }}"
       customer_id: "{{ lookup('env', 'ZPA_CUSTOMER_ID') }}"
       cloud: "{{ lookup('env', 'ZPA_CLOUD') | default(omit) }}"
-  no_log: True
+  no_log: true
 
-- block:
+- name: Main block to Test Schedule Assistant
+  block:
     - name: Ensure Schedule Assistant is Disabled
-      zscaler.zpacloud.zpa_app_connector_assistant_schedule:
+      zscaler.zpacloud.zpa_connector_assistant_schedule:
         provider: "{{ zpa_cloud }}"
         enabled: "{{ enabled_false }}"
         delete_disabled: "{{ delete_disabled_false }}"
@@ -33,7 +35,7 @@
       register: result
 
     - name: Ensure Schedule Assistant is Disabled
-      zscaler.zpacloud.zpa_app_connector_assistant_schedule:
+      zscaler.zpacloud.zpa_connector_assistant_schedule:
         provider: "{{ zpa_cloud }}"
         enabled: "{{ enabled_false }}"
         delete_disabled: "{{ delete_disabled_false }}"
@@ -47,7 +49,7 @@
           - not result.changed
 
     - name: Ensure Schedule is Enabled (Present)
-      zscaler.zpacloud.zpa_app_connector_assistant_schedule:
+      zscaler.zpacloud.zpa_connector_assistant_schedule:
         state: present
         provider: "{{ zpa_cloud }}"
         enabled: "{{ enabled_true }}"
@@ -63,7 +65,7 @@
     #       - result.delete_disabled is true
 
     - name: Create the Schedule Assistant(again; idempotency check)
-      zscaler.zpacloud.zpa_app_connector_assistant_schedule:
+      zscaler.zpacloud.zpa_connector_assistant_schedule:
         state: present
         provider: "{{ zpa_cloud }}"
         enabled: "{{ enabled_true }}"
@@ -78,7 +80,7 @@
           - not result.changed
 
     - name: Fetch all Schedule Assistant
-      zscaler.zpacloud.zpa_app_connector_assistant_schedule_facts:
+      zscaler.zpacloud.zpa_connector_assistant_schedule_facts:
         provider: "{{ zpa_cloud }}"
       register: result
 
@@ -89,7 +91,7 @@
           - result.schedule is defined
 
     - name: Update Assistant Schedule (Present)
-      zscaler.zpacloud.zpa_app_connector_assistant_schedule:
+      zscaler.zpacloud.zpa_connector_assistant_schedule:
         state: present
         provider: "{{ zpa_cloud }}"
         enabled: "{{ enabled_true }}"
@@ -105,7 +107,7 @@
     #       - result.delete_disabled is true
 
     - name: Create the Schedule Assistant(again; idempotency check)
-      zscaler.zpacloud.zpa_app_connector_assistant_schedule:
+      zscaler.zpacloud.zpa_connector_assistant_schedule:
         state: present
         provider: "{{ zpa_cloud }}"
         enabled: "{{ enabled_true }}"
@@ -120,7 +122,7 @@
           - not result.changed
 
     - name: Ensure Schedule Assistant is Disabled
-      zscaler.zpacloud.zpa_app_connector_assistant_schedule:
+      zscaler.zpacloud.zpa_connector_assistant_schedule:
         provider: "{{ zpa_cloud }}"
         enabled: "{{ enabled_false }}"
         delete_disabled: "{{ delete_disabled_false }}"
@@ -129,7 +131,7 @@
       register: result
 
     - name: Ensure Schedule Assistant is Disabled
-      zscaler.zpacloud.zpa_app_connector_assistant_schedule:
+      zscaler.zpacloud.zpa_connector_assistant_schedule:
         provider: "{{ zpa_cloud }}"
         enabled: "{{ enabled_false }}"
         delete_disabled: "{{ delete_disabled_false }}"

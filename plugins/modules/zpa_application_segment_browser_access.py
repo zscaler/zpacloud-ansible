@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2023 Zscaler Inc, <devrel@zscaler.com>
 
-# Copyright 2023, Zscaler, Inc
-
+#                             MIT License
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -13,11 +14,13 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from __future__ import absolute_import, division, print_function
 
@@ -36,8 +39,9 @@ requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
-
+  - zscaler.zpacloud.fragments.documentation
   - zscaler.zpacloud.fragments.state
+
 options:
   id:
     type: str
@@ -67,19 +71,16 @@ options:
       - Indicates the ICMP access type.
     type: bool
     required: false
-    default: false
   tcp_keep_alive:
     description:
       - Indicates whether TCP communication sockets are enabled or disabled.
     type: bool
     required: false
-    default: false
   select_connector_close_to_app:
     description:
       - Whether the App Connector is closest to the application (True) or closest to the user (False).
     type: bool
     required: false
-    default: false
   passive_health_enabled:
     description:
       - passive health enabled.
@@ -125,11 +126,11 @@ options:
   server_group_ids:
     type: list
     elements: str
-    required: True
+    required: true
     description: "List of the server group IDs."
   segment_group_id:
     type: str
-    required: True
+    required: true
     description: "segment group id."
   health_check_type:
     type: str
@@ -137,7 +138,7 @@ options:
   tcp_port_range:
     type: list
     elements: dict
-    required: False
+    required: false
     description: "The TCP port ranges used to access the application"
     suboptions:
       from:
@@ -165,76 +166,59 @@ options:
   domain_names:
     type: list
     elements: str
-    required: True
+    required: true
     description: "List of domains and IPs."
   clientless_app_ids:
     description: ""
     type: list
     elements: dict
+    required: true
     suboptions:
-      path:
-        type: str
-        required: False
-        description: ""
-      trust_untrusted_cert:
-        type: bool
-        required: False
-        description: ""
-      allow_options:
-        type: bool
-        required: False
-        description: ""
-      description:
-        type: str
-        required: False
-        description: ""
       id:
         type: str
-        description: ""
-      cname:
-        type: str
-        required: False
-        description: ""
-      hidden:
-        type: bool
-        required: False
-        description: ""
-      app_id:
-        type: str
-        description: ""
-      application_port:
-        type: str
-        required: False
-        description: ""
-      application_protocol:
-        type: str
-        required: True
-        description: ""
+        description: "The unique identifier of the Browser Access application."
+        required: false
       name:
         type: str
-        required: True
-        description: ""
+        required: true
+        description: "The name of the Browser Access application"
+      description:
+        type: str
+        required: false
+        description: "The description of the Browser Access application"
+      trust_untrusted_cert:
+        type: bool
+        required: false
+        description: "Whether the use of untrusted certificates is enabled or disabled for the Browser Access application"
+      allow_options:
+        type: bool
+        required: false
+        description: "Whether the options are enabled for the Browser Access application or not"
+      cname:
+        type: str
+        required: false
+        description: "The canonical name (CNAME DNS records) of the Browser Access application."
+      application_port:
+        type: str
+        required: true
+        description: "The port for the Browser Access application."
+      application_protocol:
+        type: str
+        required: true
+        description: "The protocol for the Browser Access application."
+        choices: ["HTTP", "HTTPS"]
       certificate_id:
         type: str
-        required: True
-        description: ""
-      certificate_name:
-        type: str
-        required: False
-        description: ""
+        required: true
+        description: "The unique identifier of the Browser Access certificate."
       domain:
         type: str
-        required: False
-        description: ""
+        required: false
+        description: "The domain of the Browser Access application."
       enabled:
         type: bool
-        required: False
-        description: ""
-      local_domain:
-        type: str
-        required: False
-        description: ""
-    required: False
+        required: false
+        description: "Whether the Browser Access application is enabled or not."
 """
 
 EXAMPLES = """
@@ -541,7 +525,7 @@ def main():
     id_name_spec = dict(
         type="list",
         elements="str",
-        required=False,
+        required=True,
     )
     argument_spec.update(
         id=dict(type="str"),
@@ -553,8 +537,8 @@ def main():
         is_incomplete_dr_config=dict(type="bool", required=False),
         inspect_traffic_with_zia=dict(type="bool", required=False),
         adp_enabled=dict(type="bool", required=False),
-        tcp_keep_alive=dict(type="bool", required=False, default=False),
-        icmp_access_type=dict(type="bool", required=False, default=False),
+        tcp_keep_alive=dict(type="bool", required=False),
+        icmp_access_type=dict(type="bool", required=False),
         bypass_type=dict(
             type="str", required=False, choices=["ALWAYS", "NEVER", "ON_NET"]
         ),
@@ -564,15 +548,14 @@ def main():
             default="NONE",
             choices=["NONE", "ON_ACCESS", "CONTINUOUS"],
         ),
-        segment_group_id=dict(type="str", required=False),
+        segment_group_id=dict(type="str", required=True),
         double_encrypt=dict(type="bool", required=False),
         health_check_type=dict(type="str"),
         is_cname_enabled=dict(type="bool", required=False),
         passive_health_enabled=dict(type="bool", required=False),
         ip_anchored=dict(type="bool", required=False),
         server_group_ids=id_name_spec,
-        # server_group_ids=dict(type="list", elements="str", required=False),
-        domain_names=dict(type="list", elements="str", required=False),
+        domain_names=dict(type="list", elements="str", required=True),
         tcp_port_range=dict(
             type="list", elements="dict", options=port_spec, required=False
         ),
@@ -583,24 +566,23 @@ def main():
             type="list",
             elements="dict",
             options=dict(
-                path=dict(type="str", required=False),
+                id=dict(type="str"),
+                name=dict(type="str", required=True),
+                description=dict(type="str", required=False),
                 trust_untrusted_cert=dict(type="bool", required=False),
                 allow_options=dict(type="bool", required=False),
-                description=dict(type="str", required=False),
-                id=dict(type="str"),
                 cname=dict(type="str", required=False),
-                hidden=dict(type="bool", required=False),
-                app_id=dict(type="str"),
-                application_port=dict(type="str", required=False),
-                application_protocol=dict(type="str", required=True),
-                name=dict(type="str", required=True),
+                application_port=dict(type="str", required=True),
+                application_protocol=dict(
+                    type="str",
+                    required=True,
+                    choices=["HTTP", "HTTPS"],
+                ),
                 certificate_id=dict(type="str", required=True),
-                certificate_name=dict(type="str", required=False),
                 domain=dict(type="str", required=False),
                 enabled=dict(type="bool", required=False),
-                local_domain=dict(type="str", required=False),
             ),
-            required=False,
+            required=True,
         ),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )

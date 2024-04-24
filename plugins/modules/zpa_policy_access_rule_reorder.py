@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2023 Zscaler Inc, <devrel@zscaler.com>
 
-# Copyright 2023, Zscaler, Inc
-
+#                             MIT License
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -13,11 +14,13 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from __future__ import absolute_import, division, print_function
 
@@ -34,10 +37,12 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
-
+  - zscaler.zpacloud.fragments.documentation
   - zscaler.zpacloud.fragments.state
+
 options:
   policy_type:
     description:
@@ -59,23 +64,31 @@ options:
       id:
         description: "ID of the rule to be reordered."
         type: str
+        required: true
       order:
         description: "The order number of a new or existing rule to be reorder."
         type: str
+        required: true
+  state:
+      description:
+          - The state of the module, which determines if the settings are to be applied.
+      type: str
+      choices: ['present']
+      default: 'present'
 """
 
 EXAMPLES = """
-    - name: Reorder Rules
-      zscaler.zpacloud.zpa_policy_access_rule_reorder:
-        provider: "{{ zpa_cloud }}"
-        policy_type: "access"
-        rules:
-          - id: "216196257331369420"
-            order: 1
-          - id: "216196257331369421"
-            order: 2
-          - id: "216196257331369422"
-            order: 3
+- name: Reorder Rules
+  zscaler.zpacloud.zpa_policy_access_rule_reorder:
+    provider: "{{ zpa_cloud }}"
+    policy_type: "access"
+    rules:
+      - id: "216196257331369420"
+        order: 1
+      - id: "216196257331369421"
+        order: 2
+      - id: "216196257331369422"
+        order: 3
 """
 
 RETURN = """
@@ -94,20 +107,30 @@ def core(module):
     client = ZPAClientHelper(module)
     policy_type = module.params["policy_type"]
     desired_rules = module.params["rules"]
+    state = module.params["state"]  # Capturing the state parameter
+
+    # Currently, state can only be 'present', which is for checking/reordering rules
+    if state != "present":
+        module.fail_json(msg="Invalid state. Only 'present' is supported for this module.")
 
     try:
         # Fetch the current rules and their order
         current_rules = client.policies.list_rules(policy_type)
-        current_rules_order = {rule["id"]: idx + 1 for idx, rule in enumerate(current_rules)}
+        current_rules_order = {
+            rule["id"]: idx + 1 for idx, rule in enumerate(current_rules)
+        }
 
         # Check if the current order matches the desired order
         is_order_correct = all(
-            current_rules_order.get(rule["id"]) == rule["order"] for rule in desired_rules
+            current_rules_order.get(rule["id"]) == rule["order"]
+            for rule in desired_rules
         )
 
         # If the current order is already as desired, exit without changes
         if is_order_correct:
-            module.exit_json(changed=False, msg="Rules are already in the desired order")
+            module.exit_json(
+                changed=False, msg="Rules are already in the desired order"
+            )
 
         # Sort rules by order
         desired_rules.sort(key=lambda x: x["order"])
@@ -123,7 +146,9 @@ def core(module):
         duplicate_orders = [order for order, count in order_count.items() if count > 1]
         if duplicate_orders:
             duplicate_rules = [
-                str(rule["id"]) for rule in desired_rules if rule["order"] in duplicate_orders
+                str(rule["id"])
+                for rule in desired_rules
+                if rule["order"] in duplicate_orders
             ]
             module.fail_json(
                 msg=f"Duplicate order '{duplicate_orders[0]}' used by rules with IDs: {', '.join(duplicate_rules)}"
@@ -149,6 +174,7 @@ def core(module):
     except Exception as e:
         module.fail_json(msg=str(e), exception=traceback.format_exc())
 
+
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
@@ -169,15 +195,17 @@ def main():
             elements="dict",
             options=dict(
                 id=dict(type="str", required=True),
-                order=dict(type="int", required=True),
+                order=dict(type="str", required=True),
             ),
         ),
+        state=dict(type="str", choices=["present"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:
         core(module)
     except Exception as e:
         module.fail_json(msg=to_native(e), exception=traceback.format_exc())
+
 
 if __name__ == "__main__":
     main()

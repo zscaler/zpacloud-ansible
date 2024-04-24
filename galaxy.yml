@@ -17,7 +17,7 @@ readme: "README.md"
 # A list of the collection's content authors. Can be just the name or in the format 'Full Name <email> (url)
 # @nicks:irc/im.site#channel'
 authors:
-    - "William Guilherme"
+    - Zscaler Inc. <devrel@zscaler.com>
 
 ### OPTIONAL but strongly recommended
 
@@ -26,8 +26,8 @@ description: "Collection for Zscaler Private Access (ZPA)"
 
 # Either a single license or a list of licenses for content inside of a collection. Ansible Galaxy currently only
 # accepts L(SPDX,https://spdx.org/licenses/) licenses. This key is mutually exclusive with 'license_file'
-#license:
-#- MIT
+# license:
+# - MIT
 
 # The path to the license file for the collection. This path is relative to the root of the collection. This key is
 # mutually exclusive with 'license'
@@ -52,8 +52,7 @@ dependencies: {}
 repository: "https://github.com/zscaler/zpacloud-ansible"
 
 # The URL to any online docs
-documentation: "https://zscaler.github.io/zpacloud-ansible/"
-# documentation: https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/docs
+documentation: https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/docs/
 
 # The URL to the homepage of the collection/project
 homepage: "https://github.com/zscaler/zpacloud-ansible"

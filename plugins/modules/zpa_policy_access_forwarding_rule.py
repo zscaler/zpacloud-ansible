@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2023 Zscaler Inc, <devrel@zscaler.com>
 
-# Copyright 2023, Zscaler, Inc
-
+#                             MIT License
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -13,11 +14,13 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from __future__ import absolute_import, division, print_function
 
@@ -34,10 +37,12 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
-
+  - zscaler.zpacloud.fragments.documentation
   - zscaler.zpacloud.fragments.state
+
 options:
   id:
     description: "The unique identifier of the policy set"
@@ -54,30 +59,32 @@ options:
     description: "The action of the forwarding rule"
     type: str
     required: False
-    choices: ["INTERCEPT", "INTERCEPT_ACCESSIBLE", "BYPASS"]
-    default: INTERCEPT
+    choices:
+      - INTERCEPT
+      - INTERCEPT_ACCESSIBLE
+      - BYPASS
+      - bypass
+      - intercept
+      - intercept_accessible
+  rule_order:
+    description: "The policy evaluation order number of the rule."
+    type: str
+    required: false
   operator:
     description: "Denotes the operation type. These are operands used between criteria"
     type: str
-    required: False
+    required: false
     choices: ["AND", "OR"]
   policy_type:
     description: "Indicates the policy type. The following value is supported: client_forwarding"
     type: str
-    required: False
+    required: false
   conditions:
     description: "Specifies the set of conditions for the policy rule"
     type: list
     elements: dict
-    required: False
+    required: false
     suboptions:
-      id:
-        description: "The unique identifier of the condition set"
-        type: str
-      negated:
-        description: ""
-        type: bool
-        required: False
       operator:
         description: "The operator of the condition set"
         type: str
@@ -87,36 +94,24 @@ options:
         description: "The operands of the condition set"
         type: list
         elements: dict
-        required: False
+        required: false
         suboptions:
-          id:
-            description: "The unique identifier of the operand"
-            type: str
           idp_id:
             description: "The unique identifier of the IdP"
             type: str
-            required: False
-          name:
-            description: "The name of the operand"
-            type: str
-            required: False
+            required: false
           lhs:
             description: "The key for the object type"
             type: str
-            required: True
+            required: false
           rhs:
             description: "The value for the given object type. Its value depends upon the key"
             type: str
-            required: False
-          rhs_list:
-            description: "The value for the given object type. Its value depends upon the key"
-            type: list
-            elements: str
-            required: False
+            required: false
           object_type:
             description: "The object type of the operand"
             type: str
-            required: True
+            required: false
             choices:
               [
                 "APP",
@@ -129,6 +124,8 @@ options:
                 "TRUSTED_NETWORK",
                 "MACHINE_GRP",
                 "POSTURE",
+                "PLATFORM",
+                "BRANCH_CONNECTOR_GROUP",
                 "EDGE_CONNECTOR_GROUP",
               ]
 """
@@ -143,22 +140,19 @@ EXAMPLES = r"""
     rule_order: 1
     operator: "AND"
     conditions:
-      - negated: false
-        operator: "OR"
+      - operator: "OR"
         operands:
           - name: "app_segment"
             object_type: "APP"
             lhs: "id"
             rhs: "216196257331292105"
-      - negated: false
-        operator: "OR"
+      - operator: "OR"
         operands:
           - name: "segment_group"
             object_type: "APP_GROUP"
             lhs: "id"
             rhs: "216196257331292103"
-      - negated: false
-        operator: "OR"
+      - operator: "OR"
         operands:
           - name: "zpn_client_type_exporter"
             object_type: "CLIENT_TYPE"
@@ -172,8 +166,7 @@ EXAMPLES = r"""
             object_type: "CLIENT_TYPE"
             lhs: "id"
             rhs: "zpn_client_type_zapp"
-      - negated: false
-        operator: "OR"
+      - operator: "OR"
         operands:
           - name: "CrowdStrike_ZPA_ZTA_80"
             object_type: "POSTURE"
@@ -275,9 +268,11 @@ def core(module):
                 "rule_id": existing_policy.get("id", None),
                 "name": existing_policy.get("name", None),
                 "description": existing_policy.get("description", None),
-                "action": existing_policy.get("action", "").upper()
-                if existing_policy.get("action")
-                else None,
+                "action": (
+                    existing_policy.get("action", "").upper()
+                    if existing_policy.get("action")
+                    else None
+                ),
                 "conditions": map_conditions(existing_policy.get("conditions", [])),
                 "rule_order": existing_policy.get("rule_order", None),
             }
@@ -289,9 +284,9 @@ def core(module):
             new_policy = {
                 "name": policy.get("name", None),
                 "description": policy.get("description", None),
-                "action": policy.get("action", "").upper()
-                if policy.get("action")
-                else None,
+                "action": (
+                    policy.get("action", "").upper() if policy.get("action") else None
+                ),
                 "rule_order": policy.get("rule_order", None),
                 "conditions": map_conditions(policy.get("conditions", [])),
             }
@@ -327,12 +322,12 @@ def main():
             type="str",
             required=False,
             choices=[
-                "bypass",
                 "BYPASS",
-                "intercept",
                 "INTERCEPT",
-                "intercept_accessible",
                 "INTERCEPT_ACCESSIBLE",
+                "bypass",
+                "intercept",
+                "intercept_accessible",
             ],
         ),
         operator=dict(type="str", required=False, choices=["AND", "OR"]),
@@ -341,22 +336,17 @@ def main():
             type="list",
             elements="dict",
             options=dict(
-                id=dict(type="str"),
-                negated=dict(type="bool", required=False),
                 operator=dict(type="str", required=True, choices=["AND", "OR"]),
                 operands=dict(
                     type="list",
                     elements="dict",
                     options=dict(
-                        id=dict(type="str"),
                         idp_id=dict(type="str", required=False),
-                        name=dict(type="str", required=False),
                         lhs=dict(type="str", required=False),
                         rhs=dict(type="str", required=False),
-                        rhs_list=dict(type="list", elements="str", required=False),
                         object_type=dict(
                             type="str",
-                            required=True,
+                            required=False,
                             choices=[
                                 "APP",
                                 "APP_GROUP",

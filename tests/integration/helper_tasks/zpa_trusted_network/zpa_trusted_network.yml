@@ -1,6 +1,6 @@
 ---
 - name: Ensure required environment variables are set
-  fail:
+  ansible.builtin.fail:
     msg: "{{ env_var }} is not defined as environment variable"
   when: lookup('env', env_var) is none
   loop:
@@ -10,15 +10,17 @@
   loop_control:
     loop_var: env_var
 
-- ansible.builtin.set_fact:
+- name: Ensure ZPA Credential environment variables are set
+  ansible.builtin.set_fact:
     zpa_cloud:
       client_id: "{{ lookup('env', 'ZPA_CLIENT_ID') }}"
       client_secret: "{{ lookup('env', 'ZPA_CLIENT_SECRET') }}"
       customer_id: "{{ lookup('env', 'ZPA_CUSTOMER_ID') }}"
       cloud: "{{ lookup('env', 'ZPA_CLOUD') | default(omit) }}"
-  no_log: True
+  no_log: true
 
-- block:
+- name: Main block to Test Fetch the Trusted Network ID
+  block:
     - name: Fetch the Trusted Network ID
       zscaler.zpacloud.zpa_trusted_networks_facts:
         provider: "{{ zpa_cloud }}"

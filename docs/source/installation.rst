@@ -26,6 +26,6 @@ Then in your playbooks you can specify that you want to use the
     collections:
         - zscaler.zpacloud
 
-* Ansible Galaxy: https://galaxy.ansible.com/zscaler/zpacloud
+* Ansible Galaxy: https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/
 * Red Hat Catalog: https://catalog.redhat.com/software/collection/zscaler/zpacloud
 * GitHub repo:  https://github.com/zscaler/zpacloud-ansible

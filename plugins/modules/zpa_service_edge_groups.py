@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2023 Zscaler Inc, <devrel@zscaler.com>
 
-# Copyright 2023, Zscaler, Inc
-
+#                             MIT License
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -13,11 +14,13 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from __future__ import absolute_import, division, print_function
 
@@ -34,36 +37,25 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
-
+  - zscaler.zpacloud.fragments.documentation
   - zscaler.zpacloud.fragments.state
+
 options:
+  id:
+    description:
+      - The unique identifier of the ZPA Private Service Edge Group.
+    required: false
+    type: str
   name:
     description:
       - Name of the Service Edge Group.
     required: true
     type: str
   description:
-    description: ""
-    required: false
-    type: str
-  connectors:
-    description: "Connectors"
-    required: false
-    type: list
-    elements: dict
-    suboptions:
-      name:
-        description: "Name of the Service Edge Group."
-        required: false
-        type: str
-      id:
-        description: "id of the Service Edge Group."
-        required: false
-        type: str
-  id:
-    description: "ID of the Service Edge Group."
+    description: Description of the Service Edge Group.
     required: false
     type: str
   city_country:
@@ -74,20 +66,10 @@ options:
     description:
       - Country code of the Service Edge Group.
     type: str
-  dns_query_type:
-    description:
-      - Whether to enable IPv4 or IPv6, or both, for DNS resolution of all applications in the Service Edge Group.
-    type: str
-    choices:
-        - IPV4_IPV6
-        - IPV4
-        - IPV6
-    default: IPV4_IPV6
   enabled:
     description:
       - Whether this Service Edge Group is enabled or not.
     type: bool
-    default: true
   latitude:
     description:
       - Latitude of the Service Edge Group. Integer or decimal. With values in the range of -90 to 90.
@@ -103,30 +85,25 @@ options:
       - Longitude of the Service Edge Group. Integer or decimal. With values in the range of -180 to 180.
     required: false
     type: str
-  lss_app_connector_group:
-    description:
-      - LSS Service Edge Group
-    required: false
-    type: str
   upgrade_day:
     description:
-      - App Connectors in this group will attempt to update to a newer version of the software during this specified day.
+      - Service Edge Group in this group will attempt to update to a newer version of the software during this specified day.
       - List of valid days (i.e., Sunday, Monday).
     default: SUNDAY
     type: str
+    choices: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
   upgrade_time_in_secs:
     description:
-      - App Connectors in this group will attempt to update to a newer version of the software during this specified time.
+      - Service Edge Group  in this group will attempt to update to a newer version of the software during this specified time.
       - Integer in seconds (i.e., -66600). The integer should be greater than or equal to 0 and less than 86400, in 15 minute intervals.
     default: '66600'
     type: str
   override_version_profile:
     description:
-      - App Connectors in this group will attempt to update to a newer version of the software during this specified time.
+      - Service Edge Group  in this group will attempt to update to a newer version of the software during this specified time.
       - Integer in seconds (i.e., -66600). The integer should be greater than or equal to 0 and less than 86400, in 15 minute intervals.
     required: false
     type: bool
-    default: false
   version_profile_id:
     description:
       - ID of the version profile. To learn more, see Version Profile Use Cases.
@@ -138,11 +115,22 @@ options:
       - '0'
       - '1'
       - '2'
-  version_profile_name:
+  use_in_dr_mode:
     description:
-      - Name of the version profile.
+      - Whether or not the Service Edge Group is designated for disaster recovery.
     required: false
-    type: str
+    type: bool
+  is_public:
+    description:
+      - Whether or not the ZPA Private Service Edge Group is public.
+    required: false
+    type: bool
+  trusted_networks_ids:
+    description:
+      - The list of trusted networks in the ZPA Private Service Edge Group.
+    type: list
+    elements: str
+    required: false
 """
 
 EXAMPLES = """
@@ -152,6 +140,7 @@ EXAMPLES = """
     name: "Example"
     description: "Example2"
     enabled: true
+    is_public: true
     city_country: "California, US"
     country_code: "US"
     latitude: "37.3382082"
@@ -161,7 +150,6 @@ EXAMPLES = """
     upgrade_time_in_secs: "66600"
     override_version_profile: true
     version_profile_id: "0"
-    dns_query_type: "IPV4"
 """
 
 RETURN = """
@@ -208,10 +196,14 @@ def core(module):
         "dns_query_type",
         "override_version_profile",
         "version_profile_id",
-        "version_profile_name",
         "use_in_dr_mode",
         "trusted_networks_ids",
     ]
+
+    # Convert boolean is_public to string 'TRUE' or 'FALSE'
+    if group["is_public"] is not None:
+        group["is_public"] = "TRUE" if group["is_public"] else "FALSE"
+
     for param_name in params:
         group[param_name] = module.params.get(param_name, None)
     group_id = group.get("id", None)
@@ -246,25 +238,25 @@ def core(module):
             new_lat = group.get("latitude")
             if new_lat is not None:  # Check if new_lat is not None before comparing
                 if diff_suppress_func_coordinate(existing_lat, new_lat):
-                    existing_group[
-                        "latitude"
-                    ] = existing_lat  # reset to original if they're deemed equal
+                    existing_group["latitude"] = (
+                        existing_lat  # reset to original if they're deemed equal
+                    )
             else:
-                existing_group[
-                    "latitude"
-                ] = existing_lat  # If new_lat is None, keep the existing value
+                existing_group["latitude"] = (
+                    existing_lat  # If new_lat is None, keep the existing value
+                )
 
             existing_long = existing_group.get("longitude")
             new_long = group.get("longitude")
             if new_long is not None:  # Check if new_long is not None before comparing
                 if diff_suppress_func_coordinate(existing_long, new_long):
-                    existing_group[
-                        "longitude"
-                    ] = existing_long  # reset to original if they're deemed equal
+                    existing_group["longitude"] = (
+                        existing_long  # reset to original if they're deemed equal
+                    )
             else:
-                existing_group[
-                    "longitude"
-                ] = existing_long  # If new_long is None, keep the existing value
+                existing_group["longitude"] = (
+                    existing_long  # If new_long is None, keep the existing value
+                )
 
             existing_group = deleteNone(
                 dict(
@@ -277,16 +269,13 @@ def core(module):
                     latitude=existing_group.get("latitude"),
                     longitude=existing_group.get("longitude"),
                     is_public=existing_group.get("is_public"),
-                    service_edge_ids=existing_group.get("service_edge_ids"),
                     location=existing_group.get("location"),
                     upgrade_day=existing_group.get("upgrade_day"),
                     upgrade_time_in_secs=existing_group.get("upgrade_time_in_secs"),
-                    dns_query_type=existing_group.get("dns_query_type"),
                     override_version_profile=existing_group.get(
                         "override_version_profile"
                     ),
                     version_profile_id=existing_group.get("version_profile_id"),
-                    version_profile_name=existing_group.get("version_profile_name"),
                     use_in_dr_mode=existing_group.get("use_in_dr_mode"),
                     trusted_networks_ids=existing_group.get("trusted_networks_ids"),
                 )
@@ -309,13 +298,10 @@ def core(module):
                     city_country=group.get("city_country"),
                     country_code=group.get("country_code"),
                     is_public=group.get("is_public"),
-                    service_edge_ids=group.get("service_edge_ids"),
                     upgrade_day=group.get("upgrade_day"),
                     upgrade_time_in_secs=group.get("upgrade_time_in_secs"),
-                    dns_query_type=group.get("dns_query_type"),
                     override_version_profile=group.get("override_version_profile"),
                     version_profile_id=group.get("version_profile_id"),
-                    version_profile_name=group.get("version_profile_name"),
                     use_in_dr_mode=group.get("use_in_dr_mode"),
                     trusted_networks_ids=group.get("trusted_networks_ids"),
                 )
@@ -335,29 +321,14 @@ def core(module):
 
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
-    id_name_spec = dict(
-        type="list",
-        elements="dict",
-        options=dict(
-            id=dict(type="str", required=False), name=dict(type="str", required=False)
-        ),
-        required=False,
-    )
     argument_spec.update(
-        service_edge_ids=id_name_spec,
         id=dict(type="str", required=False),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
-        enabled=dict(type="bool", default=True, required=False),
+        enabled=dict(type="bool", required=False),
         city_country=dict(type="str", required=False),
         country_code=dict(type="str", required=False),
-        is_public=dict(type="str", required=False),
-        dns_query_type=dict(
-            type="str",
-            choices=["IPV4_IPV6", "IPV4", "IPV6"],
-            required=False,
-            default="IPV4_IPV6",
-        ),
+        is_public=dict(type="bool", required=False),
         latitude=dict(type="str", required=False),
         location=dict(type="str", required=False),
         longitude=dict(type="str", required=False),
@@ -376,16 +347,12 @@ def main():
             required=False,
         ),
         upgrade_time_in_secs=dict(type="str", default="66600", required=False),
-        override_version_profile=dict(type="bool", default=False, required=False),
+        override_version_profile=dict(type="bool", required=False),
         version_profile_id=dict(
             type="str", choices=["0", "1", "2"], default="0", required=False
         ),
-        version_profile_name=dict(
-            type="str",
-            choices=["Default", "Previous Default", "New Release"],
-            required=False,
-        ),
-        use_in_dr_mode=dict(type="bool", default=False, required=False),
+        use_in_dr_mode=dict(type="bool", required=False),
+        trusted_networks_ids=dict(type="list", elements="str", required=False),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

@@ -1,5 +1,5 @@
 ---
-name: test_zpa_ba_application_segment
+seg_name: test_zpa_ba_application_segment
 description: test_zpa_ba_application_segment
 enabled: true
 double_encrypt: false

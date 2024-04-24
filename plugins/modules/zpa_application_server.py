@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2023 Zscaler Inc, <devrel@zscaler.com>
 
-# Copyright 2023, Zscaler, Inc
-
+#                             MIT License
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -13,11 +14,13 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from __future__ import absolute_import, division, print_function
 
@@ -34,38 +37,40 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
-
+  - zscaler.zpacloud.fragments.documentation
   - zscaler.zpacloud.fragments.state
+
 options:
     id:
-        description: ""
+        description: "The unique identifier of the server."
         required: false
         type: str
     name:
         description:
             - This field defines the name of the server.
-        required: True
+        required: true
         type: str
     description:
         description:
             - This field defines the description of the server.
-        required: False
+        required: false
         type: str
     enabled:
         description:
             - This field defines the status of the server, true or false.
-        required: False
+        required: false
         type: bool
     address:
         description: "This field defines the domain or IP address of the server"
-        required: True
+        required: true
         type: str
     app_server_group_ids:
         description:
             - This field defines the list of server groups IDs
-        required: False
+        required: false
         type: list
         elements: str
 """
@@ -97,6 +102,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
     ZPAClientHelper,
 )
 
+
 def core(module):
     state = module.params.get("state", None)
     client = ZPAClientHelper(module)
@@ -126,13 +132,6 @@ def core(module):
                 existing_server = server_
                 break
 
-    if state == "gathered":
-        # In gathered state, return the current state of the server without making changes
-        if existing_server is None:
-            module.exit_json(changed=False, msg="Server not found.")
-        else:
-            module.exit_json(changed=False, data=existing_server)
-
     # Normalize and compare existing and desired application data
     desired_app = normalize_app(server)
     current_app = normalize_app(existing_server) if existing_server else {}
@@ -155,16 +154,16 @@ def core(module):
             if differences_detected:
                 """Update"""
                 existing_server = deleteNone(
-                    dict(
-                        server_id=existing_server.get("id"),
-                        name=existing_server.get("name"),
-                        description=existing_server.get("description"),
-                        address=existing_server.get("address"),
-                        enabled=existing_server.get("enabled"),
-                        app_server_group_ids=existing_server.get(
+                    {
+                        "server_id": existing_server.get("id"),
+                        "name": existing_server.get("name"),
+                        "description": existing_server.get("description"),
+                        "address": existing_server.get("address"),
+                        "enabled": existing_server.get("enabled"),
+                        "app_server_group_ids": existing_server.get(
                             "app_server_group_ids"
                         ),
-                    )
+                    }
                 )
                 existing_server = client.servers.update_server(
                     **existing_server
@@ -173,26 +172,29 @@ def core(module):
             else:
                 """No Changes Needed"""
                 module.exit_json(changed=False, data=existing_server)
-        elif state == "absent":
-            code = client.servers.delete_server(server_id=existing_server.get("id"))
-            if code > 299:
-                module.exit_json(changed=False, data=None)
-            module.exit_json(changed=True, data=existing_server)
-    else:
-        if state == "present":
+        else:
             """Create"""
             server = deleteNone(
-                dict(
-                    name=server.get("name"),
-                    description=server.get("description"),
-                    address=server.get("address"),
-                    enabled=server.get("enabled"),
-                    app_server_group_ids=server.get("app_server_group_ids"),
-                )
+                {
+                    "name": server.get("name"),
+                    "description": server.get("description"),
+                    "address": server.get("address"),
+                    "enabled": server.get("enabled"),
+                    "app_server_group_ids": server.get("app_server_group_ids"),
+                }
             )
             server = client.servers.add_server(**server).to_dict()
             module.exit_json(changed=True, data=server)
 
+    elif (
+        state == "absent"
+        and existing_server is not None
+        and existing_server.get("id") is not None
+    ):
+        code = client.servers.delete_server(group_id=existing_server.get("id"))
+        if code > 299:
+            module.exit_json(changed=False, data=None)
+        module.exit_json(changed=True, data=existing_server)
     module.exit_json(changed=False, data={})
 
 
@@ -200,18 +202,19 @@ def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
         id=dict(type="str", required=False),
-        name=dict(type="str", required=False),
+        name=dict(type="str", required=True),
         description=dict(type="str", required=False),
-        address=dict(type="str", required=False),
-        enabled=dict(type="bool", default=True, required=False),
+        address=dict(type="str", required=True),
+        enabled=dict(type="bool", required=False),
         app_server_group_ids=dict(type="list", elements="str", required=False),
-        state=dict(type="str", choices=["present", "absent", "gathered"], default="present"),
+        state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:
         core(module)
     except Exception as e:
         module.fail_json(msg=to_native(e), exception=format_exc())
+
 
 if __name__ == "__main__":
     main()

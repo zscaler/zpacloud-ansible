@@ -1,5 +1,5 @@
 ---
-name: test_zpa_application_segment
+seg_name: test_zpa_application_segment
 description: test_zpa_application_segment
 enabled: true
 double_encrypt: false
@@ -11,7 +11,6 @@ ip_anchored: false
 use_in_dr_mode: false
 is_incomplete_dr_config: false
 inspect_traffic_with_zia: false
-adp_enabled: false
 health_check_type: "DEFAULT"
 health_reporting: ON_ACCESS
 bypass_type: NEVER

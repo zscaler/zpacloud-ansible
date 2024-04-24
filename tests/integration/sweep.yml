@@ -54,7 +54,7 @@
   when: all_server_groups.data is defined
 
 - name: List all App Connector Groups
-  zscaler.zpacloud.zpa_app_connector_groups_facts:
+  zscaler.zpacloud.zpa_app_connector_group_facts:
     provider: "{{ zpa_cloud }}"
   register: all_app_connector_groups
 
@@ -133,7 +133,21 @@
 
 - name: Set fact for overall status
   ansible.builtin.set_fact:
-    sweep_successful: "{{ not (application_segments_failed or server_groups_failed or app_connector_groups_failed or segment_groups_failed or application_servers_failed or application_segments_ba_failed or ac_provisioning_key_failed or service_edge_group_failed or app_protection_profiles_failed or app_protection_custom_controls_failed) }}"
+    sweep_successful: >-
+      {{
+        not (
+          application_segments_failed or
+          server_groups_failed or
+          app_connector_groups_failed or
+          segment_groups_failed or
+          application_servers_failed or
+          application_segments_ba_failed or
+          ac_provisioning_key_failed or
+          service_edge_group_failed or
+          app_protection_profiles_failed or
+          app_protection_custom_controls_failed
+        )
+      }}
 
 - name: Print success message ✅
   ansible.builtin.debug:

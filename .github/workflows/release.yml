@@ -35,7 +35,7 @@ jobs:
           path: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python_ver }}
 
@@ -53,7 +53,7 @@ jobs:
         run: poetry install
 
       - name: Run sanity tests
-        timeout-minutes: 8
+        timeout-minutes: 10
         run: poetry run make new-sanity
 
 
@@ -69,12 +69,12 @@ jobs:
           path: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install Poetry
-        uses: Gr1N/setup-poetry@v8
+        uses: Gr1N/setup-poetry@v9
 
       - name: Install dependencies
         run: poetry install
@@ -131,7 +131,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Store built collection
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: collection
           path: |
@@ -158,12 +158,12 @@ jobs:
           path: ./ansible_collections/zscaler/zpacloud
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: 3.9
 
       - name: Install Poetry
-        uses: Gr1N/setup-poetry@v8
+        uses: Gr1N/setup-poetry@v9
 
       - name: Add ansible-core
         run: poetry add ansible-core^2.14
@@ -194,7 +194,7 @@ jobs:
           mkdir -p zpacloud-ansible/ansible_collections/zscaler/zpacloud
 
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4.4.3
+        uses: JamesIves/github-pages-deploy-action@v4.6.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages

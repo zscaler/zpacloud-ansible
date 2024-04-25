@@ -148,7 +148,7 @@ options:
                 description: "The names of the AppProtection rule"
                 type: list
                 elements: str
-                required: true
+                required: false
             type:
                 description: The type of the AppProtection rule.
                 required: false
@@ -490,7 +490,7 @@ def main():
                         rhs=dict(type="str", required=False),
                     ),
                 ),
-                names=dict(type="list", elements="str", required=True),
+                names=dict(type="list", elements="str", required=False),
                 type=dict(
                     type="str",
                     required=False,

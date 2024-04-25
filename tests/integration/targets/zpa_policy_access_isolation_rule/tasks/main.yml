@@ -78,13 +78,11 @@
         operator: "{{ operator }}"
         conditions:
           - operator: "OR"
-            negated: false
             operands:
               - object_type: "CLIENT_TYPE"
                 lhs: "id"
                 rhs: "zpn_client_type_exporter"
           - operator: "{{ operator }}"
-            negated: false
             operands:
               - object_type: "PLATFORM"
                 lhs: ios
@@ -111,13 +109,11 @@
         operator: "{{ operator }}"
         conditions:
           - operator: "OR"
-            negated: false
             operands:
               - object_type: "CLIENT_TYPE"
                 lhs: "id"
                 rhs: "zpn_client_type_exporter"
           - operator: "{{ operator }}"
-            negated: false
             operands:
               - object_type: "PLATFORM"
                 lhs: ios

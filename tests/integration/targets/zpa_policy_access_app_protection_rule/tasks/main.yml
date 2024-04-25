@@ -84,19 +84,16 @@
         operator: "{{ operator }}"
         conditions:
           - operator: "AND"
-            negated: false
             operands:
               - object_type: "PLATFORM"
                 lhs: ios
                 rhs: "true"
           - operator: "AND"
-            negated: false
             operands:
               - object_type: "POSTURE"
                 lhs: "{{ posture_udid }}"
                 rhs: "false"
           - operator: "AND"
-            negated: false
             operands:
               - object_type: "TRUSTED_NETWORK"
                 lhs: "{{ network_id }}"
@@ -123,19 +120,16 @@
         operator: "{{ operator }}"
         conditions:
           - operator: "AND"
-            negated: false
             operands:
               - object_type: "PLATFORM"
                 lhs: ios
                 rhs: "true"
           - operator: "AND"
-            negated: false
             operands:
               - object_type: "POSTURE"
                 lhs: "{{ posture_udid }}"
                 rhs: "false"
           - operator: "AND"
-            negated: false
             operands:
               - object_type: "TRUSTED_NETWORK"
                 lhs: "{{ network_id }}"

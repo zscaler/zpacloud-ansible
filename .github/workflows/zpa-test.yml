@@ -49,7 +49,7 @@ jobs:
         with:
           max_attempts: 3
           timeout_minutes: 30
-          command: poetry run make test:integration:zpa
+          command: poetry run ansible-playbook tests/integration/run_all_tests.yml
         env:
           ZPA_CLIENT_ID: ${{ secrets.ZPA_CLIENT_ID }}
           ZPA_CLIENT_SECRET: ${{ secrets.ZPA_CLIENT_SECRET }}
@@ -93,7 +93,7 @@ jobs:
         with:
           max_attempts: 3
           timeout_minutes: 30
-          command: poetry run make test:integration:zpa
+          command: poetry run ansible-playbook tests/integration/run_all_tests.yml
         env:
           ZPA_CLIENT_ID: ${{ secrets.ZPA_CLIENT_ID }}
           ZPA_CLIENT_SECRET: ${{ secrets.ZPA_CLIENT_SECRET }}
@@ -139,7 +139,7 @@ jobs:
           with:
             max_attempts: 3
             timeout_minutes: 30
-            command: poetry run make test:integration:zpa
+            command: poetry run ansible-playbook tests/integration/run_all_tests.yml
           env:
             ZPA_CLIENT_ID: ${{ secrets.ZPA_CLIENT_ID }}
             ZPA_CLIENT_SECRET: ${{ secrets.ZPA_CLIENT_SECRET }}

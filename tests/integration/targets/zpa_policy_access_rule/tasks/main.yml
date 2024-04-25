@@ -97,25 +97,21 @@
           - "{{ server_group_id }}"
         conditions:
           - operator: "AND"
-            negated: false
             operands:
               - object_type: "COUNTRY_CODE"
                 lhs: CA
                 rhs: "true"
           - operator: "AND"
-            negated: false
             operands:
               - object_type: "PLATFORM"
                 lhs: ios
                 rhs: "true"
           - operator: "AND"
-            negated: false
             operands:
               - object_type: "POSTURE"
                 lhs: "{{ posture_udid }}"
                 rhs: "false"
           - operator: "AND"
-            negated: false
             operands:
               - object_type: "TRUSTED_NETWORK"
                 lhs: "{{ network_id }}"
@@ -146,25 +142,21 @@
           - "{{ server_group_id }}"
         conditions:
           - operator: "{{ operator }}"
-            negated: false
             operands:
               - object_type: "COUNTRY_CODE"
                 lhs: CA
                 rhs: "true"
           - operator: "{{ operator }}"
-            negated: false
             operands:
               - object_type: "PLATFORM"
                 lhs: ios
                 rhs: "true"
           - operator: "{{ operator }}"
-            negated: false
             operands:
               - object_type: "POSTURE"
                 lhs: "{{ posture_udid }}"
                 rhs: "false"
           - operator: "{{ operator }}"
-            negated: false
             operands:
               - object_type: "TRUSTED_NETWORK"
                 lhs: "{{ network_id }}"

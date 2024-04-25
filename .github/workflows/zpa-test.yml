@@ -1,0 +1,140 @@
+name: ZPA Test
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  merge_group:
+    types: [checks_requested]
+  push:
+    branches:
+      - master
+  schedule:
+    - cron: '0 14 * * 1-5' # UTC
+  workflow_dispatch:
+
+jobs:
+  zpa-qa1-tenants:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10"]
+        environment:
+          - ZPA_QA_TENANT01
+          - ZPA_QA_TENANT02
+    environment: ${{ matrix.environment }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up Poetry
+        uses: Gr1N/setup-poetry@v9
+
+      - name: Install collection from Galaxy
+        run: ansible-galaxy collection install zscaler.zpacloud
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Run tests with retry
+        uses: nick-fields/retry@v3
+        with:
+          max_attempts: 3
+          timeout_minutes: 30
+          command: poetry run make test:integration:zpa
+        env:
+          ZPA_CLIENT_ID: ${{ secrets.ZPA_CLIENT_ID }}
+          ZPA_CLIENT_SECRET: ${{ secrets.ZPA_CLIENT_SECRET }}
+          ZPA_CUSTOMER_ID: ${{ secrets.ZPA_CUSTOMER_ID }}
+          ZPA_CLOUD: ${{ secrets.ZPA_CLOUD }}
+          OKTA_CLIENT_ORGURL: ${{ secrets.OKTA_CLIENT_ORGURL }}
+          OKTA_CLIENT_TOKEN: ${{ secrets.OKTA_CLIENT_TOKEN }}
+
+  zpa-beta-tenants:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10"]
+        environment:
+          - ZPA_BETA_TENANT01
+    environment: ${{ matrix.environment }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up Poetry
+        uses: Gr1N/setup-poetry@v9
+
+      - name: Install collection from Galaxy
+        run: ansible-galaxy collection install zscaler.zpacloud
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Run tests with retry
+        uses: nick-fields/retry@v3
+        with:
+          max_attempts: 3
+          timeout_minutes: 30
+          command: poetry run make test:integration:zpa
+        env:
+          ZPA_CLIENT_ID: ${{ secrets.ZPA_CLIENT_ID }}
+          ZPA_CLIENT_SECRET: ${{ secrets.ZPA_CLIENT_SECRET }}
+          ZPA_CUSTOMER_ID: ${{ secrets.ZPA_CUSTOMER_ID }}
+          ZPA_CLOUD: ${{ secrets.ZPA_CLOUD }}
+          OKTA_CLIENT_ORGURL: ${{ secrets.OKTA_CLIENT_ORGURL }}
+          OKTA_CLIENT_TOKEN: ${{ secrets.OKTA_CLIENT_TOKEN }}
+
+
+
+  zpa-prod-tenants:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10"]
+        environment:
+          - ZPA_BETA_TENANT01
+    environment: ${{ matrix.environment }}
+    steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+
+        - name: Set up Python
+          uses: actions/setup-python@v4
+          with:
+            python-version: ${{ matrix.python-version }}
+
+        - name: Set up Poetry
+          uses: Gr1N/setup-poetry@v9
+
+        - name: Install collection from Galaxy
+          run: ansible-galaxy collection install zscaler.zpacloud
+
+        - name: Install dependencies
+          run: poetry install
+
+        - name: Run tests with retry
+          uses: nick-fields/retry@v3
+          with:
+            max_attempts: 3
+            timeout_minutes: 30
+            command: poetry run make test:integration:zpa
+          env:
+            ZPA_CLIENT_ID: ${{ secrets.ZPA_CLIENT_ID }}
+            ZPA_CLIENT_SECRET: ${{ secrets.ZPA_CLIENT_SECRET }}
+            ZPA_CUSTOMER_ID: ${{ secrets.ZPA_CUSTOMER_ID }}
+            ZPA_CLOUD: ${{ secrets.ZPA_CLOUD }}
+            OKTA_CLIENT_ORGURL: ${{ secrets.OKTA_CLIENT_ORGURL }}
+            OKTA_CLIENT_TOKEN: ${{ secrets.OKTA_CLIENT_TOKEN }}

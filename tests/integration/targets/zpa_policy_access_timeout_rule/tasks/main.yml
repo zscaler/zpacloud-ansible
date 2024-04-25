@@ -7,7 +7,7 @@
   ansible.builtin.import_tasks: "../../../generate_random_string.yml"
 
 - name: Import Posture UDID
-  ansible.builtin.ansible.builtin.include_tasks: "../../../helper_tasks/zpa_posture_profile/zpa_posture_profile.yml"
+  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_posture_profile/zpa_posture_profile.yml"
 
 - name: Set dynamic name values with random string
   ansible.builtin.set_fact:

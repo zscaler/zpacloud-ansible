@@ -1,18 +1,18 @@
 ---
-- name: List all Provisioning Keys
-  zscaler.zpacloud.zpa_provisioning_key_facts:
-    provider: "{{ zpa_cloud }}"
-    association_type: "{{ acg_association_type }}"
-  register: all_ac_provisioning_keys
+# - name: List all Provisioning Keys
+#   zscaler.zpacloud.zpa_provisioning_key_facts:
+#     provider: "{{ zpa_cloud }}"
+#     key_type: "{{ key_type }}"
+#   register: all_ac_provisioning_keys
 
-- name: Delete all Provisioning Keys 💥
-  zscaler.zpacloud.zpa_provisioning_key:
-    provider: "{{ zpa_cloud }}"
-    state: absent
-    name: "{{ name }}"
-    association_type: "{{ acg_association_type }}"
-  loop: "{{ all_ac_provisioning_keys.data }}"
-  when: all_ac_provisioning_keys.data is defined
+# - name: Delete all Provisioning Keys 💥
+#   zscaler.zpacloud.zpa_provisioning_key:
+#     provider: "{{ zpa_cloud }}"
+#     state: absent
+#     name: "{{ name }}"
+#     key_type: "{{ key_type }}"
+#   loop: "{{ all_ac_provisioning_keys.data }}"
+#   when: all_ac_provisioning_keys.data is defined
 
 - name: List all Application Segments
   zscaler.zpacloud.zpa_application_segment_facts:

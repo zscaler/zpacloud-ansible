@@ -7,13 +7,13 @@
   ansible.builtin.import_tasks: "../../../generate_random_string.yml"
 
 - name: Import App Protection Profile ID
-  ansible.builtin.ansible.builtin.include_tasks: "../../../helper_tasks/zpa_app_protection_profile/zpa_app_protection_profile.yml"
+  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_app_protection_profile/zpa_app_protection_profile.yml"
 
 - name: Import Posture UDID
-  ansible.builtin.ansible.builtin.include_tasks: "../../../helper_tasks/zpa_posture_profile/zpa_posture_profile.yml"
+  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_posture_profile/zpa_posture_profile.yml"
 
 - name: Import Network ID
-  ansible.builtin.ansible.builtin.include_tasks: "../../../helper_tasks/zpa_trusted_network/zpa_trusted_network.yml"
+  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_trusted_network/zpa_trusted_network.yml"
 
 - name: Set dynamic name values with random string
   ansible.builtin.set_fact:

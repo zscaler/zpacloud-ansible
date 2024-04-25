@@ -41,7 +41,6 @@ requirements:
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
   - zscaler.zpacloud.fragments.documentation
-  - zscaler.zpacloud.fragments.state
 
 options:
     id:
@@ -63,9 +62,10 @@ options:
             - This field defines the status of the server, true or false.
         required: false
         type: bool
+        default: true
     address:
         description: "This field defines the domain or IP address of the server"
-        required: true
+        required: false
         type: str
     app_server_group_ids:
         description:
@@ -73,6 +73,12 @@ options:
         required: false
         type: list
         elements: str
+    state:
+        description:
+            - The state of the module, which determines if the settings are to be applied.
+        type: str
+        choices: ['absent', 'present', gathered]
+        default: 'present'
 """
 
 EXAMPLES = """
@@ -132,6 +138,13 @@ def core(module):
                 existing_server = server_
                 break
 
+    if state == "gathered":
+        # In gathered state, return the current state of the server without making changes
+        if existing_server is None:
+            module.exit_json(changed=False, msg="Server not found.")
+        else:
+            module.exit_json(changed=False, data=existing_server)
+
     # Normalize and compare existing and desired application data
     desired_app = normalize_app(server)
     current_app = normalize_app(existing_server) if existing_server else {}
@@ -154,16 +167,16 @@ def core(module):
             if differences_detected:
                 """Update"""
                 existing_server = deleteNone(
-                    {
-                        "server_id": existing_server.get("id"),
-                        "name": existing_server.get("name"),
-                        "description": existing_server.get("description"),
-                        "address": existing_server.get("address"),
-                        "enabled": existing_server.get("enabled"),
-                        "app_server_group_ids": existing_server.get(
+                    dict(
+                        server_id=existing_server.get("id"),
+                        name=existing_server.get("name"),
+                        description=existing_server.get("description"),
+                        address=existing_server.get("address"),
+                        enabled=existing_server.get("enabled"),
+                        app_server_group_ids=existing_server.get(
                             "app_server_group_ids"
                         ),
-                    }
+                    )
                 )
                 existing_server = client.servers.update_server(
                     **existing_server
@@ -172,29 +185,26 @@ def core(module):
             else:
                 """No Changes Needed"""
                 module.exit_json(changed=False, data=existing_server)
-        else:
+        elif state == "absent":
+            code = client.servers.delete_server(server_id=existing_server.get("id"))
+            if code > 299:
+                module.exit_json(changed=False, data=None)
+            module.exit_json(changed=True, data=existing_server)
+    else:
+        if state == "present":
             """Create"""
             server = deleteNone(
-                {
-                    "name": server.get("name"),
-                    "description": server.get("description"),
-                    "address": server.get("address"),
-                    "enabled": server.get("enabled"),
-                    "app_server_group_ids": server.get("app_server_group_ids"),
-                }
+                dict(
+                    name=server.get("name"),
+                    description=server.get("description"),
+                    address=server.get("address"),
+                    enabled=server.get("enabled"),
+                    app_server_group_ids=server.get("app_server_group_ids"),
+                )
             )
             server = client.servers.add_server(**server).to_dict()
             module.exit_json(changed=True, data=server)
 
-    elif (
-        state == "absent"
-        and existing_server is not None
-        and existing_server.get("id") is not None
-    ):
-        code = client.servers.delete_server(group_id=existing_server.get("id"))
-        if code > 299:
-            module.exit_json(changed=False, data=None)
-        module.exit_json(changed=True, data=existing_server)
     module.exit_json(changed=False, data={})
 
 
@@ -204,10 +214,12 @@ def main():
         id=dict(type="str", required=False),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
-        address=dict(type="str", required=True),
-        enabled=dict(type="bool", required=False),
+        address=dict(type="str", required=False),
+        enabled=dict(type="bool", default=True, required=False),
         app_server_group_ids=dict(type="list", elements="str", required=False),
-        state=dict(type="str", choices=["present", "absent"], default="present"),
+        state=dict(
+            type="str", choices=["present", "absent", "gathered"], default="present"
+        ),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:

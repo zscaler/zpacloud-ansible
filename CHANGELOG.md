@@ -1,3 +1,10 @@
+### [1.0.1](https://github.com/zscaler/zpacloud-ansible/compare/v1.0.0...v1.0.1) (2024-04-25)
+
+
+### Bug Fixes
+
+* Fixed variable in service edge group for sanity check ([#30](https://github.com/zscaler/zpacloud-ansible/issues/30)) ([b6953ae](https://github.com/zscaler/zpacloud-ansible/commit/b6953ae793681296a17b9bde3f526c76914c4015))
+
 # Ansible Zscaler Internet Access Collection Release Notes
 
 ## 1.0.0 (2024-04-24)

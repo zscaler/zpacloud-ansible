@@ -1,3 +1,10 @@
+### [1.0.2](https://github.com/zscaler/zpacloud-ansible/compare/v1.0.1...v1.0.2) (2024-04-25)
+
+
+### Bug Fixes
+
+* Update attributes and add integration tests ([#31](https://github.com/zscaler/zpacloud-ansible/issues/31)) ([28b0f40](https://github.com/zscaler/zpacloud-ansible/commit/28b0f40b14ed813f574fa29921f220af95d88fe5))
+
 ### [1.0.1](https://github.com/zscaler/zpacloud-ansible/compare/v1.0.0...v1.0.1) (2024-04-25)
 
 

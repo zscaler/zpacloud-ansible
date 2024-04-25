@@ -7,22 +7,22 @@
   ansible.builtin.import_tasks: "../../../generate_random_string.yml"
 
 - name: Create App Connector Group
-  ansible.builtin.ansible.builtin.include_tasks: "../../../helper_tasks/zpa_app_connector_group/create_app_connector_group.yml"
+  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_app_connector_group/create_app_connector_group.yml"
 
 - name: Verify App Connector Group
-  ansible.builtin.ansible.builtin.include_tasks: "../../../helper_tasks/zpa_app_connector_group/verify_app_connector_group.yml"
+  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_app_connector_group/verify_app_connector_group.yml"
 
 - name: Create server group
-  ansible.builtin.ansible.builtin.include_tasks: "../../../helper_tasks/zpa_server_group/create_server_group.yml"
+  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_server_group/create_server_group.yml"
 
 - name: Verify server group
-  ansible.builtin.ansible.builtin.include_tasks: "../../../helper_tasks/zpa_server_group/verify_server_group.yml"
+  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_server_group/verify_server_group.yml"
 
 - name: Import Posture UDID
-  ansible.builtin.ansible.builtin.include_tasks: "../../../helper_tasks/zpa_posture_profile/zpa_posture_profile.yml"
+  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_posture_profile/zpa_posture_profile.yml"
 
 - name: Import Network ID
-  ansible.builtin.ansible.builtin.include_tasks: "../../../helper_tasks/zpa_trusted_network/zpa_trusted_network.yml"
+  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_trusted_network/zpa_trusted_network.yml"
 
 - name: Set dynamic name values with random string
   ansible.builtin.set_fact:

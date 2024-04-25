@@ -283,12 +283,6 @@ def core(module):
     desired_group = normalize_app(group)
     current_group = normalize_app(existing_group) if existing_group else {}
 
-    # Normalize and compare existing and desired application data
-    # normalized_group = normalize_app_connector_groups(group)
-    # normalized_existing_group = (
-    #     normalize_app_connector_groups(existing_group) if existing_group else {}
-    # )
-
     fields_to_exclude = ["id"]
     differences_detected = False
     for key, value in desired_group.items():
@@ -305,11 +299,12 @@ def core(module):
 
     if state == "present":
         if latitude is not None and longitude is not None:
-            _, lat_errors = validate_latitude(latitude)
-            _, lon_errors = validate_longitude(longitude)
-            if lat_errors or lon_errors:
-                all_errors = lat_errors + lon_errors
-                module.fail_json(msg=", ".join(all_errors))
+            unused_result_lat, lat_errors = validate_latitude(latitude)
+            unused_result_lon, lon_errors = validate_longitude(longitude)
+            if lat_errors:
+                module.fail_json(msg="; ".join(lat_errors))
+            if lon_errors:
+                module.fail_json(msg="; ".join(lon_errors))
 
         if existing_group is not None:
             if differences_detected:

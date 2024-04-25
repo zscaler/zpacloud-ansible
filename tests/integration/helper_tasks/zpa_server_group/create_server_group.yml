@@ -35,13 +35,13 @@
     appended_description: "{{ description }}_{{ random_string }}"
 
 - name: Include task to create app connector group
-  ansible.builtin.ansible.builtin.include_tasks: "../zpa_app_connector_group/create_app_connector_group.yml"
+  ansible.builtin.import_tasks: "../zpa_app_connector_group/create_app_connector_group.yml"
   vars:
     acg_name: "test_zpa_app_connector_group_{{ random_string }}"
     acg_description: "test_zpa_app_connector_group_{{ random_string }}"
 
 - name: Verify App Connector Group
-  ansible.builtin.ansible.builtin.include_tasks: "../zpa_app_connector_group/verify_app_connector_group.yml"
+  ansible.builtin.import_tasks: "../zpa_app_connector_group/verify_app_connector_group.yml"
 
 - name: Check if app_connector_group_id is defined
   ansible.builtin.fail:

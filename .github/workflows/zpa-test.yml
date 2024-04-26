@@ -34,27 +34,33 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Cache Python dependencies
+      - name: Install Poetry
+        uses: Gr1N/setup-poetry@v9
+        with:
+          poetry-version: 1.8.2
+
+      - name: Get poetry cache directory
+        id: poetry-cache
+        run: echo "dir=$(poetry config cache-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache poetry dependencies
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.cache/pip
-            !~/.cache/pip/log
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt', '**/setup.py') }}
+          path: ${{ steps.poetry-cache.outputs.dir }}
+          key:
+            ${{ runner.os }}-poetry-${{ matrix.python-version }}-${{
+            hashFiles('**/poetry.lock') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
+            ${{ runner.os }}-poetry-${{ matrix.python-version }}-
 
-      - name: Set up Poetry
-        uses: Gr1N/setup-poetry@v9
+      - name: Install dependencies
+        run: poetry install
 
       - name: Install Ansible
         run: pip install ansible
 
       - name: Install collection from Galaxy
         run: ansible-galaxy collection install zscaler.zpacloud
-
-      - name: Install dependencies
-        run: poetry install
 
       - name: Run tests with retry
         uses: nick-fields/retry@v3
@@ -90,18 +96,27 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Cache Python dependencies
+      - name: Install Poetry
+        uses: Gr1N/setup-poetry@v9
+        with:
+          poetry-version: 1.8.2
+
+      - name: Get poetry cache directory
+        id: poetry-cache
+        run: echo "dir=$(poetry config cache-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache poetry dependencies
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.cache/pip
-            !~/.cache/pip/log
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt', '**/setup.py') }}
+          path: ${{ steps.poetry-cache.outputs.dir }}
+          key:
+            ${{ runner.os }}-poetry-${{ matrix.python-version }}-${{
+            hashFiles('**/poetry.lock') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
+            ${{ runner.os }}-poetry-${{ matrix.python-version }}-
 
-      - name: Set up Poetry
-        uses: Gr1N/setup-poetry@v9
+      - name: Install dependencies
+        run: poetry install
 
       - name: Install Ansible
         run: pip install ansible
@@ -148,18 +163,27 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Cache Python dependencies
+      - name: Install Poetry
+        uses: Gr1N/setup-poetry@v9
+        with:
+          poetry-version: 1.8.2
+
+      - name: Get poetry cache directory
+        id: poetry-cache
+        run: echo "dir=$(poetry config cache-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache poetry dependencies
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.cache/pip
-            !~/.cache/pip/log
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt', '**/setup.py') }}
+          path: ${{ steps.poetry-cache.outputs.dir }}
+          key:
+            ${{ runner.os }}-poetry-${{ matrix.python-version }}-${{
+            hashFiles('**/poetry.lock') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
+            ${{ runner.os }}-poetry-${{ matrix.python-version }}-
 
-      - name: Set up Poetry
-        uses: Gr1N/setup-poetry@v9
+      - name: Install dependencies
+        run: poetry install
 
       - name: Install Ansible
         run: pip install ansible

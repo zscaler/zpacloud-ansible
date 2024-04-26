@@ -59,6 +59,7 @@ options:
       - zpn_client_type_slogger
       - zpn_client_type_zapp_partner
       - zpn_client_type_branch_connector
+      - zpn_client_type_zia_inspection
 """
 
 EXAMPLES = """
@@ -88,14 +89,12 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 def core(module):
     client = ZPAClientHelper(module)
     client_type = module.params.get("client_type")
-    lss_client_types = client.lss.get_client_types()
 
-    if client_type:
-        # Return information for a specific client type
-        data = {client_type: lss_client_types.get(client_type)}
-    else:
-        # Return information for all client types
-        data = lss_client_types
+    # Use the SDK function to directly fetch the required client types
+    lss_client_types = client.lss.get_client_types(client_type)
+
+    # Since get_client_types already handles filtering, no need for additional checks here
+    data = lss_client_types.to_dict()  # Convert from Box to standard dictionary for Ansible
 
     module.exit_json(changed=False, data=data)
 
@@ -115,6 +114,7 @@ def main():
                 "zpn_client_type_slogger",
                 "zpn_client_type_zapp_partner",
                 "zpn_client_type_branch_connector",
+                "zpn_client_type_zia_inspection",
             ],
         ),
     )

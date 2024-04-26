@@ -248,7 +248,7 @@ options:
       - List of domains and IPs.
     type: list
     elements: str
-    required: true
+    required: false
 """
 
 EXAMPLES = """
@@ -634,7 +634,7 @@ def main():
         icmp_access_type=dict(type="bool", required=False),
         id=dict(type="str", required=False),
         server_group_ids=id_name_spec,
-        domain_names=dict(type="list", elements="str", required=True),
+        domain_names=dict(type="list", elements="str", required=False),
         common_apps_dto=dict(
             type="dict",
             options={

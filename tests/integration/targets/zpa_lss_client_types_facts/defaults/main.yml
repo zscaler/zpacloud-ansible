@@ -7,3 +7,4 @@ client_type5: zpn_client_type_zapp
 client_type6: zpn_client_type_slogger
 client_type7: zpn_client_type_zapp_partner
 client_type8: zpn_client_type_branch_connector
+client_type9: zpn_client_type_zia_inspection

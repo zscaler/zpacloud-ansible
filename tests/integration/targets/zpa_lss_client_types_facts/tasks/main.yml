@@ -1,7 +1,7 @@
 ---
 - name: Include default variables
   ansible.builtin.include_vars:
-    file: "../defaults/main.yml"
+    file: ../defaults/main.yml
 
 - name: Ensure required environment variables are set
   ansible.builtin.fail:
@@ -39,7 +39,7 @@
     - name: Gather LSS Log Type zpn_client_type_exporter Information
       zscaler.zpacloud.zpa_lss_client_types_facts:
         provider: "{{ zpa_cloud }}"
-        name: "{{ client_type1 }}"
+        client_type: "{{ client_type1 }}"
       register: result
 
     - name: Verify lss log type zpn_client_type_exporter fetched
@@ -51,7 +51,7 @@
     - name: Gather LSS Log Type zpn_client_type_machine_tunnel Information
       zscaler.zpacloud.zpa_lss_client_types_facts:
         provider: "{{ zpa_cloud }}"
-        name: "{{ client_type2 }}"
+        client_type: "{{ client_type2 }}"
       register: result
 
     - name: Verify lss log type zpn_client_type_machine_tunnel fetched
@@ -63,7 +63,7 @@
     - name: Gather LSS Log Type zpn_client_type_ip_anchoring Information
       zscaler.zpacloud.zpa_lss_client_types_facts:
         provider: "{{ zpa_cloud }}"
-        name: "{{ client_type3 }}"
+        client_type: "{{ client_type3 }}"
       register: result
 
     - name: Verify lss log type zpn_client_type_ip_anchoring fetched
@@ -75,7 +75,7 @@
     - name: Gather LSS Log Type zpn_client_type_edge_connector Information
       zscaler.zpacloud.zpa_lss_client_types_facts:
         provider: "{{ zpa_cloud }}"
-        name: "{{ client_type4 }}"
+        client_type: "{{ client_type4 }}"
       register: result
 
     - name: Verify lss log type zpn_client_type_edge_connector fetched
@@ -87,7 +87,7 @@
     - name: Gather LSS Log Type zpn_client_type_zapp Information
       zscaler.zpacloud.zpa_lss_client_types_facts:
         provider: "{{ zpa_cloud }}"
-        name: "{{ client_type5 }}"
+        client_type: "{{ client_type5 }}"
       register: result
 
     - name: Verify lss log type zpn_client_type_zapp fetched
@@ -99,7 +99,7 @@
     - name: Gather LSS Log Type zpn_client_type_slogger Information
       zscaler.zpacloud.zpa_lss_client_types_facts:
         provider: "{{ zpa_cloud }}"
-        name: "{{ client_type6 }}"
+        client_type: "{{ client_type6 }}"
       register: result
 
     - name: Verify lss log type zpn_client_type_slogger fetched
@@ -111,7 +111,7 @@
     - name: Gather LSS Log Type zpn_client_type_zapp_partner Information
       zscaler.zpacloud.zpa_lss_client_types_facts:
         provider: "{{ zpa_cloud }}"
-        name: "{{ client_type7 }}"
+        client_type: "{{ client_type7 }}"
       register: result
 
     - name: Verify lss log type zpn_client_type_zapp_partner fetched
@@ -123,7 +123,7 @@
     - name: Gather LSS Log Type zpn_client_type_branch_connector Information
       zscaler.zpacloud.zpa_lss_client_types_facts:
         provider: "{{ zpa_cloud }}"
-        name: "{{ client_type8 }}"
+        client_type: "{{ client_type8 }}"
       register: result
 
     - name: Verify lss log type zpn_client_type_branch_connector fetched

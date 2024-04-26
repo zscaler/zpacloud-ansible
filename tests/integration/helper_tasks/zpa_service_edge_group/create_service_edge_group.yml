@@ -36,7 +36,7 @@
   no_log: true
 
 - name: Import Random String Generator Tasks
-  ansible.builtin.import_tasks: "../../generate_random_string.yml"
+  ansible.builtin.import_tasks: ../../generate_random_string.yml
 
 - name: Set dynamic name values with random string
   ansible.builtin.set_fact:

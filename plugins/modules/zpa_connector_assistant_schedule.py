@@ -114,84 +114,72 @@ def core(module):
 
     client = ZPAClientHelper(module)
 
-    if state == "present":
-        # Attempt to get the current schedule
-        try:
-            schedule = client.connectors.get_connector_schedule(customer_id=customer_id)
-            scheduler_id = schedule.get("id") if schedule else None
-        except Exception as e:
-            module.fail_json(msg=f"Failed to get schedule: {to_native(e)}")
+    # Ensure we only handle the 'present' state
+    if state != "present":
+        module.fail_json(msg="This module only supports the state 'present'.")
 
-        # If schedule is None or empty, it means we need to create a new schedule
-        if not schedule:
-            if enabled:
-                try:
-                    client.connectors.add_connector_schedule(
-                        frequency, frequency_interval, delete_disabled
-                    )
-                    module.exit_json(
-                        changed=True, message="Schedule added successfully."
-                    )
-                except Exception as e:
-                    if "resource.already.exist" in str(e):
-                        scheduler_id = "some_default_or_retrieved_id"  # Retrieve the actual id here
-                    else:
-                        module.fail_json(msg=f"Failed to add schedule: {to_native(e)}")
-            else:
-                module.exit_json(changed=False, message="Schedule is not enabled.")
-            return
+    # Attempt to get the current schedule
+    try:
+        schedule = client.connectors.get_connector_schedule(customer_id=customer_id)
+    except Exception as e:
+        module.fail_json(msg=f"Failed to retrieve schedule: {to_native(e)}")
 
-        # Get the current values from the schedule
-        current_enabled = schedule.get("enabled") if schedule else None
-        current_delete_disabled = schedule.get("delete_disabled") if schedule else None
-        current_frequency = schedule.get("frequency") if schedule else None
-        current_frequency_interval = (
-            schedule.get("frequency_interval") if schedule else None
-        )
-
-        # Determine if an update is necessary
-        differences_detected = False
-        for key, current_value, desired_value in [
-            ("enabled", current_enabled, enabled),
-            ("delete_disabled", current_delete_disabled, delete_disabled),
-            ("frequency", current_frequency, frequency),
-            ("frequency_interval", current_frequency_interval, frequency_interval),
-        ]:
-            if current_value != desired_value:
-                differences_detected = True
-                module.warn(
-                    f"Difference detected in {key}. Current: {current_value}, Desired: {desired_value}"
-                )
-
-        if differences_detected and scheduler_id:
+    if not schedule:
+        # Create a new schedule if none exists and 'enabled' is True
+        if enabled:
             try:
-                update_result = client.connectors.update_schedule(
-                    scheduler_id,
+                response = client.connectors.add_connector_schedule(
+                    frequency=frequency,
+                    interval=frequency_interval,
+                    disabled=delete_disabled,
                     customer_id=customer_id,
                     enabled=enabled,
-                    delete_disabled=delete_disabled,
-                    frequency=frequency,
-                    frequency_interval=frequency_interval,
                 )
-                if update_result:
+                module.exit_json(
+                    changed=True,
+                    message="Schedule created successfully.",
+                    data=response.to_dict(),
+                )
+            except Exception as e:
+                module.fail_json(msg=f"Failed to create schedule: {to_native(e)}")
+        else:
+            module.exit_json(
+                changed=False, message="No schedule exists and creation is not enabled."
+            )
+    else:
+        # If schedule exists, check if updates are necessary
+        scheduler_id = schedule.get("id")
+        updates_needed = {}
+        for key, desired_value in [
+            ("enabled", enabled),
+            ("delete_disabled", delete_disabled),
+            ("frequency", frequency),
+            ("frequency_interval", frequency_interval),
+        ]:
+            if schedule.get(key) != desired_value:
+                updates_needed[key] = desired_value
+
+        if updates_needed:
+            # Update the schedule if there are changes
+            try:
+                result = client.connectors.update_connector_schedule(
+                    scheduler_id=scheduler_id, customer_id=customer_id, **updates_needed
+                )
+                if result:
                     module.exit_json(
                         changed=True, message="Schedule updated successfully."
                     )
                 else:
                     module.fail_json(
-                        msg="Failed to update schedule: Update not successful"
+                        msg="Failed to update schedule: Update not successful."
                     )
             except Exception as e:
                 module.fail_json(msg=f"Failed to update schedule: {to_native(e)}")
-        elif not scheduler_id:
-            module.fail_json(msg="Schedule ID not found for updating the schedule.")
         else:
-            module.exit_json(changed=False, message="No update required.")
-    else:
-        # Since 'absent' is not supported, this branch should never be reached
-        module.fail_json(
-            msg="Invalid state. Only 'present' is supported for this module."
-        )
+            module.exit_json(
+                changed=False,
+                message="No updates required; schedule remains unchanged.",
+            )
 
 
 def main():

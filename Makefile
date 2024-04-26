@@ -62,7 +62,7 @@ python_version := $(shell \
 docs:		## Build collection documentation
 	rm -rf antsibull
 	mkdir antsibull
-	poetry add sphinx_ansible_theme
+	poetry run pip install -r docs/dev_requirements.txt
 	poetry run antsibull-docs collection --use-current --dest-dir antsibull --no-indexes zscaler.zpacloud
 	mkdir -p docs/source/modules
 	mv antsibull/collections/zscaler/zpacloud/* docs/source/modules
@@ -98,7 +98,6 @@ reqs:       ## Recreate the requirements.txt file
 
 install:
 	rm -f zscaler*
-	pip3 install -r requirements.txt
 	ansible-galaxy collection build . --force
 	ansible-galaxy collection install zscaler* --force
 	rm -f zscaler*

@@ -2,7 +2,7 @@
 rule_name: test_zpa_policy_access_timeout_rule
 description: test_zpa_policy_access_timeout_rule
 rule_action: RE_AUTH
-reauth_idle_timeout: "600"
-reauth_timeout: "172800"
+reauth_idle_timeout: 1 day
+reauth_timeout: 10 days
 operator: AND
 custom_msg: test_zpa_policy_access_timeout_rule

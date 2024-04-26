@@ -1,7 +1,7 @@
 ---
 - name: Include default variables
   ansible.builtin.include_vars:
-    file: "../defaults/main.yml"
+    file: ../defaults/main.yml
 
 - name: Ensure required environment variables are set
   ansible.builtin.fail:
@@ -51,7 +51,7 @@
           - not result.changed
           - result.data is defined
           - result.data[0].name is defined
-          - result.data[0].name == "{{ attr01 }}"
+          - result.data[0].name == attr01
 
     - name: Fetch "Cost Center" Scim Attribute
       zscaler.zpacloud.zpa_scim_attribute_header_facts:
@@ -66,7 +66,7 @@
           - not result.changed
           - result.data is defined
           - result.data[0].name is defined
-          - result.data[0].name == "{{ attr02 }}"
+          - result.data[0].name == attr02
 
     - name: Fetch "Department" Scim Attribute
       zscaler.zpacloud.zpa_scim_attribute_header_facts:
@@ -81,7 +81,7 @@
           - not result.changed
           - result.data is defined
           - result.data[0].name is defined
-          - result.data[0].name == "{{ attr03 }}"
+          - result.data[0].name == attr03
 
     - name: Fetch "Display Name" Scim Attribute
       zscaler.zpacloud.zpa_scim_attribute_header_facts:
@@ -96,7 +96,7 @@
           - not result.changed
           - result.data is defined
           - result.data[0].name is defined
-          - result.data[0].name == "{{ attr04 }}"
+          - result.data[0].name == attr04
 
     - name: Fetch "Division" Scim Attribute
       zscaler.zpacloud.zpa_scim_attribute_header_facts:
@@ -111,7 +111,7 @@
           - not result.changed
           - result.data is defined
           - result.data[0].name is defined
-          - result.data[0].name == "{{ attr05 }}"
+          - result.data[0].name == attr05
 
     - name: Fetch "Email" Scim Attribute
       zscaler.zpacloud.zpa_scim_attribute_header_facts:
@@ -126,7 +126,7 @@
           - not result.changed
           - result.data is defined
           - result.data[0].name is defined
-          - result.data[0].name == "{{ attr06 }}"
+          - result.data[0].name == attr06
 
     - name: Fetch "Last Name" Scim Attribute
       zscaler.zpacloud.zpa_scim_attribute_header_facts:
@@ -141,7 +141,7 @@
           - not result.changed
           - result.data is defined
           - result.data[0].name is defined
-          - result.data[0].name == "{{ attr07 }}"
+          - result.data[0].name == attr07
 
     - name: Fetch "Formatted Name" Scim Attribute
       zscaler.zpacloud.zpa_scim_attribute_header_facts:
@@ -156,7 +156,7 @@
           - not result.changed
           - result.data is defined
           - result.data[0].name is defined
-          - result.data[0].name == "{{ attr08 }}"
+          - result.data[0].name == attr08
 
     - name: Fetch "First Name" Scim Attribute
       zscaler.zpacloud.zpa_scim_attribute_header_facts:
@@ -171,7 +171,7 @@
           - not result.changed
           - result.data is defined
           - result.data[0].name is defined
-          - result.data[0].name == "{{ attr09 }}"
+          - result.data[0].name == attr09
 
     - name: Fetch "Nickname" Scim Attribute
       zscaler.zpacloud.zpa_scim_attribute_header_facts:
@@ -186,7 +186,7 @@
           - not result.changed
           - result.data is defined
           - result.data[0].name is defined
-          - result.data[0].name == "{{ attr10 }}"
+          - result.data[0].name == attr10
 
     - name: Fetch "Organization" Scim Attribute
       zscaler.zpacloud.zpa_scim_attribute_header_facts:
@@ -201,7 +201,7 @@
           - not result.changed
           - result.data is defined
           - result.data[0].name is defined
-          - result.data[0].name == "{{ attr11 }}"
+          - result.data[0].name == attr11
 
     - name: Fetch "Username" Scim Attribute
       zscaler.zpacloud.zpa_scim_attribute_header_facts:
@@ -216,7 +216,7 @@
           - not result.changed
           - result.data is defined
           - result.data[0].name is defined
-          - result.data[0].name == "{{ attr12 }}"
+          - result.data[0].name == attr12
 
     - name: Fetch "User Type" Scim Attribute
       zscaler.zpacloud.zpa_scim_attribute_header_facts:
@@ -231,4 +231,4 @@
           - not result.changed
           - result.data is defined
           - result.data[0].name is defined
-          - result.data[0].name == "{{ attr13 }}"
+          - result.data[0].name == attr13

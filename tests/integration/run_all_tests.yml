@@ -46,7 +46,6 @@
         - targets/zpa_idp_controller_facts/tasks/main.yml
         - targets/zpa_lss_config_log_types_formats_facts/tasks/main.yml
         - targets/zpa_lss_client_types_facts/tasks/main.yml
-        - targets/zpa_app_connector_assistant_schedule/tasks/main.yml
 
     - name: Run final sweep to clean tenant
       ansible.builtin.import_tasks: ./sweep.yml

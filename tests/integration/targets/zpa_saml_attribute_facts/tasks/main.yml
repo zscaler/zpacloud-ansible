@@ -1,7 +1,7 @@
 ---
 - name: Include default variables
   ansible.builtin.include_vars:
-    file: "../defaults/main.yml"
+    file: ../defaults/main.yml
 
 - name: Ensure required environment variables are set
   ansible.builtin.fail:
@@ -50,9 +50,9 @@
           - not result.changed
           - result.data is defined
           - result.data[0].name is defined
-          - result.data[0].name == {{ attr01 }}
+          - result.data[0].name == attr01
           - result.data[0].idp_name is defined
-          - result.data[0].idp_name == {{ idp_name }}
+          - result.data[0].idp_name == idp_name
 
     - name: Fetch Email_BD_Okta_Users Saml Attribute
       zscaler.zpacloud.zpa_saml_attribute_facts:
@@ -67,9 +67,9 @@
           - not result.changed
           - result.data is defined
           - result.data[0].name is defined
-          - result.data[0].name == "{{ attr02 }}"
+          - result.data[0].name == attr02
           - result.data[0].idp_name is defined
-          - result.data[0].idp_name == "{{ idp_name }}"
+          - result.data[0].idp_name == idp_name
 
     - name: Fetch FirstName_BD_Okta_Users Saml Attribute
       zscaler.zpacloud.zpa_saml_attribute_facts:
@@ -84,9 +84,9 @@
           - not result.changed
           - result.data is defined
           - result.data[0].name is defined
-          - result.data[0].name == "{{ attr03 }}"
+          - result.data[0].name == attr03
           - result.data[0].idp_name is defined
-          - result.data[0].idp_name == "{{ idp_name }}"
+          - result.data[0].idp_name == idp_name
 
     - name: Fetch GroupName_BD_Okta_Users Saml Attribute
       zscaler.zpacloud.zpa_saml_attribute_facts:
@@ -101,9 +101,9 @@
           - not result.changed
           - result.data is defined
           - result.data[0].name is defined
-          - result.data[0].name == "{{ attr04 }}"
+          - result.data[0].name == attr04
           - result.data[0].idp_name is defined
-          - result.data[0].idp_name == "{{ idp_name }}"
+          - result.data[0].idp_name == idp_name
 
     - name: Fetch LastName_BD_Okta_Users Saml Attribute
       zscaler.zpacloud.zpa_saml_attribute_facts:
@@ -118,6 +118,6 @@
           - not result.changed
           - result.data is defined
           - result.data[0].name is defined
-          - result.data[0].name == "{{ attr05 }}"
+          - result.data[0].name == attr05
           - result.data[0].idp_name is defined
-          - result.data[0].idp_name == "{{ idp_name }}"
+          - result.data[0].idp_name == idp_name

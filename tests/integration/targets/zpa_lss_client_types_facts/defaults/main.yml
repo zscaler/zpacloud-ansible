@@ -1,3 +1,4 @@
+---
 client_type1: zpn_client_type_exporter
 client_type2: zpn_client_type_machine_tunnel
 client_type3: zpn_client_type_ip_anchoring

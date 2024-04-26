@@ -1,7 +1,7 @@
 ---
 - name: Include default variables
   ansible.builtin.include_vars:
-    file: "../defaults/main.yml"
+    file: ../defaults/main.yml
 
 - name: Ensure required environment variables are set
   ansible.builtin.fail:
@@ -38,7 +38,7 @@
           - not result.changed
           - result.data is defined
           - result.data[0].name is defined
-          - result.data[0].name == "{{ group1 }}"
+          - result.data[0].name == group1
 
     - name: Fetch "Group2" Scim Group
       zscaler.zpacloud.zpa_scim_group_facts:
@@ -53,7 +53,7 @@
           - not result.changed
           - result.data is defined
           - result.data[0].name is defined
-          - result.data[0].name == "{{ group2 }}"
+          - result.data[0].name == group2
 
     - name: Fetch "Group3" Scim Group
       zscaler.zpacloud.zpa_scim_group_facts:
@@ -68,4 +68,4 @@
           - not result.changed
           - result.data is defined
           - result.data[0].name is defined
-          - result.data[0].name == "{{ group3 }}"
+          - result.data[0].name == group3

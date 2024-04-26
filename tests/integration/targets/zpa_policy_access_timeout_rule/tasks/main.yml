@@ -1,13 +1,13 @@
 ---
 - name: Include default variables
   ansible.builtin.include_vars:
-    file: "../defaults/main.yml"
+    file: ../defaults/main.yml
 
 - name: Import Random String Generator Tasks
-  ansible.builtin.import_tasks: "../../../generate_random_string.yml"
+  ansible.builtin.import_tasks: ../../../generate_random_string.yml
 
 - name: Import Posture UDID
-  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_posture_profile/zpa_posture_profile.yml"
+  ansible.builtin.include_tasks: ../../../helper_tasks/zpa_posture_profile/zpa_posture_profile.yml
 
 - name: Set dynamic name values with random string
   ansible.builtin.set_fact:
@@ -34,7 +34,7 @@
       cloud: "{{ lookup('env', 'ZPA_CLOUD') | default(omit) }}"
   no_log: true
 
-- name: Main block to Test Policy Access TimeOut Rule
+- name: Main block to Test Policy Timeout Access Rule
   block:
     - name: Ensure Policy Access TimeOut Rule is absent (leftover)
       zscaler.zpacloud.zpa_policy_access_timeout_rule:
@@ -79,12 +79,12 @@
         conditions:
           - operator: "{{ operator }}"
             operands:
-              - object_type: "PLATFORM"
+              - object_type: PLATFORM
                 lhs: ios
                 rhs: "true"
           - operator: "{{ operator }}"
             operands:
-              - object_type: "POSTURE"
+              - object_type: POSTURE
                 lhs: "{{ posture_udid }}"
                 rhs: "false"
       register: result
@@ -110,12 +110,12 @@
         conditions:
           - operator: "{{ operator }}"
             operands:
-              - object_type: "PLATFORM"
+              - object_type: PLATFORM
                 lhs: ios
                 rhs: "true"
           - operator: "{{ operator }}"
             operands:
-              - object_type: "POSTURE"
+              - object_type: POSTURE
                 lhs: "{{ posture_udid }}"
                 rhs: "false"
       register: result

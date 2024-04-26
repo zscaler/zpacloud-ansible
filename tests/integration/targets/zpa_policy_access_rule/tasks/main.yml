@@ -1,28 +1,28 @@
 ---
 - name: Include default variables
   ansible.builtin.include_vars:
-    file: "../defaults/main.yml"
+    file: ../defaults/main.yml
 
 - name: Import Random String Generator Tasks
-  ansible.builtin.import_tasks: "../../../generate_random_string.yml"
+  ansible.builtin.import_tasks: ../../../generate_random_string.yml
 
 - name: Create App Connector Group
-  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_app_connector_group/create_app_connector_group.yml"
+  ansible.builtin.import_tasks: ../../../helper_tasks/zpa_app_connector_group/create_app_connector_group.yml
 
 - name: Verify App Connector Group
-  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_app_connector_group/verify_app_connector_group.yml"
+  ansible.builtin.import_tasks: ../../../helper_tasks/zpa_app_connector_group/verify_app_connector_group.yml
 
 - name: Create server group
-  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_server_group/create_server_group.yml"
+  ansible.builtin.import_tasks: ../../../helper_tasks/zpa_server_group/create_server_group.yml
 
 - name: Verify server group
-  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_server_group/verify_server_group.yml"
+  ansible.builtin.import_tasks: ../../../helper_tasks/zpa_server_group/verify_server_group.yml
 
 - name: Import Posture UDID
-  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_posture_profile/zpa_posture_profile.yml"
+  ansible.builtin.import_tasks: ../../../helper_tasks/zpa_posture_profile/zpa_posture_profile.yml
 
 - name: Import Network ID
-  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_trusted_network/zpa_trusted_network.yml"
+  ansible.builtin.import_tasks: ../../../helper_tasks/zpa_trusted_network/zpa_trusted_network.yml
 
 - name: Set dynamic name values with random string
   ansible.builtin.set_fact:
@@ -90,30 +90,30 @@
         description: "{{ appended_description }}"
         action: "{{ rule_action }}"
         custom_msg: "{{ custom_msg }}"
-        operator: "AND"
+        operator: AND
         app_connector_group_ids:
           - "{{ app_connector_group_id }}"
         app_server_group_ids:
           - "{{ server_group_id }}"
         conditions:
-          - operator: "AND"
+          - operator: AND
             operands:
-              - object_type: "COUNTRY_CODE"
+              - object_type: COUNTRY_CODE
                 lhs: CA
                 rhs: "true"
-          - operator: "AND"
+          - operator: AND
             operands:
-              - object_type: "PLATFORM"
+              - object_type: PLATFORM
                 lhs: ios
                 rhs: "true"
-          - operator: "AND"
+          - operator: AND
             operands:
-              - object_type: "POSTURE"
+              - object_type: POSTURE
                 lhs: "{{ posture_udid }}"
                 rhs: "false"
-          - operator: "AND"
+          - operator: AND
             operands:
-              - object_type: "TRUSTED_NETWORK"
+              - object_type: TRUSTED_NETWORK
                 lhs: "{{ network_id }}"
                 rhs: "false"
       register: result
@@ -143,22 +143,22 @@
         conditions:
           - operator: "{{ operator }}"
             operands:
-              - object_type: "COUNTRY_CODE"
+              - object_type: COUNTRY_CODE
                 lhs: CA
                 rhs: "true"
           - operator: "{{ operator }}"
             operands:
-              - object_type: "PLATFORM"
+              - object_type: PLATFORM
                 lhs: ios
                 rhs: "true"
           - operator: "{{ operator }}"
             operands:
-              - object_type: "POSTURE"
+              - object_type: POSTURE
                 lhs: "{{ posture_udid }}"
                 rhs: "false"
           - operator: "{{ operator }}"
             operands:
-              - object_type: "TRUSTED_NETWORK"
+              - object_type: TRUSTED_NETWORK
                 lhs: "{{ network_id }}"
                 rhs: "false"
       register: result
@@ -223,6 +223,6 @@
           - result.data is defined
 
 - name: Clean up server group
-  ansible.builtin.include_tasks: "../../../helper_tasks/zpa_server_group/delete_server_group.yml"
+  ansible.builtin.include_tasks: ../../../helper_tasks/zpa_server_group/delete_server_group.yml
 # - name: Clean up App Connector group
 #   ansible.builtin.include_tasks: "../../../helper_tasks/zpa_app_connector_group/delete_app_connector_group.yml"

@@ -24,7 +24,7 @@
     - name: Fetch the browser access certificate
       zscaler.zpacloud.zpa_ba_certificate_facts:
         provider: "{{ zpa_cloud }}"
-        name: "sales.bd-hashicorp.com"
+        name: "sales.bd-redhat.com"
       register: ba_certificate
 
     - name: Set Certificate ID as fact

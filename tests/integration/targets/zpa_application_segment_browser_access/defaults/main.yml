@@ -17,16 +17,16 @@ health_reporting: ON_ACCESS
 bypass_type: NEVER
 icmp_access_type: false
 clientless_app_ids:
-  - name: "sales.bd-hashicorp.com"
-    description: "sales.bd-hashicorp.com"
+  - name: "sales.bd-redhat.com"
+    description: "sales.bd-redhat.com"
     enabled: true
     application_protocol: "HTTPS"
     application_port: "443"
     allow_options: true
     trust_untrusted_cert: true
-    domain: "sales.bd-hashicorp.com"
+    domain: "sales.bd-redhat.com"
 tcp_port_range:
   - from: "443"
     to: "443"
 domain_names:
-  - sales.bd-hashicorp.com
+  - sales.bd-redhat.com

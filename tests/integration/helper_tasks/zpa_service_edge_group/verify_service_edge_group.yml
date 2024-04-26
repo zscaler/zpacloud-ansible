@@ -30,8 +30,8 @@
     - name: Verify Service Edge Group attributes
       ansible.builtin.assert:
         that:
-          - "fetched_seg.data[0].name == seg_name"
-          - "fetched_seg.data[0].description == seg_description"
+          - fetched_seg.data[0].name == seg_name
+          - fetched_seg.data[0].description == seg_description
           # - "fetched_seg.data.some_other_attribute == expected_value"
-        fail_msg: "Verification failed for Service Edge Group!"
-        success_msg: "Verification successful for Service Edge Group!"
+        fail_msg: Verification failed for Service Edge Group!
+        success_msg: Verification successful for Service Edge Group!

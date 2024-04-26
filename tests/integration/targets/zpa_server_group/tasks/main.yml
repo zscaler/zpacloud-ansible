@@ -1,16 +1,16 @@
 ---
 - name: Include default variables
   ansible.builtin.include_vars:
-    file: "../defaults/main.yml"
+    file: ../defaults/main.yml
 
 - name: Import Random String Generator Tasks
-  ansible.builtin.import_tasks: "../../../generate_random_string.yml"
+  ansible.builtin.import_tasks: ../../../generate_random_string.yml
 
 - name: Create App Connector Group
-  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_app_connector_group/create_app_connector_group.yml"
+  ansible.builtin.import_tasks: ../../../helper_tasks/zpa_app_connector_group/create_app_connector_group.yml
 
 - name: Verify App Connector Group
-  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_app_connector_group/verify_app_connector_group.yml"
+  ansible.builtin.import_tasks: ../../../helper_tasks/zpa_app_connector_group/verify_app_connector_group.yml
 
 - name: Set dynamic name values with random string
   ansible.builtin.set_fact:
@@ -164,4 +164,4 @@
           - result.data is defined
 
 - name: Clean up App Connector group
-  ansible.builtin.include_tasks: "../../../helper_tasks/zpa_app_connector_group/delete_app_connector_group.yml"
+  ansible.builtin.include_tasks: ../../../helper_tasks/zpa_app_connector_group/delete_app_connector_group.yml

@@ -1,3 +1,4 @@
+---
 log_type1: zpn_trans_log
 log_type2: zpn_auth_log
 log_type3: zpn_ast_auth_log

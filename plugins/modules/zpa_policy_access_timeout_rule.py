@@ -85,12 +85,20 @@ options:
     required: false
   reauth_idle_timeout:
     type: str
-    required: true
-    description: "The reauthentication idle timeout"
+    required: false
+    description:
+      - The reauthentication idle timeout
+      - Use minute, minutes, hour, hours, day, days, or never.
+      - Timeout interval must be at least 10 minutes or 'never.
+      - i.e 10 minutes, 1 hour, 2 hours, or never
   reauth_timeout:
     type: str
-    required: true
-    description: "The reauthentication timeout."
+    required: false
+    description:
+      - The reauthentication timeout.
+      - Use minute, minutes, hour, hours, day, days, or never.
+      - Timeout interval must be at least 10 minutes or 'never.
+      - i.e 10 minutes, 1 hour, 2 hours, or never
   conditions:
     type: list
     elements: dict
@@ -100,7 +108,7 @@ options:
       operator:
         description: "The operator of the condition set"
         type: str
-        required: True
+        required: false
         choices: ["AND", "OR"]
       operands:
         description: "The operands of the condition set"
@@ -187,33 +195,43 @@ from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     map_conditions,
-    validate_operand,
     normalize_policy,
-    deleteNone,
+    validate_operand,
     validate_timeout_intervals,
+    deleteNone,
 )
+
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
 
 
 def core(module):
-    state = module.params.get("state", None)
+    state = module.params.get("state", "present")
     client = ZPAClientHelper(module)
-    reauth_idle_timeout = module.params.get("reauth_idle_timeout")
-    reauth_timeout = module.params.get("reauth_timeout")
 
-    # Validate and convert timeout intervals
-    reauth_idle_timeout_seconds, error = validate_timeout_intervals(reauth_idle_timeout)
-    if error:
-        module.fail_json(msg=error)
-    reauth_timeout_seconds, error = validate_timeout_intervals(reauth_timeout)
-    if error:
-        module.fail_json(msg=error)
+    # Fetch parameters conditionally based on state
+    if state != "absent":  # Only process reauth times if not deleting the policy
+        reauth_idle_timeout = module.params.get("reauth_idle_timeout")
+        reauth_timeout = module.params.get("reauth_timeout")
 
-    # Assign converted values back to params to be used in API calls or other logic
-    module.params["reauth_idle_timeout"] = reauth_idle_timeout_seconds
-    module.params["reauth_timeout"] = reauth_timeout_seconds
+        # Validate and convert timeout intervals
+        reauth_idle_timeout_seconds, error = validate_timeout_intervals(
+            reauth_idle_timeout
+        )
+        if error:
+            module.fail_json(msg=error)
+        reauth_timeout_seconds, error = validate_timeout_intervals(reauth_timeout)
+        if error:
+            module.fail_json(msg=error)
+
+        # Assign converted values back to params to be used in API calls or other logic
+        module.params["reauth_idle_timeout"] = reauth_idle_timeout_seconds
+        module.params["reauth_timeout"] = reauth_timeout_seconds
+    else:
+        # Set default values for deletion case where these values aren't needed
+        module.params["reauth_idle_timeout"] = None
+        module.params["reauth_timeout"] = None
 
     policy_rule_id = module.params.get("id", None)
     policy_rule_name = module.params.get("name", None)
@@ -228,8 +246,6 @@ def core(module):
         "operator",
         "rule_order",
         "conditions",
-        "reauth_idle_timeout",
-        "reauth_timeout",
     ]
 
     for param_name in params:
@@ -291,13 +307,7 @@ def core(module):
                 "rule_id": existing_policy.get("id", None),
                 "name": existing_policy.get("name", None),
                 "description": existing_policy.get("description", None),
-                "action": (
-                    existing_policy.get("action", "").upper()
-                    if existing_policy.get("action")
-                    else None
-                ),
-                "reauth_idle_timeout": existing_policy.get("reauth_idle_timeout", None),
-                "reauth_timeout": existing_policy.get("reauth_timeout", None),
+                "action": existing_policy.get("action").upper(),
                 "custom_msg": existing_policy.get("custom_msg", None),
                 "conditions": map_conditions(existing_policy.get("conditions", [])),
                 "rule_order": existing_policy.get("rule_order", None),
@@ -305,17 +315,12 @@ def core(module):
             cleaned_policy = deleteNone(updated_policy)
             updated_policy = client.policies.update_rule(**cleaned_policy)
             module.exit_json(changed=True, data=updated_policy)
-
         elif existing_policy is None:
             """Create"""
             new_policy = {
                 "name": policy.get("name", None),
                 "description": policy.get("description", None),
-                "action": (
-                    policy.get("action", "").upper() if policy.get("action") else None
-                ),
-                "reauth_idle_timeout": policy.get("reauth_idle_timeout", None),
-                "reauth_timeout": policy.get("reauth_timeout", None),
+                "action": policy.get("action", None),
                 "custom_msg": policy.get("custom_msg", None),
                 "rule_order": policy.get("rule_order", None),
                 "conditions": map_conditions(policy.get("conditions", [])),
@@ -344,15 +349,15 @@ def main():
         custom_msg=dict(type="str", required=False),
         policy_type=dict(type="str", required=False),
         action=dict(type="str", required=False, choices=["RE_AUTH"]),
-        reauth_idle_timeout=dict(type="str", required=True),
-        reauth_timeout=dict(type="str", required=True),
+        reauth_idle_timeout=dict(type="str", required=False),
+        reauth_timeout=dict(type="str", required=False),
         operator=dict(type="str", required=False, choices=["AND", "OR"]),
         rule_order=dict(type="str", required=False),
         conditions=dict(
             type="list",
             elements="dict",
             options=dict(
-                operator=dict(type="str", required=True, choices=["AND", "OR"]),
+                operator=dict(type="str", required=False, choices=["AND", "OR"]),
                 operands=dict(
                     type="list",
                     elements="dict",
@@ -367,9 +372,9 @@ def main():
                                 "APP",
                                 "APP_GROUP",
                                 "CLIENT_TYPE",
+                                "IDP",
                                 "POSTURE",
                                 "PLATFORM",
-                                "IDP",
                                 "SAML",
                                 "SCIM",
                                 "SCIM_GROUP",
@@ -407,11 +412,11 @@ def main():
                     object_type is None or object_type == ""
                 ):  # Explicitly check for None or empty string
                     module.fail_json(
-                        msg="object_type cannot be empty or None. Must be one of: {', '.join(valid_object_types)}"
+                        msg=f"object_type cannot be empty or None. Must be one of: {', '.join(valid_object_types)}"
                     )
                 elif object_type not in valid_object_types:
                     module.fail_json(
-                        msg="Invalid object_type: {object_type}. Must be one of: {', '.join(valid_object_types)}"
+                        msg=f"Invalid object_type: {object_type}. Must be one of: {', '.join(valid_object_types)}"
                     )
     try:
         core(module)

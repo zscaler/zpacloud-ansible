@@ -1,8 +1,8 @@
 ---
 - name: Set initial variables
   ansible.builtin.set_fact:
-    group_name: "test_zpa_server_group"
-    description: "test_zpa_server_group"
+    group_name: test_zpa_server_group
+    description: test_zpa_server_group
     enabled: true
     dynamic_discovery: true
 
@@ -27,7 +27,7 @@
   no_log: true
 
 - name: Import Random String Generator Tasks
-  ansible.builtin.import_tasks: "../../generate_random_string.yml"
+  ansible.builtin.import_tasks: ../../generate_random_string.yml
 
 - name: Set dynamic name values with random string
   ansible.builtin.set_fact:
@@ -35,17 +35,17 @@
     appended_description: "{{ description }}_{{ random_string }}"
 
 - name: Include task to create app connector group
-  ansible.builtin.import_tasks: "../zpa_app_connector_group/create_app_connector_group.yml"
+  ansible.builtin.import_tasks: ../zpa_app_connector_group/create_app_connector_group.yml
   vars:
-    acg_name: "test_zpa_app_connector_group_{{ random_string }}"
-    acg_description: "test_zpa_app_connector_group_{{ random_string }}"
+    acg_name: test_zpa_app_connector_group_{{ random_string }}
+    acg_description: test_zpa_app_connector_group_{{ random_string }}
 
 - name: Verify App Connector Group
-  ansible.builtin.import_tasks: "../zpa_app_connector_group/verify_app_connector_group.yml"
+  ansible.builtin.import_tasks: ../zpa_app_connector_group/verify_app_connector_group.yml
 
 - name: Check if app_connector_group_id is defined
   ansible.builtin.fail:
-    msg: "app_connector_group_id is not defined or is empty"
+    msg: app_connector_group_id is not defined or is empty
   when: app_connector_group_id is not defined or app_connector_group_id == ''
 
 - name: Main block to Test Server Group

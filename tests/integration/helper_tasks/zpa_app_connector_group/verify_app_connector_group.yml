@@ -30,8 +30,8 @@
     - name: Verify App Connector Group attributes
       ansible.builtin.assert:
         that:
-          - "fetched_acg.data[0].name == acg_name"
-          - "fetched_acg.data[0].description == acg_description"
+          - fetched_acg.data[0].name == acg_name
+          - fetched_acg.data[0].description == acg_description
           # - "fetched_acg.data.some_other_attribute == expected_value"
-        fail_msg: "Verification failed for App Connector Group!"
-        success_msg: "Verification successful for App Connector Group!"
+        fail_msg: Verification failed for App Connector Group!
+        success_msg: Verification successful for App Connector Group!

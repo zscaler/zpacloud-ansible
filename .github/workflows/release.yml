@@ -117,6 +117,13 @@ jobs:
           EOF
         shell: bash
 
+      - name: Import GPG key
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+
       - name: Create release and publish
         id: release
         uses: cycjimmy/semantic-release-action@v4
@@ -128,6 +135,7 @@ jobs:
             @semantic-release/git@^9.0.0
             @semantic-release/exec@^5.0.0
         env:
+          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Store built collection

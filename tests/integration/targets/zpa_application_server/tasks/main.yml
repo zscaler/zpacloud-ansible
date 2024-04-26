@@ -1,10 +1,10 @@
 ---
 - name: Include default variables
   ansible.builtin.include_vars:
-    file: "../defaults/main.yml"
+    file: ../defaults/main.yml
 
 - name: Import Random String Generator Tasks
-  ansible.builtin.import_tasks: "../../../generate_random_string.yml"
+  ansible.builtin.import_tasks: ../../../generate_random_string.yml
 
 - name: Set dynamic name values with random string
   ansible.builtin.set_fact:

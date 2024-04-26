@@ -204,7 +204,7 @@ options:
       - The maximum limit for domains or IPs for the whole customer is 6,000 applications.
     type: list
     elements: str
-    required: true
+    required: false
 """
 
 EXAMPLES = """
@@ -475,7 +475,7 @@ def main():
         ip_anchored=dict(type="bool", required=False),
         icmp_access_type=dict(type="bool", required=False, default=False),
         server_group_ids=id_name_spec,
-        domain_names=dict(type="list", elements="str", required=True),
+        domain_names=dict(type="list", elements="str", required=False),
         tcp_port_ranges=dict(type="list", elements="str", required=False),
         udp_port_ranges=dict(type="list", elements="str", required=False),
         tcp_port_range=dict(

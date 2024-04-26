@@ -1,13 +1,13 @@
 ---
 - name: Include default variables
   ansible.builtin.include_vars:
-    file: "../defaults/main.yml"
+    file: ../defaults/main.yml
 
 - name: Import Random String Generator Tasks
-  ansible.builtin.import_tasks: "../../../generate_random_string.yml"
+  ansible.builtin.import_tasks: ../../../generate_random_string.yml
 
 - name: Import Isolation Profile ID
-  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_isolation_profile/zpa_isolation_profile.yml"
+  ansible.builtin.import_tasks: ../../../helper_tasks/zpa_isolation_profile/zpa_isolation_profile.yml
 
 - name: Set dynamic name values with random string
   ansible.builtin.set_fact:
@@ -77,14 +77,14 @@
         zpn_isolation_profile_id: "{{ profile_id }}"
         operator: "{{ operator }}"
         conditions:
-          - operator: "OR"
+          - operator: OR
             operands:
-              - object_type: "CLIENT_TYPE"
-                lhs: "id"
-                rhs: "zpn_client_type_exporter"
+              - object_type: CLIENT_TYPE
+                lhs: id
+                rhs: zpn_client_type_exporter
           - operator: "{{ operator }}"
             operands:
-              - object_type: "PLATFORM"
+              - object_type: PLATFORM
                 lhs: ios
                 rhs: "true"
       register: result
@@ -108,14 +108,14 @@
         zpn_isolation_profile_id: "{{ profile_id }}"
         operator: "{{ operator }}"
         conditions:
-          - operator: "OR"
+          - operator: OR
             operands:
-              - object_type: "CLIENT_TYPE"
-                lhs: "id"
-                rhs: "zpn_client_type_exporter"
+              - object_type: CLIENT_TYPE
+                lhs: id
+                rhs: zpn_client_type_exporter
           - operator: "{{ operator }}"
             operands:
-              - object_type: "PLATFORM"
+              - object_type: PLATFORM
                 lhs: ios
                 rhs: "true"
       register: result

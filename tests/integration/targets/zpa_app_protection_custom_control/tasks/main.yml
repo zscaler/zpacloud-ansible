@@ -1,10 +1,10 @@
 ---
 - name: Include default variables
   ansible.builtin.include_vars:
-    file: "../defaults/main.yml"
+    file: ../defaults/main.yml
 
 - name: Import Random String Generator Tasks
-  ansible.builtin.import_tasks: "../../../generate_random_string.yml"
+  ansible.builtin.import_tasks: ../../../generate_random_string.yml
 
 - name: Set dynamic name values with random string
   ansible.builtin.set_fact:
@@ -80,7 +80,7 @@
           - conditions:
               - lhs: VALUE
                 op: RX
-                rhs: "test"
+                rhs: test
               - lhs: SIZE
                 op: EQ
                 rhs: "1000"
@@ -93,7 +93,7 @@
           - conditions:
               - lhs: VALUE
                 op: RX
-                rhs: "test"
+                rhs: test
 
               - lhs: SIZE
                 op: LE
@@ -111,7 +111,7 @@
 
               - lhs: VALUE
                 op: CONTAINS
-                rhs: "test-ansible"
+                rhs: test-ansible
             type: REQUEST_URI
 
           - conditions:
@@ -121,7 +121,7 @@
 
               - lhs: VALUE
                 op: STARTS_WITH
-                rhs: "test-ansible"
+                rhs: test-ansible
             type: QUERY_STRING
 
       register: result
@@ -150,7 +150,7 @@
           - conditions:
               - lhs: VALUE
                 op: RX
-                rhs: "test"
+                rhs: test
               - lhs: SIZE
                 op: EQ
                 rhs: "1000"
@@ -163,7 +163,7 @@
           - conditions:
               - lhs: VALUE
                 op: RX
-                rhs: "test"
+                rhs: test
 
               - lhs: SIZE
                 op: LE
@@ -181,7 +181,7 @@
 
               - lhs: VALUE
                 op: CONTAINS
-                rhs: "test-ansible"
+                rhs: test-ansible
             type: REQUEST_URI
 
           - conditions:
@@ -191,7 +191,7 @@
 
               - lhs: VALUE
                 op: STARTS_WITH
-                rhs: "test-ansible"
+                rhs: test-ansible
             type: QUERY_STRING
 
       register: result

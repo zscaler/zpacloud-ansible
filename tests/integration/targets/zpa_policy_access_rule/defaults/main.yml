@@ -1,6 +1,6 @@
 ---
-rule_name: "test_zpa_policy_access_rule"
-description: "test_zpa_policy_access_rule"
-rule_action: "ALLOW"
-operator: "AND"
+rule_name: test_zpa_policy_access_rule
+description: test_zpa_policy_access_rule
+rule_action: ALLOW
+operator: AND
 custom_msg: test_zpa_policy_access_rule

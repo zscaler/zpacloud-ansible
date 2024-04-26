@@ -24,7 +24,7 @@
     - name: Fetch the App Protection Profile
       zscaler.zpacloud.zpa_app_protection_security_profile_facts:
         provider: "{{ zpa_cloud }}"
-        name: BD_AppProtection_Profile1
+        name: BD_SA_Profile1
       register: profile_id
 
     - name: Set App Protection Profile ID as fact

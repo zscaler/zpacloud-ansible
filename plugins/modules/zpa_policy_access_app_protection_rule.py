@@ -89,7 +89,7 @@ options:
     description:
       - The isolation profile ID associated with the rule.
     type: str
-    required: true
+    required: false
   conditions:
     type: list
     elements: dict
@@ -311,7 +311,7 @@ def main():
         id=dict(type="str", required=False),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
-        zpn_inspection_profile_id=dict(type="str", required=True),
+        zpn_inspection_profile_id=dict(type="str", required=False),
         policy_type=dict(type="str", required=False),
         action=dict(
             type="str",

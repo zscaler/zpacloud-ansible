@@ -24,7 +24,7 @@
     - name: Fetch Connector Certificate
       zscaler.zpacloud.zpa_enrollement_certificate_facts:
         provider: "{{ zpa_cloud }}"
-        name: "Connector"
+        name: Connector
       register: connector_cert_id
 
     - name: Set Connector Certificate ID as fact
@@ -34,7 +34,7 @@
     - name: Fetch Service Edge Certificate
       zscaler.zpacloud.zpa_enrollement_certificate_facts:
         provider: "{{ zpa_cloud }}"
-        name: "Service Edge"
+        name: Service Edge
       register: service_edge_cert_id
 
     - name: Set Service Edge Certificate ID as fact

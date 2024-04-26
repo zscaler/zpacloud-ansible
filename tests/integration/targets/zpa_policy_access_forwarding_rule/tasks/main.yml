@@ -1,16 +1,16 @@
 ---
 - name: Include default variables
   ansible.builtin.include_vars:
-    file: "../defaults/main.yml"
+    file: ../defaults/main.yml
 
 - name: Import Random String Generator Tasks
-  ansible.builtin.import_tasks: "../../../generate_random_string.yml"
+  ansible.builtin.import_tasks: ../../../generate_random_string.yml
 
 - name: Import Posture UDID
-  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_posture_profile/zpa_posture_profile.yml"
+  ansible.builtin.import_tasks: ../../../helper_tasks/zpa_posture_profile/zpa_posture_profile.yml
 
 - name: Import Network ID
-  ansible.builtin.import_tasks: "../../../helper_tasks/zpa_trusted_network/zpa_trusted_network.yml"
+  ansible.builtin.import_tasks: ../../../helper_tasks/zpa_trusted_network/zpa_trusted_network.yml
 
 - name: Set dynamic name values with random string
   ansible.builtin.set_fact:
@@ -81,17 +81,17 @@
         conditions:
           - operator: "{{ operator }}"
             operands:
-              - object_type: "PLATFORM"
+              - object_type: PLATFORM
                 lhs: ios
                 rhs: "true"
           - operator: "{{ operator }}"
             operands:
-              - object_type: "POSTURE"
+              - object_type: POSTURE
                 lhs: "{{ posture_udid }}"
                 rhs: "false"
           - operator: "{{ operator }}"
             operands:
-              - object_type: "TRUSTED_NETWORK"
+              - object_type: TRUSTED_NETWORK
                 lhs: "{{ network_id }}"
                 rhs: "false"
       register: result
@@ -116,17 +116,17 @@
         conditions:
           - operator: "{{ operator }}"
             operands:
-              - object_type: "PLATFORM"
+              - object_type: PLATFORM
                 lhs: ios
                 rhs: "true"
           - operator: "{{ operator }}"
             operands:
-              - object_type: "POSTURE"
+              - object_type: POSTURE
                 lhs: "{{ posture_udid }}"
                 rhs: "false"
           - operator: "{{ operator }}"
             operands:
-              - object_type: "TRUSTED_NETWORK"
+              - object_type: TRUSTED_NETWORK
                 lhs: "{{ network_id }}"
                 rhs: "false"
       register: result

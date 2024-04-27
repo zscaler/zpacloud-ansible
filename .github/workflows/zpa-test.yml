@@ -64,7 +64,7 @@ jobs:
         working-directory: ${{ github.workspace }}/ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
 
       - name: Install Ansible
-        run: pip install ansible
+        run: pip install 'ansible>=2.14'
 
       - name: Build and install collection locally
         run: poetry run make install
@@ -129,7 +129,7 @@ jobs:
         working-directory: ${{ github.workspace }}/ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
 
       - name: Install Ansible
-        run: pip install ansible
+        run: pip install 'ansible>=2.14'
 
       - name: Build and install collection locally
         run: poetry run make install
@@ -196,7 +196,7 @@ jobs:
         working-directory: ${{ github.workspace }}/ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
 
       - name: Install Ansible
-        run: pip install ansible
+        run: pip install 'ansible>=2.14'
 
       - name: Build and install collection locally
         run: poetry run make install

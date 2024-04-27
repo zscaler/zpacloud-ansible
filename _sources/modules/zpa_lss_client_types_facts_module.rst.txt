@@ -202,6 +202,7 @@ Parameters
       - :ansible-option-choices-entry:`"zpn\_client\_type\_slogger"`
       - :ansible-option-choices-entry:`"zpn\_client\_type\_zapp\_partner"`
       - :ansible-option-choices-entry:`"zpn\_client\_type\_branch\_connector"`
+      - :ansible-option-choices-entry:`"zpn\_client\_type\_zia\_inspection"`
 
 
       .. raw:: html

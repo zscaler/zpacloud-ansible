@@ -526,7 +526,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -1043,7 +1043,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -1054,6 +1054,12 @@ Parameters
         <div class="ansible-option-cell">
 
       The reauthentication idle timeout
+
+      Use minute, minutes, hour, hours, day, days, or never.
+
+      Timeout interval must be at least 10 minutes or 'never.
+
+      i.e 10 minutes, 1 hour, 2 hours, or never
 
 
       .. raw:: html
@@ -1077,7 +1083,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -1088,6 +1094,12 @@ Parameters
         <div class="ansible-option-cell">
 
       The reauthentication timeout.
+
+      Use minute, minutes, hour, hours, day, days, or never.
+
+      Timeout interval must be at least 10 minutes or 'never.
+
+      i.e 10 minutes, 1 hour, 2 hours, or never
 
 
       .. raw:: html

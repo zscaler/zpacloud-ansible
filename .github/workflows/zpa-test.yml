@@ -84,8 +84,6 @@ jobs:
           OKTA_CLIENT_ORGURL: ${{ secrets.OKTA_CLIENT_ORGURL }}
           OKTA_CLIENT_TOKEN: ${{ secrets.OKTA_CLIENT_TOKEN }}
 
-
-
   zpa-beta-tenants:
     runs-on: ubuntu-latest
     strategy:

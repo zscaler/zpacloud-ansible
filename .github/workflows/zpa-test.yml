@@ -64,6 +64,7 @@ jobs:
 
       - name: Install dependencies
         run: poetry install
+        working-directory: ${{ github.workspace }}
 
       - name: Install Ansible
         run: pip install ansible
@@ -130,6 +131,7 @@ jobs:
 
       - name: Install dependencies
         run: poetry install
+        working-directory: ${{ github.workspace }}
 
       - name: Install Ansible
         run: pip install ansible
@@ -201,6 +203,7 @@ jobs:
 
       - name: Install dependencies
         run: poetry install
+        working-directory: ${{ github.workspace }}
 
       - name: Install Ansible
         run: pip install ansible

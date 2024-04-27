@@ -1,3 +1,10 @@
+### [1.0.3](https://github.com/zscaler/zpacloud-ansible/compare/v1.0.2...v1.0.3) (2024-04-27)
+
+
+### Bug Fixes
+
+* Fixed Policy access timeout resource ([#32](https://github.com/zscaler/zpacloud-ansible/issues/32)) ([22f485d](https://github.com/zscaler/zpacloud-ansible/commit/22f485d4eff86ac6eef5b626b88bef1b1b7ab2f1))
+
 ### [1.0.2](https://github.com/zscaler/zpacloud-ansible/compare/v1.0.1...v1.0.2) (2024-04-25)
 
 

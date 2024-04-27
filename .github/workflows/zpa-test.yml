@@ -70,12 +70,22 @@ jobs:
         run: poetry run make install
         working-directory: ${{ github.workspace }}/ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
 
-      - name: Run tests with retry
-        uses: nick-fields/retry@v3
-        with:
-          max_attempts: 3
-          timeout_minutes: 30
-          command: bash -c "cd ${{ github.workspace }}/ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }} && ansible-playbook tests/integration/run_all_tests.yml"
+      - name: Run integration tests with retries
+        run: |
+          max_attempts=3
+          attempt=0
+          until [ "$attempt" -ge "$max_attempts" ]
+          do
+            attempt=$((attempt+1))
+            poetry run make test:integration:zpa && break
+            echo "Attempt $attempt of $max_attempts failed. Retrying..."
+            sleep 10
+          done
+          if [ "$attempt" -eq "$max_attempts" ]; then
+            echo "Test failed after $max_attempts attempts."
+            exit 1
+          fi
+        working-directory: ${{ github.workspace }}/ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
         env:
           ZPA_CLIENT_ID: ${{ secrets.ZPA_CLIENT_ID }}
           ZPA_CLIENT_SECRET: ${{ secrets.ZPA_CLIENT_SECRET }}
@@ -135,12 +145,22 @@ jobs:
         run: poetry run make install
         working-directory: ${{ github.workspace }}/ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
 
-      - name: Run tests with retry
-        uses: nick-fields/retry@v3
-        with:
-          max_attempts: 3
-          timeout_minutes: 30
-          command: bash -c "cd ${{ github.workspace }}/ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }} && ansible-playbook tests/integration/run_all_tests.yml"
+      - name: Run integration tests with retries
+        run: |
+          max_attempts=3
+          attempt=0
+          until [ "$attempt" -ge "$max_attempts" ]
+          do
+            attempt=$((attempt+1))
+            poetry run make test:integration:zpa && break
+            echo "Attempt $attempt of $max_attempts failed. Retrying..."
+            sleep 10
+          done
+          if [ "$attempt" -eq "$max_attempts" ]; then
+            echo "Test failed after $max_attempts attempts."
+            exit 1
+          fi
+        working-directory: ${{ github.workspace }}/ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
         env:
           ZPA_CLIENT_ID: ${{ secrets.ZPA_CLIENT_ID }}
           ZPA_CLIENT_SECRET: ${{ secrets.ZPA_CLIENT_SECRET }}
@@ -202,12 +222,22 @@ jobs:
         run: poetry run make install
         working-directory: ${{ github.workspace }}/ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
 
-      - name: Run tests with retry
-        uses: nick-fields/retry@v3
-        with:
-          max_attempts: 3
-          timeout_minutes: 30
-          command: bash -c "cd ${{ github.workspace }}/ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }} && ansible-playbook tests/integration/run_all_tests.yml"
+      - name: Run integration tests with retries
+        run: |
+          max_attempts=3
+          attempt=0
+          until [ "$attempt" -ge "$max_attempts" ]
+          do
+            attempt=$((attempt+1))
+            poetry run make test:integration:zpa && break
+            echo "Attempt $attempt of $max_attempts failed. Retrying..."
+            sleep 10
+          done
+          if [ "$attempt" -eq "$max_attempts" ]; then
+            echo "Test failed after $max_attempts attempts."
+            exit 1
+          fi
+        working-directory: ${{ github.workspace }}/ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
         env:
           ZPA_CLIENT_ID: ${{ secrets.ZPA_CLIENT_ID }}
           ZPA_CLIENT_SECRET: ${{ secrets.ZPA_CLIENT_SECRET }}

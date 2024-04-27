@@ -11,4 +11,4 @@ upgrade_day: SUNDAY
 is_public: true
 upgrade_time_in_secs: "66600"
 override_version_profile: true
-version_profile_id: "2"
+version_profile_id: "0"

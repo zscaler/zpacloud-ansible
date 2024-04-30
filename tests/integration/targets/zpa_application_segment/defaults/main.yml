@@ -1,6 +1,6 @@
 ---
 seg_name: test_zpa_application_segment
-description: test_zpa_application_segment
+app_segment_description: test_zpa_application_segment
 enabled: true
 double_encrypt: false
 is_cname_enabled: true

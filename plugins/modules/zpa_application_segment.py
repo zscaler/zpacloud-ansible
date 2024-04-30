@@ -160,6 +160,13 @@ options:
       - and applies Data Loss Prevention policies to the application segment you are creating
     type: bool
     required: false
+  bypass_on_reauth:
+    description:
+      - Indicates whether application access during reauthentication bypasses ZPA (Enabled) or not (Disabled).
+      - This feature is only applicable for Zscaler Client Connector-specific applications.
+    type: bool
+    required: false
+    default: false
   bypass_type:
     description:
       - Indicates whether users can bypass ZPA to access applications.
@@ -195,7 +202,7 @@ options:
     description:
       - ID of the segment group.
     type: str
-    required: true
+    required: false
   health_check_type:
     description:
       - health check type.
@@ -209,6 +216,18 @@ options:
     type: list
     elements: str
     required: false
+  match_style:
+    description:
+      - Indicates if Multimatch is enabled for the application segment.
+      - If enabled (INCLUSIVE), the request allows traffic to match multiple applications.
+      - If disabled (EXCLUSIVE), the request allows traffic to match a single application.
+      - A domain can only be INCLUSIVE or EXCLUSIVE, and any application segment can only contain inclusive or exclusive domains.
+      - A domain can only be INCLUSIVE or EXCLUSIVE, and any application segment can only contain inclusive or exclusive domains
+    type: str
+    required: false
+    choices:
+      - EXCLUSIVE
+      - INCLUSIVE
 """
 
 EXAMPLES = """
@@ -278,6 +297,8 @@ def core(module):
         "segment_group_id",
         "server_group_ids",
         "domain_names",
+        "match_style",
+        "bypass_on_reauth",
     ]
     for param_name in params:
         app[param_name] = module.params.get(param_name)
@@ -333,16 +354,16 @@ def core(module):
     for key, value in desired_app.items():
         if key not in fields_to_exclude and current_app.get(key) != value:
             differences_detected = True
-            # module.warn(
-            #     f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
-            # )
+            module.warn(
+                f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+            )
 
     if existing_app is not None:
         id = existing_app.get("id")
         existing_app.update(app)
         existing_app["id"] = id
 
-    # module.warn(f"Final payload being sent to SDK: {app}")
+    module.warn(f"Final payload being sent to SDK: {app}")
     if state == "present":
         if existing_app is not None:
             if differences_detected:
@@ -350,11 +371,13 @@ def core(module):
                 existing_app = deleteNone(
                     dict(
                         segment_id=existing_app.get("id"),
-                        bypass_type=existing_app.get("bypass_type", None),
+                        name=existing_app.get("name", None),
                         description=existing_app.get("description", None),
+                        enabled=existing_app.get("enabled", None),
+                        bypass_type=existing_app.get("bypass_type", None),
+                        bypass_on_reauth=existing_app.get("bypass_on_reauth", None),
                         domain_names=existing_app.get("domain_names", None),
                         double_encrypt=existing_app.get("double_encrypt", None),
-                        enabled=existing_app.get("enabled", None),
                         health_check_type=existing_app.get("health_check_type", None),
                         health_reporting=existing_app.get("health_reporting", None),
                         ip_anchored=existing_app.get("ip_anchored", None),
@@ -371,7 +394,7 @@ def core(module):
                         inspect_traffic_with_zia=existing_app.get(
                             "inspect_traffic_with_zia", None
                         ),
-                        name=existing_app.get("name", None),
+                        match_style=existing_app.get("match_style", None),
                         passive_health_enabled=existing_app.get(
                             "passive_health_enabled", None
                         ),
@@ -385,7 +408,7 @@ def core(module):
                         ),
                     )
                 )
-                # module.warn("Payload Update for SDK: {}".format(existing_app))
+                module.warn("Payload Update for SDK: {}".format(existing_app))
                 existing_app = client.app_segments.update_segment(
                     **existing_app
                 ).to_dict()
@@ -394,7 +417,7 @@ def core(module):
                 """No Changes Needed"""
                 module.exit_json(changed=False, data=existing_app)
         else:
-            # module.warn("Creating new rule as no existing rule found")
+            module.warn("Creating app segment as no existing app segment was found")
             """Create"""
             app = deleteNone(
                 dict(
@@ -402,6 +425,7 @@ def core(module):
                     description=app.get("description", None),
                     enabled=app.get("enabled", None),
                     bypass_type=app.get("bypass_type", None),
+                    bypass_on_reauth=app.get("bypass_on_reauth", None),
                     domain_names=app.get("domain_names", None),
                     double_encrypt=app.get("double_encrypt", None),
                     health_check_type=app.get("health_check_type", None),
@@ -410,6 +434,7 @@ def core(module):
                     is_cname_enabled=app.get("is_cname_enabled", None),
                     tcp_keep_alive=app.get("tcp_keep_alive", None),
                     icmp_access_type=app.get("icmp_access_type", None),
+                    match_style=app.get("match_style", None),
                     passive_health_enabled=app.get("passive_health_enabled", None),
                     select_connector_close_to_app=app.get(
                         "select_connector_close_to_app", None
@@ -423,7 +448,7 @@ def core(module):
                     udp_port_ranges=convert_ports_list(app.get("udp_port_range", None)),
                 )
             )
-            # module.warn("Payload for SDK: {}".format(app))
+            module.warn("Payload for SDK: {}".format(app))
             app = client.app_segments.add_segment(**app)
             module.exit_json(changed=True, data=app)
     elif (
@@ -464,6 +489,7 @@ def main():
             default="NEVER",
             choices=["ALWAYS", "NEVER", "ON_NET"],
         ),
+        bypass_on_reauth=dict(type="bool", required=False, default=False),
         health_reporting=dict(
             type="str",
             required=False,
@@ -471,12 +497,15 @@ def main():
             choices=["NONE", "ON_ACCESS", "CONTINUOUS"],
         ),
         tcp_keep_alive=dict(type="bool", required=False, default=False),
-        segment_group_id=dict(type="str", required=True),
+        segment_group_id=dict(type="str", required=False),
         double_encrypt=dict(type="bool", default=False, required=False),
         health_check_type=dict(type="str", default="DEFAULT", required=False),
         is_cname_enabled=dict(type="bool", required=False),
         passive_health_enabled=dict(type="bool", default=True, required=False),
         ip_anchored=dict(type="bool", required=False),
+        match_style=dict(
+            type="str", required=False, choices=["EXCLUSIVE", "INCLUSIVE"]
+        ),
         icmp_access_type=dict(type="bool", required=False, default=False),
         server_group_ids=id_name_spec,
         domain_names=dict(type="list", elements="str", required=False),

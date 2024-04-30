@@ -507,7 +507,9 @@ def main():
         ),
         segment_group_id=dict(type="str", required=True),
         double_encrypt=dict(type="bool", default=False, required=False),
-        health_check_type=dict(type="str", default="DEFAULT", required=False, choices=["DEFAULT", "NONE"]),
+        health_check_type=dict(
+            type="str", default="DEFAULT", required=False, choices=["DEFAULT", "NONE"]
+        ),
         is_cname_enabled=dict(type="bool", default=True, required=False),
         passive_health_enabled=dict(type="bool", default=True, required=False),
         ip_anchored=dict(type="bool", default=False, required=False),

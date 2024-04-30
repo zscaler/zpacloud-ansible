@@ -35,11 +35,6 @@ echo "Updating galaxy.yml"
 grep -E '^version: (.+)$' "$ROOT/galaxy.yml" || exit 1
 sed -i.bak -E "s/^version: (.+)$/version: $1/" "$ROOT/galaxy.yml" && rm "$ROOT/galaxy.yml.bak"
 
-# Set version in docs/source/conf.py
-echo "Updating docs/source/conf.py"
-grep -E '^release: (.+)$' "$ROOT/docs/source/conf.py" || exit 1
-sed -i.bak -E "s/^release: (.+)$/release: $1/" "$ROOT/docs/source/conf.py" && rm "$ROOT/docs/source/conf.py.bak"
-
 # Set version in docs/source/index.rst
 echo "Updating docs/source/index.rst"
 grep -E '^Version: (.+)$' "$ROOT/docs/source/index.rst" || exit 1

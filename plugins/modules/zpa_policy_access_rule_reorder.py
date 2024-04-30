@@ -55,6 +55,9 @@ options:
       - client_forwarding
       - isolation
       - inspection
+      - redirection
+      - credential
+      - capabilities
   rules:
     type: list
     elements: dict
@@ -189,6 +192,9 @@ def main():
                 "client_forwarding",
                 "isolation",
                 "inspection",
+                "redirection",
+                "credential",
+                "capabilities",
             ],
         ),
         rules=dict(

@@ -29,26 +29,20 @@ class ModuleDocFragment(object):
     DOCUMENTATION = r"""
 options:
     client_id:
-        description:
-            - The ZPA API client ID generated from the ZPA console.
+        description: The ZPA API client ID generated from the ZPA console.
         type: str
-        required: true
+        required: false
     client_secret:
-        description:
-            - The ZPA API client secret generated from the ZPA console.
+        description: The ZPA API client secret generated from the ZPA console.
         type: str
-        required: true
+        required: false
     customer_id:
-        description:
-            - The ZPA tenant ID found in the Administration
-            - Company menu in the ZPA console.
-            - The ZPA tenant ID found in the Administration Company menu in the ZPA console.
+        description: The ZPA tenant ID found in the Administration Company menu in the ZPA console.
         type: str
-        required: true
+        required: false
     cloud:
-        description:
-            - The ZPA cloud provisioned for your organization
-        required: true
+        description: The ZPA cloud provisioned for your organization.
+        required: false
         type: str
         choices:
             - PRODUCTION
@@ -58,36 +52,32 @@ options:
             - GOV
             - GOVUS
             - PREVIEW
+            - ZPATWO
 """
 
     PROVIDER = r"""
 options:
     provider:
-        description:
-            - A dict object containing authentication details.
+        description: A dict object containing authentication details.
         type: dict
+        required: false
         suboptions:
             client_id:
-                description:
-                    - The ZPA API client ID generated from the ZPA console.
+                description: The ZPA API client ID generated from the ZPA console.
                 type: str
-                required: true
+                required: false
             client_secret:
-                description:
-                    - The ZPA API client secret generated from the ZPA console.
+                description: The ZPA API client secret generated from the ZPA console.
                 type: str
-                required: true
+                required: false
             customer_id:
                 description:
-                    - The ZPA tenant ID found in the Administration
-                    - Company menu in the ZPA console.
                     - The ZPA tenant ID found in the Administration Company menu in the ZPA console.
                 type: str
-                required: true
+                required: false
             cloud:
-                description:
-                    - The ZPA cloud provisioned for your organization
-                required: true
+                description: The ZPA cloud provisioned for your organization.
+                required: false
                 type: str
                 choices:
                     - PRODUCTION
@@ -97,6 +87,7 @@ options:
                     - GOV
                     - GOVUS
                     - PREVIEW
+                    - ZPATWO
 """
 
     STATE = r"""

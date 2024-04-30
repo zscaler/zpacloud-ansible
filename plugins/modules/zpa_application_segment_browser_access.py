@@ -52,48 +52,57 @@ options:
     description: "Name of the application."
   description:
     type: str
-    required: False
+    required: false
     description: "Description of the application."
   enabled:
     type: bool
-    required: False
+    required: false
+    default: true
     description: "Whether this application is enabled or not."
   ip_anchored:
     type: bool
-    required: False
-    description: "ip_anchored"
+    required: false
+    default: false
+    description: "Whether Source IP Anchoring for use with ZIA is enabled or disabled for the application"
   double_encrypt:
     type: bool
-    required: False
+    required: false
+    default: false
     description: "Whether Double Encryption is enabled or disabled for the app."
   icmp_access_type:
     description:
       - Indicates the ICMP access type.
     type: bool
     required: false
+    default: true
   tcp_keep_alive:
     description:
       - Indicates whether TCP communication sockets are enabled or disabled.
     type: bool
     required: false
+    default: false
   select_connector_close_to_app:
     description:
       - Whether the App Connector is closest to the application (True) or closest to the user (False).
     type: bool
     required: false
+    default: false
   passive_health_enabled:
     description:
       - passive health enabled.
     type: bool
     required: false
+    default: true
   use_in_dr_mode:
     description: "Whether or not the application resource is designated for disaster recovery"
     type: bool
     required: false
+    default: false
   is_incomplete_dr_config:
     description: "Indicates whether or not the disaster recovery configuration is incomplete"
     type: bool
     required: false
+    default: false
   inspect_traffic_with_zia:
     description:
       - Indicates if Inspect Traffic with ZIA is enabled for the application
@@ -101,13 +110,7 @@ options:
       - and applies Data Loss Prevention policies to the application segment you are creating
     type: bool
     required: false
-  adp_enabled:
-    description:
-      - Indicates if Active Directory Inspection is enabled or not for the application
-      - This allows the application segment's traffic to be inspected by Active Directory (AD) Protection
-      - By default, this field is set to false
-    type: bool
-    required: false
+    default: false
   bypass_type:
     type: str
     required: False
@@ -115,7 +118,8 @@ options:
     choices: ["ALWAYS", "NEVER", "ON_NET"]
   is_cname_enabled:
     type: bool
-    required: False
+    required: false
+    default: true
     description: "Indicates if the Zscaler Client Connector (formerly Zscaler App or Z App) receives CNAME DNS records from the connectors."
   health_reporting:
     type: str
@@ -134,7 +138,11 @@ options:
     description: "segment group id."
   health_check_type:
     type: str
-    description: "health check type."
+    description: "Whether the health check is enabled (DEFAULT) or disabled (NONE) for the application"
+    default: DEFAULT
+    choices:
+      - DEFAULT
+      - NONE
   tcp_port_range:
     type: list
     elements: dict
@@ -174,13 +182,9 @@ options:
     elements: dict
     required: true
     suboptions:
-      id:
-        type: str
-        description: "The unique identifier of the Browser Access application."
-        required: false
       name:
         type: str
-        required: true
+        required: false
         description: "The name of the Browser Access application"
       description:
         type: str
@@ -189,10 +193,12 @@ options:
       trust_untrusted_cert:
         type: bool
         required: false
+        default: false
         description: "Whether the use of untrusted certificates is enabled or disabled for the Browser Access application"
       allow_options:
         type: bool
         required: false
+        default: false
         description: "Whether the options are enabled for the Browser Access application or not"
       cname:
         type: str
@@ -200,16 +206,16 @@ options:
         description: "The canonical name (CNAME DNS records) of the Browser Access application."
       application_port:
         type: str
-        required: true
+        required: false
         description: "The port for the Browser Access application."
       application_protocol:
         type: str
-        required: true
+        required: false
         description: "The protocol for the Browser Access application."
         choices: ["HTTP", "HTTPS"]
       certificate_id:
         type: str
-        required: true
+        required: false
         description: "The unique identifier of the Browser Access certificate."
       domain:
         type: str
@@ -218,6 +224,7 @@ options:
       enabled:
         type: bool
         required: false
+        default: true
         description: "Whether the Browser Access application is enabled or not."
 """
 
@@ -270,60 +277,11 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     convert_ports,
     convert_ports_list,
     convert_bool_to_str,
-    convert_str_to_bool,
+    normalize_app,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
-
-
-def normalize_app_segment_ba(app):
-    """
-    Normalize application segment pra data by setting computed values.
-    """
-    normalized = app.copy()
-
-    computed_values = [
-        "id",
-        "creation_time",
-        "modified_by",
-        "enabled",
-        "config_space",
-        "microtenant_name",
-        "segment_group_name",
-        "server_groups",
-        "adp_enabled",
-        "app_id",
-        "name",
-        "ip_anchored",
-        "is_incomplete_dr_config",
-        "inspect_traffic_with_zia",
-        "tcp_port_range",
-        "udp_port_range",
-        "tcp_port_ranges",
-        "udp_port_ranges",
-        "description",
-        "bypass_type",
-        "health_reporting",
-        "use_in_dr_mode",
-        "clientless_apps",
-    ]
-    for attr in computed_values:
-        normalized.pop(attr, None)
-
-    if "tcp_keep_alive" in normalized:
-        normalized["tcp_keep_alive"] = convert_str_to_bool(normalized["tcp_keep_alive"])
-
-    if "icmp_access_type" in normalized:
-        normalized["icmp_access_type"] = normalized["icmp_access_type"] in [
-            "PING",
-            "PING_TRACEROUTING",
-        ]
-
-    if "server_groups" in app:
-        normalized["server_group_ids"] = [group["id"] for group in app["server_groups"]]
-
-    return normalized
 
 
 def core(module):
@@ -333,27 +291,27 @@ def core(module):
     params = [
         "id",
         "name",
-        "enabled",
         "description",
+        "tcp_port_range",
+        "udp_port_range",
+        "enabled",
         "bypass_type",
-        "clientless_app_ids",
-        "domain_names",
-        "double_encrypt",
-        "health_check_type",
         "health_reporting",
-        "ip_anchored",
+        "double_encrypt",
+        "tcp_keep_alive",
+        "health_check_type",
         "is_cname_enabled",
-        "icmp_access_type",
+        "passive_health_enabled",
         "select_connector_close_to_app",
         "use_in_dr_mode",
         "is_incomplete_dr_config",
         "inspect_traffic_with_zia",
-        "adp_enabled",
-        "passive_health_enabled",
-        "tcp_port_range",
-        "udp_port_range",
+        "ip_anchored",
+        "icmp_access_type",
         "segment_group_id",
         "server_group_ids",
+        "domain_names",
+        "clientless_app_ids",
     ]
     for param_name in params:
         app[param_name] = module.params.get(param_name)
@@ -389,21 +347,20 @@ def core(module):
             msg="Invalid configuration: 'select_connector_close_to_app' cannot be set to True when 'udp_port_range' is defined."
         )
 
-    ba_appsegment_id = module.params.get("id", None)
-    ba_appsegment_name = module.params.get("name", None)
+    appsegment_id = module.params.get("id", None)
+    appsegment_name = module.params.get("name", None)
     existing_app = None
-    if ba_appsegment_id is not None:
-        existing_app = client.app_segments.get_segment(segment_id=ba_appsegment_id)
-    elif ba_appsegment_name is not None:
+    if appsegment_id is not None:
+        existing_app = client.app_segments.get_segment(segment_id=appsegment_id)
+    elif appsegment_name is not None:
         ba_app_segments = client.app_segments.list_segments().to_list()
         for ba_app_segment in ba_app_segments:
-            if ba_app_segment.get("name") == ba_appsegment_name:
+            if ba_app_segment.get("name") == appsegment_name:
                 existing_app = ba_app_segment
                 break
-
     # Normalize and compare existing and desired application data
-    desired_app = normalize_app_segment_ba(app)
-    current_app = normalize_app_segment_ba(existing_app) if existing_app else {}
+    desired_app = normalize_app(app)
+    current_app = normalize_app(existing_app) if existing_app else {}
 
     fields_to_exclude = ["id"]
     differences_detected = False
@@ -419,6 +376,7 @@ def core(module):
         existing_app.update(app)
         existing_app["id"] = id
 
+    # module.warn(f"Final payload being sent to SDK: {app}")
     if state == "present":
         if existing_app is not None:
             if differences_detected:
@@ -426,13 +384,11 @@ def core(module):
                 existing_app = deleteNone(
                     dict(
                         segment_id=existing_app.get("id"),
-                        name=existing_app.get("name", None),
-                        description=existing_app.get("description", None),
-                        enabled=existing_app.get("enabled", None),
                         bypass_type=existing_app.get("bypass_type", None),
-                        clientless_app_ids=existing_app.get("clientless_app_ids", None),
+                        description=existing_app.get("description", None),
                         domain_names=existing_app.get("domain_names", None),
                         double_encrypt=existing_app.get("double_encrypt", None),
+                        enabled=existing_app.get("enabled", None),
                         health_check_type=existing_app.get("health_check_type", None),
                         health_reporting=existing_app.get("health_reporting", None),
                         ip_anchored=existing_app.get("ip_anchored", None),
@@ -449,12 +405,13 @@ def core(module):
                         inspect_traffic_with_zia=existing_app.get(
                             "inspect_traffic_with_zia", None
                         ),
-                        adp_enabled=existing_app.get("adp_enabled", None),
+                        name=existing_app.get("name", None),
                         passive_health_enabled=existing_app.get(
                             "passive_health_enabled", None
                         ),
                         segment_group_id=existing_app.get("segment_group_id", None),
                         server_group_ids=existing_app.get("server_group_ids", None),
+                        clientless_app_ids=existing_app.get("clientless_app_ids", None),
                         tcp_port_ranges=convert_ports(
                             existing_app.get("tcp_port_range", None)
                         ),
@@ -463,15 +420,16 @@ def core(module):
                         ),
                     )
                 )
-                module.warn(
-                    "Prepared payload for update_segment: {}".format(existing_app)
-                )
-                app = client.app_segments.update_segment(**existing_app)
-                module.exit_json(changed=True, data=app)
+                module.warn("Payload Update for SDK: {}".format(existing_app))
+                existing_app = client.app_segments.update_segment(
+                    **existing_app
+                ).to_dict()
+                module.exit_json(changed=True, data=existing_app)
             else:
                 """No Changes Needed"""
                 module.exit_json(changed=False, data=existing_app)
         else:
+            module.warn("Creating new rule as no existing rule found")
             """Create"""
             app = deleteNone(
                 dict(
@@ -479,7 +437,6 @@ def core(module):
                     description=app.get("description", None),
                     enabled=app.get("enabled", None),
                     bypass_type=app.get("bypass_type", None),
-                    clientless_app_ids=app.get("clientless_app_ids", None),
                     domain_names=app.get("domain_names", None),
                     double_encrypt=app.get("double_encrypt", None),
                     health_check_type=app.get("health_check_type", None),
@@ -495,13 +452,14 @@ def core(module):
                     use_in_dr_mode=app.get("use_in_dr_mode", None),
                     is_incomplete_dr_config=app.get("is_incomplete_dr_config", None),
                     inspect_traffic_with_zia=app.get("inspect_traffic_with_zia", None),
-                    adp_enabled=app.get("adp_enabled", None),
                     segment_group_id=app.get("segment_group_id", None),
                     server_group_ids=app.get("server_group_ids", None),
+                    clientless_app_ids=app.get("clientless_app_ids", None),
                     tcp_port_ranges=convert_ports_list(app.get("tcp_port_range", None)),
                     udp_port_ranges=convert_ports_list(app.get("udp_port_range", None)),
                 )
             )
+            module.warn("Payload for SDK: {}".format(app))
             app = client.app_segments.add_segment(**app)
             module.exit_json(changed=True, data=app)
     elif (
@@ -531,14 +489,13 @@ def main():
         id=dict(type="str"),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
-        enabled=dict(type="bool", required=False),
-        select_connector_close_to_app=dict(type="bool", required=False),
-        use_in_dr_mode=dict(type="bool", required=False),
-        is_incomplete_dr_config=dict(type="bool", required=False),
-        inspect_traffic_with_zia=dict(type="bool", required=False),
-        adp_enabled=dict(type="bool", required=False),
-        tcp_keep_alive=dict(type="bool", required=False),
-        icmp_access_type=dict(type="bool", required=False),
+        enabled=dict(type="bool", default=True, required=False),
+        select_connector_close_to_app=dict(type="bool", default=False, required=False),
+        use_in_dr_mode=dict(type="bool", default=False, required=False),
+        is_incomplete_dr_config=dict(type="bool", default=False, required=False),
+        inspect_traffic_with_zia=dict(type="bool", default=False, required=False),
+        tcp_keep_alive=dict(type="bool", required=False, default=False),
+        icmp_access_type=dict(type="bool", default=True, required=False),
         bypass_type=dict(
             type="str", required=False, choices=["ALWAYS", "NEVER", "ON_NET"]
         ),
@@ -549,11 +506,11 @@ def main():
             choices=["NONE", "ON_ACCESS", "CONTINUOUS"],
         ),
         segment_group_id=dict(type="str", required=True),
-        double_encrypt=dict(type="bool", required=False),
-        health_check_type=dict(type="str"),
-        is_cname_enabled=dict(type="bool", required=False),
-        passive_health_enabled=dict(type="bool", required=False),
-        ip_anchored=dict(type="bool", required=False),
+        double_encrypt=dict(type="bool", default=False, required=False),
+        health_check_type=dict(type="str", default="DEFAULT", required=False, choices=["DEFAULT", "NONE"]),
+        is_cname_enabled=dict(type="bool", default=True, required=False),
+        passive_health_enabled=dict(type="bool", default=True, required=False),
+        ip_anchored=dict(type="bool", default=False, required=False),
         server_group_ids=id_name_spec,
         domain_names=dict(type="list", elements="str", required=True),
         tcp_port_range=dict(
@@ -566,21 +523,20 @@ def main():
             type="list",
             elements="dict",
             options=dict(
-                id=dict(type="str"),
-                name=dict(type="str", required=True),
+                name=dict(type="str", required=False),
                 description=dict(type="str", required=False),
-                trust_untrusted_cert=dict(type="bool", required=False),
-                allow_options=dict(type="bool", required=False),
-                cname=dict(type="str", required=False),
-                application_port=dict(type="str", required=True),
+                trust_untrusted_cert=dict(type="bool", default=False, required=False),
+                allow_options=dict(type="bool", default=False, required=False),
+                application_port=dict(type="str", required=False),
                 application_protocol=dict(
                     type="str",
-                    required=True,
+                    required=False,
                     choices=["HTTP", "HTTPS"],
                 ),
-                certificate_id=dict(type="str", required=True),
+                cname=dict(type="str", required=False),
+                certificate_id=dict(type="str", required=False),
                 domain=dict(type="str", required=False),
-                enabled=dict(type="bool", required=False),
+                enabled=dict(type="bool", default=True, required=False),
             ),
             required=True,
         ),

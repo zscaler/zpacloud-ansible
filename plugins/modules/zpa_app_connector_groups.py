@@ -75,18 +75,22 @@ options:
       - IPV4_IPV6
       - IPV4
       - IPV6
+    default: IPV4_IPV6
   enabled:
     description:
       - Whether this App Connector Group is enabled or not.
     type: bool
+    default: true
   pra_enabled:
     description:
       - Whether or not privileged remote access is enabled for the App Connector Group.
     type: bool
+    default: false
   waf_disabled:
     description:
       - Whether or not AppProtection is disabled for the App Connector Group.
     type: bool
+    default: false
   latitude:
     description:
       - Latitude of the App Connector Group. Integer or decimal. With values in the range of -90 to 90.
@@ -140,23 +144,27 @@ options:
       - The tcpQuickAckApp, tcpQuickAckAssistant, and tcpQuickAckReadAssistant fields must all share the same values.
     required: false
     type: bool
+    default: false
   tcp_quick_ack_assistant:
     description:
       - Whether TCP Quick Acknowledgement is enabled or disabled for the application.
       - The tcpQuickAckApp, tcpQuickAckAssistant, and tcpQuickAckReadAssistant fields must all share the same values.
     required: false
     type: bool
+    default: false
   tcp_quick_ack_read_assistant:
     description:
       - Whether TCP Quick Acknowledgement is enabled or disabled for the application.
       - The tcpQuickAckApp, tcpQuickAckAssistant, and tcpQuickAckReadAssistant fields must all share the same values.
     required: false
     type: bool
+    default: false
   use_in_dr_mode:
     description:
       - Whether or not the App Connector Group is designated for disaster recovery.
     required: false
     type: bool
+    default: false
 """
 
 EXAMPLES = """
@@ -198,25 +206,6 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
-
-
-# def normalize_app_connector_groups(group):
-#     """
-#     Normalize app connector groups data by setting computed values.
-#     """
-#     normalized = group.copy()
-
-#     computed_values = [
-#         "id",
-#         "creation_time",
-#         "modified_by",
-#         "modified_time",
-#         "lss_app_connector_group"
-#     ]
-#     for attr in computed_values:
-#         normalized.pop(attr, None)
-
-#     return normalized
 
 
 def core(module):
@@ -288,9 +277,9 @@ def core(module):
     for key, value in desired_group.items():
         if key not in fields_to_exclude and current_group.get(key) != value:
             differences_detected = True
-            module.warn(
-                f"Difference detected in {key}. Current: {current_group.get(key)}, Desired: {value}"
-            )
+            # module.warn(
+            #     f"Difference detected in {key}. Current: {current_group.get(key)}, Desired: {value}"
+            # )
 
     if existing_group is not None:
         id = existing_group.get("id")
@@ -428,14 +417,14 @@ def core(module):
 
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
-    id_name_spec = dict(
-        type="list",
-        elements="dict",
-        options=dict(
-            id=dict(type="str", required=False), name=dict(type="str", required=False)
-        ),
-        required=False,
-    )
+    # id_name_spec = dict(
+    #     type="list",
+    #     elements="dict",
+    #     options=dict(
+    #         id=dict(type="str", required=False), name=dict(type="str", required=False)
+    #     ),
+    #     required=False,
+    # )
     argument_spec.update(
         name=dict(type="str", required=True),
         id=dict(type="str", required=False),
@@ -446,8 +435,9 @@ def main():
             type="str",
             choices=["IPV4_IPV6", "IPV4", "IPV6"],
             required=False,
+            default="IPV4_IPV6",
         ),
-        enabled=dict(type="bool", required=False),
+        enabled=dict(type="bool", default=True, required=False),
         latitude=dict(type="str", required=False),
         location=dict(type="str", required=False),
         longitude=dict(type="str", required=False),
@@ -471,12 +461,12 @@ def main():
         version_profile_id=dict(
             type="str", default="0", choices=["0", "1", "2"], required=False
         ),
-        tcp_quick_ack_app=dict(type="bool", required=False),
-        tcp_quick_ack_assistant=dict(type="bool", required=False),
-        tcp_quick_ack_read_assistant=dict(type="bool", required=False),
-        use_in_dr_mode=dict(type="bool", required=False),
-        pra_enabled=dict(type="bool", required=False),
-        waf_disabled=dict(type="bool", required=False),
+        tcp_quick_ack_app=dict(type="bool", default=False, required=False),
+        tcp_quick_ack_assistant=dict(type="bool", default=False, required=False),
+        tcp_quick_ack_read_assistant=dict(type="bool", default=False, required=False),
+        use_in_dr_mode=dict(type="bool", default=False, required=False),
+        pra_enabled=dict(type="bool", default=False, required=False),
+        waf_disabled=dict(type="bool", default=False, required=False),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

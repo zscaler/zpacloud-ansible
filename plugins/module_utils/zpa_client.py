@@ -77,100 +77,63 @@ class ZPAClientHelper(ZPA):
                 exception=ZSCALER_IMPORT_ERROR,
             )
 
-        self.connection_helper = ConnectionHelper(min_sdk_version=(0, 1, 0))
-        provider = module.params.get("provider") or {}
-        client_id = provider.get("client_id") or module.params.get("client_id")
-        client_secret = provider.get("client_secret") or module.params.get(
-            "client_secret"
-        )
-        customer_id = provider.get("customer_id") or module.params.get("customer_id")
-        cloud_env = provider.get("cloud") or module.params.get("cloud")
-        cloud_env = cloud_env.upper()  # Ensure the cloud environment is in uppercase
+        # Extract provider details or individual parameters
+        provider = module.params.get("provider")
+        if provider:
+            client_id = provider.get("client_id")
+            client_secret = provider.get("client_secret")
+            customer_id = provider.get("customer_id")
+            cloud_env = provider.get("cloud")
+        else:
+            client_id = module.params.get("client_id")
+            client_secret = module.params.get("client_secret")
+            customer_id = module.params.get("customer_id")
+            cloud_env = module.params.get("cloud")
 
-        if cloud_env not in VALID_ZPA_ENVIRONMENTS:
-            raise ValueError(f"Invalid ZPA Cloud environment '{cloud_env}'.")
+        if not all([client_id, client_secret, customer_id, cloud_env]):
+            module.fail_json(msg="All authentication parameters must be provided.")
 
         super().__init__(
             client_id=client_id,
             client_secret=client_secret,
             customer_id=customer_id,
-            cloud=cloud_env,
+            cloud=cloud_env.upper(),
         )
-        ansible_version = ansible_release.__version__
-        self.user_agent = f"zpa-ansible/{ansible_version}/({platform.system().lower()} {platform.machine()})"
 
-    @staticmethod
     def zpa_argument_spec():
         return dict(
             provider=dict(
                 type="dict",
+                required=False,
                 options=dict(
-                    client_id=dict(
-                        no_log=True,
-                        required=True,
-                        fallback=(env_fallback, ["ZPA_CLIENT_ID"]),
-                        type="str",
-                    ),
-                    client_secret=dict(
-                        no_log=True,
-                        required=True,
-                        fallback=(env_fallback, ["ZPA_CLIENT_SECRET"]),
-                        type="str",
-                    ),
-                    customer_id=dict(
-                        no_log=True,
-                        required=True,
-                        fallback=(env_fallback, ["ZPA_CUSTOMER_ID"]),
-                        type="str",
-                    ),
-                    cloud=dict(
-                        no_log=False,
-                        required=True,
-                        choices=[
-                            "PRODUCTION",
-                            "BETA",
-                            "GOV",
-                            "GOVUS",
-                            "PREVIEW",
-                            "QA",
-                            "QA2",
-                        ],
-                        fallback=(env_fallback, ["ZPA_CLOUD"]),
-                        type="str",
-                    ),
+                    client_id=dict(type="str", no_log=True),
+                    client_secret=dict(type="str", no_log=True),
+                    customer_id=dict(type="str", no_log=True),
+                    cloud=dict(type="str", choices=list(VALID_ZPA_ENVIRONMENTS)),
                 ),
             ),
             client_id=dict(
-                no_log=True,
-                required=True,
-                fallback=(env_fallback, ["ZPA_CLIENT_ID"]),
                 type="str",
+                no_log=True,
+                required=False,
+                fallback=(env_fallback, ["ZPA_CLIENT_ID"]),
             ),
             client_secret=dict(
-                no_log=True,
-                required=True,
-                fallback=(env_fallback, ["ZPA_CLIENT_SECRET"]),
                 type="str",
+                no_log=True,
+                required=False,
+                fallback=(env_fallback, ["ZPA_CLIENT_SECRET"]),
             ),
             customer_id=dict(
-                no_log=True,
-                required=True,
-                fallback=(env_fallback, ["ZPA_CUSTOMER_ID"]),
                 type="str",
+                no_log=True,
+                required=False,
+                fallback=(env_fallback, ["ZPA_CUSTOMER_ID"]),
             ),
             cloud=dict(
-                no_log=False,
-                required=True,
-                choices=[
-                    "PRODUCTION",
-                    "BETA",
-                    "GOV",
-                    "GOVUS",
-                    "PREVIEW",
-                    "QA",
-                    "QA2",
-                ],
-                fallback=(env_fallback, ["ZPA_CLOUD"]),
                 type="str",
+                required=False,
+                choices=list(VALID_ZPA_ENVIRONMENTS),
+                fallback=(env_fallback, ["ZPA_CLOUD"]),
             ),
         )

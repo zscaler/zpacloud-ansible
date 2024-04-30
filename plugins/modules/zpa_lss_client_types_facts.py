@@ -94,7 +94,9 @@ def core(module):
     lss_client_types = client.lss.get_client_types(client_type)
 
     # Since get_client_types already handles filtering, no need for additional checks here
-    data = lss_client_types.to_dict()  # Convert from Box to standard dictionary for Ansible
+    data = (
+        lss_client_types.to_dict()
+    )  # Convert from Box to standard dictionary for Ansible
 
     module.exit_json(changed=False, data=data)
 

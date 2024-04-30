@@ -125,6 +125,26 @@ options:
       - Whether or not the ZPA Private Service Edge Group is public.
     required: false
     type: bool
+  grace_distance_enabled:
+    description:
+      - If enabled, allows ZPA Private Service Edge Groups within the specified distance to be prioritized over a closer ZPA Public Service Edge.
+    required: false
+    type: bool
+    default: false
+  grace_distance_value:
+    description:
+      - Indicates the maximum distance in miles or kilometers to ZPA Private Service Edge groups that would override a ZPA Public Service Edge.
+    required: false
+    type: str
+  grace_distance_value_unit:
+    description:
+      - Indicates the grace distance unit of measure in miles or kilometers.
+      - This value is only required if graceDistanceEnabled is set to true.
+    required: false
+    type: str
+    choices:
+      - MILES
+      - KMS
   trusted_networks_ids:
     description:
       - The list of trusted networks in the ZPA Private Service Edge Group.
@@ -165,6 +185,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     validate_longitude,
     diff_suppress_func_coordinate,
     deleteNone,
+    normalize_app,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
@@ -182,43 +203,66 @@ def core(module):
     is_public = module.params.get("is_public")
     is_public_str = "TRUE" if is_public else "FALSE" if is_public is not None else None
 
-    group = {
-        param_name: module.params.get(param_name)
-        for param_name in [
-            "id",
-            "name",
-            "description",
-            "enabled",
-            "city_country",
-            "country_code",
-            "latitude",
-            "longitude",
-            "location",
-            "upgrade_day",
-            "upgrade_time_in_secs",
-            "dns_query_type",
-            "override_version_profile",
-            "version_profile_id",
-            "use_in_dr_mode",
-            "trusted_networks_ids",
-        ]
-    }
+    group = dict()
+    params = [
+        "id",
+        "name",
+        "description",
+        "enabled",
+        "city_country",
+        "country_code",
+        "latitude",
+        "longitude",
+        "location",
+        "upgrade_day",
+        "upgrade_time_in_secs",
+        "override_version_profile",
+        "version_profile_id",
+        "use_in_dr_mode",
+        "is_public",
+        "grace_distance_enabled",
+        "grace_distance_value",
+        "grace_distance_value_unit",
+        "trusted_networks_ids",
+    ]
+    for param_name in params:
+        group[param_name] = module.params.get(param_name, None)
+
     group["is_public"] = is_public_str
 
-    group_id = group.get("id")
-    group_name = group.get("name")
-    existing_group = None
+    service_edge_group_id = group.get("id", None)
+    group_name = group.get("name", None)
 
-    if group_id:
-        existing_group = client.service_edges.get_service_edge_group(group_id)
-        if existing_group:
-            existing_group = existing_group.to_dict()
-    elif group_name:
+    existing_group = None
+    if service_edge_group_id is not None:
+        group_box = client.service_edges.get_service_edge_group(
+            service_edge_group_id=service_edge_group_id
+        )
+        if group_box is not None:
+            existing_group = group_box.to_dict()
+    elif group_name is not None:
         groups = client.service_edges.list_service_edge_groups().to_list()
         for group_ in groups:
-            if group_["name"] == group_name:
+            if group_.get("name") == group_name:
                 existing_group = group_
-                group_id = group_["id"]  # Capture the ID for updates
+
+    # Normalize and compare existing and desired data
+    desired_group = normalize_app(group)
+    current_group = normalize_app(existing_group) if existing_group else {}
+
+    fields_to_exclude = ["id"]
+    differences_detected = False
+    for key, value in desired_group.items():
+        if key not in fields_to_exclude and current_group.get(key) != value:
+            differences_detected = True
+            module.warn(
+                f"Difference detected in {key}. Current: {current_group.get(key)}, Desired: {value}"
+            )
+
+    if existing_group is not None:
+        id = existing_group.get("id")
+        existing_group.update(group)
+        existing_group["id"] = id
 
     if state == "present":
         if latitude is not None and longitude is not None:
@@ -229,34 +273,119 @@ def core(module):
             if lon_errors:
                 module.fail_json(msg="; ".join(lon_errors))
 
-        if existing_group:
-            # Check if latitude and longitude need to be updated using diff_suppress_func_coordinate
-            if not diff_suppress_func_coordinate(
-                existing_group.get("latitude"), group.get("latitude")
-            ):
-                existing_group["latitude"] = group.get("latitude")
-            if not diff_suppress_func_coordinate(
-                existing_group.get("longitude"), group.get("longitude")
-            ):
-                existing_group["longitude"] = group.get("longitude")
+        if existing_group is not None:
+            if differences_detected:
+                """Update"""
+                # Check if latitude and longitude need to be updated
+                existing_lat = existing_group.get("latitude")
+                new_lat = group.get("latitude")
+                if new_lat is not None:  # Check if new_lat is not None before comparing
+                    if diff_suppress_func_coordinate(existing_lat, new_lat):
+                        existing_group["latitude"] = (
+                            existing_lat  # reset to original if they're deemed equal
+                        )
+                else:
+                    existing_group["latitude"] = (
+                        existing_lat  # If new_lat is None, keep the existing value
+                    )
 
-            existing_group.update(group)
-            existing_group["id"] = (
-                group_id  # Ensure we have the correct ID for update operations
-            )
-            updated_group = client.service_edges.update_service_edge_group(
-                group_id=existing_group["id"], **deleteNone(existing_group)
-            )
-            module.exit_json(changed=True, data=updated_group)
+                existing_long = existing_group.get("longitude")
+                new_long = group.get("longitude")
+                if (
+                    new_long is not None
+                ):  # Check if new_long is not None before comparing
+                    if diff_suppress_func_coordinate(existing_long, new_long):
+                        existing_group["longitude"] = (
+                            existing_long  # reset to original if they're deemed equal
+                        )
+                else:
+                    existing_group["longitude"] = (
+                        existing_long  # If new_long is None, keep the existing value
+                    )
+
+                existing_group = deleteNone(
+                    dict(
+                        service_edge_group_id=existing_group.get("id", None),
+                        name=existing_group.get("name", None),
+                        description=existing_group.get("description", None),
+                        enabled=existing_group.get("enabled", None),
+                        city_country=existing_group.get("city_country", None),
+                        country_code=existing_group.get("country_code", None),
+                        latitude=existing_group.get("latitude", None),
+                        longitude=existing_group.get("longitude", None),
+                        location=existing_group.get("location", None),
+                        upgrade_day=existing_group.get("upgrade_day", None),
+                        is_public=existing_group.get("is_public", None),
+                        upgrade_time_in_secs=existing_group.get(
+                            "upgrade_time_in_secs", None
+                        ),
+                        override_version_profile=existing_group.get(
+                            "override_version_profile", None
+                        ),
+                        version_profile_id=existing_group.get(
+                            "version_profile_id", None
+                        ),
+                        use_in_dr_mode=existing_group.get("use_in_dr_mode", None),
+                        grace_distance_enabled=existing_group.get(
+                            "grace_distance_enabled", None
+                        ),
+                        grace_distance_value=existing_group.get(
+                            "grace_distance_value", None
+                        ),
+                        grace_distance_value_unit=existing_group.get(
+                            "grace_distance_value_unit", None
+                        ),
+                    )
+                )
+                existing_group = client.service_edges.update_service_edge_group(
+                    **existing_group
+                ).to_dict()
+                module.exit_json(changed=True, data=existing_group)
+            else:
+                """No Changes Needed"""
+                module.exit_json(changed=False, data=existing_group)
         else:
-            # When creating a new group, ensure 'id' is not passed to avoid conflicts
-            group.pop("id", None)
-            new_group = client.service_edges.add_service_edge_group(**deleteNone(group))
-            module.exit_json(changed=True, data=new_group)
-    elif state == "absent" and existing_group:
-        client.service_edges.delete_service_edge_group(service_edge_group_id=group_id)
-        module.exit_json(changed=True, data={"id": group_id})
-
+            """Create"""
+            normalized_group = deleteNone(
+                dict(
+                    name=group.get("name", None),
+                    description=group.get("description", None),
+                    enabled=group.get("enabled", None),
+                    city_country=group.get("city_country", None),
+                    country_code=group.get("country_code", None),
+                    latitude=group.get("latitude", None),
+                    longitude=group.get("longitude", None),
+                    location=group.get("location", None),
+                    upgrade_day=group.get("upgrade_day", None),
+                    is_public=group.get("is_public", None),
+                    upgrade_time_in_secs=group.get("upgrade_time_in_secs", None),
+                    override_version_profile=group.get(
+                        "override_version_profile", None
+                    ),
+                    version_profile_id=group.get("version_profile_id", None),
+                    use_in_dr_mode=group.get("use_in_dr_mode", None),
+                    grace_distance_enabled=group.get("grace_distance_enabled", None),
+                    grace_distance_value=group.get("grace_distance_value", None),
+                    grace_distance_value_unit=group.get(
+                        "grace_distance_value_unit", None
+                    ),
+                )
+            )
+            group = client.service_edges.add_service_edge_group(
+                **normalized_group
+            ).to_dict()
+            module.exit_json(changed=True, data=group)
+    elif (
+        state == "absent"
+        and existing_group is not None
+        and existing_group.get("id") is not None
+    ):
+        code = client.service_edges.delete_service_edge_group(
+            service_edge_group_id=existing_group.get("id")
+        )
+        if code > 299:
+            module.exit_json(changed=False, data=None)
+        module.exit_json(changed=True, data=existing_group)
     module.exit_json(changed=False, data={})
 
 
@@ -291,6 +420,11 @@ def main():
         override_version_profile=dict(type="bool", required=False),
         version_profile_id=dict(type="str", choices=["0", "1", "2"], default="0"),
         use_in_dr_mode=dict(type="bool", required=False),
+        grace_distance_enabled=dict(type="bool", required=False, default=False),
+        grace_distance_value=dict(type="str", required=False),
+        grace_distance_value_unit=dict(
+            type="str", required=False, choices=["MILES", "KMS"]
+        ),
         trusted_networks_ids=dict(type="list", elements="str", required=False),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )

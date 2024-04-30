@@ -120,6 +120,7 @@ options:
       - Whether Double Encryption is enabled or disabled for the application..
     type: bool
     required: false
+    default: false
   icmp_access_type:
     description:
       - Indicates the ICMP access type.
@@ -137,11 +138,13 @@ options:
       - Whether the App Connector is closest to the application (True) or closest to the user (False).
     type: bool
     required: false
+    default: false
   passive_health_enabled:
     description:
       - Indicates if passive health checks are enabled on the application..
     type: bool
     required: false
+    default: true
   use_in_dr_mode:
     description: "Whether or not the application resource is designated for disaster recovery"
     type: bool
@@ -187,7 +190,7 @@ options:
       - ID of the server group.
     type: list
     elements: str
-    required: true
+    required: false
   segment_group_id:
     description:
       - ID of the segment group.
@@ -198,6 +201,7 @@ options:
       - health check type.
     type: str
     required: false
+    default: DEFAULT
   domain_names:
     description:
       - The list of domains and IPs. The maximum limit for domains or IPs is 2,000 applications per application segment
@@ -338,7 +342,7 @@ def core(module):
         existing_app.update(app)
         existing_app["id"] = id
 
-    module.warn(f"Final payload being sent to SDK: {app}")
+    # module.warn(f"Final payload being sent to SDK: {app}")
     if state == "present":
         if existing_app is not None:
             if differences_detected:
@@ -443,14 +447,14 @@ def main():
     id_name_spec = dict(
         type="list",
         elements="str",
-        required=True,
+        required=False,
     )
     argument_spec.update(
         id=dict(type="str"),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
         enabled=dict(type="bool", required=False),
-        select_connector_close_to_app=dict(type="bool", required=False),
+        select_connector_close_to_app=dict(type="bool", default=False, required=False),
         use_in_dr_mode=dict(type="bool", required=False),
         is_incomplete_dr_config=dict(type="bool", required=False),
         inspect_traffic_with_zia=dict(type="bool", required=False),
@@ -468,10 +472,10 @@ def main():
         ),
         tcp_keep_alive=dict(type="bool", required=False, default=False),
         segment_group_id=dict(type="str", required=True),
-        double_encrypt=dict(type="bool", required=False),
-        health_check_type=dict(type="str"),
+        double_encrypt=dict(type="bool", default=False, required=False),
+        health_check_type=dict(type="str", default="DEFAULT", required=False),
         is_cname_enabled=dict(type="bool", required=False),
-        passive_health_enabled=dict(type="bool", required=False),
+        passive_health_enabled=dict(type="bool", default=True, required=False),
         ip_anchored=dict(type="bool", required=False),
         icmp_access_type=dict(type="bool", required=False, default=False),
         server_group_ids=id_name_spec,

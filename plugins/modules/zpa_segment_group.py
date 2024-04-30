@@ -60,6 +60,7 @@ options:
     description: "Whether this segment group is enabled or not"
     type: bool
     required: false
+    default: true
 """
 
 EXAMPLES = """
@@ -123,9 +124,9 @@ def core(module):
     for key, value in desired_app.items():
         if key not in fields_to_exclude and current_app.get(key) != value:
             differences_detected = True
-            module.warn(
-                f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
-            )
+            # module.warn(
+            #     f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+            # )
 
     if existing_group is not None:
         id = existing_group.get("id")
@@ -180,7 +181,7 @@ def main():
         id=dict(type="str", required=False),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
-        enabled=dict(type="bool", required=False),
+        enabled=dict(type="bool", default=True, required=False),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

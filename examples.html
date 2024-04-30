@@ -103,6 +103,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#enrollment-certificates">Enrollment Certificates</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#identity-provider">Identity Provider</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#machine-group">Machine Group</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#trusted-networks">Trusted Networks</a></li>
 </ul>
 </li>
 </ul>
@@ -301,7 +302,7 @@ to install the Zscaler Client Connector (formerly Zscaler App or Z App) on their
 The module creates a Privileged Remote Access application segment resource.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create PRA Application Segment</span>
 <span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_application_segment_pra</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Application_Segment</span><span class="nv"> </span><span class="s">PRA&#39;</span>
 <span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Application_Segment</span><span class="nv"> </span><span class="s">PRA&#39;</span>
 <span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
@@ -350,7 +351,7 @@ The module creates a Privileged Remote Access application segment resource.</p>
 The module creates a App Protection application segment resource.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create App Protection Application Segment</span>
 <span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_application_segment_inspection</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Application</span><span class="nv"> </span><span class="s">Segment</span><span class="nv"> </span><span class="s">AppProtection&#39;</span>
 <span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Application</span><span class="nv"> </span><span class="s">Segment</span><span class="nv"> </span><span class="s">AppProtection&#39;</span>
 <span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
@@ -391,7 +392,7 @@ The module creates a App Protection application segment resource.</p>
 The module creates a Application Server resource, which can then be associated with a Server Group, where the <cite>dynamic_discovery</cite> is disabled.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create/Update/Delete an Application Server</span>
 <span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_application_server</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Ansible</span><span class="nv"> </span><span class="s">Application</span><span class="nv"> </span><span class="s">Server&quot;</span>
 <span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Ansible</span><span class="nv"> </span><span class="s">Application</span><span class="nv"> </span><span class="s">Server&quot;</span>
 <span class="w">    </span><span class="nt">address</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;server.example.com&quot;</span>
@@ -453,20 +454,44 @@ This resource can then be referenced within Application Segment (s), and Access 
 <h3>Policy Access Rule<a class="headerlink" href="#policy-access-rule" title="Permalink to this heading"></a></h3>
 <p>The following module allows for interaction with the the ZPA Policy Controller endpoints.
 This resource creates and manages policy access rules in the Zscaler Private Access cloud.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create/Update/Delete an Access Policy Rule</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Application Segment - Example</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_application_segment_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app01</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application_segment</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Get information IdP Controller ID</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_idp_controller_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IdP_Name</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">idp_name</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Get Contractors SCIM Group ID</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_scim_group_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Contractors</span>
+<span class="w">    </span><span class="nt">idp_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IdP_Name</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">contractors_group</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create Policy Access Rule</span>
 <span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_policy_access_rule</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Policy</span><span class="nv"> </span><span class="s">Access</span><span class="nv"> </span><span class="s">Rule&#39;</span>
-<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Policy</span><span class="nv"> </span><span class="s">Access</span><span class="nv"> </span><span class="s">Rule&#39;</span>
-<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ALLOW&quot;</span>
-<span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;AND&quot;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Rule 1</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Rule 1</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ALLOW</span>
+<span class="w">    </span><span class="nt">rule_order</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AND</span>
 <span class="w">    </span><span class="nt">conditions</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">negated</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">        </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;OR&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OR</span>
 <span class="w">        </span><span class="nt">operands</span><span class="p">:</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;APP&quot;</span>
-<span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;id&quot;</span>
-<span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;216196257331291979&quot;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">APP</span>
+<span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">id</span>
+<span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">application_segment.data[0].id</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OR</span>
+<span class="w">        </span><span class="nt">operands</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SCIM_GROUP</span>
+<span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">idp_name.data[0].id</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">contractors_group.data[0].id</span><span class="nv"> </span><span class="s">}}&#39;</span>
 </pre></div>
 </div>
 </section>
@@ -474,20 +499,46 @@ This resource creates and manages policy access rules in the Zscaler Private Acc
 <h3>Policy Access Timeout Rule<a class="headerlink" href="#policy-access-timeout-rule" title="Permalink to this heading"></a></h3>
 <p>The following module allows for interaction with the the ZPA Policy Controller endpoints.
 This resource creates a policy timeout rule in the Zscaler Private Access cloud.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create/Update/Delete a Policy Timeout Rule</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Application Segment - Example</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_application_segment_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Example</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application_segment</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Get information IdP Controller ID</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_idp_controller_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IdP_Name</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">idp_name</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Get Contractors SCIM Group ID</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_scim_group_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Contractors</span>
+<span class="w">    </span><span class="nt">idp_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IdP_Name</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">contractors_group</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Timeout Policy - Example</span>
 <span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_policy_access_timeout_rule</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Policy</span><span class="nv"> </span><span class="s">Timeout</span><span class="nv"> </span><span class="s">Rule&#39;</span>
-<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Policy</span><span class="nv"> </span><span class="s">Timeout</span><span class="nv"> </span><span class="s">Rule&#39;</span>
-<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;RE_AUTH&#39;</span>
-<span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;AND&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Example</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Example</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RE_AUTH</span>
+<span class="w">    </span><span class="nt">reauth_idle_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10 days</span>
+<span class="w">    </span><span class="nt">reauth_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10 days</span>
+<span class="w">    </span><span class="nt">rule_order</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span>
+<span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AND</span>
 <span class="w">    </span><span class="nt">conditions</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">negated</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">        </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;OR&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OR</span>
 <span class="w">        </span><span class="nt">operands</span><span class="p">:</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;APP&#39;</span>
-<span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;id&#39;</span>
-<span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;216196257331291979&#39;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">APP</span>
+<span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">id</span>
+<span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">application_segment.data[0].id</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OR</span>
+<span class="w">        </span><span class="nt">operands</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SCIM_GROUP</span>
+<span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">idp_name.data[0].id</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">idp_name.data[0].id</span><span class="nv"> </span><span class="s">}}&#39;</span>
 </pre></div>
 </div>
 </section>
@@ -495,20 +546,52 @@ This resource creates a policy timeout rule in the Zscaler Private Access cloud.
 <h3>Policy Access Forwarding Rule<a class="headerlink" href="#policy-access-forwarding-rule" title="Permalink to this heading"></a></h3>
 <p>The following module allows for interaction with the the ZPA Policy Controller endpoints.
 This resource creates a policy forwarding access rule in the Zscaler Private Access cloud.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create/Update/Delete a Policy Forwarding Rule</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Gather Applicaton Segment Info</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Application Segment</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_application_segment_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Example</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application_segment</span>
+
+<span class="c1"># Get IdP Controller ID Information</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Get information IdP Controller ID</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_idp_controller_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IdP_Name</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">user_idp</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">All IDPs</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">user_idp</span><span class="nv"> </span><span class="s">}}&#39;</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Get Contractors SCIM Group ID</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_scim_group_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Contractors</span>
+<span class="w">    </span><span class="nt">idp_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IdP_Name</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">contractors_group</span>
+
+<span class="c1"># Create Policy Forwarding Rules</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Forwarding Policy - Example</span>
 <span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_policy_access_forwarding_rule</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Policy</span><span class="nv"> </span><span class="s">Forwarding</span><span class="nv"> </span><span class="s">Rule&#39;</span>
-<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Ansible</span><span class="nv"> </span><span class="s">Policy</span><span class="nv"> </span><span class="s">Forwarding</span><span class="nv"> </span><span class="s">Rule&#39;</span>
-<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;BYPASS&#39;</span>
-<span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;AND&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Example</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Example</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">BYPASS</span>
+<span class="w">    </span><span class="nt">rule_order</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span>
+<span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AND</span>
 <span class="w">    </span><span class="nt">conditions</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">negated</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">        </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;OR&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OR</span>
 <span class="w">        </span><span class="nt">operands</span><span class="p">:</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;APP&#39;</span>
-<span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;id&#39;</span>
-<span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;216196257331291979&#39;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">APP</span>
+<span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">id</span>
+<span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">application_segment.data[0].id</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OR</span>
+<span class="w">        </span><span class="nt">operands</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SCIM_GROUP</span>
+<span class="w">            </span><span class="nt">idp_id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">user_idp.data[0].id</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">user_idp.data[0].id</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">contractors_group.data[0].id</span><span class="nv"> </span><span class="s">}}&#39;</span>
 </pre></div>
 </div>
 </section>
@@ -530,8 +613,7 @@ This resource creates an App Protection access rule in the Zscaler Private Acces
 <span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;AND&#39;</span>
 <span class="w">    </span><span class="nt">zpn_inspection_profile_id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">profile.data[0].id</span><span class="nv"> </span><span class="s">}}&#39;</span>
 <span class="w">    </span><span class="nt">conditions</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">negated</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">        </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;OR&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;OR&#39;</span>
 <span class="w">        </span><span class="nt">operands</span><span class="p">:</span>
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;APP&#39;</span>
 <span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;id&#39;</span>
@@ -540,19 +622,16 @@ This resource creates an App Protection access rule in the Zscaler Private Acces
 <span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;id&#39;</span>
 <span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;216196257331368720&#39;</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;AND&#39;</span>
-<span class="w">        </span><span class="nt">negated</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 <span class="w">        </span><span class="nt">operands</span><span class="p">:</span>
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;POSTURE&#39;</span>
 <span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;13ba3d97-aefb-4acc-9e54-6cc230dee4a5&#39;</span>
 <span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;false&#39;</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;AND&#39;</span>
-<span class="w">        </span><span class="nt">negated</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 <span class="w">        </span><span class="nt">operands</span><span class="p">:</span>
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;TRUSTED_NETWORK&#39;</span>
 <span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;869fbea4-799d-422a-984f-d40fbe53bc02&#39;</span>
 <span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;true&#39;</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;AND&#39;</span>
-<span class="w">        </span><span class="nt">negated</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 <span class="w">        </span><span class="nt">operands</span><span class="p">:</span>
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;PLATFORM&#39;</span>
 <span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ios</span>
@@ -578,8 +657,7 @@ This resource creates an Isolation access rule in the Zscaler Private Access clo
 <span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;AND&#39;</span>
 <span class="w">    </span><span class="nt">zpn_isolation_profile_id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">cbi_profile.data[0].id</span><span class="nv"> </span><span class="s">}}&#39;</span>
 <span class="w">    </span><span class="nt">conditions</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">negated</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">        </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;OR&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;OR&#39;</span>
 <span class="w">        </span><span class="nt">operands</span><span class="p">:</span>
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;APP&#39;</span>
 <span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;id&#39;</span>
@@ -587,8 +665,7 @@ This resource creates an Isolation access rule in the Zscaler Private Access clo
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;APP_GROUP&#39;</span>
 <span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;id&#39;</span>
 <span class="w">            </span><span class="nt">rhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;216196257331368720&#39;</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">negated</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">        </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;OR&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;OR&#39;</span>
 <span class="w">        </span><span class="nt">operands</span><span class="p">:</span>
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">object_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;CLIENT_TYPE&#39;</span>
 <span class="w">            </span><span class="nt">lhs</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;id&#39;</span>
@@ -619,7 +696,7 @@ This is a dedicated resource to manage and update rule_orders in any of the supp
 This resource is required when creating a browser access application segment resource.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Onboard ZPA Browser Access Certificate</span>
 <span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">zscaler.zpacloud.zpa_ba_certificate</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">provider</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">provider</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;server1.example.com&#39;</span>
 <span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;server1.example.com&#39;</span>
 <span class="w">    </span><span class="nt">cert_blob</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">lookup(&#39;</span><span class="l l-Scalar l-Scalar-Plain">file&#39;, &#39;server1.example.com.pem&#39;) }}&#39;</span>
@@ -630,30 +707,64 @@ This resource is required when creating a browser access application segment res
 <h3>Enrollment Certificates<a class="headerlink" href="#enrollment-certificates" title="Permalink to this heading"></a></h3>
 <p>Use the <cite>zpa_enrollement_certificate_facts</cite> to gather facts about built-in configured enrollment certificate details created in the Zscaler Private Access cloud.
 This resource is required when creating provisioning key resources or type <cite>Connector</cite> or <cite>Service Edge</cite></p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather information about App Connector Certificate</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Information Details of All Enrollment Certificates</span>
 <span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_facts</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Connector&#39;</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">all_enrollment_certs</span>
 
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather information about Service Edge Certificate</span>
-<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_facts</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Service</span><span class="nv"> </span><span class="s">Edge&#39;</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">All Enrolment Certificates</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">all_enrollment_certs</span><span class="nv"> </span><span class="s">}}&#39;</span>
 
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather information about Root Certificate</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Information Details of the Root Enrollment Certificates by Name</span>
 <span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_facts</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Root&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Root</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enrollment_cert_root</span>
 
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather information about Client Certificate</span>
-<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_facts</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Client&#39;</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Root</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">enrollment_cert_root</span><span class="nv"> </span><span class="s">}}&#39;</span>
 
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather information about Isolation Client Certificate</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Information Details of the Client Enrollment Certificates by Name</span>
 <span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_facts</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Isolation</span><span class="nv"> </span><span class="s">Client&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Client</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enrollment_cert_client</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Client</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">enrollment_cert_client</span><span class="nv"> </span><span class="s">}}&#39;</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Information Details of the Connector Enrollment Certificates by Name</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Connector</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enrollment_cert_connector</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Connector</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">enrollment_cert_connector</span><span class="nv"> </span><span class="s">}}&#39;</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Information Details of the Service Edge Enrollment Certificates by Name</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Service Edge</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enrollment_cert_service_edge</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Service Edge</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">enrollment_cert_service_edge</span><span class="nv"> </span><span class="s">}}&#39;</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Information Details of the Isolation Client Enrollment Certificates by Name</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Isolation Client</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enrollment_cert_isolation_client</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Isolation Client</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">enrollment_cert_isolation_client</span><span class="nv"> </span><span class="s">}}&#39;</span>
 </pre></div>
 </div>
 </section>
@@ -669,10 +780,34 @@ This resource can then be referenced when configuring the following resources.</
 <li><p>Access policy isolation rules</p></li>
 <li><p>Access policy App Protection rules</p></li>
 </ol>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather information about all IDP Controller</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Details of All IdP Controllers</span>
 <span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_idp_controller_facts</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Azure_AD_IdP</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">idp_controllers</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">All IDPs</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">idp_controllers</span><span class="nv"> </span><span class="s">}}&#39;</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Details of a Specific IdP Controller by Name</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_idp_controller_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">User_IdP_Name</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">idp_name</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IDP By Name</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">idp_name</span><span class="nv"> </span><span class="s">}}&#39;</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Details of a Specific IdP Controller by ID</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_idp_controller_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;216196257331282583&quot;</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">idp_id</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IDP By ID</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">idp_id</span><span class="nv"> </span><span class="s">}}&#39;</span>
 </pre></div>
 </div>
 </section>
@@ -680,10 +815,71 @@ This resource can then be referenced when configuring the following resources.</
 <h3>Machine Group<a class="headerlink" href="#machine-group" title="Permalink to this heading"></a></h3>
 <p>Use the <cite>zpa_machine_group_facts</cite> resource to gather information about a machine group created in the Zscaler Private Access cloud.
 This resource can then be referenced in an Access Policy, Timeout policy, Forwarding Policy, Inspection Policy or Isolation Policy.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather information about a Machine Group</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Details of All Machine Groups</span>
 <span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_machine_group_facts</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ansible_Machine_Group</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">machine_groups</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">All Machine Groups</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">machine_groups</span><span class="nv"> </span><span class="s">}}&#39;</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Details of a Specific Machine Group by Name</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_machine_group_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Group 1</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">machine_group_name</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Machine Group by Name</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">machine_group_name</span><span class="nv"> </span><span class="s">}}&#39;</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Details of a Specific Machine Group by ID</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_machine_group_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;216196257331282583&quot;</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">machine_group_id</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Machine Group by ID</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">machine_group_id</span><span class="nv"> </span><span class="s">}}&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="trusted-networks">
+<h3>Trusted Networks<a class="headerlink" href="#trusted-networks" title="Permalink to this heading"></a></h3>
+<p>Use the <cite>zpa_trusted_networks_facts</cite> resource to gather information about a machine group created in the Zscaler Private Access cloud.
+This resource can then be referenced in an Access Policy, Timeout policy, Forwarding Policy, Inspection Policy or Isolation Policy.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Details of All Trusted Networks</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_trusted_networks_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trusted_networks</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">All Trusted Networks</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">trusted_networks</span><span class="nv"> </span><span class="s">}}&#39;</span>
+
+<span class="c1"># Gather Specific Trusted Network Info By Name</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Details of a Specific Trusted Network by Name</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_trusted_networks_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Corp-Trusted-Networks</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trusted_network_name</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Trusted Networks by Name</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">trusted_network_name</span><span class="nv"> </span><span class="s">}}&#39;</span>
+
+<span class="c1"># Gather Specific Trusted Network Info By ID</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Details of a Specific Trusted Network by ID</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_trusted_networks_facts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;216196257331282583&quot;</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trusted_network_id</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Trusted Network by ID</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">trusted_network_id</span><span class="nv"> </span><span class="s">}}&#39;</span>
 </pre></div>
 </div>
 </section>

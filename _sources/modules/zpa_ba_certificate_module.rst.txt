@@ -143,7 +143,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -177,7 +177,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -211,7 +211,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -221,7 +221,7 @@ Parameters
 
         <div class="ansible-option-cell">
 
-      The ZPA cloud provisioned for your organization
+      The ZPA cloud provisioned for your organization.
 
 
       .. rst-class:: ansible-option-line
@@ -235,6 +235,7 @@ Parameters
       - :ansible-option-choices-entry:`"GOV"`
       - :ansible-option-choices-entry:`"GOVUS"`
       - :ansible-option-choices-entry:`"PREVIEW"`
+      - :ansible-option-choices-entry:`"ZPATWO"`
 
 
       .. raw:: html
@@ -258,7 +259,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -267,10 +268,6 @@ Parameters
     - .. raw:: html
 
         <div class="ansible-option-cell">
-
-      The ZPA tenant ID found in the Administration
-
-      Company menu in the ZPA console.
 
       The ZPA tenant ID found in the Administration Company menu in the ZPA console.
 
@@ -436,7 +433,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -478,7 +475,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -520,7 +517,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -534,7 +531,7 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      The ZPA cloud provisioned for your organization
+      The ZPA cloud provisioned for your organization.
 
 
       .. rst-class:: ansible-option-line
@@ -548,6 +545,7 @@ Parameters
       - :ansible-option-choices-entry:`"GOV"`
       - :ansible-option-choices-entry:`"GOVUS"`
       - :ansible-option-choices-entry:`"PREVIEW"`
+      - :ansible-option-choices-entry:`"ZPATWO"`
 
 
       .. raw:: html
@@ -575,7 +573,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -588,10 +586,6 @@ Parameters
     - .. raw:: html
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
-
-      The ZPA tenant ID found in the Administration
-
-      Company menu in the ZPA console.
 
       The ZPA tenant ID found in the Administration Company menu in the ZPA console.
 

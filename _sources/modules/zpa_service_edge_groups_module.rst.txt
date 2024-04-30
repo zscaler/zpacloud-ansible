@@ -140,7 +140,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -174,7 +174,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -208,7 +208,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -218,7 +218,7 @@ Parameters
 
         <div class="ansible-option-cell">
 
-      The ZPA cloud provisioned for your organization
+      The ZPA cloud provisioned for your organization.
 
 
       .. rst-class:: ansible-option-line
@@ -232,6 +232,7 @@ Parameters
       - :ansible-option-choices-entry:`"GOV"`
       - :ansible-option-choices-entry:`"GOVUS"`
       - :ansible-option-choices-entry:`"PREVIEW"`
+      - :ansible-option-choices-entry:`"ZPATWO"`
 
 
       .. raw:: html
@@ -289,7 +290,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -298,10 +299,6 @@ Parameters
     - .. raw:: html
 
         <div class="ansible-option-cell">
-
-      The ZPA tenant ID found in the Administration
-
-      Company menu in the ZPA console.
 
       The ZPA tenant ID found in the Administration Company menu in the ZPA console.
 
@@ -380,6 +377,126 @@ Parameters
 
       - :ansible-option-choices-entry:`false`
       - :ansible-option-choices-entry:`true`
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-grace_distance_enabled"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_service_edge_groups_module__parameter-grace_distance_enabled:
+
+      .. rst-class:: ansible-option-title
+
+      **grace_distance_enabled**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-grace_distance_enabled" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`boolean`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      If enabled, allows ZPA Private Service Edge Groups within the specified distance to be prioritized over a closer ZPA Public Service Edge.
+
+
+      .. rst-class:: ansible-option-line
+
+      :ansible-option-choices:`Choices:`
+
+      - :ansible-option-choices-entry-default:`false` :ansible-option-choices-default-mark:`← (default)`
+      - :ansible-option-choices-entry:`true`
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-grace_distance_value"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_service_edge_groups_module__parameter-grace_distance_value:
+
+      .. rst-class:: ansible-option-title
+
+      **grace_distance_value**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-grace_distance_value" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      Indicates the maximum distance in miles or kilometers to ZPA Private Service Edge groups that would override a ZPA Public Service Edge.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-grace_distance_value_unit"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_service_edge_groups_module__parameter-grace_distance_value_unit:
+
+      .. rst-class:: ansible-option-title
+
+      **grace_distance_value_unit**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-grace_distance_value_unit" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      Indicates the grace distance unit of measure in miles or kilometers.
+
+      This value is only required if graceDistanceEnabled is set to true.
+
+
+      .. rst-class:: ansible-option-line
+
+      :ansible-option-choices:`Choices:`
+
+      - :ansible-option-choices-entry:`"MILES"`
+      - :ansible-option-choices-entry:`"KMS"`
 
 
       .. raw:: html
@@ -697,7 +814,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -739,7 +856,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -781,7 +898,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -795,7 +912,7 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      The ZPA cloud provisioned for your organization
+      The ZPA cloud provisioned for your organization.
 
 
       .. rst-class:: ansible-option-line
@@ -809,6 +926,7 @@ Parameters
       - :ansible-option-choices-entry:`"GOV"`
       - :ansible-option-choices-entry:`"GOVUS"`
       - :ansible-option-choices-entry:`"PREVIEW"`
+      - :ansible-option-choices-entry:`"ZPATWO"`
 
 
       .. raw:: html
@@ -836,7 +954,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -849,10 +967,6 @@ Parameters
     - .. raw:: html
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
-
-      The ZPA tenant ID found in the Administration
-
-      Company menu in the ZPA console.
 
       The ZPA tenant ID found in the Administration Company menu in the ZPA console.
 

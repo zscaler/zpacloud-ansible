@@ -149,7 +149,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -183,7 +183,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -217,7 +217,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -227,7 +227,7 @@ Parameters
 
         <div class="ansible-option-cell">
 
-      The ZPA cloud provisioned for your organization
+      The ZPA cloud provisioned for your organization.
 
 
       .. rst-class:: ansible-option-line
@@ -241,6 +241,7 @@ Parameters
       - :ansible-option-choices-entry:`"GOV"`
       - :ansible-option-choices-entry:`"GOVUS"`
       - :ansible-option-choices-entry:`"PREVIEW"`
+      - :ansible-option-choices-entry:`"ZPATWO"`
 
 
       .. raw:: html
@@ -722,7 +723,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -731,10 +732,6 @@ Parameters
     - .. raw:: html
 
         <div class="ansible-option-cell">
-
-      The ZPA tenant ID found in the Administration
-
-      Company menu in the ZPA console.
 
       The ZPA tenant ID found in the Administration Company menu in the ZPA console.
 
@@ -1351,7 +1348,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -1393,7 +1390,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -1435,7 +1432,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -1449,7 +1446,7 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      The ZPA cloud provisioned for your organization
+      The ZPA cloud provisioned for your organization.
 
 
       .. rst-class:: ansible-option-line
@@ -1463,6 +1460,7 @@ Parameters
       - :ansible-option-choices-entry:`"GOV"`
       - :ansible-option-choices-entry:`"GOVUS"`
       - :ansible-option-choices-entry:`"PREVIEW"`
+      - :ansible-option-choices-entry:`"ZPATWO"`
 
 
       .. raw:: html
@@ -1490,7 +1488,7 @@ Parameters
 
       .. ansible-option-type-line::
 
-        :ansible-option-type:`string` / :ansible-option-required:`required`
+        :ansible-option-type:`string`
 
       .. raw:: html
 
@@ -1503,10 +1501,6 @@ Parameters
     - .. raw:: html
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
-
-      The ZPA tenant ID found in the Administration
-
-      Company menu in the ZPA console.
 
       The ZPA tenant ID found in the Administration Company menu in the ZPA console.
 
@@ -2106,7 +2100,7 @@ Examples
             - name: "ssh_pra"
               description: "Description for common app"
               domain: ssh_pra.example.com
-              application_port: "22"  # Adjusted this to be a string
+              application_port: "22"
               application_protocol: "SSH"
               enabled: true
               app_types:
@@ -2114,7 +2108,7 @@ Examples
             - name: "rdp_pra"
               description: "Description for common app"
               domain: rdp_pra.example.com
-              application_port: "3389"  # Adjusted this to be a string
+              application_port: "3389"
               application_protocol: "RDP"
               connection_security: "ANY"
               enabled: true

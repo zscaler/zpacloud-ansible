@@ -124,7 +124,7 @@
 <li class="toctree-l2"><a class="reference internal" href="zpa_machine_group_facts_module.html">zscaler.zpacloud.zpa_machine_group_facts module – Retrieves machine group information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_app_protection_rule_facts_module.html">zscaler.zpacloud.zpa_policy_access_app_protection_rule_facts module – Retrieves App Protection Access Rule information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_app_protection_rule_module.html">zscaler.zpacloud.zpa_policy_access_app_protection_rule module – Create a Policy App Protection Rule in the ZPA Cloud.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_forwarding_rule_facts_module.html">zscaler.zpacloud.zpa_policy_access_forwarding_rule_facts module – Create a Policy Forwarding Rule.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_forwarding_rule_facts_module.html">zscaler.zpacloud.zpa_policy_access_forwarding_rule_facts module – Retrieves policy forwarding rule information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_forwarding_rule_module.html">zscaler.zpacloud.zpa_policy_access_forwarding_rule module – Create a Policy Forwarding Rule.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_isolation_rule_facts_module.html">zscaler.zpacloud.zpa_policy_access_isolation_rule_facts module – Retrieves Isolation Policy Access Rule information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_isolation_rule_module.html">zscaler.zpacloud.zpa_policy_access_isolation_rule module – Create a Policy Isolation Rule</a></li>
@@ -236,20 +236,6 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </thead>
 <tbody>
 <tr class="row-even"><td><div class="ansible-option-cell">
-<div class="ansibleOptionAnchor" id="parameter-adp_enabled"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-adp-enabled"><strong>adp_enabled</strong></p>
-<a class="ansibleOptionLink" href="#parameter-adp_enabled" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
-</div></td>
-<td><div class="ansible-option-cell"><p>Indicates if Active Directory Inspection is enabled or not for the application</p>
-<p>This allows the application segment’s traffic to be inspected by Active Directory (AD) Protection</p>
-<p>By default, this field is set to false</p>
-<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
-<ul class="simple">
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
-</ul>
-</div></td>
-</tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-bypass_type"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-bypass-type"><strong>bypass_type</strong></p>
 <a class="ansibleOptionLink" href="#parameter-bypass_type" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -262,48 +248,48 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </ul>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-client_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-client-id"><strong>client_id</strong></p>
-<a class="ansibleOptionLink" href="#parameter-client_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-client_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>The ZPA API client ID generated from the ZPA console.</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-client_secret"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-client-secret"><strong>client_secret</strong></p>
-<a class="ansibleOptionLink" href="#parameter-client_secret" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-client_secret" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>The ZPA API client secret generated from the ZPA console.</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-clientless_app_ids"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-clientless-app-ids"><strong>clientless_app_ids</strong></p>
 <a class="ansibleOptionLink" href="#parameter-clientless_app_ids" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span> / <span class="ansible-option-required">required</span></p>
 </div></td>
 <td><div class="ansible-option-cell"></div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-clientless_app_ids/allow_options"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-clientless-app-ids-allow-options"><strong>allow_options</strong></p>
 <a class="ansibleOptionLink" href="#parameter-clientless_app_ids/allow_options" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether the options are enabled for the Browser Access application or not</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
 </ul>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-clientless_app_ids/application_port"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-clientless-app-ids-application-port"><strong>application_port</strong></p>
-<a class="ansibleOptionLink" href="#parameter-clientless_app_ids/application_port" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-clientless_app_ids/application_port" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The port for the Browser Access application.</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-clientless_app_ids/application_protocol"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-clientless-app-ids-application-protocol"><strong>application_protocol</strong></p>
-<a class="ansibleOptionLink" href="#parameter-clientless_app_ids/application_protocol" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-clientless_app_ids/application_protocol" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The protocol for the Browser Access application.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
@@ -313,35 +299,35 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </ul>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-clientless_app_ids/certificate_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-clientless-app-ids-certificate-id"><strong>certificate_id</strong></p>
-<a class="ansibleOptionLink" href="#parameter-clientless_app_ids/certificate_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-clientless_app_ids/certificate_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The unique identifier of the Browser Access certificate.</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-clientless_app_ids/cname"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-clientless-app-ids-cname"><strong>cname</strong></p>
 <a class="ansibleOptionLink" href="#parameter-clientless_app_ids/cname" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The canonical name (CNAME DNS records) of the Browser Access application.</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-clientless_app_ids/description"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-clientless-app-ids-description"><strong>description</strong></p>
 <a class="ansibleOptionLink" href="#parameter-clientless_app_ids/description" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The description of the Browser Access application</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-clientless_app_ids/domain"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-clientless-app-ids-domain"><strong>domain</strong></p>
 <a class="ansibleOptionLink" href="#parameter-clientless_app_ids/domain" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The domain of the Browser Access application.</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-clientless_app_ids/enabled"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-clientless-app-ids-enabled"><strong>enabled</strong></p>
 <a class="ansibleOptionLink" href="#parameter-clientless_app_ids/enabled" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
 </div></td>
@@ -349,20 +335,13 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">true</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
 </ul>
-</div></td>
-</tr>
-<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
-<div class="ansibleOptionAnchor" id="parameter-clientless_app_ids/id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-clientless-app-ids-id"><strong>id</strong></p>
-<a class="ansibleOptionLink" href="#parameter-clientless_app_ids/id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
-</div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The unique identifier of the Browser Access application.</p>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-clientless_app_ids/name"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-clientless-app-ids-name"><strong>name</strong></p>
-<a class="ansibleOptionLink" href="#parameter-clientless_app_ids/name" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-clientless_app_ids/name" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The name of the Browser Access application</p>
 </div></td>
@@ -374,16 +353,16 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether the use of untrusted certificates is enabled or disabled for the Browser Access application</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
 </ul>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-cloud"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-cloud"><strong>cloud</strong></p>
-<a class="ansibleOptionLink" href="#parameter-cloud" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-cloud" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-cell"><p>The ZPA cloud provisioned for your organization</p>
+<td><div class="ansible-option-cell"><p>The ZPA cloud provisioned for your organization.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PRODUCTION&quot;</span></code></p></li>
@@ -393,16 +372,15 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOV&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOVUS&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;ZPATWO&quot;</span></code></p></li>
 </ul>
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-customer_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-customer-id"><strong>customer_id</strong></p>
-<a class="ansibleOptionLink" href="#parameter-customer_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-customer_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-cell"><p>The ZPA tenant ID found in the Administration</p>
-<p>Company menu in the ZPA console.</p>
-<p>The ZPA tenant ID found in the Administration Company menu in the ZPA console.</p>
+<td><div class="ansible-option-cell"><p>The ZPA tenant ID found in the Administration Company menu in the ZPA console.</p>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-cell">
@@ -426,7 +404,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <td><div class="ansible-option-cell"><p>Whether Double Encryption is enabled or disabled for the app.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
 </ul>
 </div></td>
@@ -439,7 +417,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">true</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
 </ul>
 </div></td>
 </tr>
@@ -447,7 +425,12 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <div class="ansibleOptionAnchor" id="parameter-health_check_type"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-health-check-type"><strong>health_check_type</strong></p>
 <a class="ansibleOptionLink" href="#parameter-health_check_type" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-cell"><p>health check type.</p>
+<td><div class="ansible-option-cell"><p>Whether the health check is enabled (DEFAULT) or disabled (NONE) for the application</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;DEFAULT&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;NONE&quot;</span></code></p></li>
+</ul>
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-cell">
@@ -471,7 +454,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">true</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
 </ul>
 </div></td>
 </tr>
@@ -491,7 +474,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p>and applies Data Loss Prevention policies to the application segment you are creating</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
 </ul>
 </div></td>
@@ -500,10 +483,10 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <div class="ansibleOptionAnchor" id="parameter-ip_anchored"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-ip-anchored"><strong>ip_anchored</strong></p>
 <a class="ansibleOptionLink" href="#parameter-ip_anchored" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
 </div></td>
-<td><div class="ansible-option-cell"><p>ip_anchored</p>
+<td><div class="ansible-option-cell"><p>Whether Source IP Anchoring for use with ZIA is enabled or disabled for the application</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
 </ul>
 </div></td>
@@ -516,7 +499,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">true</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
 </ul>
 </div></td>
 </tr>
@@ -527,7 +510,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <td><div class="ansible-option-cell"><p>Indicates whether or not the disaster recovery configuration is incomplete</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
 </ul>
 </div></td>
@@ -547,7 +530,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">true</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
 </ul>
 </div></td>
 </tr>
@@ -560,23 +543,23 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/client_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-provider-client-id"><strong>client_id</strong></p>
-<a class="ansibleOptionLink" href="#parameter-provider/client_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-provider/client_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA API client ID generated from the ZPA console.</p>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/client_secret"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-provider-client-secret"><strong>client_secret</strong></p>
-<a class="ansibleOptionLink" href="#parameter-provider/client_secret" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-provider/client_secret" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA API client secret generated from the ZPA console.</p>
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/cloud"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-provider-cloud"><strong>cloud</strong></p>
-<a class="ansibleOptionLink" href="#parameter-provider/cloud" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-provider/cloud" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA cloud provisioned for your organization</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA cloud provisioned for your organization.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PRODUCTION&quot;</span></code></p></li>
@@ -586,16 +569,15 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOV&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOVUS&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;ZPATWO&quot;</span></code></p></li>
 </ul>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/customer_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-browser-access-module-parameter-provider-customer-id"><strong>customer_id</strong></p>
-<a class="ansibleOptionLink" href="#parameter-provider/customer_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-provider/customer_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA tenant ID found in the Administration</p>
-<p>Company menu in the ZPA console.</p>
-<p>The ZPA tenant ID found in the Administration Company menu in the ZPA console.</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA tenant ID found in the Administration Company menu in the ZPA console.</p>
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-cell">
@@ -612,7 +594,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <td><div class="ansible-option-cell"><p>Whether the App Connector is closest to the application (True) or closest to the user (False).</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
 </ul>
 </div></td>
@@ -643,7 +625,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <td><div class="ansible-option-cell"><p>Indicates whether TCP communication sockets are enabled or disabled.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
 </ul>
 </div></td>
@@ -697,7 +679,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <td><div class="ansible-option-cell"><p>Whether or not the application resource is designated for disaster recovery</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
 </ul>
 </div></td>

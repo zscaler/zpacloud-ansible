@@ -114,7 +114,7 @@
 <li class="toctree-l2"><a class="reference internal" href="zpa_machine_group_facts_module.html">zscaler.zpacloud.zpa_machine_group_facts module – Retrieves machine group information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_app_protection_rule_facts_module.html">zscaler.zpacloud.zpa_policy_access_app_protection_rule_facts module – Retrieves App Protection Access Rule information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_app_protection_rule_module.html">zscaler.zpacloud.zpa_policy_access_app_protection_rule module – Create a Policy App Protection Rule in the ZPA Cloud.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_forwarding_rule_facts_module.html">zscaler.zpacloud.zpa_policy_access_forwarding_rule_facts module – Create a Policy Forwarding Rule.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_forwarding_rule_facts_module.html">zscaler.zpacloud.zpa_policy_access_forwarding_rule_facts module – Retrieves policy forwarding rule information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_forwarding_rule_module.html">zscaler.zpacloud.zpa_policy_access_forwarding_rule module – Create a Policy Forwarding Rule.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_isolation_rule_facts_module.html">zscaler.zpacloud.zpa_policy_access_isolation_rule_facts module – Retrieves Isolation Policy Access Rule information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_isolation_rule_module.html">zscaler.zpacloud.zpa_policy_access_isolation_rule module – Create a Policy Isolation Rule</a></li>
@@ -244,23 +244,23 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-client_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-client-id"><strong>client_id</strong></p>
-<a class="ansibleOptionLink" href="#parameter-client_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-client_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>The ZPA API client ID generated from the ZPA console.</p>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-client_secret"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-client-secret"><strong>client_secret</strong></p>
-<a class="ansibleOptionLink" href="#parameter-client_secret" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-client_secret" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>The ZPA API client secret generated from the ZPA console.</p>
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-cloud"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-cloud"><strong>cloud</strong></p>
-<a class="ansibleOptionLink" href="#parameter-cloud" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-cloud" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-cell"><p>The ZPA cloud provisioned for your organization</p>
+<td><div class="ansible-option-cell"><p>The ZPA cloud provisioned for your organization.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PRODUCTION&quot;</span></code></p></li>
@@ -270,6 +270,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOV&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOVUS&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;ZPATWO&quot;</span></code></p></li>
 </ul>
 </div></td>
 </tr>
@@ -282,11 +283,9 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-customer_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-customer-id"><strong>customer_id</strong></p>
-<a class="ansibleOptionLink" href="#parameter-customer_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-customer_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-cell"><p>The ZPA tenant ID found in the Administration</p>
-<p>Company menu in the ZPA console.</p>
-<p>The ZPA tenant ID found in the Administration Company menu in the ZPA console.</p>
+<td><div class="ansible-option-cell"><p>The ZPA tenant ID found in the Administration Company menu in the ZPA console.</p>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-cell">
@@ -309,13 +308,45 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-grace_distance_enabled"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-grace-distance-enabled"><strong>grace_distance_enabled</strong></p>
+<a class="ansibleOptionLink" href="#parameter-grace_distance_enabled" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>If enabled, allows ZPA Private Service Edge Groups within the specified distance to be prioritized over a closer ZPA Public Service Edge.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-grace_distance_value"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-grace-distance-value"><strong>grace_distance_value</strong></p>
+<a class="ansibleOptionLink" href="#parameter-grace_distance_value" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Indicates the maximum distance in miles or kilometers to ZPA Private Service Edge groups that would override a ZPA Public Service Edge.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-grace_distance_value_unit"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-grace-distance-value-unit"><strong>grace_distance_value_unit</strong></p>
+<a class="ansibleOptionLink" href="#parameter-grace_distance_value_unit" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Indicates the grace distance unit of measure in miles or kilometers.</p>
+<p>This value is only required if graceDistanceEnabled is set to true.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;MILES&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;KMS&quot;</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-id"><strong>id</strong></p>
 <a class="ansibleOptionLink" href="#parameter-id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>The unique identifier of the ZPA Private Service Edge Group.</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-is_public"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-is-public"><strong>is_public</strong></p>
 <a class="ansibleOptionLink" href="#parameter-is_public" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
 </div></td>
@@ -327,35 +358,35 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </ul>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-latitude"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-latitude"><strong>latitude</strong></p>
 <a class="ansibleOptionLink" href="#parameter-latitude" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>Latitude of the Service Edge Group. Integer or decimal. With values in the range of -90 to 90.</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-location"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-location"><strong>location</strong></p>
 <a class="ansibleOptionLink" href="#parameter-location" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>Location of the Service Edge Group.</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-longitude"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-longitude"><strong>longitude</strong></p>
 <a class="ansibleOptionLink" href="#parameter-longitude" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>Longitude of the Service Edge Group. Integer or decimal. With values in the range of -180 to 180.</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-name"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-name"><strong>name</strong></p>
 <a class="ansibleOptionLink" href="#parameter-name" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>Name of the Service Edge Group.</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-override_version_profile"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-override-version-profile"><strong>override_version_profile</strong></p>
 <a class="ansibleOptionLink" href="#parameter-override_version_profile" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
 </div></td>
@@ -368,32 +399,32 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </ul>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-provider"><strong>provider</strong></p>
 <a class="ansibleOptionLink" href="#parameter-provider" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>A dict object containing authentication details.</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/client_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-provider-client-id"><strong>client_id</strong></p>
-<a class="ansibleOptionLink" href="#parameter-provider/client_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-provider/client_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA API client ID generated from the ZPA console.</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/client_secret"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-provider-client-secret"><strong>client_secret</strong></p>
-<a class="ansibleOptionLink" href="#parameter-provider/client_secret" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-provider/client_secret" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA API client secret generated from the ZPA console.</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/cloud"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-provider-cloud"><strong>cloud</strong></p>
-<a class="ansibleOptionLink" href="#parameter-provider/cloud" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-provider/cloud" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA cloud provisioned for your organization</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA cloud provisioned for your organization.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PRODUCTION&quot;</span></code></p></li>
@@ -403,19 +434,18 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOV&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOVUS&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;ZPATWO&quot;</span></code></p></li>
 </ul>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/customer_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-provider-customer-id"><strong>customer_id</strong></p>
-<a class="ansibleOptionLink" href="#parameter-provider/customer_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-provider/customer_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA tenant ID found in the Administration</p>
-<p>Company menu in the ZPA console.</p>
-<p>The ZPA tenant ID found in the Administration Company menu in the ZPA console.</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA tenant ID found in the Administration Company menu in the ZPA console.</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-state"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-state"><strong>state</strong></p>
 <a class="ansibleOptionLink" href="#parameter-state" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -427,14 +457,14 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </ul>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-trusted_networks_ids"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-trusted-networks-ids"><strong>trusted_networks_ids</strong></p>
 <a class="ansibleOptionLink" href="#parameter-trusted_networks_ids" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>The list of trusted networks in the ZPA Private Service Edge Group.</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-upgrade_day"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-upgrade-day"><strong>upgrade_day</strong></p>
 <a class="ansibleOptionLink" href="#parameter-upgrade_day" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -452,7 +482,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </ul>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-upgrade_time_in_secs"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-upgrade-time-in-secs"><strong>upgrade_time_in_secs</strong></p>
 <a class="ansibleOptionLink" href="#parameter-upgrade_time_in_secs" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -461,7 +491,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">&quot;66600&quot;</span></code></p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-use_in_dr_mode"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-use-in-dr-mode"><strong>use_in_dr_mode</strong></p>
 <a class="ansibleOptionLink" href="#parameter-use_in_dr_mode" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
 </div></td>
@@ -473,7 +503,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </ul>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-version_profile_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-service-edge-groups-module-parameter-version-profile-id"><strong>version_profile_id</strong></p>
 <a class="ansibleOptionLink" href="#parameter-version_profile_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>

@@ -14,7 +14,7 @@ inspect_traffic_with_zia: false
 health_check_type: DEFAULT
 health_reporting: ON_ACCESS
 bypass_type: NEVER
-icmp_access_type: false
+icmp_access_type: true
 clientless_app_ids:
   - name: sales.bd-redhat.com
     description: sales.bd-redhat.com

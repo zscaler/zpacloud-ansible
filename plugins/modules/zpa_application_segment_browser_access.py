@@ -367,9 +367,9 @@ def core(module):
     for key, value in desired_app.items():
         if key not in fields_to_exclude and current_app.get(key) != value:
             differences_detected = True
-            module.warn(
-                f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
-            )
+            # module.warn(
+            #     f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+            # )
 
     if existing_app is not None:
         id = existing_app.get("id")
@@ -420,7 +420,7 @@ def core(module):
                         ),
                     )
                 )
-                module.warn("Payload Update for SDK: {}".format(existing_app))
+                # module.warn("Payload Update for SDK: {}".format(existing_app))
                 existing_app = client.app_segments.update_segment(
                     **existing_app
                 ).to_dict()
@@ -429,7 +429,7 @@ def core(module):
                 """No Changes Needed"""
                 module.exit_json(changed=False, data=existing_app)
         else:
-            module.warn("Creating new rule as no existing rule found")
+            # module.warn("Creating new ba app segment as no existing app segment found")
             """Create"""
             app = deleteNone(
                 dict(
@@ -459,7 +459,7 @@ def core(module):
                     udp_port_ranges=convert_ports_list(app.get("udp_port_range", None)),
                 )
             )
-            module.warn("Payload for SDK: {}".format(app))
+            # module.warn("Payload for SDK: {}".format(app))
             app = client.app_segments.add_segment(**app)
             module.exit_json(changed=True, data=app)
     elif (

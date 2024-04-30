@@ -222,10 +222,10 @@
           - "{{ server_group_id }}"
       register: result
 
-    - name: Verify Browser Access Application Segment is present (again; idempotency check)
+    - name: Verify Application Segment is present (again; idempotency check)
       ansible.builtin.assert:
         that:
-          - result.changed
+          - not result.changed
 
     - name: Fetch all Browser Access Application Segments
       zscaler.zpacloud.zpa_application_segment_browser_access_facts:

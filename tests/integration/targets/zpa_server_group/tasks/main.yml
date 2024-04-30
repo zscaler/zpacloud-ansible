@@ -106,7 +106,7 @@
     - name: Verify Server Group is present (again; idempotency check)
       ansible.builtin.assert:
         that:
-          - result.changed
+          - not result.changed
 
     - name: Fetch all Server Groups
       zscaler.zpacloud.zpa_server_group_facts:

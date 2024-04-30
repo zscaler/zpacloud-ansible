@@ -298,9 +298,9 @@ def core(module):
         for key, value in desired_policy.items():
             if key not in fields_to_exclude and current_policy.get(key) != value:
                 differences_detected = True
-                module.warn(
-                    f"Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}"
-                )
+                # module.warn(
+                #     f"Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}"
+                # )
 
     if existing_policy:
         desired_order = policy.get("rule_order")

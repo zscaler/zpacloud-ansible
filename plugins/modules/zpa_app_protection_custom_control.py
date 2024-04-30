@@ -344,9 +344,9 @@ def core(module):
         if key not in fields_to_exclude:
             if not deep_equal(current_control.get(key), value):
                 differences_detected = True
-                module.warn(
-                    "Difference detected in {key}. Current: {current_control.get(key)}, Desired: {value}"
-                )
+                # module.warn(
+                #     "Difference detected in {key}. Current: {current_control.get(key)}, Desired: {value}"
+                # )
 
     # Validate the desired control values
     try:

@@ -464,9 +464,9 @@ def core(module):
         if key not in fields_to_exclude and current_app.get(key) != value:
             differences_detected = True
             break
-        module.warn(
-            f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
-        )
+        # module.warn(
+        #     f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+        # )
 
     if existing_app is not None:
         id = existing_app.get("id")

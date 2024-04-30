@@ -29,9 +29,9 @@ __metaclass__ = type
 DOCUMENTATION = r"""
 ---
 module: zpa_policy_access_forwarding_rule_facts
-short_description: Create a Policy Forwarding Rule.
+short_description: Retrieves policy forwarding rule information.
 description:
-  - This module will create, update or delete a specific Policy Forwarding Rule
+  - This module will allow the retrieval of information about a policy forwarding rule.
 author:
   - William Guilherme (@willguibr)
 version_added: "1.0.0"

@@ -282,7 +282,7 @@ EXAMPLES = """
         - name: "ssh_pra"
           description: "Description for common app"
           domain: ssh_pra.example.com
-          application_port: "22"  # Adjusted this to be a string
+          application_port: "22"
           application_protocol: "SSH"
           enabled: true
           app_types:
@@ -290,7 +290,7 @@ EXAMPLES = """
         - name: "rdp_pra"
           description: "Description for common app"
           domain: rdp_pra.example.com
-          application_port: "3389"  # Adjusted this to be a string
+          application_port: "3389"
           application_protocol: "RDP"
           connection_security: "ANY"
           enabled: true
@@ -334,7 +334,6 @@ def normalize_app_segment_pra(app):
         "microtenant_name",
         "segment_group_name",
         "server_groups",
-        "adp_enabled",
         "app_id",
         "name",
         "ip_anchored",
@@ -391,7 +390,6 @@ def core(module):
         "use_in_dr_mode",
         "is_incomplete_dr_config",
         "inspect_traffic_with_zia",
-        "adp_enabled",
         "ip_anchored",
         "icmp_access_type",
         "common_apps_dto",
@@ -464,9 +462,9 @@ def core(module):
         if key not in fields_to_exclude and current_app.get(key) != value:
             differences_detected = True
             break
-        module.warn(
-            f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
-        )
+        # module.warn(
+        #     f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+        # )
 
     if existing_app is not None:
         id = existing_app.get("id")
@@ -480,11 +478,12 @@ def core(module):
                 existing_app = deleteNone(
                     dict(
                         segment_id=existing_app.get("id"),
-                        bypass_type=existing_app.get("bypass_type", None),
+                        name=existing_app.get("name", None),
                         description=existing_app.get("description", None),
+                        enabled=existing_app.get("enabled", None),
+                        bypass_type=existing_app.get("bypass_type", None),
                         domain_names=existing_app.get("domain_names", None),
                         double_encrypt=existing_app.get("double_encrypt", None),
-                        enabled=existing_app.get("enabled", None),
                         health_check_type=existing_app.get("health_check_type", None),
                         health_reporting=existing_app.get("health_reporting", None),
                         ip_anchored=existing_app.get("ip_anchored", None),
@@ -501,8 +500,6 @@ def core(module):
                         inspect_traffic_with_zia=existing_app.get(
                             "inspect_traffic_with_zia", None
                         ),
-                        adp_enabled=existing_app.get("adp_enabled", None),
-                        name=existing_app.get("name", None),
                         common_apps_dto=existing_app.get(
                             "common_apps_dto", None
                         ),  # Add this line

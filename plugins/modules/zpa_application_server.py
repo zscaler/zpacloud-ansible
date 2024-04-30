@@ -154,9 +154,9 @@ def core(module):
     for key, value in desired_app.items():
         if key not in fields_to_exclude and current_app.get(key) != value:
             differences_detected = True
-            module.warn(
-                f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
-            )
+            # module.warn(
+            #     f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+            # )
 
     if existing_server is not None:
         id = existing_server.get("id")

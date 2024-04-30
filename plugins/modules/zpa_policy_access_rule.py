@@ -298,9 +298,26 @@ def core(module):
         for key, value in desired_policy.items():
             if key not in fields_to_exclude and current_policy.get(key) != value:
                 differences_detected = True
-                module.warn(
-                    f"Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}"
+                # module.warn(
+                #     f"Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}"
+                # )
+
+    if existing_policy:
+        desired_order = policy.get("rule_order")
+        current_order = str(existing_policy.get("order", ""))
+        if desired_order and desired_order != current_order:
+            try:
+                reordered_policy = client.policies.reorder_rule(
+                    policy_type="client_forwarding",
+                    rule_id=existing_policy["id"],
+                    rule_order=desired_order,
                 )
+                if reordered_policy:
+                    module.warn("Reordered rule to new order: {}".format(desired_order))
+                else:
+                    module.fail_json(msg="Failed to reorder rule, no policy returned.")
+            except Exception as e:
+                module.fail_json(msg="Failed to reorder rule: {}".format(str(e)))
 
     if existing_policy is not None:
         id = existing_policy.get("id")

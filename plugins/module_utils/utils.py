@@ -151,6 +151,8 @@ def normalize_app(app):
         "check_control_deployment_status",
         "controls_facts",
         "lss_app_connector_group",
+        "app_connector_group_ids",
+        "clientless_app_ids",
     ]
     for attr in computed_values:
         normalized.pop(attr, None)

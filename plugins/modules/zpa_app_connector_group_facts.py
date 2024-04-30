@@ -32,8 +32,7 @@ module: zpa_app_connector_group_facts
 short_description: Retrieves an app connector group information
 description:
   - This module will allow the retrieval of information about an app connector group.
-author:
-  - William Guilherme (@willguibr)
+author: William Guilherme (@willguibr)
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
@@ -54,6 +53,7 @@ options:
     required: false
     type: str
 """
+
 
 EXAMPLES = """
 - name: Retrieve All App Connector Groups

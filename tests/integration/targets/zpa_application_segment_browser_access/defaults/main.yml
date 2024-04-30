@@ -11,22 +11,21 @@ ip_anchored: false
 use_in_dr_mode: false
 is_incomplete_dr_config: false
 inspect_traffic_with_zia: false
-adp_enabled: false
 health_check_type: DEFAULT
 health_reporting: ON_ACCESS
 bypass_type: NEVER
-icmp_access_type: false
+icmp_access_type: true
 clientless_app_ids:
-  - name: sales.bd-redhat.com
-    description: sales.bd-redhat.com
+  - name: "{{ random_string }}.bd-redhat.com"
+    description: "{{ random_string }}.bd-redhat.com"
     enabled: true
     application_protocol: HTTPS
     application_port: "443"
     allow_options: true
     trust_untrusted_cert: true
-    domain: sales.bd-redhat.com
+    domain: "{{ random_string }}.bd-redhat.com"
 tcp_port_range:
   - from: "443"
     to: "443"
 domain_names:
-  - sales.bd-redhat.com
+  - "{{ random_string }}.bd-redhat.com"

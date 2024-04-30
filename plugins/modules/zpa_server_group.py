@@ -55,17 +55,19 @@ options:
       - This field defines the name of the server group.
   description:
     type: str
-    required: False
+    required: false
     description:
       - This field is the description of the server group.
   enabled:
     type: bool
     required: false
+    default: true
     description:
       - This field defines if the server group is enabled or disabled.
   dynamic_discovery:
     type: bool
     required: false
+    default: true
     description:
       - This field controls dynamic discovery of the servers.
   server_ids:
@@ -162,9 +164,9 @@ def core(module):
     for key, value in desired_app.items():
         if key not in fields_to_exclude and current_app.get(key) != value:
             differences_detected = True
-            module.warn(
-                f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
-            )
+            # module.warn(
+            #     f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+            # )
 
     if existing_server_group is not None:
         id = existing_server_group.get("id")
@@ -226,9 +228,9 @@ def main():
     argument_spec.update(
         id=dict(type="str"),
         name=dict(type="str", required=True),
-        enabled=dict(type="bool", required=False),
+        enabled=dict(type="bool", default=True, required=False),
         description=dict(type="str", required=False),
-        dynamic_discovery=dict(type="bool", required=False),
+        dynamic_discovery=dict(type="bool", default=True, required=False),
         server_ids=dict(type="list", elements="str", required=False),
         app_connector_group_ids=dict(type="list", elements="str", required=False),
         state=dict(type="str", choices=["present", "absent"], default="present"),

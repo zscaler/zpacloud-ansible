@@ -164,11 +164,6 @@ options:
       - By default, this field is set to false.
     type: bool
     required: false
-  bypass_on_reauth:
-    description:
-      - Indicates if Bypass During Reauthentication is enabled for the application
-    type: bool
-    required: false
   bypass_type:
     description:
       - Indicates whether users can bypass ZPA to access applications.
@@ -378,7 +373,6 @@ def core(module):
         "udp_port_ranges",
         "enabled",
         "bypass_type",
-        "bypass_on_reauth",
         "health_reporting",
         "double_encrypt",
         "tcp_keep_alive",
@@ -476,9 +470,9 @@ def core(module):
         if key not in fields_to_exclude and current_app.get(key) != value:
             differences_detected = True
             break
-        module.warn(
-            f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
-        )
+        # module.warn(
+        #     f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+        # )
 
     if existing_app is not None:
         id = existing_app.get("id")
@@ -514,7 +508,6 @@ def core(module):
                             "inspect_traffic_with_zia", None
                         ),
                         adp_enabled=existing_app.get("adp_enabled", None),
-                        bypass_on_reauth=existing_app.get("bypass_on_reauth", None),
                         name=existing_app.get("name", None),
                         common_apps_dto=existing_app.get(
                             "common_apps_dto", None
@@ -547,7 +540,6 @@ def core(module):
                     description=app.get("description", None),
                     enabled=app.get("enabled", None),
                     bypass_type=app.get("bypass_type", None),
-                    bypass_on_reauth=app.get("bypass_on_reauth", None),
                     domain_names=app.get("domain_names", None),
                     double_encrypt=app.get("double_encrypt", None),
                     health_check_type=app.get("health_check_type", None),
@@ -618,7 +610,6 @@ def main():
         is_incomplete_dr_config=dict(type="bool", required=False),
         inspect_traffic_with_zia=dict(type="bool", required=False),
         adp_enabled=dict(type="bool", required=False),
-        bypass_on_reauth=dict(type="bool", required=False),
         bypass_type=dict(
             type="str",
             required=False,

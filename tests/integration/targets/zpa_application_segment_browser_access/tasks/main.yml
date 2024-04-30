@@ -64,7 +64,6 @@
         use_in_dr_mode: "{{ use_in_dr_mode }}"
         is_incomplete_dr_config: "{{ is_incomplete_dr_config }}"
         inspect_traffic_with_zia: "{{ inspect_traffic_with_zia }}"
-        adp_enabled: "{{ adp_enabled }}"
         health_check_type: "{{ health_check_type }}"
         health_reporting: "{{ health_reporting }}"
         bypass_type: "{{ bypass_type }}"
@@ -112,7 +111,6 @@
         use_in_dr_mode: "{{ use_in_dr_mode }}"
         is_incomplete_dr_config: "{{ is_incomplete_dr_config }}"
         inspect_traffic_with_zia: "{{ inspect_traffic_with_zia }}"
-        adp_enabled: "{{ adp_enabled }}"
         health_check_type: "{{ health_check_type }}"
         health_reporting: "{{ health_reporting }}"
         bypass_type: "{{ bypass_type }}"
@@ -157,7 +155,6 @@
         use_in_dr_mode: "{{ use_in_dr_mode }}"
         is_incomplete_dr_config: "{{ is_incomplete_dr_config }}"
         inspect_traffic_with_zia: "{{ inspect_traffic_with_zia }}"
-        adp_enabled: "{{ adp_enabled }}"
         health_check_type: "{{ health_check_type }}"
         health_reporting: "{{ health_reporting }}"
         bypass_type: "{{ bypass_type }}"
@@ -204,7 +201,6 @@
         use_in_dr_mode: "{{ use_in_dr_mode }}"
         is_incomplete_dr_config: "{{ is_incomplete_dr_config }}"
         inspect_traffic_with_zia: "{{ inspect_traffic_with_zia }}"
-        adp_enabled: "{{ adp_enabled }}"
         health_check_type: "{{ health_check_type }}"
         health_reporting: "{{ health_reporting }}"
         bypass_type: "{{ bypass_type }}"
@@ -226,7 +222,7 @@
           - "{{ server_group_id }}"
       register: result
 
-    - name: Verify Browser Access Application Segment is present (again; idempotency check)
+    - name: Verify Application Segment is present (again; idempotency check)
       ansible.builtin.assert:
         that:
           - result.changed
@@ -277,7 +273,6 @@
         use_in_dr_mode: "{{ use_in_dr_mode }}"
         is_incomplete_dr_config: "{{ is_incomplete_dr_config }}"
         inspect_traffic_with_zia: "{{ inspect_traffic_with_zia }}"
-        adp_enabled: "{{ adp_enabled }}"
         health_check_type: "{{ health_check_type }}"
         health_reporting: "{{ health_reporting }}"
         bypass_type: "{{ bypass_type }}"
@@ -320,7 +315,6 @@
         use_in_dr_mode: "{{ use_in_dr_mode }}"
         is_incomplete_dr_config: "{{ is_incomplete_dr_config }}"
         inspect_traffic_with_zia: "{{ inspect_traffic_with_zia }}"
-        adp_enabled: "{{ adp_enabled }}"
         health_check_type: "{{ health_check_type }}"
         health_reporting: "{{ health_reporting }}"
         bypass_type: "{{ bypass_type }}"

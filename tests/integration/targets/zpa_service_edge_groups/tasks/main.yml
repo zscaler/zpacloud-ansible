@@ -113,7 +113,7 @@
     - name: Ensure Service Edge Group is absent (idempotency check)
       ansible.builtin.assert:
         that:
-          - result.changed
+          - not result.changed
 
     - name: Fetch all Service Edge Groups
       zscaler.zpacloud.zpa_service_edge_groups_facts:

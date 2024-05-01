@@ -6,8 +6,8 @@
     enabled: true
     city_country: San Jose, US
     country_code: US
-    latitude: "37.3382082"
-    longitude: "-121.8863286"
+    latitude: "37.33874"
+    longitude: "-121.8852525"
     location: San Jose, CA, USA
     is_public: true
     upgrade_day: SUNDAY

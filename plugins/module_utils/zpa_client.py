@@ -41,9 +41,7 @@ except ImportError as e:
     ZPA = object  # Default to object if import fails
     HAS_ZSCALER = False
     HAS_VERSION = False
-    ZSCALER_IMPORT_ERROR = missing_required_lib(
-        "zscaler", python_version=platform.python_version(), msg=str(e)
-    )
+    ZSCALER_IMPORT_ERROR = missing_required_lib("zscaler")
 
 VALID_ZPA_ENVIRONMENTS = {
     "PRODUCTION",  # Default

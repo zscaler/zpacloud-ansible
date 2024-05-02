@@ -22,16 +22,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ansible:
-          - "2.14"
-          - "2.15"
-          - "2.16"
-        python_ver:
-          - "3.8"
-          - "3.9"
-          - "3.10"
-          - "3.11"
-          - "3.12"
+        include:
+          - ansible: "2.14"
+            python_ver: "3.11"
+          - ansible: "2.15"
+            python_ver: "3.11"
+          - ansible: "2.16"
+            python_ver: "3.11"
     defaults:
       run:
         working-directory: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}

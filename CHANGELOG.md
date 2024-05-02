@@ -1,3 +1,10 @@
+### [1.0.5](https://github.com/zscaler/zpacloud-ansible/compare/v1.0.4...v1.0.5) (2024-05-02)
+
+
+### Bug Fixes
+
+* Fixed pyproject to version 1.0.5 ([c1f1df5](https://github.com/zscaler/zpacloud-ansible/commit/c1f1df5fd0d88983b35c6576e064364c2df4b2a3))
+
 ### [1.0.4](https://github.com/zscaler/zpacloud-ansible/compare/v1.0.3...v1.0.4) (2024-05-02)
 
 

@@ -59,6 +59,7 @@ class ConnectionHelper:
     def __init__(self, min_sdk_version):
         if not HAS_ZSCALER:
             raise ImportError(ZSCALER_IMPORT_ERROR)
+
         self.min_sdk_version = min_sdk_version
         self.check_sdk_installed()
 
@@ -87,7 +88,7 @@ class ZPAClientHelper(ZPA):
 
         super().__init__(client_id=client_id, client_secret=client_secret, customer_id=customer_id, cloud=cloud_env.upper())
         ansible_version = ansible_release.__version__
-        self.user_agent = f"zpa-ansible/{ansible_version} (collection/{ansible_collection_version}) ({platform.system().lower()} {platform.machine()})"
+        self.user_agent = f"zpacloud-ansible/{ansible_version} (collection/{ansible_collection_version}) ({platform.system().lower()} {platform.machine()})"
 
     @staticmethod
     def zpa_argument_spec():

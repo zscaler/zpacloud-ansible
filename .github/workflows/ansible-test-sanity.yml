@@ -13,22 +13,25 @@ env:
   PYTHON_VERSION: 3.8
 
 jobs:
-
   ## Sanity is required:
   #
   # https://docs.ansible.com/ansible/latest/dev_guide/testing_sanity.html
   sanity:
-    name: Sanity (Ⓐ${{ matrix.ansible }})
-    strategy:
-      matrix:
-        include:
-          - ansible: "2.14"
-            python_ver: "3.11"
-          - ansible: "2.15"
-            python_ver: "3.11"
-          - ansible: "2.16"
-            python_ver: "3.11"
+    name: Sanity (Ansible ${{ matrix.ansible }} - Python ${{ matrix.python_ver }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ansible:
+          - "2.14"
+          - "2.15"
+          - "2.16"
+        python_ver:
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
     defaults:
       run:
         working-directory: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
@@ -47,7 +50,8 @@ jobs:
 
       # Install the head of the given branch (devel, stable-2.10)
       - name: Install ansible-base (${{ matrix.ansible }})
-        run: poetry run pip install https://github.com/ansible/ansible/archive/stable-${{ matrix.ansible }}.tar.gz --disable-pip-version-check
+        run: |
+          poetry run pip install https://github.com/ansible/ansible/archive/stable-${{ matrix.ansible }}.tar.gz --disable-pip-version-check
 
       - name: Create lock file
         run: poetry lock

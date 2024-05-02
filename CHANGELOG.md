@@ -1,3 +1,14 @@
+### [1.0.4](https://github.com/zscaler/zpacloud-ansible/compare/v1.0.3...v1.0.4) (2024-05-02)
+
+
+### Bug Fixes
+
+* Fixed Sanity Test and version setup ([#34](https://github.com/zscaler/zpacloud-ansible/issues/34)) ([e71fd50](https://github.com/zscaler/zpacloud-ansible/commit/e71fd506190fedfc1eee020ee60bf43f58fdbd27))
+* Fixed several attributes and rule reorder logic ([5b72c7d](https://github.com/zscaler/zpacloud-ansible/commit/5b72c7d7e6d0bdfd9c7c3b9bc0a63b4a3843647c))
+* Fixed several attributes and rule reorder logic ([868d5b3](https://github.com/zscaler/zpacloud-ansible/commit/868d5b35dcad926721f7a4e8bc7d71617f1c5490))
+* Fixed several attributes and rule reorder logic ([#33](https://github.com/zscaler/zpacloud-ansible/issues/33)) ([c91a8da](https://github.com/zscaler/zpacloud-ansible/commit/c91a8da58a682282a78caf9688a02f855d2daaa0))
+* Fixed version tag in documents ([2f78127](https://github.com/zscaler/zpacloud-ansible/commit/2f78127bf268f7451f8f0928a76f03d864137314))
+
 # Ansible Zscaler Internet Access Collection Release Notes
 
 ### [1.0.4](https://github.com/zscaler/zpacloud-ansible/compare/v1.0.3...v1.0.4) (2024-05-02)

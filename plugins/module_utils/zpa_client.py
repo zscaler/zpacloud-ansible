@@ -37,7 +37,7 @@ try:
     HAS_ZSCALER = True
     HAS_VERSION = True
     ZSCALER_IMPORT_ERROR = None
-except ImportError as e:
+except ImportError:
     ZPA = object  # Default to object if import fails
     HAS_ZSCALER = False
     HAS_VERSION = False

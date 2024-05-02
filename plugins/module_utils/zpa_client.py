@@ -29,25 +29,29 @@ import platform
 from ansible.module_utils.basic import missing_required_lib, env_fallback
 from ansible.module_utils import ansible_release
 
+# Initialize import error variables
+ZSCALER_IMPORT_ERROR = None
+VERSION_IMPORT_ERROR = None
+
+# Attempt to import the main ZPA library
 try:
     from zscaler.zpa import ZPAClientHelper as ZPA
-
     HAS_ZSCALER = True
-    ZSCALER_IMPORT_ERROR = None
-except ImportError:
-    ZPA = object  # Default to object if import fails
+except ImportError as e:
+    ZPA = object  # Use a generic object if the import fails
     HAS_ZSCALER = False
     ZSCALER_IMPORT_ERROR = missing_required_lib("zscaler")
 
+# Attempt to import the version information
+try:
+    from ansible_collections.zscaler.zpacloud.plugins.module_utils.version import __version__ as ansible_collection_version
+    HAS_VERSION = True
+except ImportError as e:
+    HAS_VERSION = False
+    VERSION_IMPORT_ERROR = missing_required_lib("plugins.module_utils.version (version information)")
+
 VALID_ZPA_ENVIRONMENTS = {
-    "PRODUCTION",  # Default
-    "BETA",
-    "QA",
-    "QA2",
-    "GOV",
-    "GOVUS",
-    "PREVIEW",
-    "ZPATWO",
+    "PRODUCTION", "BETA", "QA", "QA2", "GOV", "GOVUS", "PREVIEW", "ZPATWO",
 }
 
 
@@ -61,45 +65,32 @@ class ConnectionHelper:
 
     def check_sdk_installed(self):
         import zscaler
-
         installed_version = tuple(map(int, zscaler.__version__.split(".")))
         if installed_version < self.min_sdk_version:
-            raise Exception(
-                f"zscaler version should be >= {'.'.join(map(str, self.min_sdk_version))}"
-            )
+            raise Exception(f"zscaler version should be >= {'.'.join(map(str, self.min_sdk_version))}")
 
 
 class ZPAClientHelper(ZPA):
     def __init__(self, module):
         if not HAS_ZSCALER:
-            module.fail_json(
-                msg="The 'zscaler' library is required for this module.",
-                exception=ZSCALER_IMPORT_ERROR,
-            )
+            module.fail_json(msg="The 'zscaler' library is required for this module.", exception=ZSCALER_IMPORT_ERROR)
+        if not HAS_VERSION:
+            module.fail_json(msg="Failed to import the version from the collection's module_utils.", exception=VERSION_IMPORT_ERROR)
 
-        # Extract provider details or individual parameters
-        provider = module.params.get("provider")
-        if provider:
-            client_id = provider.get("client_id")
-            client_secret = provider.get("client_secret")
-            customer_id = provider.get("customer_id")
-            cloud_env = provider.get("cloud")
-        else:
-            client_id = module.params.get("client_id")
-            client_secret = module.params.get("client_secret")
-            customer_id = module.params.get("customer_id")
-            cloud_env = module.params.get("cloud")
+        provider = module.params.get("provider", {})
+        client_id = provider.get("client_id") or module.params.get("client_id")
+        client_secret = provider.get("client_secret") or module.params.get("client_secret")
+        customer_id = provider.get("customer_id") or module.params.get("customer_id")
+        cloud_env = provider.get("cloud") or module.params.get("cloud")
 
         if not all([client_id, client_secret, customer_id, cloud_env]):
             module.fail_json(msg="All authentication parameters must be provided.")
 
-        super().__init__(
-            client_id=client_id,
-            client_secret=client_secret,
-            customer_id=customer_id,
-            cloud=cloud_env.upper(),
-        )
+        super().__init__(client_id=client_id, client_secret=client_secret, customer_id=customer_id, cloud=cloud_env.upper())
+        ansible_version = ansible_release.__version__
+        self.user_agent = f"zpacloud-ansible/{ansible_version} (collection/{ansible_collection_version}) ({platform.system().lower()} {platform.machine()})"
 
+    @staticmethod
     def zpa_argument_spec():
         return dict(
             provider=dict(

@@ -97,7 +97,6 @@ reqs:       ## Recreate the requirements.txt file
 	poetry export -f requirements.txt --output requirements.txt
 
 install:
-	cp -R /Users/wguilherme/ansible_collections/zscaler/zpacloud /Users/wguilherme/.pyenv/versions/3.11.0/lib/python3.11/site-packages/ansible_collections/zscaler
 	rm -f zscaler*
 	ansible-galaxy collection build . --force
 	ansible-galaxy collection install zscaler* --force

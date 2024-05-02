@@ -35,11 +35,15 @@ try:
     from plugins.module_utils.version import __version__ as ansible_collection_version
 
     HAS_ZSCALER = True
+    HAS_VERSION = True
     ZSCALER_IMPORT_ERROR = None
-except ImportError:
+except ImportError as e:
     ZPA = object  # Default to object if import fails
     HAS_ZSCALER = False
-    ZSCALER_IMPORT_ERROR = missing_required_lib("zscaler")
+    HAS_VERSION = False
+    ZSCALER_IMPORT_ERROR = missing_required_lib(
+        "zscaler", python_version=platform.python_version(), msg=str(e)
+    )
 
 VALID_ZPA_ENVIRONMENTS = {
     "PRODUCTION",  # Default
@@ -76,6 +80,12 @@ class ZPAClientHelper(ZPA):
         if not HAS_ZSCALER:
             module.fail_json(
                 msg="The 'zscaler' library is required for this module.",
+                exception=ZSCALER_IMPORT_ERROR,
+            )
+
+        if not HAS_VERSION:
+            module.fail_json(
+                msg="Failed to import the version from the collection's module_utils. Make sure the version.py is present and accessible.",
                 exception=ZSCALER_IMPORT_ERROR,
             )
 

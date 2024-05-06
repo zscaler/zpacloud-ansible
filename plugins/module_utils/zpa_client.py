@@ -60,6 +60,20 @@ VALID_ZPA_ENVIRONMENTS = {
     "ZPATWO",
 }
 
+class ConnectionHelper:
+    def __init__(self, min_sdk_version):
+        if not HAS_ZSCALER:
+            raise ImportError(ZSCALER_IMPORT_ERROR)
+
+        self.min_sdk_version = min_sdk_version
+        self.check_sdk_installed()
+
+    def check_sdk_installed(self):
+        import zscaler
+        installed_version = tuple(map(int, zscaler.__version__.split(".")))
+        if installed_version < self.min_sdk_version:
+            raise Exception(f"zscaler version should be >= {'.'.join(map(str, self.min_sdk_version))}")
+
 
 class ZPAClientHelper(ZPA):
     def __init__(self, module):
@@ -73,6 +87,8 @@ class ZPAClientHelper(ZPA):
                 msg="Failed to import the version from the collection's module_utils.",
                 exception=VERSION_IMPORT_ERROR,
             )
+
+        self.connection_helper = ConnectionHelper(min_sdk_version=(0, 1, 0))
 
         # Initialize provider to an empty dict if None
         provider = module.params.get("provider") or {}

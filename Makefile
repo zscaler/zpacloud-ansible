@@ -98,7 +98,6 @@ reqs:       ## Recreate the requirements.txt file
 
 install:
 	rm -f zscaler*
-	cp -R /Users/wguilherme/ansible_collections/zscaler/zpacloud /Users/wguilherme/.pyenv/versions/3.11.0/lib/python3.11/site-packages/ansible_collections/zscaler
 	ansible-galaxy collection build . --force
 	ansible-galaxy collection install zscaler* --force
 	rm -f zscaler*

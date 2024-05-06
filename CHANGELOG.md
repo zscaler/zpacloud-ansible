@@ -1,3 +1,10 @@
+### [1.0.6](https://github.com/zscaler/zpacloud-ansible/compare/v1.0.5...v1.0.6) (2024-05-06)
+
+
+### Bug Fixes
+
+* Fixed ZPA Client Authentication Methods ([#35](https://github.com/zscaler/zpacloud-ansible/issues/35)) ([8e60366](https://github.com/zscaler/zpacloud-ansible/commit/8e60366fee1cb297b7390631665771c8926c84b5))
+
 ### [1.0.5](https://github.com/zscaler/zpacloud-ansible/compare/v1.0.4...v1.0.5) (2024-05-02)
 
 

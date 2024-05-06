@@ -60,6 +60,7 @@ VALID_ZPA_ENVIRONMENTS = {
     "ZPATWO",
 }
 
+
 class ConnectionHelper:
     def __init__(self, min_sdk_version):
         if not HAS_ZSCALER:
@@ -70,9 +71,12 @@ class ConnectionHelper:
 
     def check_sdk_installed(self):
         import zscaler
+
         installed_version = tuple(map(int, zscaler.__version__.split(".")))
         if installed_version < self.min_sdk_version:
-            raise Exception(f"zscaler version should be >= {'.'.join(map(str, self.min_sdk_version))}")
+            raise Exception(
+                f"zscaler version should be >= {'.'.join(map(str, self.min_sdk_version))}"
+            )
 
 
 class ZPAClientHelper(ZPA):

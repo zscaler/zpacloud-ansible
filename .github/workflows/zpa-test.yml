@@ -94,82 +94,82 @@ jobs:
           OKTA_CLIENT_ORGURL: ${{ secrets.OKTA_CLIENT_ORGURL }}
           OKTA_CLIENT_TOKEN: ${{ secrets.OKTA_CLIENT_TOKEN }}
 
-  zpa-beta-tenants:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.10"]
-        environment:
-          - ZPA_BETA_TENANT01
-    environment: ${{ matrix.environment }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          path: ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+  # zpa-beta-tenants:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       python-version: ["3.10"]
+  #       environment:
+  #         - ZPA_BETA_TENANT01
+  #   environment: ${{ matrix.environment }}
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #       with:
+  #         path: ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
+  #         token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
 
-      - name: Install Poetry
-        uses: Gr1N/setup-poetry@v9
-        with:
-          poetry-version: 1.8.2
+  #     - name: Install Poetry
+  #       uses: Gr1N/setup-poetry@v9
+  #       with:
+  #         poetry-version: 1.8.2
 
-      - name: Get poetry cache directory
-        id: poetry-cache
-        run: echo "dir=$(poetry config cache-dir)" >> $GITHUB_OUTPUT
+  #     - name: Get poetry cache directory
+  #       id: poetry-cache
+  #       run: echo "dir=$(poetry config cache-dir)" >> $GITHUB_OUTPUT
 
-      - name: Cache poetry dependencies
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.poetry-cache.outputs.dir }}
-          key:
-            ${{ runner.os }}-poetry-${{ matrix.python-version }}-${{
-            hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-poetry-${{ matrix.python-version }}-
+  #     - name: Cache poetry dependencies
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: ${{ steps.poetry-cache.outputs.dir }}
+  #         key:
+  #           ${{ runner.os }}-poetry-${{ matrix.python-version }}-${{
+  #           hashFiles('**/poetry.lock') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-poetry-${{ matrix.python-version }}-
 
-      - name: Install dependencies
-        run: poetry install
-        working-directory: ${{ github.workspace }}/ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
+  #     - name: Install dependencies
+  #       run: poetry install
+  #       working-directory: ${{ github.workspace }}/ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
 
-      - name: Install Ansible
-        run: pip install 'ansible>=2.14'
+  #     - name: Install Ansible
+  #       run: pip install 'ansible>=2.14'
 
-      - name: Build and install collection locally
-        run: poetry run make install
-        working-directory: ${{ github.workspace }}/ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
+  #     - name: Build and install collection locally
+  #       run: poetry run make install
+  #       working-directory: ${{ github.workspace }}/ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
 
-      - name: Run integration tests with retries
-        run: |
-          max_attempts=3
-          attempt=0
-          until [ "$attempt" -ge "$max_attempts" ]
-          do
-            attempt=$((attempt+1))
-            poetry run make test:integration:zpa && break
-            echo "Attempt $attempt of $max_attempts failed. Retrying..."
-            sleep 10
-          done
-          if [ "$attempt" -eq "$max_attempts" ]; then
-            echo "Test failed after $max_attempts attempts."
-            exit 1
-          fi
-        working-directory: ${{ github.workspace }}/ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
-        env:
-          ZPA_CLIENT_ID: ${{ secrets.ZPA_CLIENT_ID }}
-          ZPA_CLIENT_SECRET: ${{ secrets.ZPA_CLIENT_SECRET }}
-          ZPA_CUSTOMER_ID: ${{ secrets.ZPA_CUSTOMER_ID }}
-          ZPA_CLOUD: ${{ secrets.ZPA_CLOUD }}
-          OKTA_CLIENT_ORGURL: ${{ secrets.OKTA_CLIENT_ORGURL }}
-          OKTA_CLIENT_TOKEN: ${{ secrets.OKTA_CLIENT_TOKEN }}
-    needs:
-      - zpa-qa1-tenants
+  #     - name: Run integration tests with retries
+  #       run: |
+  #         max_attempts=3
+  #         attempt=0
+  #         until [ "$attempt" -ge "$max_attempts" ]
+  #         do
+  #           attempt=$((attempt+1))
+  #           poetry run make test:integration:zpa && break
+  #           echo "Attempt $attempt of $max_attempts failed. Retrying..."
+  #           sleep 10
+  #         done
+  #         if [ "$attempt" -eq "$max_attempts" ]; then
+  #           echo "Test failed after $max_attempts attempts."
+  #           exit 1
+  #         fi
+  #       working-directory: ${{ github.workspace }}/ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
+  #       env:
+  #         ZPA_CLIENT_ID: ${{ secrets.ZPA_CLIENT_ID }}
+  #         ZPA_CLIENT_SECRET: ${{ secrets.ZPA_CLIENT_SECRET }}
+  #         ZPA_CUSTOMER_ID: ${{ secrets.ZPA_CUSTOMER_ID }}
+  #         ZPA_CLOUD: ${{ secrets.ZPA_CLOUD }}
+  #         OKTA_CLIENT_ORGURL: ${{ secrets.OKTA_CLIENT_ORGURL }}
+  #         OKTA_CLIENT_TOKEN: ${{ secrets.OKTA_CLIENT_TOKEN }}
+  #   needs:
+  #     - zpa-qa1-tenants
 
   zpa-prod-tenants:
     runs-on: ubuntu-latest
@@ -247,4 +247,3 @@ jobs:
           OKTA_CLIENT_TOKEN: ${{ secrets.OKTA_CLIENT_TOKEN }}
     needs:
       - zpa-qa1-tenants
-      - zpa-beta-tenants

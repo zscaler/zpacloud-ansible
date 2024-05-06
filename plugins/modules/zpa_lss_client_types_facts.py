@@ -90,13 +90,19 @@ def core(module):
     client = ZPAClientHelper(module)
     client_type = module.params.get("client_type")
 
-    # Use the SDK function to directly fetch the required client types
-    lss_client_types = client.lss.get_client_types(client_type)
+    # Fetch all client types from the SDK
+    all_client_types = client.lss.get_client_types()
 
-    # Since get_client_types already handles filtering, no need for additional checks here
-    data = (
-        lss_client_types.to_dict()
-    )  # Convert from Box to standard dictionary for Ansible
+    # If a specific client type is provided, filter it manually
+    if client_type and client_type in all_client_types:
+        filtered_types = {client_type: all_client_types[client_type]}
+    else:
+        filtered_types = all_client_types
+
+    if hasattr(filtered_types, "to_dict"):
+        data = filtered_types.to_dict()
+    else:
+        data = filtered_types
 
     module.exit_json(changed=False, data=data)
 

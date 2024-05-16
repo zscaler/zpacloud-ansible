@@ -1,3 +1,10 @@
+## [1.1.0](https://github.com/zscaler/zpacloud-ansible/compare/v1.0.6...v1.1.0) (2024-05-16)
+
+
+### Features
+
+* Added Privileged Remote Access Features ([#37](https://github.com/zscaler/zpacloud-ansible/issues/37)) ([ba6ce54](https://github.com/zscaler/zpacloud-ansible/commit/ba6ce543192ac17a214d831c46b96a95470bbaba))
+
 ### [1.0.6](https://github.com/zscaler/zpacloud-ansible/compare/v1.0.5...v1.0.6) (2024-05-06)
 
 

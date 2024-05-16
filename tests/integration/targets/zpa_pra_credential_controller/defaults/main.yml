@@ -1,0 +1,6 @@
+---
+cred_name: John Doe
+credential_type: USERNAME_PASSWORD
+cred_description: Created with Ansible
+cred_user_domain: bd-redhat.com
+cred_username: jdoe

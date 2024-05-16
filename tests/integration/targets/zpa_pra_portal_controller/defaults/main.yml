@@ -1,0 +1,7 @@
+---
+portal_name: test_zpa_pra_portal
+portal_description: Created with Ansible
+portal_enabled: true
+portal_domain: pra01.bd-redhat.com
+user_notification: Created with Ansible
+user_notification_enabled: true

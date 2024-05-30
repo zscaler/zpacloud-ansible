@@ -285,7 +285,7 @@ def core(module):
             }
 
             cleaned_policy = deleteNone(updated_policy)
-            updated_policy = client.policies.update_rule(**cleaned_policy)
+            updated_policy = client.policies.update_isolation_rule(**cleaned_policy)
             module.exit_json(changed=True, data=updated_policy)
         elif existing_policy is None:
             """Create"""
@@ -301,9 +301,6 @@ def core(module):
                 ),
                 "conditions": map_conditions(policy.get("conditions", [])),
             }
-            module.warn(
-                "zpn_isolation_profile_id: {policy.get('zpn_isolation_profile_id', None)}"
-            )
             cleaned_policy = deleteNone(new_policy)
             created_policy = client.policies.add_isolation_rule(**cleaned_policy)
             module.exit_json(changed=True, data=created_policy)

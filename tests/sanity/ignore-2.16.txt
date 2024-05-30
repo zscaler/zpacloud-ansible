@@ -59,3 +59,4 @@ plugins/modules/zpa_pra_portal_controller_facts.py validate-modules:missing-gplv
 plugins/modules/zpa_pra_approval.py validate-modules:missing-gplv3-license
 plugins/modules/zpa_pra_console_controller.py validate-modules:missing-gplv3-license
 plugins/modules/zpa_pra_console_controller_facts.py validate-modules:missing-gplv3-license
+plugins/modules/zpa_application_segment_by_type_facts.py validate-modules:missing-gplv3-license

@@ -8,7 +8,24 @@ Requirements
 
 The **Zscaler Private Access Collection** has the following requirements in order to be successfully used:
 
-* **zscaler-sdk-python**
+Python dependencies
+----------------------
+
+The minimum python version for this collection is python `3.9`.
+
+The Python module dependencies are not automatically handled by `ansible-galaxy`. To manually install these dependencies, you have the following options:
+
+1. Utilize the `requirements.txt` file located `here <https://github.com/zscaler/zpacloud-ansible/blob/master/requirements.txt>`_ to install all required packages:
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+2. Alternatively, install the `Zscaler SDK Python <https://pypi.org/project/zscaler-sdk-python/>`_ package directly:
+
+    ```bash
+    pip install zscaler-sdk-python
+    ```
 
 If you believe you have installed these dependencies but Ansible is not finding them, it is likely a
 problem with where your local shell is searching for installed dependencies and where Ansible is

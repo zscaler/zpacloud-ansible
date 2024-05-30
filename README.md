@@ -7,40 +7,45 @@
 [![License](https://img.shields.io/github/license/zscaler/zpacloud-ansible?color=blue)](https://github.com/zscaler/zpacloud-ansible/v2/blob/master/LICENSE)
 [![Zscaler Community](https://img.shields.io/badge/zscaler-community-blue)](https://community.zscaler.com/)
 
-<div style="display: flex; align-items: center;">
-    <a href="https://catalog.redhat.com/software/search?p=1&type=Ansible%20collection&partnerName=Zscaler">
-        <img src="https://catalog.redhat.com/img/svg/logo.svg" alt="RedHat logo" title="RedHat Ecosystem Catalog" height="40" />
-    </a>
-    <a href="https://www.zscaler.com/">
-        <img src="https://www.zscaler.com/themes/custom/zscaler/logo.svg" alt="Zscaler logo" title="Zscaler" height="30" style="margin-left: 30px;" />
-    </a>
-</div>
-
 ## Zscaler Support
 
 -> **Disclaimer:** Please refer to our [General Support Statement](https://zscaler.github.io/zpacloud-ansible/support.html) before proceeding with the use of this collection. You can also refer to our [troubleshooting guide](https://zscaler.github.io/zpacloud-ansible/troubleshooting.html) for guidance on typical problems.
 
 This collection contains modules and plugins to assist in automating the configuration and operational tasks on Zscaler Private Access cloud, and API interactions with Ansible.
 
-- Free software: MIT License
+- Free software: [MIT License](https://github.com/zscaler/zpacloud-ansible/blob/master/LICENSE)
 - [Documentation](https://zscaler.github.io/zpacloud-ansible)
 - [Repository](https://github.com/zscaler/zpacloud-ansible)
 - [Example Playbooks](https://github.com/zscaler/zpacloud-playbooks)
 
 ## Tested Ansible Versions
 
-This collection is tested with the most current Ansible releases.  Ansible versions
+This collection is tested with the most current Ansible releases. Ansible versions
 before 2.15 are **not supported**.
 
-## Python Version
+## Python dependencies
 
 The minimum python version for this collection is python `3.9`.
+
+The Python module dependencies are not automatically handled by `ansible-galaxy`. To manually install these dependencies, you have the following options:
+
+1. Utilize the `requirements.txt` file located [here](https://github.com/zscaler/zpacloud-ansible/blob/master/requirements.txt) to install all required packages:
+
+  ```sh
+    pip install -r requirements.txt
+  ```
+
+2. Alternatively, install the [Zscaler SDK Python](https://pypi.org/project/zscaler-sdk-python/) package directly:
+
+  ```sh
+    pip install zscaler-sdk-python
+  ```
 
 ## Installation
 
 Install this collection using the Ansible Galaxy CLI:
 
-```bash
+```sh
 ansible-galaxy collection install zscaler.zpacloud
 ```
 

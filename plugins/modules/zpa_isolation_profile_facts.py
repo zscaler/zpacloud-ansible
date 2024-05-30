@@ -90,7 +90,7 @@ def core(module):
     client = ZPAClientHelper(module)
     profiles = []
     if profile_id is not None:
-        profile_box = client.isolation_profile.get_profile(profile_id=profile_id)
+        profile_box = client.isolation.get_profile(profile_id=profile_id)
         if profile_box is None:
             module.fail_json(
                 msg="Failed to retrieve Cloud Browser Isolation profile ID: '%s'"
@@ -98,7 +98,7 @@ def core(module):
             )
         profiles = [profile_box.to_dict()]
     else:
-        profiles = client.isolation_profile.list_profiles().to_list()
+        profiles = client.isolation.list_profiles().to_list()
         if profile_name is not None:
             profile_found = False
             for profile in profiles:

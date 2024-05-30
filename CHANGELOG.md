@@ -1,3 +1,10 @@
+## [1.2.0](https://github.com/zscaler/zpacloud-ansible/compare/v1.1.0...v1.2.0) (2024-05-30)
+
+
+### Features
+
+* Added Application Segment By Type facts resource ([#38](https://github.com/zscaler/zpacloud-ansible/issues/38)) ([900cf99](https://github.com/zscaler/zpacloud-ansible/commit/900cf990e70d3a3231b777f2eb66e9e18a3752b1))
+
 ## [1.1.0](https://github.com/zscaler/zpacloud-ansible/compare/v1.0.6...v1.1.0) (2024-05-16)
 
 

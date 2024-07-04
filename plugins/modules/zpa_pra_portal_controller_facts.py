@@ -93,7 +93,7 @@ def core(module):
             module.fail_json(msg="Failed to retrieve PRA Portal ID: '%s'" % (portal_id))
         portals = [portal_box.to_dict()]
     else:
-        portals = client.privileged_remote_access.list_portals().to_list()
+        portals = client.privileged_remote_access.list_portals(pagesize=500).to_list()
         if portal_name is not None:
             portal_found = False
             for portal in portals:

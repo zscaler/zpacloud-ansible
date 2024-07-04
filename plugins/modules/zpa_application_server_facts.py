@@ -97,7 +97,7 @@ def core(module):
             )
         servers = [server_box.to_dict()]
     else:
-        servers = client.servers.list_servers().to_list()
+        servers = client.servers.list_servers(pagesize=500).to_list()
         if server_name is not None:
             server_found = False
             for server in servers:

@@ -95,7 +95,7 @@ def core(module):
             )
         app_segments = [segment_box.to_dict()]
     else:
-        app_segments = client.app_segments.list_segments().to_list()
+        app_segments = client.app_segments.list_segments(pagesize=500).to_list()
         if segment_name is not None:
             app_segment_found = False
             for app_segment in app_segments:

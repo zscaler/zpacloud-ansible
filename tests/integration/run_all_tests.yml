@@ -12,8 +12,8 @@
           cloud: '{{ lookup("env", "ZPA_CLOUD") | default(omit) }}'
       no_log: true
 
-    # - name: Run initial sweep to clean tenant
-    #   ansible.builtin.include_tasks: ./sweep.yml
+    - name: Run initial sweep to clean tenant
+      ansible.builtin.include_tasks: ./sweep.yml
 
     - name: Running ZPA Integration Tests
       ansible.builtin.include_tasks: "{{ item }}"
@@ -49,5 +49,5 @@
         - targets/zpa_service_edge_groups/tasks/main.yml
         - targets/zpa_trusted_networks_facts/tasks/main.yml
 
-    # - name: Run final sweep to clean tenant
-    #   ansible.builtin.import_tasks: ./sweep.yml
+    - name: Run final sweep to clean tenant
+      ansible.builtin.import_tasks: ./sweep.yml

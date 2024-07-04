@@ -97,7 +97,7 @@ def core(module):
             )
         creds = [cred_box.to_dict()]
     else:
-        creds = client.privileged_remote_access.list_credentials().to_list()
+        creds = client.privileged_remote_access.list_credentials(pagesize=500).to_list()
         if cred_name is not None:
             cred_found = False
             for cred in creds:

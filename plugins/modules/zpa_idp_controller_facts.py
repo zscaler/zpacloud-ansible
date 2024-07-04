@@ -103,7 +103,7 @@ def core(module):
                 )
             idps = [idp_box.to_dict()]
         else:
-            idps = client.idp.list_idps().to_list()
+            idps = client.idp.list_idps(pagesize=500).to_list()
             if idp_name is not None:
                 idp_found = False
                 for idp in idps:

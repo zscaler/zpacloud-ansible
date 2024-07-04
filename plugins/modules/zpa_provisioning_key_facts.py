@@ -110,28 +110,36 @@ def core(module):
     key_type = module.params.get("key_type", None)
     client = ZPAClientHelper(module)
     keys = []
+
     if provisioning_key_id is not None:
         key_box = client.provisioning.get_provisioning_key(
             key_id=provisioning_key_id, key_type=key_type
         )
         if key_box is None:
             module.fail_json(
-                msg="Failed to retrieve App Connector ID: '%s'" % (provisioning_key_id)
+                msg="Failed to retrieve App Connector ID: '%s'" % provisioning_key_id
             )
         keys = [key_box.to_dict()]
     else:
-        keys = client.provisioning.list_provisioning_keys(key_type=key_type).to_list()
-        if provisioning_key_name is not None:
+        # This line ensures all pages are fetched
+        all_keys = client.provisioning.list_provisioning_keys(
+            key_type=key_type, pagesize=500
+        ).to_list()
+        if provisioning_key_name:
             key_found = False
-            for key in keys:
+            for key in all_keys:
                 if key.get("name") == provisioning_key_name:
-                    key_found = True
                     keys = [key]
+                    key_found = True
+                    break
             if not key_found:
                 module.fail_json(
                     msg="Failed to retrieve App Connector Name: '%s'"
-                    % (provisioning_key_name)
+                    % provisioning_key_name
                 )
+        else:
+            keys = all_keys
+
     module.exit_json(changed=False, data=keys)
 
 

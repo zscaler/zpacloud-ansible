@@ -228,6 +228,7 @@ options:
     choices:
       - EXCLUSIVE
       - INCLUSIVE
+    default: EXCLUSIVE
 """
 
 EXAMPLES = """
@@ -354,16 +355,16 @@ def core(module):
     for key, value in desired_app.items():
         if key not in fields_to_exclude and current_app.get(key) != value:
             differences_detected = True
-            module.warn(
-                f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
-            )
+            # module.warn(
+            #     f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
+            # )
 
     if existing_app is not None:
         id = existing_app.get("id")
         existing_app.update(app)
         existing_app["id"] = id
 
-    module.warn(f"Final payload being sent to SDK: {app}")
+    # module.warn(f"Final payload being sent to SDK: {app}")
     if state == "present":
         if existing_app is not None:
             if differences_detected:
@@ -408,7 +409,7 @@ def core(module):
                         ),
                     )
                 )
-                module.warn("Payload Update for SDK: {}".format(existing_app))
+                # module.warn("Payload Update for SDK: {}".format(existing_app))
                 existing_app = client.app_segments.update_segment(
                     **existing_app
                 ).to_dict()
@@ -417,7 +418,7 @@ def core(module):
                 """No Changes Needed"""
                 module.exit_json(changed=False, data=existing_app)
         else:
-            module.warn("Creating app segment as no existing app segment was found")
+            # module.warn("Creating app segment as no existing app segment was found")
             """Create"""
             app = deleteNone(
                 dict(
@@ -448,7 +449,7 @@ def core(module):
                     udp_port_ranges=convert_ports_list(app.get("udp_port_range", None)),
                 )
             )
-            module.warn("Payload for SDK: {}".format(app))
+            # module.warn("Payload for SDK: {}".format(app))
             app = client.app_segments.add_segment(**app)
             module.exit_json(changed=True, data=app)
     elif (
@@ -504,7 +505,10 @@ def main():
         passive_health_enabled=dict(type="bool", default=True, required=False),
         ip_anchored=dict(type="bool", required=False),
         match_style=dict(
-            type="str", required=False, choices=["EXCLUSIVE", "INCLUSIVE"]
+            type="str",
+            required=False,
+            default="EXCLUSIVE",
+            choices=["EXCLUSIVE", "INCLUSIVE"],
         ),
         icmp_access_type=dict(type="bool", required=False, default=False),
         server_group_ids=id_name_spec,

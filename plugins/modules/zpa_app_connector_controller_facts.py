@@ -97,7 +97,7 @@ def core(module):
             )
         connectors = [connector_box.to_dict()]
     else:
-        connectors = client.connectors.list_connectors().to_list()
+        connectors = client.connectors.list_connectors(pagesize=500).to_list()
         if connector_name is not None:
             connector_found = False
             for connector in connectors:

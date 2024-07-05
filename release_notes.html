@@ -86,12 +86,43 @@
 <p class="caption" role="heading"><span class="caption-text">Release Notes</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Releases</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#version-1-0-4">Version 1.0.4</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#notes">Notes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#what-s-new">What’s New</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#availability">Availability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#zscaler-private-access-zpa-ansible-collection-changelog">Zscaler Private Access (ZPA) Ansible Collection Changelog</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#version-1-2-1">Version 1.2.1</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#july-4-2024">1.2.1 (July, 4 2024)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#notes">Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bug-fixes">Bug Fixes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#may-30-2024">1.2.0 (May, 30 2024)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#features">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#may-16-2024">1.1.0 (May, 16 2024)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#may-6-2024">1.0.6 (May, 6 2024)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id11">Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id12">Bug Fixes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#may-2-2024">1.0.5 (May, 2 2024)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id14">Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id15">Bug Fixes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#april-27-2024">1.0.4 (April, 27 2024)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id17">Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id18">Bug Fixes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id22">1.0.3 (April, 27 2024)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id23">Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id24">Bug Fixes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#april-25-2024">1.0.2 (April, 25 2024)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id26">Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id27">Bug Fixes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id29">1.0.1 (April, 25 2024)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id30">Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id31">Bug Fixes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#april-24-2024">1.0.0 (April, 24 2024)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id33">Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#enhancements">Enhancements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id54">Bug Fixes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-s-new">What’s New</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#availability">Availability</a></li>
 </ul>
 </li>
 </ul>
@@ -135,25 +166,209 @@
              
   <section id="releases">
 <h1>Releases<a class="headerlink" href="#releases" title="Permalink to this heading"></a></h1>
-<section id="version-1-0-4">
-<h2>Version 1.0.4<a class="headerlink" href="#version-1-0-4" title="Permalink to this heading"></a></h2>
+<section id="zscaler-private-access-zpa-ansible-collection-changelog">
+<h2>Zscaler Private Access (ZPA) Ansible Collection Changelog<a class="headerlink" href="#zscaler-private-access-zpa-ansible-collection-changelog" title="Permalink to this heading"></a></h2>
+<section id="version-1-2-1">
+<h3>Version 1.2.1<a class="headerlink" href="#version-1-2-1" title="Permalink to this heading"></a></h3>
+</section>
+</section>
+<section id="july-4-2024">
+<h2>1.2.1 (July, 4 2024)<a class="headerlink" href="#july-4-2024" title="Permalink to this heading"></a></h2>
+</section>
 <section id="notes">
-<h3>Notes<a class="headerlink" href="#notes" title="Permalink to this heading"></a></h3>
+<h2>Notes<a class="headerlink" href="#notes" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Python Versions: <strong>v3.8, v3.9, v3.10, v3.11</strong></p></li>
+</ul>
+</section>
+<section id="bug-fixes">
+<h2>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Fixed ZPA pagination to retrieve maximum number of items per page (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/40">#40</a>)</p></li>
+<li><p>Fixed Integration tests (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/40">#40</a>)</p></li>
+</ul>
+</section>
+<section id="may-30-2024">
+<h2>1.2.0 (May, 30 2024)<a class="headerlink" href="#may-30-2024" title="Permalink to this heading"></a></h2>
+</section>
+<section id="id3">
+<h2>Notes<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Python Versions: <strong>v3.8, v3.9, v3.10, v3.11</strong></p></li>
+</ul>
+</section>
+<section id="features">
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Added Application Segment By Type facts resource (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/38">#38</a>)</p></li>
+</ul>
+</section>
+<section id="may-16-2024">
+<h2>1.1.0 (May, 16 2024)<a class="headerlink" href="#may-16-2024" title="Permalink to this heading"></a></h2>
+</section>
+<section id="id5">
+<h2>Notes<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Python Versions: <strong>v3.8, v3.9, v3.10, v3.11</strong></p></li>
+</ul>
+</section>
+<section id="id6">
+<h2>Features<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Added Privileged Remote Access Features (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/37">#37</a>)</p></li>
+<li><p>Added Privileged Remote Access Approval (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/37">#37</a>)</p></li>
+<li><p>Added Privileged Remote Access Console (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/37">#37</a>)</p></li>
+<li><p>Added Privileged Remote Access Portal (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/37">#37</a>)</p></li>
+</ul>
+</section>
+<section id="may-6-2024">
+<h2>1.0.6 (May, 6 2024)<a class="headerlink" href="#may-6-2024" title="Permalink to this heading"></a></h2>
+</section>
+<section id="id11">
+<h2>Notes<a class="headerlink" href="#id11" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Python Versions: <strong>v3.8, v3.9, v3.10, v3.11</strong></p></li>
+</ul>
+</section>
+<section id="id12">
+<h2>Bug Fixes<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Fixed ZPA Client Authentication Methods (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/35">#35</a>)</p></li>
+</ul>
+</section>
+<section id="may-2-2024">
+<h2>1.0.5 (May, 2 2024)<a class="headerlink" href="#may-2-2024" title="Permalink to this heading"></a></h2>
+</section>
+<section id="id14">
+<h2>Notes<a class="headerlink" href="#id14" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Python Versions: <strong>v3.8, v3.9, v3.10, v3.11</strong></p></li>
+</ul>
+</section>
+<section id="id15">
+<h2>Bug Fixes<a class="headerlink" href="#id15" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Fixed pyproject to version 1.0.5 (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/34">#34</a>)</p></li>
+</ul>
+</section>
+<section id="april-27-2024">
+<h2>1.0.4 (April, 27 2024)<a class="headerlink" href="#april-27-2024" title="Permalink to this heading"></a></h2>
+</section>
+<section id="id17">
+<h2>Notes<a class="headerlink" href="#id17" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Python Versions: <strong>v3.8, v3.9, v3.10, v3.11</strong></p></li>
+</ul>
+</section>
+<section id="id18">
+<h2>Bug Fixes<a class="headerlink" href="#id18" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Fixed Sanity Test and version setup (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/34">#34</a>)</p></li>
+<li><p>Fixed several attributes and rule reorder logic (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/34">#34</a>)</p></li>
+<li><p>Fixed version tag in documents (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/34">#34</a>)</p></li>
+</ul>
+</section>
+<section id="id22">
+<h2>1.0.3 (April, 27 2024)<a class="headerlink" href="#id22" title="Permalink to this heading"></a></h2>
+</section>
+<section id="id23">
+<h2>Notes<a class="headerlink" href="#id23" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Python Versions: <strong>v3.8, v3.9, v3.10, v3.11</strong></p></li>
+</ul>
+</section>
+<section id="id24">
+<h2>Bug Fixes<a class="headerlink" href="#id24" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Fixed Policy access timeout resource (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/32">#32</a>)</p></li>
+</ul>
+</section>
+<section id="april-25-2024">
+<h2>1.0.2 (April, 25 2024)<a class="headerlink" href="#april-25-2024" title="Permalink to this heading"></a></h2>
+</section>
+<section id="id26">
+<h2>Notes<a class="headerlink" href="#id26" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Python Versions: <strong>v3.8, v3.9, v3.10, v3.11</strong></p></li>
+</ul>
+</section>
+<section id="id27">
+<h2>Bug Fixes<a class="headerlink" href="#id27" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Update attributes and add integration tests (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/31">#31</a>)</p></li>
+</ul>
+</section>
+<section id="id29">
+<h2>1.0.1 (April, 25 2024)<a class="headerlink" href="#id29" title="Permalink to this heading"></a></h2>
+</section>
+<section id="id30">
+<h2>Notes<a class="headerlink" href="#id30" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Python Versions: <strong>v3.8, v3.9, v3.10, v3.11</strong></p></li>
+</ul>
+</section>
+<section id="id31">
+<h2>Bug Fixes<a class="headerlink" href="#id31" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Fixed variable in service edge group for sanity check (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/30">#30</a>)</p></li>
+</ul>
+</section>
+<section id="april-24-2024">
+<h2>1.0.0 (April, 24 2024)<a class="headerlink" href="#april-24-2024" title="Permalink to this heading"></a></h2>
+</section>
+<section id="id33">
+<h2>Notes<a class="headerlink" href="#id33" title="Permalink to this heading"></a></h2>
+</section>
+<section id="enhancements">
+<h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p>Initial release of Zscaler Private Access Automation collection, referred to as <cite>zpacloud</cite>
 which is part of the Red Hat® Ansible Certified Content.</p></li>
+<li><p>Added support for new ZPA Access Policy Bulk Reorder (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Added access policy condition operands validation (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Added and fixed several integration tests (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Added App Connector Assistant Schedule resource (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Added app protection and isolation rule info resource (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Added app protection profile resource (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Added app protection resources (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Added app protection rule integration tests (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Added application segment pra and appProtection (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Added application segment validation features (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Added AppProtection and Isolation rule resources (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Added condition and validation operands to all policies (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Added identity provider validation for all policy types (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Added LSS data sources (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Added SAML/SCIM integration tests (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Added several integration test cases (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Added ZPA App Protection Custom Controls (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Added zpa_policy_access_rule_reorder to handle rule reorders (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Reconfigured client to comply with SDK requirements (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Release v1.0.0 (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+</ul>
+</section>
+<section id="id54">
+<h2>Bug Fixes<a class="headerlink" href="#id54" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Added Dependabot workflow (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Added ignore-2.16.txt for sanity test (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Ansible Sanity test phase 1 (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Fixed galaxy version to v1.0.0 (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Fixed segment group check_mode (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Fixed several resources (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Implemented ansible client enahcements and other fixes (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Make ZPA_CLOUD env var auth optional (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
+<li><p>Updated pyproject.toml packages (<a class="reference external" href="https://github.com/zscaler/zpacloud-ansible/pull/24">#24</a>)</p></li>
 </ul>
 </section>
 <section id="what-s-new">
-<h3>What’s New<a class="headerlink" href="#what-s-new" title="Permalink to this heading"></a></h3>
+<h2>What’s New<a class="headerlink" href="#what-s-new" title="Permalink to this heading"></a></h2>
 </section>
 <section id="availability">
-<h3>Availability<a class="headerlink" href="#availability" title="Permalink to this heading"></a></h3>
+<h2>Availability<a class="headerlink" href="#availability" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/">Galaxy</a></p></li>
 <li><p><a class="reference external" href="https://github.com/zscaler/zpacloud-ansible">GitHub</a></p></li>
 </ul>
-</section>
 </section>
 </section>
 

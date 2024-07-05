@@ -230,14 +230,12 @@ def core(module):
 
     group["is_public"] = is_public_str
 
-    service_edge_group_id = group.get("id", None)
+    group_id = group.get("id", None)
     group_name = group.get("name", None)
 
     existing_group = None
-    if service_edge_group_id is not None:
-        group_box = client.service_edges.get_service_edge_group(
-            service_edge_group_id=service_edge_group_id
-        )
+    if group_id is not None:
+        group_box = client.service_edges.get_service_edge_group(group_id=group_id)
         if group_box is not None:
             existing_group = group_box.to_dict()
     elif group_name is not None:
@@ -305,7 +303,7 @@ def core(module):
 
                 existing_group = deleteNone(
                     dict(
-                        service_edge_group_id=existing_group.get("id", None),
+                        group_id=existing_group.get("id", None),
                         name=existing_group.get("name", None),
                         description=existing_group.get("description", None),
                         enabled=existing_group.get("enabled", None),
@@ -381,7 +379,7 @@ def core(module):
         and existing_group.get("id") is not None
     ):
         code = client.service_edges.delete_service_edge_group(
-            service_edge_group_id=existing_group.get("id")
+            group_id=existing_group.get("id")
         )
         if code > 299:
             module.exit_json(changed=False, data=None)

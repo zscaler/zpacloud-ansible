@@ -97,7 +97,7 @@ def core(module):
             )
         groups = [group_box.to_dict()]
     else:
-        groups = client.cloud_connector_groups.list_groups().to_list()
+        groups = client.cloud_connector_groups.list_groups(pagesize=500).to_list()
         if group_name is not None:
             group_found = False
             for group in groups:

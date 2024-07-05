@@ -101,7 +101,7 @@ def core(module):
             module.fail_json(msg="Failed to retrieve saml attribute ID: '%s'" % (id))
         saml_attributes = [attribute_box.to_dict()]
     elif saml_attr_name is not None:
-        attributes = client.saml_attributes.list_attributes().to_list()
+        attributes = client.saml_attributes.list_attributes(pagesize=500).to_list()
         if attributes is None:
             module.fail_json(
                 msg="Failed to retrieve saml attribute Name: '%s'" % (saml_attr_name)

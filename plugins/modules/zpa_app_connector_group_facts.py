@@ -97,18 +97,23 @@ def core(module):
             )
         groups = [group_box.to_dict()]
     else:
-        groups = client.connectors.list_connector_groups().to_list()
-        if group_name is not None:
+        # Fetch all pages by setting a large pagesize, or implementing a loop for multiple pages if necessary
+        all_groups = client.connectors.list_connector_groups(pagesize=500).to_list()
+        if group_name:
             group_found = False
-            for group in groups:
+            for group in all_groups:
                 if group.get("name") == group_name:
-                    group_found = True
                     groups = [group]
+                    group_found = True
+                    break
             if not group_found:
                 module.fail_json(
                     msg="Failed to retrieve App Connector Group Name: '%s'"
                     % (group_name)
                 )
+        else:
+            groups = all_groups
+
     module.exit_json(changed=False, data=groups)
 
 

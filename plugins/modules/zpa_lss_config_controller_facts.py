@@ -95,7 +95,7 @@ def core(module):
             module.fail_json(msg="Failed to retrieve lss_config ID: '%s'" % (id))
         lss_configs = [lss_config]
     elif lss_config_name is not None:
-        lss_configs_ = client.lss.list_configs().to_list()
+        lss_configs_ = client.lss.list_configs(pagesize=500).to_list()
         found = False
         for k in lss_configs_:
             if k.get("config").get("name") == lss_config_name:

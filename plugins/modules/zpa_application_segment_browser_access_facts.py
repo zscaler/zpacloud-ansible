@@ -100,7 +100,7 @@ def core(module):
             )
         ba_app_segments = [ba_app_segment_box.to_dict()]
     else:
-        ba_app_segments = client.app_segments.list_segments().to_list()
+        ba_app_segments = client.app_segments.list_segments(pagesize=500).to_list()
         if ba_appsegment_name is not None:
             ba_app_segment_found = False
             for ba_app_segment in ba_app_segments:

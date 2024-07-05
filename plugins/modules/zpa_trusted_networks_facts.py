@@ -101,7 +101,7 @@ def core(module):
             )
         networks = [network_box.to_dict()]
     else:
-        networks = client.trusted_networks.list_networks().to_list()
+        networks = client.trusted_networks.list_networks(pagesize=500).to_list()
         if network_name is not None:
             network_found = False
             for network in networks:

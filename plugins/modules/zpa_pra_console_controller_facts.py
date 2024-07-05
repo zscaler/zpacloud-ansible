@@ -95,7 +95,7 @@ def core(module):
             )
         consoles = [console_box.to_dict()]
     else:
-        consoles = client.privileged_remote_access.list_consoles().to_list()
+        consoles = client.privileged_remote_access.list_consoles(pagesize=500).to_list()
         if console_name is not None:
             console_found = False
             for console in consoles:

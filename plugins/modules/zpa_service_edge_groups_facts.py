@@ -99,7 +99,7 @@ def core(module):
             )
         groups = [group_box.to_dict()]
     else:
-        groups = client.service_edges.list_service_edge_groups().to_list()
+        groups = client.service_edges.list_service_edge_groups(pagesize=500).to_list()
         if group_name is not None:
             group_found = False
             for group in groups:

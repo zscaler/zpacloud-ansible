@@ -98,7 +98,7 @@ def core(module):
             )
         profiles = [profile_box.to_dict()]
     else:
-        profiles = client.isolation.list_profiles().to_list()
+        profiles = client.isolation.list_profiles(pagesize=500).to_list()
         if profile_name is not None:
             profile_found = False
             for profile in profiles:

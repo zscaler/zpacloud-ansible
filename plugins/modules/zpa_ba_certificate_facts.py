@@ -100,7 +100,9 @@ def core(module):
             )
         certificates = [certificate_box.to_dict()]
     else:
-        certificates = client.certificates.list_issued_certificates().to_list()
+        certificates = client.certificates.list_issued_certificates(
+            pagesize=500
+        ).to_list()
         if certificate_name is not None:
             certificate_found = False
             for certificate in certificates:

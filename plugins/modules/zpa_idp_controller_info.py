@@ -130,12 +130,12 @@ idps:
           returned: always
           sample: "1699851727077"
         valid_from_in_sec:
-          description: The start of the certificate’s validity period in epoch seconds.
+          description: The start of the certificate validity period in epoch seconds.
           type: str
           returned: always
           sample: "1699851667"
         valid_to_in_sec:
-          description: The end of the certificate’s validity period in epoch seconds.
+          description: The end of the certificate validity period in epoch seconds.
           type: str
           returned: always
           sample: "2015470926"

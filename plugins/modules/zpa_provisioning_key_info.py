@@ -87,7 +87,8 @@ EXAMPLES = """
     key_type: "connector"
 """
 
-RETURN = """
+RETURN = r"""
+# ANY INFORMATION IN THIS DOCUMENT IS FOR EXAMPLE PURPOSES ONLY AND NOT USED IN PRODUCTION
 provisioning_keys:
   description: Details of the provisioning keys that match the criteria.
   returned: always
@@ -133,7 +134,7 @@ provisioning_keys:
     provisioning_key:
       description: The actual provisioning key value.
       type: str
-      sample: "3|api.private.zscaler.com|BeOFJsYma28ledneSPoWJbQ1coAHqaJiuc4Gowss/TLKe+jrcUp3xOd51BJhkWB2DmM12+YroP5IIDbieq/+jQ8rWdNxWoUtcd0DDt7TzVKlmHIzK1MNPd95GdlgBn1ZfGy8nyMegJPVB9CG+OWuEQmX3mSYCg+CPrDHCC8QMiGQ6nVu/0V34kLPHDutBMPpnOFIcdMbEcdqZNfN2x9+082xMdBENHiZMaZeZw8pgE/kbLpBKAhC9sY6NYhkxUB7GNDWEpXVA4JgdR/O0fycVqX73a46ysm3BZMB+ltFcfWajfAjiuoy6mIqYnmF5InTrZFUp5Crtx1N266y+u93Y+699OiPKhnOjhKir/gH4M/m4fLME8piUqrSxQts9f3w"
+      sample: "3|api.private.zscaler.com|Befsgew"
     usage_count:
       description: The number of times the provisioning key has been used.
       type: str

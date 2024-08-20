@@ -141,12 +141,12 @@ certificates:
       returned: always
       sample: "735924591743318636302144604206618292491649060"
     valid_from_in_epoch_sec:
-      description: The start of the certificate’s validity period in epoch seconds.
+      description: The start of the certificate validity period in epoch seconds.
       type: str
       returned: always
       sample: "1693027293"
     valid_to_in_epoch_sec:
-      description: The end of the certificate’s validity period in epoch seconds.
+      description: The end of the certificate validity period in epoch seconds.
       type: str
       returned: always
       sample: "1756099293"

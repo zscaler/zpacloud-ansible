@@ -94,7 +94,7 @@
           - not result.changed
 
     - name: Fetch all Segment Groups
-      zscaler.zpacloud.zpa_segment_group_facts:
+      zscaler.zpacloud.zpa_segment_group_info:
         provider: "{{ zpa_cloud }}"
       register: result
 
@@ -102,7 +102,7 @@
       ansible.builtin.assert:
         that:
           - not result.changed
-          - result.data[0] is defined
+          - result.groups[0] is defined
 
     - name: Give the ZPA Cloud a 5 seconds to settle
       ansible.builtin.pause:

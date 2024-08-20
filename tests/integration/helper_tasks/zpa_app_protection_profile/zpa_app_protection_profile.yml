@@ -22,11 +22,11 @@
 - name: Main block to Test App Protection Profile
   block:
     - name: Fetch the App Protection Profile
-      zscaler.zpacloud.zpa_app_protection_security_profile_facts:
+      zscaler.zpacloud.zpa_app_protection_security_profile_info:
         provider: "{{ zpa_cloud }}"
         name: BD_SA_Profile1
       register: profile_id
 
     - name: Set App Protection Profile ID as fact
       ansible.builtin.set_fact:
-        profile_id: "{{ profile_id.data[0].id }}"
+        profile_id: "{{ profile_id.profiles[0].id }}"

@@ -129,7 +129,7 @@
           - not result.changed
 
     - name: Fetch all App Connector Groups
-      zscaler.zpacloud.zpa_app_connector_group_facts:
+      zscaler.zpacloud.zpa_app_connector_group_info:
         provider: "{{ zpa_cloud }}"
       register: result
 
@@ -137,10 +137,10 @@
       ansible.builtin.assert:
         that:
           - not result.changed
-          - result.data[0] is defined
+          - result.groups[0] is defined
 
     - name: Fetch this App Connector Group
-      zscaler.zpacloud.zpa_app_connector_group_facts:
+      zscaler.zpacloud.zpa_app_connector_group_info:
         provider: "{{ zpa_cloud }}"
         name: "{{ appended_name }}"
       register: result
@@ -149,10 +149,10 @@
       ansible.builtin.assert:
         that:
           - not result.changed
-          - result.data is defined
-          - result.data[0].name is defined
-          - result.data[0].name == appended_name
-          - result.data[0].enabled == true
+          - result.groups is defined
+          - result.groups[0].name is defined
+          - result.groups[0].name == appended_name
+          - result.groups[0].enabled == true
 
     - name: Give the ZPA Cloud a 5 seconds to settle
       ansible.builtin.pause:

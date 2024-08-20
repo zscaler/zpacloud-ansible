@@ -22,7 +22,7 @@
 - name: Main block to Test Fetch the created App Connector Group
   block:
     - name: Fetch the created App Connector Group
-      zscaler.zpacloud.zpa_app_connector_group_facts:
+      zscaler.zpacloud.zpa_app_connector_group_info:
         provider: "{{ zpa_cloud }}"
         id: "{{ app_connector_group_id }}" # assuming you have the ID stored in this variable
       register: fetched_acg
@@ -30,8 +30,8 @@
     - name: Verify App Connector Group attributes
       ansible.builtin.assert:
         that:
-          - fetched_acg.data[0].name == acg_name
-          - fetched_acg.data[0].description == acg_description
+          - fetched_acg.groups[0].name == acg_name
+          - fetched_acg.groups[0].description == acg_description
           # - "fetched_acg.data.some_other_attribute == expected_value"
         fail_msg: Verification failed for App Connector Group!
         success_msg: Verification successful for App Connector Group!

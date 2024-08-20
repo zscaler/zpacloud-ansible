@@ -137,7 +137,7 @@
           - not result.changed # Expect no changes on idempotent operation
 
     - name: Fetch all Policy Access Forwarding Rule
-      zscaler.zpacloud.zpa_policy_access_forwarding_rule_facts:
+      zscaler.zpacloud.zpa_policy_access_forwarding_rule_info:
         provider: "{{ zpa_cloud }}"
       register: result
 
@@ -145,10 +145,10 @@
       ansible.builtin.assert:
         that:
           - not result.changed
-          - result.data[0] is defined
+          - result.policy_rules[0] is defined
 
     - name: Fetch this Policy Access Forwarding Rule
-      zscaler.zpacloud.zpa_policy_access_forwarding_rule_facts:
+      zscaler.zpacloud.zpa_policy_access_forwarding_rule_info:
         provider: "{{ zpa_cloud }}"
         name: "{{ appended_name }}"
       register: result
@@ -157,9 +157,9 @@
       ansible.builtin.assert:
         that:
           - not result.changed
-          - result.data is defined
-          - result.data[0].name is defined
-          - result.data[0].name == appended_name
+          - result.policy_rules is defined
+          - result.policy_rules[0].name is defined
+          - result.policy_rules[0].name == appended_name
 
     - name: Give the ZPA Cloud a 5 seconds to settle
       ansible.builtin.pause:

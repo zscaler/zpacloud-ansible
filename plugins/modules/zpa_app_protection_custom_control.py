@@ -38,7 +38,8 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
-
+notes:
+    - Check mode is supported.
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
   - zscaler.zpacloud.fragments.documentation
@@ -361,6 +362,15 @@ def core(module):
         module.fail_json(
             msg="The default_action_value parameter is mandatory when default_action is set to REDIRECT."
         )
+
+    if module.check_mode:
+        # If in check mode, report changes and exit
+        if state == "present" and (existing_control is None or differences_detected):
+            module.exit_json(changed=True)
+        elif state == "absent" and existing_control is not None:
+            module.exit_json(changed=True)
+        else:
+            module.exit_json(changed=False)
 
     if existing_control is not None:
         id = existing_control.get("id")

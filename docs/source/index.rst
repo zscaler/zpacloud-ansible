@@ -44,6 +44,7 @@ contributed by the **Zscaler's Technology Alliances** team.
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
    :caption: Getting Started
 
    requirements
@@ -51,6 +52,7 @@ contributed by the **Zscaler's Technology Alliances** team.
    authentication
    examples
    modules
+   common_return_values
 
 .. toctree::
    :maxdepth: 1

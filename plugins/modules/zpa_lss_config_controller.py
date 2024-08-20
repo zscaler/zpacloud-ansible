@@ -37,7 +37,8 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
-
+notes:
+    - Check mode is supported.
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
   - zscaler.zpacloud.fragments.documentation
@@ -269,6 +270,7 @@ def core(module):
         lss_config[param_name] = module.params.get(param_name, None)
     lss_config_name = lss_config.get("config", {}).get("name")
     lss_config_id = lss_config.get("id")
+
     existing_lss_config = None
     if lss_config_id is not None:
         existing_lss_config = client.lss.get_config(lss_id=lss_config_id)
@@ -278,10 +280,12 @@ def core(module):
             if lssconf.get("config").get("name") == lss_config_name:
                 existing_lss_config = lssconf
                 break
+
     if existing_lss_config is not None:
         id = existing_lss_config.get("id")
         existing_lss_config.update(lss_config)
         existing_lss_config["id"] = id
+
     if state == "present":
         if existing_lss_config is not None:
             policy_rule_resource = existing_lss_config.get("policy_rule_resource", None)

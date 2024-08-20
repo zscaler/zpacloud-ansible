@@ -185,7 +185,7 @@
           - not result.changed
 
     - name: Fetch all Application Segments
-      zscaler.zpacloud.zpa_application_segment_facts:
+      zscaler.zpacloud.zpa_application_segment_info:
         provider: "{{ zpa_cloud }}"
       register: result
 
@@ -193,10 +193,10 @@
       ansible.builtin.assert:
         that:
           - not result.changed
-          - result.data[0] is defined
+          - result.app_segments[0] is defined
 
     - name: Fetch this Application Segment
-      zscaler.zpacloud.zpa_application_segment_facts:
+      zscaler.zpacloud.zpa_application_segment_info:
         provider: "{{ zpa_cloud }}"
         name: "{{ appended_name }}"
       register: result
@@ -205,10 +205,10 @@
       ansible.builtin.assert:
         that:
           - not result.changed
-          - result.data is defined
-          - result.data[0].name is defined
-          - result.data[0].name == appended_name
-          - result.data[0].enabled == true
+          - result.app_segments is defined
+          - result.app_segments[0].name is defined
+          - result.app_segments[0].name == appended_name
+          - result.app_segments[0].enabled == true
 
     - name: Give the ZPA Cloud a 5 seconds to settle
       ansible.builtin.pause:

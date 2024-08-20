@@ -116,7 +116,7 @@
           - not result.changed
 
     - name: Fetch all Service Edge Groups
-      zscaler.zpacloud.zpa_service_edge_groups_facts:
+      zscaler.zpacloud.zpa_service_edge_groups_info:
         provider: "{{ zpa_cloud }}"
       register: result
 
@@ -124,10 +124,10 @@
       ansible.builtin.assert:
         that:
           - not result.changed
-          - result.data[0] is defined
+          - result.groups[0] is defined
 
     - name: Fetch this Service Edge Group
-      zscaler.zpacloud.zpa_service_edge_groups_facts:
+      zscaler.zpacloud.zpa_service_edge_groups_info:
         provider: "{{ zpa_cloud }}"
         name: "{{ seg_name }}"
       register: result
@@ -136,10 +136,10 @@
       ansible.builtin.assert:
         that:
           - not result.changed
-          - result.data is defined
-          - result.data[0].name is defined
-          - result.data[0].name == seg_name
-          - result.data[0].enabled == true
+          - result.groups is defined
+          - result.groups[0].name is defined
+          - result.groups[0].name == seg_name
+          - result.groups[0].enabled == true
 
     - name: Delete Service Edge Group
       zscaler.zpacloud.zpa_service_edge_groups:

@@ -110,6 +110,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">Module reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common_return_values.html">Common Return Values</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Release Notes</span></p>
 <ul>
@@ -706,10 +707,10 @@ This resource is required when creating a browser access application segment res
 </section>
 <section id="enrollment-certificates">
 <h3>Enrollment Certificates<a class="headerlink" href="#enrollment-certificates" title="Permalink to this heading"></a></h3>
-<p>Use the <cite>zpa_enrollement_certificate_facts</cite> to gather facts about built-in configured enrollment certificate details created in the Zscaler Private Access cloud.
+<p>Use the <cite>zpa_enrollement_certificate_info</cite> to gather facts about built-in configured enrollment certificate details created in the Zscaler Private Access cloud.
 This resource is required when creating provisioning key resources or type <cite>Connector</cite> or <cite>Service Edge</cite></p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Information Details of All Enrollment Certificates</span>
-<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_facts</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_info</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
 <span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">all_enrollment_certs</span>
 
@@ -718,7 +719,7 @@ This resource is required when creating provisioning key resources or type <cite
 <span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">all_enrollment_certs</span><span class="nv"> </span><span class="s">}}&#39;</span>
 
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Information Details of the Root Enrollment Certificates by Name</span>
-<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_facts</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_info</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Root</span>
 <span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enrollment_cert_root</span>
@@ -728,7 +729,7 @@ This resource is required when creating provisioning key resources or type <cite
 <span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">enrollment_cert_root</span><span class="nv"> </span><span class="s">}}&#39;</span>
 
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Information Details of the Client Enrollment Certificates by Name</span>
-<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_facts</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_info</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Client</span>
 <span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enrollment_cert_client</span>
@@ -738,7 +739,7 @@ This resource is required when creating provisioning key resources or type <cite
 <span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">enrollment_cert_client</span><span class="nv"> </span><span class="s">}}&#39;</span>
 
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Information Details of the Connector Enrollment Certificates by Name</span>
-<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_facts</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_info</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Connector</span>
 <span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enrollment_cert_connector</span>
@@ -748,7 +749,7 @@ This resource is required when creating provisioning key resources or type <cite
 <span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">enrollment_cert_connector</span><span class="nv"> </span><span class="s">}}&#39;</span>
 
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Information Details of the Service Edge Enrollment Certificates by Name</span>
-<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_facts</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_info</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Service Edge</span>
 <span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enrollment_cert_service_edge</span>
@@ -758,7 +759,7 @@ This resource is required when creating provisioning key resources or type <cite
 <span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">enrollment_cert_service_edge</span><span class="nv"> </span><span class="s">}}&#39;</span>
 
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Information Details of the Isolation Client Enrollment Certificates by Name</span>
-<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_facts</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_enrollement_certificate_info</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&#39;</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Isolation Client</span>
 <span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enrollment_cert_isolation_client</span>

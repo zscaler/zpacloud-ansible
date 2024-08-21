@@ -599,13 +599,13 @@ This resource is required when creating a browser access application segment res
 Enrollment Certificates
 -----------------------
 
-Use the `zpa_enrollement_certificate_facts` to gather facts about built-in configured enrollment certificate details created in the Zscaler Private Access cloud.
+Use the `zpa_enrollement_certificate_info` to gather facts about built-in configured enrollment certificate details created in the Zscaler Private Access cloud.
 This resource is required when creating provisioning key resources or type `Connector` or `Service Edge`
 
 .. code-block:: yaml
 
     - name: Gather Information Details of All Enrollment Certificates
-      zscaler.zpacloud.zpa_enrollement_certificate_facts:
+      zscaler.zpacloud.zpa_enrollement_certificate_info:
         provider: '{{ zpa_cloud }}'
       register: all_enrollment_certs
 
@@ -614,7 +614,7 @@ This resource is required when creating provisioning key resources or type `Conn
         msg: '{{ all_enrollment_certs }}'
 
     - name: Gather Information Details of the Root Enrollment Certificates by Name
-      zscaler.zpacloud.zpa_enrollement_certificate_facts:
+      zscaler.zpacloud.zpa_enrollement_certificate_info:
         provider: '{{ zpa_cloud }}'
         name: Root
       register: enrollment_cert_root
@@ -624,7 +624,7 @@ This resource is required when creating provisioning key resources or type `Conn
         msg: '{{ enrollment_cert_root }}'
 
     - name: Gather Information Details of the Client Enrollment Certificates by Name
-      zscaler.zpacloud.zpa_enrollement_certificate_facts:
+      zscaler.zpacloud.zpa_enrollement_certificate_info:
         provider: '{{ zpa_cloud }}'
         name: Client
       register: enrollment_cert_client
@@ -634,7 +634,7 @@ This resource is required when creating provisioning key resources or type `Conn
         msg: '{{ enrollment_cert_client }}'
 
     - name: Gather Information Details of the Connector Enrollment Certificates by Name
-      zscaler.zpacloud.zpa_enrollement_certificate_facts:
+      zscaler.zpacloud.zpa_enrollement_certificate_info:
         provider: '{{ zpa_cloud }}'
         name: Connector
       register: enrollment_cert_connector
@@ -644,7 +644,7 @@ This resource is required when creating provisioning key resources or type `Conn
         msg: '{{ enrollment_cert_connector }}'
 
     - name: Gather Information Details of the Service Edge Enrollment Certificates by Name
-      zscaler.zpacloud.zpa_enrollement_certificate_facts:
+      zscaler.zpacloud.zpa_enrollement_certificate_info:
         provider: '{{ zpa_cloud }}'
         name: Service Edge
       register: enrollment_cert_service_edge
@@ -654,7 +654,7 @@ This resource is required when creating provisioning key resources or type `Conn
         msg: '{{ enrollment_cert_service_edge }}'
 
     - name: Gather Information Details of the Isolation Client Enrollment Certificates by Name
-      zscaler.zpacloud.zpa_enrollement_certificate_facts:
+      zscaler.zpacloud.zpa_enrollement_certificate_info:
         provider: '{{ zpa_cloud }}'
         name: Isolation Client
       register: enrollment_cert_isolation_client

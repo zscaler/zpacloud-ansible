@@ -9,8 +9,26 @@ Releases
 Zscaler Private Access (ZPA) Ansible Collection Changelog
 ---------------------------------------------------------
 
-Version 1.2.1
+Version 1.3.0
 =============
+
+1.3.0 (August, 20 2024)
+-------------------------
+
+Notes
+-----
+
+- Python Versions: **v3.8, v3.9, v3.10, v3.11**
+
+BREAKING CHANGES
+-----------------
+
+* (`#42 <https://github.com/zscaler/zpacloud-ansible/pull/42>`_) All resources previously named with `_facts` have been moved to `_info` to comply with Red Hat Ansible best practices as described in the following. (`Ansible Developer Documentation <https://docs.ansible.com/ansible/latest/dev_guide/developing_modules_general.html#creating-an-info-or-a-facts-module>`_).
+
+New Feature
+------------
+
+* (`#42 <https://github.com/zscaler/zpacloud-ansible/pull/42>`_) All resources now support `check_mode` for simulation purposes and for validating configuration management playbooks
 
 1.2.1 (July, 4 2024)
 ----------------------

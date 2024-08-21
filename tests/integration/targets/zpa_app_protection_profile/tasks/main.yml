@@ -60,7 +60,6 @@
         check_control_deployment_status: "{{ check_control_deployment_status }}"
         predef_controls_version: "{{ predef_controls_version }}"
         incarnation_number: "{{ incarnation_number }}"
-        controls_facts: "{{ controls_facts }}"
         global_control_actions: "{{ global_control_actions }}"
       register: result
 
@@ -81,7 +80,6 @@
         check_control_deployment_status: "{{ check_control_deployment_status }}"
         predef_controls_version: "{{ predef_controls_version }}"
         incarnation_number: "{{ incarnation_number }}"
-        controls_facts: "{{ controls_facts }}"
         global_control_actions: "{{ global_control_actions }}"
 
       register: result
@@ -104,7 +102,6 @@
         check_control_deployment_status: "{{ check_control_deployment_status }}"
         predef_controls_version: "{{ predef_controls_version }}"
         incarnation_number: "{{ incarnation_number }}"
-        controls_facts: "{{ controls_facts }}"
         global_control_actions: "{{ global_control_actions }}"
 
       register: result
@@ -115,7 +112,7 @@
           - not result.changed
 
     - name: Fetch all App Protection Profile
-      zscaler.zpacloud.zpa_app_protection_security_profile_facts:
+      zscaler.zpacloud.zpa_app_protection_security_profile_info:
         provider: "{{ zpa_cloud }}"
       register: result
 
@@ -123,10 +120,10 @@
       ansible.builtin.assert:
         that:
           - not result.changed
-          - result.data[0] is defined
+          - result.profiles[0] is defined
 
     - name: Fetch this App Protection Profiles
-      zscaler.zpacloud.zpa_app_protection_security_profile_facts:
+      zscaler.zpacloud.zpa_app_protection_security_profile_info:
         provider: "{{ zpa_cloud }}"
         name: "{{ appended_name }}"
       register: result
@@ -135,9 +132,9 @@
       ansible.builtin.assert:
         that:
           - not result.changed
-          - result.data is defined
-          - result.data[0].name is defined
-          - result.data[0].name == appended_name
+          - result.profiles is defined
+          - result.profiles[0].name is defined
+          - result.profiles[0].name == appended_name
 
     - name: Give the ZPA Cloud a 5 seconds to settle
       ansible.builtin.pause:

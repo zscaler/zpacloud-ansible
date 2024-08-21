@@ -22,11 +22,11 @@
 - name: Main block to Test Posture Profile ID
   block:
     - name: Fetch the Posture Profile ID
-      zscaler.zpacloud.zpa_posture_profile_facts:
+      zscaler.zpacloud.zpa_posture_profile_info:
         provider: "{{ zpa_cloud }}"
         name: CrowdStrike_ZPA_ZTA_40
       register: pp_crowdstrike_zta40
 
     - name: Set Posture Profile UDID as fact
       ansible.builtin.set_fact:
-        posture_udid: "{{ pp_crowdstrike_zta40.data[0].posture_udid }}"
+        posture_udid: "{{ pp_crowdstrike_zta40.profiles[0].posture_udid }}"

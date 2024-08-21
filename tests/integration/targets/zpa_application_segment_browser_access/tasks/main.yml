@@ -19,7 +19,7 @@
   ansible.builtin.import_tasks: ../../../helper_tasks/zpa_server_group/verify_server_group.yml
 
 - name: Import Certificate ID
-  ansible.builtin.import_tasks: ../../../helper_tasks/zpa_ba_certificate_facts/zpa_ba_certificate_facts.yml
+  ansible.builtin.import_tasks: ../../../helper_tasks/zpa_ba_certificate/zpa_ba_certificate.yml
 
 - name: Set dynamic name values with random string
   ansible.builtin.set_fact:
@@ -228,7 +228,7 @@
           - result.changed
 
     - name: Fetch all Browser Access Application Segments
-      zscaler.zpacloud.zpa_application_segment_browser_access_facts:
+      zscaler.zpacloud.zpa_application_segment_browser_access_info:
         provider: "{{ zpa_cloud }}"
       register: result
 
@@ -236,10 +236,10 @@
       ansible.builtin.assert:
         that:
           - not result.changed
-          - result.data[0] is defined
+          - result.ba_app_segments[0] is defined
 
     - name: Fetch this Browser Access Application Segment
-      zscaler.zpacloud.zpa_application_segment_browser_access_facts:
+      zscaler.zpacloud.zpa_application_segment_browser_access_info:
         provider: "{{ zpa_cloud }}"
         name: "{{ appended_name }}"
       register: result
@@ -248,10 +248,10 @@
       ansible.builtin.assert:
         that:
           - not result.changed
-          - result.data is defined
-          - result.data[0].name is defined
-          - result.data[0].name == appended_name
-          - result.data[0].enabled == true
+          - result.ba_app_segments is defined
+          - result.ba_app_segments[0].name is defined
+          - result.ba_app_segments[0].name == appended_name
+          - result.ba_app_segments[0].enabled == true
 
     - name: Give the ZPA Cloud a 5 seconds to settle
       ansible.builtin.pause:

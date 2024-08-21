@@ -22,7 +22,7 @@
 - name: Main block to Test List all Service Edge Groups
   block:
     - name: List all Service Edge Groups
-      zscaler.zpacloud.zpa_service_edge_groups_facts:
+      zscaler.zpacloud.zpa_service_edge_groups_info:
         provider: "{{ zpa_cloud }}"
       register: all_service_edge_groups
 

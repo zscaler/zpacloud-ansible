@@ -22,11 +22,11 @@
 - name: Main block to Test Isolation Profile ID
   block:
     - name: Fetch the Isolation Profile ID
-      zscaler.zpacloud.zpa_isolation_profile_facts:
+      zscaler.zpacloud.zpa_isolation_profile_info:
         provider: "{{ zpa_cloud }}"
         name: BD_SA_Profile1
       register: profile_id
 
     - name: Set Isolation Profile as fact
       ansible.builtin.set_fact:
-        profile_id: "{{ profile_id.data[0].id }}"
+        profile_id: "{{ profile_id.profiles[0].id }}"

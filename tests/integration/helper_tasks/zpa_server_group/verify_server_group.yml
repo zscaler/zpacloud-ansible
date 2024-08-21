@@ -22,7 +22,7 @@
 - name: Main block to Test Fetch the created Server Groups
   block:
     - name: Fetch the created Server Group
-      zscaler.zpacloud.zpa_server_group_facts:
+      zscaler.zpacloud.zpa_server_group_info:
         provider: "{{ zpa_cloud }}"
         id: "{{ server_group_id }}"
       register: fetched_sg
@@ -30,8 +30,8 @@
     - name: Verify Server Group attributes
       ansible.builtin.assert:
         that:
-          - fetched_sg.data[0].name == appended_name
-          - fetched_sg.data[0].description == appended_description
+          - fetched_sg.groups[0].name == appended_name
+          - fetched_sg.groups[0].description == appended_description
           # - "fetched_sg.data.some_other_attribute == expected_value"
         fail_msg: Verification failed for Server Group!
         success_msg: Verification successful for Server Group!

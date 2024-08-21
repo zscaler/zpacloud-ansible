@@ -22,21 +22,21 @@
 - name: Main block to Test Connector Certificate
   block:
     - name: Fetch Connector Certificate
-      zscaler.zpacloud.zpa_enrollement_certificate_facts:
+      zscaler.zpacloud.zpa_enrollement_certificate_info:
         provider: "{{ zpa_cloud }}"
         name: Connector
       register: connector_cert_id
 
     - name: Set Connector Certificate ID as fact
       ansible.builtin.set_fact:
-        connector_cert_id: "{{ connector_cert_id.data[0].id }}"
+        connector_cert_id: "{{ connector_cert_id.certificates[0].id }}"
 
     - name: Fetch Service Edge Certificate
-      zscaler.zpacloud.zpa_enrollement_certificate_facts:
+      zscaler.zpacloud.zpa_enrollement_certificate_info:
         provider: "{{ zpa_cloud }}"
         name: Service Edge
       register: service_edge_cert_id
 
     - name: Set Service Edge Certificate ID as fact
       ansible.builtin.set_fact:
-        service_edge_cert_id: "{{ service_edge_cert_id.data[0].id }}"
+        service_edge_cert_id: "{{ service_edge_cert_id.certificates[0].id }}"

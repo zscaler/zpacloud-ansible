@@ -22,7 +22,7 @@
 - name: Main block to Test List all Segment Groups
   block:
     - name: List all Segment Groups
-      zscaler.zpacloud.zpa_segment_group_facts:
+      zscaler.zpacloud.zpa_segment_group_info:
         provider: "{{ zpa_cloud }}"
       register: all_segment_groups
 
@@ -31,7 +31,7 @@
         provider: "{{ zpa_cloud }}"
         state: absent
         name: "{{ group.name }}"
-      loop: "{{ all_segment_groups.data }}"
-      when: all_segment_groups.data is defined
+      loop: "{{ all_segment_groups.groups }}"
+      when: all_segment_groups.groups is defined
       loop_control:
         loop_var: group

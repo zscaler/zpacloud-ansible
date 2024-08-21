@@ -12,7 +12,7 @@
     portal_description: "{{ portal_description }}_{{ random_string }}"
 
 - name: Import Certificate ID
-  ansible.builtin.import_tasks: ../../../helper_tasks/zpa_ba_certificate_facts/zpa_ba_certificate_facts.yml
+  ansible.builtin.import_tasks: ../../../helper_tasks/zpa_ba_certificate/zpa_ba_certificate.yml
 
 - name: Ensure required environment variables are set
   ansible.builtin.fail:
@@ -105,7 +105,7 @@
           - not result.changed
 
     - name: Fetch all PRA Portal
-      zscaler.zpacloud.zpa_pra_portal_controller_facts:
+      zscaler.zpacloud.zpa_pra_portal_controller_info:
         provider: "{{ zpa_cloud }}"
       register: result
 
@@ -113,10 +113,10 @@
       ansible.builtin.assert:
         that:
           - not result.changed
-          - result.data[0] is defined
+          - result.portals[0] is defined
 
     - name: Fetch this PRA Portal
-      zscaler.zpacloud.zpa_pra_portal_controller_facts:
+      zscaler.zpacloud.zpa_pra_portal_controller_info:
         provider: "{{ zpa_cloud }}"
         name: "{{ portal_name }}"
       register: result
@@ -125,9 +125,9 @@
       ansible.builtin.assert:
         that:
           - not result.changed
-          - result.data is defined
-          - result.data[0].name is defined
-          - result.data[0].name == portal_name
+          - result.portals is defined
+          - result.portals[0].name is defined
+          - result.portals[0].name == portal_name
 
     - name: Give the ZPA Cloud a 5 seconds to settle
       ansible.builtin.pause:

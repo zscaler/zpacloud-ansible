@@ -1,5 +1,19 @@
 # Zscaler Private Access (ZPA) Ansible Collection Changelog
 
+## 1.3.0 (August, 20 2024)
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+### BREAKING CHANGES
+
+- [PR #42](https://github.com/zscaler/zscaler-sdk-go/pull/42) All resources previously named with `_facts` have been moved to `_info` to comply with Red Hat Ansible best practices as described in the following [Ansible Developer Documentation](https://docs.ansible.com/ansible/latest/dev_guide/developing_modules_general.html#creating-an-info-or-a-facts-module)
+
+### New Feature
+
+- [PR #42](https://github.com/zscaler/zscaler-sdk-go/pull/42) All resources now support `check_mode` for simulation purposes and for validating configuration management playbooks
+
 ## 1.2.1 (July, 4 2024)
 
 ### Notes
@@ -19,7 +33,7 @@
 
 ### Features
 
-- ✨ Added Application Segment By Type facts resource ([#38](https://github.com/zscaler/zpacloud-ansible/issues/38)) ([900cf99](https://github.com/zscaler/zpacloud-ansible/commit/900cf990e70d3a3231b777f2eb66e9e18a3752b1))
+- ✨ Added Application Segment By Type info resource ([#38](https://github.com/zscaler/zpacloud-ansible/issues/38)) ([900cf99](https://github.com/zscaler/zpacloud-ansible/commit/900cf990e70d3a3231b777f2eb66e9e18a3752b1))
 
 ## 1.1.0 (May, 16 2024)
 

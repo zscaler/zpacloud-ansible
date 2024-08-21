@@ -20,7 +20,7 @@
 - name: Main block to Test Fetch the created Segment Group
   block:
     - name: Fetch the created Segment Group
-      zscaler.zpacloud.zpa_segment_group_facts:
+      zscaler.zpacloud.zpa_segment_group_info:
         provider: "{{ zpa_cloud }}"
         id: "{{ segment_group_id }}"
       register: fetched_sg
@@ -28,8 +28,8 @@
     - name: Verify Segment Group attributes
       ansible.builtin.assert:
         that:
-          - fetched_sg.data[0].name == appended_name
-          - fetched_sg.data[0].description == appended_description
+          - fetched_sg.groups[0].name == appended_name
+          - fetched_sg.groups[0].description == appended_description
           # - "fetched_sg.data.some_other_attribute == expected_value"
         fail_msg: Verification failed for Segment Group!
         success_msg: Verification successful for Segment Group!

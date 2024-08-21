@@ -38,7 +38,8 @@ author:
 version_added: "1.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
-
+notes:
+    - Check mode is supported.
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
   - zscaler.zpacloud.fragments.documentation

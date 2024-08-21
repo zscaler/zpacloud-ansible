@@ -22,11 +22,11 @@
 - name: Main block to Test Fetch the Trusted Network ID
   block:
     - name: Fetch the Trusted Network ID
-      zscaler.zpacloud.zpa_trusted_networks_facts:
+      zscaler.zpacloud.zpa_trusted_networks_info:
         provider: "{{ zpa_cloud }}"
         name: BDTrustedNetwork01
       register: bd_trusted_network01
 
-    - name: Set Posture Profile UDID as fact
+    - name: Set Trusted Network ID as fact
       ansible.builtin.set_fact:
-        network_id: "{{ bd_trusted_network01.data[0].network_id }}"
+        network_id: "{{ bd_trusted_network01.networks[0].network_id }}"

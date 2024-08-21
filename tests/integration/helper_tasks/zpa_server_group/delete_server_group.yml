@@ -22,7 +22,7 @@
 - name: Main block to Test List All Server Groups
   block:
     - name: List all Server Groups
-      zscaler.zpacloud.zpa_server_group_facts:
+      zscaler.zpacloud.zpa_server_group_info:
         provider: "{{ zpa_cloud }}"
       register: all_server_groups
 

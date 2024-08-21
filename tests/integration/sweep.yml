@@ -1,6 +1,6 @@
 ---
 # - name: List all Provisioning Keys
-#   zscaler.zpacloud.zpa_provisioning_key_facts:
+#   zscaler.zpacloud.zpa_provisioning_key_info:
 #     provider: "{{ zpa_cloud }}"
 #     key_type: "{{ key_type }}"
 #   register: all_ac_provisioning_keys
@@ -15,7 +15,7 @@
 #   when: all_ac_provisioning_keys.data is defined
 
 - name: List all Application Segments
-  zscaler.zpacloud.zpa_application_segment_facts:
+  zscaler.zpacloud.zpa_application_segment_info:
     provider: "{{ zpa_cloud }}"
   register: all_application_segments
 
@@ -28,7 +28,7 @@
   when: all_application_segments.data is defined
 
 - name: List all Browser Access Application Segments
-  zscaler.zpacloud.zpa_application_segment_browser_access_facts:
+  zscaler.zpacloud.zpa_application_segment_browser_access_info:
     provider: "{{ zpa_cloud }}"
   register: all_application_segment_ba
 
@@ -41,7 +41,7 @@
   when: all_application_segment_ba.data is defined
 
 - name: List all Server Groups
-  zscaler.zpacloud.zpa_server_group_facts:
+  zscaler.zpacloud.zpa_server_group_info:
     provider: "{{ zpa_cloud }}"
   register: all_server_groups
 
@@ -54,7 +54,7 @@
   when: all_server_groups.data is defined
 
 - name: List all App Connector Groups
-  zscaler.zpacloud.zpa_app_connector_group_facts:
+  zscaler.zpacloud.zpa_app_connector_group_info:
     provider: "{{ zpa_cloud }}"
   register: all_app_connector_groups
 
@@ -67,7 +67,7 @@
   when: all_app_connector_groups.data is defined
 
 - name: List all Service Edge Groups
-  zscaler.zpacloud.zpa_service_edge_groups_facts:
+  zscaler.zpacloud.zpa_service_edge_groups_info:
     provider: "{{ zpa_cloud }}"
   register: all_service_edge_groups
 
@@ -80,7 +80,7 @@
   when: all_service_edge_groups.data is defined
 
 - name: List all Segment Groups
-  zscaler.zpacloud.zpa_segment_group_facts:
+  zscaler.zpacloud.zpa_segment_group_info:
     provider: "{{ zpa_cloud }}"
   register: all_segment_groups
 
@@ -93,7 +93,7 @@
   when: all_segment_groups.data is defined
 
 - name: List all Application Servers
-  zscaler.zpacloud.zpa_application_server_facts:
+  zscaler.zpacloud.zpa_application_server_info:
     provider: "{{ zpa_cloud }}"
   register: all_application_servers
 
@@ -106,7 +106,7 @@
   when: all_application_servers.data is defined
 
 - name: List all App Protection Custom Controls
-  zscaler.zpacloud.zpa_app_protection_custom_control_facts:
+  zscaler.zpacloud.zpa_app_protection_custom_control_info:
     provider: "{{ zpa_cloud }}"
   register: all_app_protection_custom_controls
 
@@ -119,7 +119,7 @@
   when: all_app_protection_custom_controls.data is defined
 
 - name: List all Policy Access Timeout Rules
-  zscaler.zpacloud.zpa_policy_access_timeout_rule_facts:
+  zscaler.zpacloud.zpa_policy_access_timeout_rule_info:
     provider: "{{ zpa_cloud }}"
   register: all_app_protection_custom_controls
 

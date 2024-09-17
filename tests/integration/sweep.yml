@@ -1,6 +1,6 @@
 ---
-  vars:
-    key_type: "connector"  # Or "service_edge", depending on the test case
+vars:
+  key_type: "connector"  # Or "service_edge", depending on the test case
 
 - name: List all Application Segments
   zscaler.zpacloud.zpa_application_segment_info:

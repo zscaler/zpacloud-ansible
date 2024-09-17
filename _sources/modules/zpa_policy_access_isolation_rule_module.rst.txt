@@ -23,7 +23,7 @@ zscaler.zpacloud.zpa_policy_access_isolation_rule module -- Create a Policy Isol
 .. Collection note
 
 .. note::
-    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 1.3.0).
+    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 1.3.1).
 
     It is not included in ``ansible-core``.
     To check whether it is installed, run :code:`ansible-galaxy collection list`.
@@ -66,7 +66,7 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- Zscaler SDK Python can be obtained from PyPI \ https://pypi.org/project/zscaler-sdk-python/\ 
+- Zscaler SDK Python can be obtained from PyPI \ `https://pypi.org/project/zscaler-sdk-python/ <https://pypi.org/project/zscaler-sdk-python/>`__
 
 
 
@@ -445,7 +445,6 @@ Parameters
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
       - This is for specifying the policy criteria - Supported values: APP, APP\_GROUP, SAML, IDP, CLIENT\_TYPE, POSTURE, TRUSTED\_NETWORK, MACHINE\_GRP, SCIM, SCIM\_GROUP. - POSTURE and TRUSTED\_NETWORK values are only supported for the CLIENT\_TYPE.
-          
 
 
       .. raw:: html
@@ -488,7 +487,6 @@ Parameters
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
       - The value for the given object type. Its value depends upon the key - For APP, APP\_GROUP, and IDP, the supported value is entity id - For CLIENT\_TYPE, the supported values are: zpn\_client\_type\_zapp (for Zscaler Client Connector), zpn\_client\_type\_exporter (for Clientless) - For POSTURE, the supported values are: true (verified), false (verification failed) - For TRUSTED\_NETWORK, the supported value is true
-          
 
 
       .. raw:: html

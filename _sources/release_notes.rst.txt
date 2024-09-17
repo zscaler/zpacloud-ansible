@@ -9,6 +9,22 @@ Releases
 Zscaler Private Access (ZPA) Ansible Collection Changelog
 ---------------------------------------------------------
 
+Version 1.3.1
+==============
+
+1.3.1 (September, 16 2024)
+---------------------------
+
+Notes
+-----
+
+- Python Versions: **v3.8, v3.9, v3.10, v3.11**
+
+New Feature
+------------
+
+* (`#43 <https://github.com/zscaler/zpacloud-ansible/pull/43>`_) Added new info resource `zpa_customer_version_profile_info` to retrieve visible app connector group version profiles.
+
 Version 1.3.0
 =============
 

@@ -118,6 +118,7 @@
 <li class="toctree-l2"><a class="reference internal" href="zpa_cloud_connector_group_info_module.html">zscaler.zpacloud.zpa_cloud_connector_group_info module – Retrieves cloud connector group information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_connector_assistant_schedule_info_module.html">zscaler.zpacloud.zpa_connector_assistant_schedule_info module – Gets the Auto Delete frequency of the App Connector.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_connector_assistant_schedule_module.html">zscaler.zpacloud.zpa_connector_assistant_schedule module – Configures Auto Delete for the specified disconnected App Connector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_customer_version_profile_info_module.html">zscaler.zpacloud.zpa_customer_version_profile_info module – Retrieves visible version profiles.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_enrollement_certificate_info_module.html">zscaler.zpacloud.zpa_enrollement_certificate_info module – Retrieves enrollment certificate information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_idp_controller_info_module.html">zscaler.zpacloud.zpa_idp_controller_info module – Retrieves Identity Provider information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_isolation_profile_info_module.html">zscaler.zpacloud.zpa_isolation_profile_info module – Retrieves Isolation Profile information.</a></li>
@@ -208,7 +209,7 @@
 <h1>zscaler.zpacloud.zpa_ba_certificate_info module – Retrieves browser access certificate information.<a class="headerlink" href="#zscaler-zpacloud-zpa-ba-certificate-info-module-retrieves-browser-access-certificate-information" title="Permalink to this heading"></a></h1>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/">zscaler.zpacloud collection</a> (version 1.3.0).</p>
+<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/">zscaler.zpacloud collection</a> (version 1.3.1).</p>
 <p>It is not included in <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code>.
 To check whether it is installed, run <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span></code>.</p>
 <p>To install it, use: <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">install</span> <span class="pre">zscaler.zpacloud</span></code>.
@@ -363,16 +364,16 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <section id="examples">
 <h2><a class="toc-backref" href="#id5" role="doc-backlink">Examples</a><a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
 <div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Details of All Browser Certificates</span>
-<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_ba_certificate_facts</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_ba_certificate_info</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">zpa_cloud</span> <span class="cp">}}</span><span class="s">&quot;</span>
 
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Details of a Specific Browser Certificates by Name</span>
-<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_ba_certificate_facts</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_ba_certificate_info</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">zpa_cloud</span> <span class="cp">}}</span><span class="s">&quot;</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crm.acme.com</span>
 
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Details of a Specific Browser Certificates by ID</span>
-<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_ba_certificate_facts</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_ba_certificate_info</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">zpa_cloud</span> <span class="cp">}}</span><span class="s">&quot;</span>
 <span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;216196257331282583&quot;</span>
 </pre></div>

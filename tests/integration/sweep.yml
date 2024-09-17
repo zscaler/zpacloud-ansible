@@ -1,4 +1,7 @@
 ---
+  vars:
+    key_type: "connector"  # Or "service_edge", depending on the test case
+
 - name: List all Application Segments
   zscaler.zpacloud.zpa_application_segment_info:
     provider: "{{ zpa_cloud }}"
@@ -75,6 +78,7 @@
     provider: "{{ zpa_cloud }}"
     state: absent
     name: "{{ name }}"
+    key_type: "{{ key_type }}"
     key_type: "{{ key_type }}"
   loop: "{{ all_ac_provisioning_keys.data }}"
   when: all_ac_provisioning_keys.data is defined

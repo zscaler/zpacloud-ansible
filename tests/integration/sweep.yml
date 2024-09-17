@@ -1,19 +1,4 @@
 ---
-# - name: List all Provisioning Keys
-#   zscaler.zpacloud.zpa_provisioning_key_info:
-#     provider: "{{ zpa_cloud }}"
-#     key_type: "{{ key_type }}"
-#   register: all_ac_provisioning_keys
-
-# - name: Delete all Provisioning Keys 💥
-#   zscaler.zpacloud.zpa_provisioning_key:
-#     provider: "{{ zpa_cloud }}"
-#     state: absent
-#     name: "{{ name }}"
-#     key_type: "{{ key_type }}"
-#   loop: "{{ all_ac_provisioning_keys.data }}"
-#   when: all_ac_provisioning_keys.data is defined
-
 - name: List all Application Segments
   zscaler.zpacloud.zpa_application_segment_info:
     provider: "{{ zpa_cloud }}"
@@ -39,6 +24,19 @@
     name: "{{ item.name }}"
   loop: "{{ all_application_segment_ba.data }}"
   when: all_application_segment_ba.data is defined
+
+- name: List all Segment Groups
+  zscaler.zpacloud.zpa_segment_group_info:
+    provider: "{{ zpa_cloud }}"
+  register: all_segment_groups
+
+- name: Delete all Segment Groups 💥
+  zscaler.zpacloud.zpa_segment_group:
+    provider: "{{ zpa_cloud }}"
+    state: absent
+    name: "{{ item.name }}"
+  loop: "{{ all_segment_groups.data }}"
+  when: all_segment_groups.data is defined
 
 - name: List all Server Groups
   zscaler.zpacloud.zpa_server_group_info:
@@ -66,6 +64,21 @@
   loop: "{{ all_app_connector_groups.data }}"
   when: all_app_connector_groups.data is defined
 
+- name: List all Provisioning Keys
+  zscaler.zpacloud.zpa_provisioning_key_info:
+    provider: "{{ zpa_cloud }}"
+    key_type: "{{ key_type }}"
+  register: all_ac_provisioning_keys
+
+- name: Delete all Provisioning Keys 💥
+  zscaler.zpacloud.zpa_provisioning_key:
+    provider: "{{ zpa_cloud }}"
+    state: absent
+    name: "{{ name }}"
+    key_type: "{{ key_type }}"
+  loop: "{{ all_ac_provisioning_keys.data }}"
+  when: all_ac_provisioning_keys.data is defined
+
 - name: List all Service Edge Groups
   zscaler.zpacloud.zpa_service_edge_groups_info:
     provider: "{{ zpa_cloud }}"
@@ -78,19 +91,6 @@
     name: "{{ item.name }}"
   loop: "{{ all_service_edge_groups.data }}"
   when: all_service_edge_groups.data is defined
-
-- name: List all Segment Groups
-  zscaler.zpacloud.zpa_segment_group_info:
-    provider: "{{ zpa_cloud }}"
-  register: all_segment_groups
-
-- name: Delete all Segment Groups 💥
-  zscaler.zpacloud.zpa_segment_group:
-    provider: "{{ zpa_cloud }}"
-    state: absent
-    name: "{{ item.name }}"
-  loop: "{{ all_segment_groups.data }}"
-  when: all_segment_groups.data is defined
 
 - name: List all Application Servers
   zscaler.zpacloud.zpa_application_server_info:

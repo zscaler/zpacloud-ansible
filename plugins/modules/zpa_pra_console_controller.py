@@ -81,24 +81,42 @@ options:
     required: false
 """
 
-EXAMPLES = """
+EXAMPLES = r"""
 - name: Gather Details of a Specific Browser Certificates by Name
-  zscaler.zpacloud.zpa_ba_certificate_facts:
-    provider: '{{ zpa_cloud }}'
+  zscaler.zpacloud.zpa_ba_certificate_info:
+    provider: "{{ zpa_cloud }}"
     name: 'portal.acme.com'
-  register: cert_name
+    register: cert_name
+
+- name: Get details of a specific SECURE_REMOTE_ACCESS application segment by name
+  zscaler.zpacloud.zpa_application_segment_by_type_info:
+    provider: "{{ zpa_cloud }}"
+    application_type: SECURE_REMOTE_ACCESS
+    name: pra_app_segment01
+    register: pra_app_segment01
 
 - name: Create/Update/Delete PRA Portal
   zscaler.zpacloud.zpa_pra_portal_controller:
-    provider: '{{ zpa_cloud }}'
+    provider: "{{ zpa_cloud }}"
     name: 'portal.acme.com'
-    description: 'Created with Ansible'
+    description: 'PRA Portal'
     enabled: true
     domain: 'portal.acme.com'
-    certificate_id: "{{ cert_name.data[0].id }}"
-    user_notification: 'Created with Ansible'
+    certificate_id: "{{ cert_name.certificates[0].id }}"
+    user_notification: 'PRA Portal'
     user_notification_enabled: true
-  register: result
+    register: portal
+
+- name: Create PRA Console
+  zscaler.zpacloud.zpa_pra_console_controller:
+    provider: "{{ zpa_cloud }}"
+    name: 'PRA Console'
+    description: 'PRA Console'
+    enabled: true
+    pra_application_id: "{{ pra_app_segment01.apps[0].id }}"
+    pra_portal_ids:
+      - "{{ portal.data.id }}"
+    register: result
 """
 
 RETURN = """

@@ -88,7 +88,7 @@ options:
 
 EXAMPLES = """
 - name: Gather Details of a Specific Browser Certificates by Name
-  zscaler.zpacloud.zpa_ba_certificate_facts:
+  zscaler.zpacloud.zpa_ba_certificate_info:
     provider: '{{ zpa_cloud }}'
     name: 'portal.acme.com'
   register: cert_name

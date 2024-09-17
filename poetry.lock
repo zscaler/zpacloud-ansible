@@ -1128,14 +1128,17 @@ files = [
 
 [[package]]
 name = "idna"
-version = "3.7"
+version = "3.10"
 description = "Internationalized Domain Names in Applications (IDNA)"
 optional = false
-python-versions = ">=3.5"
+python-versions = ">=3.6"
 files = [
-    {file = "idna-3.7-py3-none-any.whl", hash = "sha256:82fee1fc78add43492d3a1898bfa6d8a904cc97d8427f683ed8e798d07761aa0"},
-    {file = "idna-3.7.tar.gz", hash = "sha256:028ff3aadf0609c1fd278d8ea3089299412a7a8b9bd005dd08b9f8285bcb5cfc"},
+    {file = "idna-3.10-py3-none-any.whl", hash = "sha256:946d195a0d259cbba61165e88e65941f16e9b36ea6ddb97f00452bae8b1287d3"},
+    {file = "idna-3.10.tar.gz", hash = "sha256:12f65c9b470abda6dc35cf8e63cc574b1c52b11df2c86030af0ac09b01b13ea9"},
 ]
+
+[package.extras]
+all = ["flake8 (>=7.1.1)", "mypy (>=1.11.2)", "pytest (>=8.3.2)", "ruff (>=0.6.2)"]
 
 [[package]]
 name = "imagesize"
@@ -3075,13 +3078,13 @@ type = ["pytest-mypy"]
 
 [[package]]
 name = "zscaler-sdk-python"
-version = "0.9.2"
+version = "0.9.3"
 description = "Official Python SDK for the Zscaler Products (Beta)"
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "zscaler_sdk_python-0.9.2-py3-none-any.whl", hash = "sha256:b02b714f378e18671b0f98ebde45dd9bfc09c9cc45f4968c80207ff60e05699e"},
-    {file = "zscaler_sdk_python-0.9.2.tar.gz", hash = "sha256:d2f148e6b5b39314bbc4cadbeb620387c8de1434751b94edf5316d594e344ef5"},
+    {file = "zscaler_sdk_python-0.9.3-py3-none-any.whl", hash = "sha256:bcb9f2a7d287b4862e58648893725782bcf7f56e7640c65ee9a68319ce8e9e3f"},
+    {file = "zscaler_sdk_python-0.9.3.tar.gz", hash = "sha256:b0a5ff08bbb54dfd2052a4bc58228eebffcc1b7cb061cfcee12810a212671269"},
 ]
 
 [package.dependencies]
@@ -3092,7 +3095,7 @@ charset-normalizer = "*"
 cryptography = ">=43.0.0"
 flake8 = "*"
 flatdict = "*"
-idna = "*"
+idna = ">=3.10"
 okta = ">=2.9.7"
 pycryptodomex = "*"
 python-box = ">=7.2.0"
@@ -3112,4 +3115,4 @@ dev = ["aenum", "black (>=24.3.0)", "pydash (>=8.0.3)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "4ca94a130614e0dff18bc036a6881813838b1d1a68e3f198613e142575f8ee52"
+content-hash = "67c0e4ef4d0f579dfd22f63044665bd650e9ace3496935d792aee79ce579f4ba"

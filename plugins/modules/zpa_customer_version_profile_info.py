@@ -134,9 +134,7 @@ def core(module):
             search=profile_id, pagesize=500
         ).to_list()
         if not profiles:
-            module.fail_json(
-                msg="Failed to retrieve profile by ID: '%s'" % profile_id
-            )
+            module.fail_json(msg="Failed to retrieve profile by ID: '%s'" % profile_id)
     # If profile_name is provided, search by name
     elif profile_name is not None:
         profiles = client.connectors.list_version_profiles(

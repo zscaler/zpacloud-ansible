@@ -11,6 +11,7 @@
           client_secret: '{{ lookup("env", "ZPA_CLIENT_SECRET") | default(omit) }}'
           customer_id: '{{ lookup("env", "ZPA_CUSTOMER_ID") | default(omit) }}'
           cloud: '{{ lookup("env", "ZPA_CLOUD") | default(omit) }}'
+        key_type: "connector" # Define here if static
       no_log: true
 
     - name: Run initial sweep to clean tenant

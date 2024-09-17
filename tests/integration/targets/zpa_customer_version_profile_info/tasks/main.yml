@@ -1,0 +1,73 @@
+---
+- name: Include default variables
+  ansible.builtin.include_vars:
+    file: ../defaults/main.yml
+
+- name: Ensure required environment variables are set
+  ansible.builtin.fail:
+    msg: "{{ env_var }} is not defined as environment variable"
+  when: lookup('env', env_var) is none
+  loop:
+    - ZPA_CLIENT_ID
+    - ZPA_CLIENT_SECRET
+    - ZPA_CUSTOMER_ID
+  loop_control:
+    loop_var: env_var
+
+- name: Ensure ZPA Credential environment variables are set
+  ansible.builtin.set_fact:
+    zpa_cloud:
+      client_id: "{{ lookup('env', 'ZPA_CLIENT_ID') }}"
+      client_secret: "{{ lookup('env', 'ZPA_CLIENT_SECRET') }}"
+      customer_id: "{{ lookup('env', 'ZPA_CUSTOMER_ID') }}"
+      cloud: "{{ lookup('env', 'ZPA_CLOUD') | default(omit) }}"
+  no_log: true
+
+- name: Main block to Test Visible Version Profile
+  block:
+    - name: Fetch all Visible Version Profiles
+      zscaler.zpacloud.zpa_customer_version_profile_info:
+        provider: "{{ zpa_cloud }}"
+      register: result
+
+    - name: Ensure all Visible Version Profiles found
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.profiles is defined
+
+    - name: Fetch Default Visible Profile
+      zscaler.zpacloud.zpa_customer_version_profile_info:
+        provider: "{{ zpa_cloud }}"
+        name: "{{ profile_default }}"
+      register: result
+
+    - name: Ensure Default Visible Profile is found
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.profiles is defined
+
+    - name: Fetch Previous Default
+      zscaler.zpacloud.zpa_customer_version_profile_info:
+        provider: "{{ zpa_cloud }}"
+        name: "{{ profile_previous_default }}"
+      register: result
+
+    - name: Ensure Visible Previous Default Profile is found
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.profiles is defined
+
+    - name: Fetch New Release Profile
+      zscaler.zpacloud.zpa_customer_version_profile_info:
+        provider: "{{ zpa_cloud }}"
+        name: "{{ profile_new_release }}"
+      register: result
+
+    - name: Ensure Visible New Release Profile is found
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.profiles is defined

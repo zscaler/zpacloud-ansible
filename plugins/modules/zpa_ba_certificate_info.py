@@ -58,16 +58,16 @@ options:
 
 EXAMPLES = """
 - name: Gather Details of All Browser Certificates
-  zscaler.zpacloud.zpa_ba_certificate_facts:
+  zscaler.zpacloud.zpa_ba_certificate_info:
     provider: "{{ zpa_cloud }}"
 
 - name: Gather Details of a Specific Browser Certificates by Name
-  zscaler.zpacloud.zpa_ba_certificate_facts:
+  zscaler.zpacloud.zpa_ba_certificate_info:
     provider: "{{ zpa_cloud }}"
     name: crm.acme.com
 
 - name: Gather Details of a Specific Browser Certificates by ID
-  zscaler.zpacloud.zpa_ba_certificate_facts:
+  zscaler.zpacloud.zpa_ba_certificate_info:
     provider: "{{ zpa_cloud }}"
     id: "216196257331282583"
 """

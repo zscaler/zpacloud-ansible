@@ -60,3 +60,4 @@ plugins/modules/zpa_pra_approval.py validate-modules:missing-gplv3-license
 plugins/modules/zpa_pra_console_controller.py validate-modules:missing-gplv3-license
 plugins/modules/zpa_pra_console_controller_info.py validate-modules:missing-gplv3-license
 plugins/modules/zpa_application_segment_by_type_info.py validate-modules:missing-gplv3-license
+plugins/modules/zpa_customer_version_profile_info.py validate-modules:missing-gplv3-license

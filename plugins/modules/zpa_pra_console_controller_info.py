@@ -56,16 +56,16 @@ options:
 
 EXAMPLES = """
 - name: Get Detail Information of All PRA Consoles
-  zscaler.zpacloud.zpa_pra_console_controller_facts:
+  zscaler.zpacloud.zpa_pra_console_controller_info:
     provider: "{{ zpa_cloud }}"
 
 - name: Get Details of a PRA Console by Name
-  zscaler.zpacloud.zpa_pra_console_controller_facts:
+  zscaler.zpacloud.zpa_pra_console_controller_info:
     provider: "{{ zpa_cloud }}"
     name: "Example"
 
 - name: Get Details of a PRA Console by ID
-  zscaler.zpacloud.zpa_pra_console_controller_facts:
+  zscaler.zpacloud.zpa_pra_console_controller_info:
     provider: "{{ zpa_cloud }}"
     id: "216196257331291969"
 """

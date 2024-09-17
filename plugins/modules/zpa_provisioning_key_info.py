@@ -203,9 +203,6 @@ def core(module):
         else:
             provisioning_keys = all_keys
 
-    if not provisioning_keys:
-        module.fail_json(msg="No provisioning keys found.")
-
     module.exit_json(changed=False, provisioning_keys=provisioning_keys)
 
 

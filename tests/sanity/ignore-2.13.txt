@@ -35,6 +35,7 @@ plugins/modules/zpa_ba_certificate_info.py validate-modules:missing-gplv3-licens
 plugins/modules/zpa_ba_certificate.py validate-modules:missing-gplv3-license
 plugins/modules/zpa_application_segment.py validate-modules:missing-gplv3-license
 plugins/modules/zpa_app_connector_controller_info.py validate-modules:missing-gplv3-license
+plugins/modules/zpa_app_connector_controller.py validate-modules:missing-gplv3-license
 plugins/modules/zpa_idp_controller_info.py validate-modules:missing-gplv3-license
 plugins/modules/zpa_policy_access_app_protection_rule_info.py validate-modules:missing-gplv3-license
 plugins/modules/zpa_scim_group_info.py validate-modules:missing-gplv3-license
@@ -61,3 +62,5 @@ plugins/modules/zpa_pra_console_controller.py validate-modules:missing-gplv3-lic
 plugins/modules/zpa_pra_console_controller_info.py validate-modules:missing-gplv3-license
 plugins/modules/zpa_application_segment_by_type_info.py validate-modules:missing-gplv3-license
 plugins/modules/zpa_customer_version_profile_info.py validate-modules:missing-gplv3-license
+plugins/modules/zpa_service_edge_controller_info.py validate-modules:missing-gplv3-license
+plugins/modules/zpa_service_edge_controller.py validate-modules:missing-gplv3-license

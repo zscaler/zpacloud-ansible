@@ -59,7 +59,7 @@ options:
   name:
     description:
       - Name of the App Connector.
-    required: true
+    required: false
     type: str
   description:
     description:
@@ -70,27 +70,26 @@ options:
     description:
       - Whether this App Connector is enabled or not.
     type: bool
-    default: true
 """
 
 EXAMPLES = """
 - name: Gather information about all App Connector Controllers
-    zscaler.zpacloud.zpa_app_connector_controller_info:
-    register: result
+  zscaler.zpacloud.zpa_app_connector_controller_info:
+  register: result
 
 - name: Extract App Connector IDs
-    set_fact:
+  set_fact:
     app_connector_ids: "{{ result.connectors | map(attribute='id') | list }}"
 
 - name: Bulk delete App Connector Controllers
-    zscaler.zpacloud.zpa_app_connector_controller:
+  zscaler.zpacloud.zpa_app_connector_controller:
     ids: "{{ app_connector_ids }}"
 
 - name: Update Service Edge Controller Description
-    zscaler.zpacloud.zpa_app_connector_controller:
+  zscaler.zpacloud.zpa_app_connector_controller:
     name: 'AppConnectorController01'
     description: 'Update App Connector Controller 01'
-    register: result
+  register: result
 """
 
 RETURN = """
@@ -210,10 +209,10 @@ def main():
         id=dict(type="str", required=False),
         ids=dict(
             type="list", elements="str", required=False
-        ),  # For bulk delete, independent of state
+        ),
         name=dict(type="str", required=False),
         description=dict(type="str", required=False),
-        enabled=dict(type="bool", default=True, required=False),
+        enabled=dict(type="bool", required=False),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

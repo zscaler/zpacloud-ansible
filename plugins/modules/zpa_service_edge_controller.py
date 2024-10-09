@@ -59,7 +59,7 @@ options:
   name:
     description:
       - Name of the Service Edge Controller.
-    required: true
+    required: false
     type: str
   description:
     description:
@@ -70,27 +70,26 @@ options:
     description:
       - Whether this Service Edge Controller is enabled or not.
     type: bool
-    default: true
 """
 
 EXAMPLES = """
 - name: Gather information about all Service Edges
-    zscaler.zpacloud.zpa_service_edge_controller_info:
-    register: result
+  zscaler.zpacloud.zpa_service_edge_controller_info:
+  register: result
 
 - name: Extract Service Edge Controller IDs
-    set_fact:
+  set_fact:
     service_edge_ids: "{{ result.pses | map(attribute='id') | list }}"
 
 - name: Bulk delete Service Edge Controllers
-    zscaler.zpacloud.zpa_service_edge_controller:
+  zscaler.zpacloud.zpa_service_edge_controller:
     ids: "{{ service_edge_ids }}"
 
 - name: Update Service Edge Controller Description
-    zscaler.zpacloud.zpa_service_edge_controller:
+  zscaler.zpacloud.zpa_service_edge_controller:
     name: 'ServiceEdgeController01'
     description: 'Update Service Edge Controller 01'
-    register: result
+  register: result
 """
 
 RETURN = """
@@ -210,10 +209,10 @@ def main():
         id=dict(type="str", required=False),
         ids=dict(
             type="list", elements="str", required=False
-        ),  # For bulk delete, independent of state
+        ),
         name=dict(type="str", required=False),
         description=dict(type="str", required=False),
-        enabled=dict(type="bool", default=True, required=False),
+        enabled=dict(type="bool", required=False),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

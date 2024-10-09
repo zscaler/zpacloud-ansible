@@ -9,8 +9,8 @@
     provider: "{{ zpa_cloud }}"
     state: absent
     name: "{{ item.name }}"
-  loop: "{{ all_application_segments.data }}"
-  when: all_application_segments.data is defined
+  loop: "{{ all_application_segments.app_segments }}"
+  when: all_application_segments.app_segments is defined
 
 - name: List all Browser Access Application Segments
   zscaler.zpacloud.zpa_application_segment_browser_access_info:
@@ -22,8 +22,8 @@
     provider: "{{ zpa_cloud }}"
     state: absent
     name: "{{ item.name }}"
-  loop: "{{ all_application_segment_ba.data }}"
-  when: all_application_segment_ba.data is defined
+  loop: "{{ all_application_segment_ba.ba_app_segments }}"
+  when: all_application_segment_ba.ba_app_segments is defined
 
 - name: List all Segment Groups
   zscaler.zpacloud.zpa_segment_group_info:
@@ -35,8 +35,8 @@
     provider: "{{ zpa_cloud }}"
     state: absent
     name: "{{ item.name }}"
-  loop: "{{ all_segment_groups.data }}"
-  when: all_segment_groups.data is defined
+  loop: "{{ all_segment_groups.groups }}"
+  when: all_segment_groups.groups is defined
 
 - name: List all Server Groups
   zscaler.zpacloud.zpa_server_group_info:
@@ -48,8 +48,8 @@
     provider: "{{ zpa_cloud }}"
     state: absent
     name: "{{ item.name }}"
-  loop: "{{ all_server_groups.data }}"
-  when: all_server_groups.data is defined
+  loop: "{{ all_server_groups.groups }}"
+  when: all_server_groups.groups is defined
 
 - name: List all App Connector Groups
   zscaler.zpacloud.zpa_app_connector_group_info:
@@ -61,8 +61,8 @@
     provider: "{{ zpa_cloud }}"
     state: absent
     name: "{{ item.name }}"
-  loop: "{{ all_app_connector_groups.data }}"
-  when: all_app_connector_groups.data is defined
+  loop: "{{ all_app_connector_groups.groups }}"
+  when: all_app_connector_groups.groups is defined
 
 - name: List all Provisioning Keys
   zscaler.zpacloud.zpa_provisioning_key_info:
@@ -74,10 +74,10 @@
   zscaler.zpacloud.zpa_provisioning_key:
     provider: "{{ zpa_cloud }}"
     state: absent
-    name: "{{ name }}"
-    key_type: "{{ key_type }}"
-  loop: "{{ all_ac_provisioning_keys.data }}"
-  when: all_ac_provisioning_keys.data is defined
+    name: "{{ item.name }}"
+    key_type: "{{ item.key_type }}"
+  loop: "{{ all_ac_provisioning_keys.provisioning_keys }}"
+  when: all_ac_provisioning_keys.provisioning_keys is defined
 
 - name: List all Service Edge Groups
   zscaler.zpacloud.zpa_service_edge_groups_info:
@@ -89,8 +89,8 @@
     provider: "{{ zpa_cloud }}"
     state: absent
     name: "{{ item.name }}"
-  loop: "{{ all_service_edge_groups.data }}"
-  when: all_service_edge_groups.data is defined
+  loop: "{{ all_service_edge_groups.groups }}"
+  when: all_service_edge_groups.groups is defined
 
 - name: List all Application Servers
   zscaler.zpacloud.zpa_application_server_info:
@@ -102,8 +102,8 @@
     provider: "{{ zpa_cloud }}"
     state: absent
     name: "{{ item.name }}"
-  loop: "{{ all_application_servers.data }}"
-  when: all_application_servers.data is defined
+  loop: "{{ all_application_servers.servers }}"
+  when: all_application_servers.servers is defined
 
 - name: List all App Protection Custom Controls
   zscaler.zpacloud.zpa_app_protection_custom_control_info:
@@ -115,8 +115,8 @@
     provider: "{{ zpa_cloud }}"
     state: absent
     name: "{{ item.name }}"
-  loop: "{{ all_app_protection_custom_controls.data }}"
-  when: all_app_protection_custom_controls.data is defined
+  loop: "{{ all_app_protection_custom_controls.controls }}"
+  when: all_app_protection_custom_controls.controls is defined
 
 - name: List all Policy Access Timeout Rules
   zscaler.zpacloud.zpa_policy_access_timeout_rule_info:
@@ -128,8 +128,8 @@
     provider: "{{ zpa_cloud }}"
     state: absent
     name: "{{ item.name }}"
-  loop: "{{ all_policy_access_timeout.data }}"
-  when: all_policy_access_timeout.data is defined
+  loop: "{{ all_policy_access_timeout.policy_rules }}"
+  when: all_policy_access_timeout.policy_rules is defined
 
 - name: Set fact for each task status
   ansible.builtin.set_fact:

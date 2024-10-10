@@ -9,8 +9,22 @@ Releases
 Zscaler Private Access (ZPA) Ansible Collection Changelog
 ---------------------------------------------------------
 
-Version 1.3.1
+Version 1.4.0
 ==============
+
+1.4.0 (October, 9 2024)
+---------------------------
+
+Notes
+-----
+
+- Python Versions: **v3.8, v3.9, v3.10, v3.11**
+
+New Feature
+------------
+
+* (`#47 <https://github.com/zscaler/zpacloud-ansible/pull/47>`_) Added new info resource `zpa_app_connector_controller` and `zpa_service_edge_controller` to configure app connector and private service edges resources. (`Issue #45 <https://github.com/zscaler/zpacloud-ansible/pull/45>`_)
+
 
 1.3.1 (September, 16 2024)
 ---------------------------

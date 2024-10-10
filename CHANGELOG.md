@@ -1,5 +1,15 @@
 # Zscaler Private Access (ZPA) Ansible Collection Changelog
 
+## 1.4.0 (October, 9 2024)
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+### New Feature
+
+- [PR #47](https://github.com/zscaler/zpacloud-ansible/pull/47) Added new info resource `zpa_app_connector_controller` and `zpa_service_edge_controller` to configure app connector and private service edges resources [Issue #45](https://github.com/zscaler/zpacloud-ansible/issues).
+
 ## 1.3.1 (September, 16 2024)
 
 ### Notes
@@ -8,7 +18,7 @@
 
 ### New Feature
 
-- [PR #43](https://github.com/zscaler/zscaler-sdk-go/pull/43) Added new info resource `zpa_customer_version_profile_info` to retrieve visible app connector group version profiles.
+- [PR #43](https://github.com/zscaler/zpacloud-ansible/pull/43) Added new info resource `zpa_customer_version_profile_info` to retrieve visible app connector group version profiles.
 
 ## 1.3.0 (August, 20 2024)
 
@@ -18,11 +28,11 @@
 
 ### BREAKING CHANGES
 
-- [PR #42](https://github.com/zscaler/zscaler-sdk-go/pull/42) All resources previously named with `_facts` have been moved to `_info` to comply with Red Hat Ansible best practices as described in the following [Ansible Developer Documentation](https://docs.ansible.com/ansible/latest/dev_guide/developing_modules_general.html#creating-an-info-or-a-facts-module)
+- [PR #42](https://github.com/zscaler/zpacloud-ansible/pull/42) All resources previously named with `_facts` have been moved to `_info` to comply with Red Hat Ansible best practices as described in the following [Ansible Developer Documentation](https://docs.ansible.com/ansible/latest/dev_guide/developing_modules_general.html#creating-an-info-or-a-facts-module)
 
 ### New Feature
 
-- [PR #42](https://github.com/zscaler/zscaler-sdk-go/pull/42) All resources now support `check_mode` for simulation purposes and for validating configuration management playbooks
+- [PR #42](https://github.com/zscaler/zpacloud-ansible/pull/42) All resources now support `check_mode` for simulation purposes and for validating configuration management playbooks
 
 ## 1.2.1 (July, 4 2024)
 

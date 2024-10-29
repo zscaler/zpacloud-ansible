@@ -162,10 +162,10 @@ def normalize_app(app):
         ]
 
     # Fix: Convert clientless_apps to clientless_app_ids
-    if "clientless_apps" in app:
-        normalized["clientless_app_ids"] = [
-            segment["id"] for segment in app["clientless_apps"]
-        ]
+    # if "clientless_apps" in app:
+    #     normalized["clientless_app_ids"] = [
+    #         segment["id"] for segment in app["clientless_apps"]
+    #     ]
 
     if "tcp_keep_alive" in normalized:
         normalized["tcp_keep_alive"] = convert_str_to_bool(normalized["tcp_keep_alive"])

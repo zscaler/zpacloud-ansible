@@ -157,11 +157,15 @@ def normalize_app(app):
 
     # Fix: Convert app_connector_groups to app_connector_group_ids
     if "app_connector_groups" in app:
-        normalized["app_connector_group_ids"] = [group["id"] for group in app["app_connector_groups"]]
+        normalized["app_connector_group_ids"] = [
+            group["id"] for group in app["app_connector_groups"]
+        ]
 
     # Fix: Convert clientless_apps to clientless_app_ids
     if "clientless_apps" in app:
-        normalized["clientless_app_ids"] = [segment["id"] for segment in app["clientless_apps"]]
+        normalized["clientless_app_ids"] = [
+            segment["id"] for segment in app["clientless_apps"]
+        ]
 
     if "tcp_keep_alive" in normalized:
         normalized["tcp_keep_alive"] = convert_str_to_bool(normalized["tcp_keep_alive"])

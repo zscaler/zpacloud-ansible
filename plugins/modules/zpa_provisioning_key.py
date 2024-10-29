@@ -110,30 +110,29 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 )
 
 
-def normalize_provisioning_key(group):
+def normalize_provisioning_key(prov_key):
     """
     Normalize provisioning key data by setting computed values.
     """
-    normalized = group.copy()
+    normalized = prov_key.copy()
     computed_values = [
-      "id",
-      "creation_time",
-      "modified_by",
-      "modified_time",
-      "enrollment_cert_name",
-      "provisioning_key",
-      "zcomponent_name"
-      "usage_count",
+        "id",
+        "creation_time",
+        "modified_by",
+        "modified_time",
+        "enrollment_cert_name",
+        "provisioning_key",
+        "zcomponent_name" "usage_count",
     ]
     for attr in computed_values:
         normalized.pop(attr, None)
 
     # Map 'zcomponent_id' to 'component_id' for consistency
-    if 'zcomponent_id' in normalized:
-        normalized['component_id'] = normalized.pop('zcomponent_id')
+    if "zcomponent_id" in normalized:
+        normalized["component_id"] = normalized.pop("zcomponent_id")
 
     # Remove `key_type` since it's only for URL construction and not part of the API data
-    normalized.pop('key_type', None)
+    normalized.pop("key_type", None)
 
     return normalized
 
@@ -192,15 +191,15 @@ def core(module):
     # module.warn(f"Current provisioning key from API: {existing_key}")
 
     # Set defaults for desired state to avoid drift due to None values
-    if provisioning_key.get('enabled') is None:
-        provisioning_key['enabled'] = True  # Set to True if not explicitly set
+    if provisioning_key.get("enabled") is None:
+        provisioning_key["enabled"] = True  # Set to True if not explicitly set
 
     desired_key = normalize_provisioning_key(provisioning_key)
     current_key = normalize_provisioning_key(existing_key) if existing_key else {}
 
     # Handle the component_id/zcomponent_id mapping during comparison only
-    if 'zcomponent_id' in current_key:
-        current_key['component_id'] = current_key.pop('zcomponent_id')
+    if "zcomponent_id" in current_key:
+        current_key["component_id"] = current_key.pop("zcomponent_id")
 
     # Debugging: Show normalized values for comparison
     # module.warn(f"Normalized Desired: {desired_key}")
@@ -211,7 +210,6 @@ def core(module):
     for key, value in desired_key.items():
         # Debugging: Track comparisons for each key-value pair
         # module.warn(f"Comparing key: {key}, Desired: {value}, Current: {current_key.get(key)}")
-
         if key not in fields_to_exclude and current_key.get(key) != value:
             differences_detected = True
             # module.warn(f"Difference detected in {key}. Current: {current_key.get(key)}, Desired: {value}")
@@ -225,34 +223,77 @@ def core(module):
         else:
             module.exit_json(changed=False)
 
-    if existing_key is not None and differences_detected:
-        # Ensure 'key_type' is not passed twice
-        update_params = deleteNone(provisioning_key)
-        update_params.pop("key_type", None)  # Remove key_type to prevent duplication
+    # module.warn(f"Final payload being sent to SDK: {provisioning_key}")
+    if existing_key is not None:
+        id = existing_key.get("id")
+        existing_key.update(provisioning_key)
+        existing_key["id"] = id
 
-        # module.warn(f"Final payload being sent to SDK: {provisioning_key}")
-        existing_key = client.provisioning.update_provisioning_key(
-            key_id=existing_key.get("id"),  # Passing key_id directly
-            key_type=key_type,  # Passing key_type directly
-            **update_params,
-        )
-        module.exit_json(changed=True, data=existing_key)
+    # module.warn(f"Final payload being sent to SDK: {server_group}")
+    if state == "present":
+        if existing_key is not None:
+            if differences_detected:
+                """Update"""
+                existing_key = deleteNone(
+                    dict(
+                        key_id=existing_key.get("id"),
+                        name=existing_key.get("name", None),
+                        enabled=existing_key.get("enabled", None),
+                        max_usage=existing_key.get("max_usage", None),
+                        enrollment_cert_id=existing_key.get("enrollment_cert_id", None),
+                        component_id=existing_key.get("component_id", None),
+                        key_type=existing_key.get("key_type", None),
+                        provisioning_key=existing_key.get("provisioning_key", None),
+                    )
+                )
+                # module.warn(f"Payload Update for SDK: {existing_key}")
+                existing_key = client.provisioning.update_provisioning_key(
+                    **existing_key
+                )
+                module.exit_json(changed=True, data=existing_key)
+            else:
+                """No Changes Needed"""
+                module.exit_json(changed=False, data=existing_key)
+        else:
+            """Create"""
+            provisioning_key = deleteNone(
+                dict(
+                    name=provisioning_key.get("name", None),
+                    enabled=provisioning_key.get("enabled", None),
+                    max_usage=provisioning_key.get("max_usage", None),
+                    enrollment_cert_id=provisioning_key.get("enrollment_cert_id", None),
+                    component_id=provisioning_key.get("component_id", None),
+                    key_type=provisioning_key.get("key_type", None),
+                    provisioning_key=provisioning_key.get("provisioning_key", None),
+                )
+            )
+            provisioning_key = client.provisioning.add_provisioning_key(
+                **provisioning_key
+            ).to_dict()
+            module.exit_json(changed=True, data=provisioning_key)
 
-    elif not existing_key:
-        new_key = client.provisioning.add_provisioning_key(
-            **deleteNone(provisioning_key)
-        )
-        module.exit_json(changed=True, data=new_key)
-    else:
-        module.exit_json(changed=False, data=existing_key)
-
-    if state == "absent":
-        client.provisioning.delete_provisioning_key(
+    elif state == "absent" and existing_key is not None:
+        # Debugging: Log the provisioning key ID and key type being passed for deletion
+        # module.warn(f"Attempting to delete provisioning key with ID: {provisioning_key_id} and key_type: {key_type}")
+        if not provisioning_key_id:
+            # module.warn(f"Provisioning key ID is missing, fetching it from existing_key: {existing_key}")
+            provisioning_key_id = existing_key.get("id")
+        # Debugging: Log the final provisioning key ID and key_type before making the delete request
+        # module.warn(f"Final provisioning key ID for deletion: {provisioning_key_id}, key_type: {key_type}")
+        code = client.provisioning.delete_provisioning_key(
             key_id=provisioning_key_id, key_type=key_type
         )
-        module.exit_json(changed=True)
-
-    module.exit_json(changed=False, data={})
+        # Debugging: Log the API response code for deletion
+        # module.warn(f"Deletion API response code: {code}")
+        if code > 299:
+            # module.warn(f"Deletion failed with status code: {code}")
+            module.exit_json(changed=False, data=None)
+        # module.warn(f"Provisioning key with ID {provisioning_key_id} was successfully deleted.")
+        module.exit_json(changed=True, data=existing_key)
+    # Debugging: Log if no existing key is found when state is absent
+    elif state == "absent" and existing_key is None:
+        # module.warn(f"No existing provisioning key found for deletion with name: {module.params.get('name')}")
+        module.exit_json(changed=False, data=None)
 
 
 def main():

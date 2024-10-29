@@ -10,6 +10,7 @@
 
 - [PR #50](https://github.com/zscaler/zpacloud-ansible/pull/50) Fixed undetected drift issues within the resource `zpa_server_groups` related to the attribute `app_connector_group_ids`.
 - [PR #50](https://github.com/zscaler/zpacloud-ansible/pull/50) Fixed undetected drift issues within the resource `zpa_application_segment_browser_access` related to the attribute `clientless_app_ids`.
+- [PR #50](https://github.com/zscaler/zpacloud-ansible/pull/50) Fixed undetected drift issues within the resource `zpa_provisioning_key`.
 
 ## 1.4.0 (October, 9 2024)
 

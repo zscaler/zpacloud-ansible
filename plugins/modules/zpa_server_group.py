@@ -204,9 +204,9 @@ def core(module):
                 """Update"""
                 existing_server_group = deleteNone(
                     dict(
-                       group_id=existing_server_group.get("id"),
-                       name=existing_server_group.get("name", None),
-                       description=existing_server_group.get("description", None),
+                        group_id=existing_server_group.get("id"),
+                        name=existing_server_group.get("name", None),
+                        description=existing_server_group.get("description", None),
                         enabled=existing_server_group.get("enabled", None),
                         app_connector_group_ids=existing_server_group.get(
                             "app_connector_group_ids", None

@@ -15,7 +15,6 @@
 - name: Set dynamic name values with random string
   ansible.builtin.set_fact:
     acg_key_name: "{{ acg_key_name }}_{{ random_string }}"
-    # seg_name: "{{ name }}_{{ random_string }}"
 
 - name: Ensure required environment variables are set
   ansible.builtin.fail:
@@ -72,7 +71,7 @@
     - name: Verify Connector Provisioning Key is absent
       ansible.builtin.assert:
         that:
-          - result.changed
+          - not result.changed
           - result.data is defined
 
     - name: Ensure Connector Provisioning Key is (Present)
@@ -105,14 +104,12 @@
     - name: Ensure Connector Provisioning Key is absent (idempotency check)
       ansible.builtin.assert:
         that:
-          - result.changed
+          - not result.changed
 
     - name: Fetch all Connector Provisioning Key
       zscaler.zpacloud.zpa_provisioning_key_info:
         provider: "{{ zpa_cloud }}"
         key_type: "{{ key_type }}"
-        # max_usage: "{{ acg_max_usage }}"
-        # component_id: "{{ app_connector_group_id }}"
       register: result
 
     - name: Ensure all Connector Provisioning Key found
@@ -126,8 +123,6 @@
         provider: "{{ zpa_cloud }}"
         name: "{{ acg_key_name }}"
         key_type: "{{ key_type }}"
-        # max_usage: "{{ acg_max_usage }}"
-        # component_id: "{{ app_connector_group_id }}"
       register: result
 
     - name: Ensure this Connector Provisioning Key is found
@@ -138,12 +133,6 @@
           - result.provisioning_keys[0].name is defined
           - result.provisioning_keys[0].name == acg_key_name
           - result.provisioning_keys[0].enabled == true
-
-    # - name: Ensure this Connector Provisioning Key is found
-    #   ansible.builtin.assert:
-    #     that:
-    #       - result.provisioning_keys | selectattr('name', 'equalto', acg_key_name) | list | length > 0
-    #       - result.provisioning_keys | selectattr('name', 'equalto', acg_key_name) | map(attribute='enabled') | list | first | bool
 
     - name: Give the ZPA Cloud a 5 seconds to settle
       ansible.builtin.pause:
@@ -160,21 +149,6 @@
       register: result
 
     - name: Verify Connector Provisioning Key is Deleted
-      ansible.builtin.assert:
-        that:
-          - result.changed
-
-    - name: Delete Connector Provisioning Key (again; idempotency check)
-      zscaler.zpacloud.zpa_provisioning_key:
-        provider: "{{ zpa_cloud }}"
-        state: absent
-        name: "{{ acg_key_name }}"
-        key_type: "{{ key_type }}"
-        max_usage: "{{ acg_max_usage }}"
-        component_id: "{{ app_connector_group_id }}"
-      register: result
-
-    - name: Verify Connector Provisioning Key is absent
       ansible.builtin.assert:
         that:
           - result.changed

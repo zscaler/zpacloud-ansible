@@ -122,7 +122,8 @@ def normalize_provisioning_key(prov_key):
         "modified_time",
         "enrollment_cert_name",
         "provisioning_key",
-        "zcomponent_name" "usage_count",
+        "zcomponent_name",
+        "usage_count",
     ]
     for attr in computed_values:
         normalized.pop(attr, None)
@@ -166,7 +167,6 @@ def core(module):
             "enrollment_cert_id",
             "component_id",  # The user-facing attribute
             "key_type",
-            "provisioning_key",
         ]
     }
     provisioning_key["enrollment_cert_id"] = enrollment_cert_id  # Set the fetched ID
@@ -243,7 +243,6 @@ def core(module):
                         enrollment_cert_id=existing_key.get("enrollment_cert_id", None),
                         component_id=existing_key.get("component_id", None),
                         key_type=existing_key.get("key_type", None),
-                        provisioning_key=existing_key.get("provisioning_key", None),
                     )
                 )
                 # module.warn(f"Payload Update for SDK: {existing_key}")
@@ -264,7 +263,6 @@ def core(module):
                     enrollment_cert_id=provisioning_key.get("enrollment_cert_id", None),
                     component_id=provisioning_key.get("component_id", None),
                     key_type=provisioning_key.get("key_type", None),
-                    provisioning_key=provisioning_key.get("provisioning_key", None),
                 )
             )
             provisioning_key = client.provisioning.add_provisioning_key(
@@ -304,7 +302,6 @@ def main():
         enabled=dict(type="bool", required=False),
         max_usage=dict(type="str", required=True),
         component_id=dict(type="str", required=True),
-        provisioning_key=dict(type="str", required=False),
         key_type=dict(type="str", choices=["connector", "service_edge"], required=True),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )

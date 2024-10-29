@@ -207,9 +207,7 @@ def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
         id=dict(type="str", required=False),
-        ids=dict(
-            type="list", elements="str", required=False
-        ),
+        ids=dict(type="list", elements="str", required=False),
         name=dict(type="str", required=False),
         description=dict(type="str", required=False),
         enabled=dict(type="bool", required=False),

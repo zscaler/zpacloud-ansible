@@ -11,7 +11,7 @@ repository = "https://github.com/zscaler/zpacloud-ansible"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-#zscaler-sdk-python = ">=0.9.3"
+zscaler-sdk-python = ">=0.9.5"
 xmltodict = "^0.12.0"
 aiohttp = ">=3.10.2"
 dpath = "^2.1.5"

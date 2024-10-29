@@ -115,9 +115,26 @@ def normalize_provisioning_key(group):
     Normalize provisioning key data by setting computed values.
     """
     normalized = group.copy()
-    computed_values = ["creation_time", "modified_by", "modified_time"]
+    computed_values = [
+      "id",
+      "creation_time",
+      "modified_by",
+      "modified_time",
+      "enrollment_cert_name",
+      "provisioning_key",
+      "zcomponent_name"
+      "usage_count",
+    ]
     for attr in computed_values:
         normalized.pop(attr, None)
+
+    # Map 'zcomponent_id' to 'component_id' for consistency
+    if 'zcomponent_id' in normalized:
+        normalized['component_id'] = normalized.pop('zcomponent_id')
+
+    # Remove `key_type` since it's only for URL construction and not part of the API data
+    normalized.pop('key_type', None)
+
     return normalized
 
 
@@ -148,15 +165,18 @@ def core(module):
             "enabled",
             "max_usage",
             "enrollment_cert_id",
-            "usage_count",
-            "component_id",
+            "component_id",  # The user-facing attribute
             "key_type",
+            "provisioning_key",
         ]
     }
     provisioning_key["enrollment_cert_id"] = enrollment_cert_id  # Set the fetched ID
     provisioning_key_id = module.params.get("id", None)
-    existing_key = None
 
+    # Debugging: Display the desired state
+    # module.warn(f"Desired provisioning key: {provisioning_key}")
+
+    existing_key = None
     if provisioning_key_id is not None:
         existing_key = client.provisioning.get_provisioning_key(
             key_id=provisioning_key_id, key_type=key_type
@@ -168,15 +188,33 @@ def core(module):
                 existing_key = k
                 break
 
-    normalized_key = normalize_provisioning_key(provisioning_key)
-    normalized_existing_key = (
-        normalize_provisioning_key(existing_key) if existing_key else {}
-    )
-    differences_detected = any(
-        normalized_key.get(key) != normalized_existing_key.get(key)
-        for key in normalized_key
-        if key not in ["id"]
-    )
+    # Debugging: Display the current state (what Ansible sees from the API)
+    # module.warn(f"Current provisioning key from API: {existing_key}")
+
+    # Set defaults for desired state to avoid drift due to None values
+    if provisioning_key.get('enabled') is None:
+        provisioning_key['enabled'] = True  # Set to True if not explicitly set
+
+    desired_key = normalize_provisioning_key(provisioning_key)
+    current_key = normalize_provisioning_key(existing_key) if existing_key else {}
+
+    # Handle the component_id/zcomponent_id mapping during comparison only
+    if 'zcomponent_id' in current_key:
+        current_key['component_id'] = current_key.pop('zcomponent_id')
+
+    # Debugging: Show normalized values for comparison
+    # module.warn(f"Normalized Desired: {desired_key}")
+    # module.warn(f"Normalized Current: {current_key}")
+
+    fields_to_exclude = ["id", "key_type"]
+    differences_detected = False
+    for key, value in desired_key.items():
+        # Debugging: Track comparisons for each key-value pair
+        # module.warn(f"Comparing key: {key}, Desired: {value}, Current: {current_key.get(key)}")
+
+        if key not in fields_to_exclude and current_key.get(key) != value:
+            differences_detected = True
+            # module.warn(f"Difference detected in {key}. Current: {current_key.get(key)}, Desired: {value}")
 
     if module.check_mode:
         # If in check mode, report changes and exit
@@ -192,7 +230,7 @@ def core(module):
         update_params = deleteNone(provisioning_key)
         update_params.pop("key_type", None)  # Remove key_type to prevent duplication
 
-        # Corrected update call
+        # module.warn(f"Final payload being sent to SDK: {provisioning_key}")
         existing_key = client.provisioning.update_provisioning_key(
             key_id=existing_key.get("id"),  # Passing key_id directly
             key_type=key_type,  # Passing key_type directly
@@ -225,6 +263,7 @@ def main():
         enabled=dict(type="bool", required=False),
         max_usage=dict(type="str", required=True),
         component_id=dict(type="str", required=True),
+        provisioning_key=dict(type="str", required=False),
         key_type=dict(type="str", choices=["connector", "service_edge"], required=True),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )

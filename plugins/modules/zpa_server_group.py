@@ -142,6 +142,10 @@ def core(module):
     ]
     for param_name in params:
         server_group[param_name] = module.params.get(param_name, None)
+
+    # Debugging: Display the desired state
+    # module.warn(f"Desired server group: {server_group}")
+
     group_id = server_group.get("id", None)
     group_name = server_group.get("name", None)
 
@@ -157,17 +161,25 @@ def core(module):
                 existing_server_group = group_
                 break
 
+    # Debugging: Display the current state (what Ansible sees from the API)
+    # module.warn(f"Current server group from API: {existing_server_group}")
+
     desired_app = normalize_app(server_group)
     current_app = normalize_app(existing_server_group) if existing_server_group else {}
+
+    # Debugging: Show normalized values for comparison
+    # module.warn(f"Normalized Desired: {desired_app}")
+    # module.warn(f"Normalized Current: {current_app}")
 
     fields_to_exclude = ["id"]
     differences_detected = False
     for key, value in desired_app.items():
+        # Debugging: Track comparisons for each key-value pair
+        # module.warn(f"Comparing key: {key}, Desired: {value}, Current: {current_app.get(key)}")
+
         if key not in fields_to_exclude and current_app.get(key) != value:
             differences_detected = True
-            # module.warn(
-            #     f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
-            # )
+            # module.warn(f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}")
 
     if module.check_mode:
         # If in check mode, report changes and exit
@@ -185,25 +197,27 @@ def core(module):
         existing_server_group.update(server_group)
         existing_server_group["id"] = id
 
+    # module.warn(f"Final payload being sent to SDK: {server_group}")
     if state == "present":
         if existing_server_group is not None:
             if differences_detected:
                 """Update"""
                 existing_server_group = deleteNone(
-                    {
-                        "group_id": existing_server_group.get("id"),
-                        "name": existing_server_group.get("name"),
-                        "description": existing_server_group.get("description"),
-                        "enabled": existing_server_group.get("enabled"),
-                        "app_connector_group_ids": existing_server_group.get(
-                            "app_connector_group_ids"
+                    dict(
+                       group_id=existing_server_group.get("id"),
+                       name=existing_server_group.get("name", None),
+                       description=existing_server_group.get("description", None),
+                        enabled=existing_server_group.get("enabled", None),
+                        app_connector_group_ids=existing_server_group.get(
+                            "app_connector_group_ids", None
                         ),
-                        "dynamic_discovery": existing_server_group.get(
-                            "dynamic_discovery"
+                        dynamic_discovery=existing_server_group.get(
+                            "dynamic_discovery", None
                         ),
-                        "server_ids": existing_server_group.get("server_ids"),
-                    }
+                        server_ids=existing_server_group.get("server_ids", None),
+                    )
                 )
+                # module.warn(f"Payload Update for SDK: {existing_server_group}")
                 existing_server_group = client.server_groups.update_group(
                     **existing_server_group
                 )
@@ -214,16 +228,16 @@ def core(module):
         else:
             """Create"""
             server_group = deleteNone(
-                {
-                    "name": server_group.get("name"),
-                    "app_connector_group_ids": server_group.get(
-                        "app_connector_group_ids"
+                dict(
+                    name=server_group.get("name", None),
+                    app_connector_group_ids=server_group.get(
+                        "app_connector_group_ids", None
                     ),
-                    "description": server_group.get("description"),
-                    "enabled": server_group.get("enabled"),
-                    "dynamic_discovery": server_group.get("dynamic_discovery"),
-                    "server_ids": server_group.get("server_ids"),
-                }
+                    description=server_group.get("description", None),
+                    enabled=server_group.get("enabled", None),
+                    dynamic_discovery=server_group.get("dynamic_discovery", None),
+                    server_ids=server_group.get("server_ids", None),
+                )
             )
             server_group = client.server_groups.add_group(**server_group).to_dict()
             module.exit_json(changed=True, data=server_group)

@@ -1,5 +1,16 @@
 # Zscaler Private Access (ZPA) Ansible Collection Changelog
 
+## 1.4.1 (October, 28 2024)
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+### Bug Fixes
+
+- [PR #50](https://github.com/zscaler/zpacloud-ansible/pull/50) Fixed undetected drift issues within the resource `zpa_server_groups` related to the attribute `app_connector_group_ids`.
+- [PR #50](https://github.com/zscaler/zpacloud-ansible/pull/50) Fixed undetected drift issues within the resource `zpa_application_segment_browser_access` related to the attribute `clientless_app_ids`.
+
 ## 1.4.0 (October, 9 2024)
 
 ### Notes

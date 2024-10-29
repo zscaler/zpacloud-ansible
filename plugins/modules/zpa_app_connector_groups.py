@@ -278,9 +278,9 @@ def core(module):
     for key, value in desired_group.items():
         if key not in fields_to_exclude and current_group.get(key) != value:
             differences_detected = True
-            # module.warn(
-            #     f"Difference detected in {key}. Current: {current_group.get(key)}, Desired: {value}"
-            # )
+            module.warn(
+                f"Difference detected in {key}. Current: {current_group.get(key)}, Desired: {value}"
+            )
 
     if module.check_mode:
         # If in check mode, report changes and exit

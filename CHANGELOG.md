@@ -1,5 +1,15 @@
 # Zscaler Private Access (ZPA) Ansible Collection Changelog
 
+## 1.4.2 (November, 4 2024)
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+### Bug Fixes
+
+- [PR #51](https://github.com/zscaler/zpacloud-ansible/pull/51) Fixed drift detection and `check_mode` issues with the `zpa_provisioning_key` resource.
+
 ## 1.4.1 (October, 28 2024)
 
 ### Notes

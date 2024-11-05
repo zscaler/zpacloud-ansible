@@ -1,6 +1,7 @@
 ---
 acg_key_name: test_acg_zpa_provisioning_key
 key_type: connector
+key_enabled: True
 acg_max_usage: "10"
 
 seg_name: test_seg_zpa_provisioning_key

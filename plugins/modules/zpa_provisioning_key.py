@@ -153,9 +153,11 @@ def core(module):
     key_type = module.params.get("key_type")
 
     # Fetch and set the enrollment certificate ID
+    module.warn("Fetching enrollment certificate ID based on key_type")
     enrollment_cert_id = fetch_enrollment_cert_id(client, key_type)
     if not enrollment_cert_id:
         module.fail_json(msg=f"Enrollment certificate for {key_type} not found.")
+    # module.warn(f"Enrollment certificate ID fetched: {enrollment_cert_id}")
 
     provisioning_key = {
         param: module.params.get(param)
@@ -165,133 +167,116 @@ def core(module):
             "enabled",
             "max_usage",
             "enrollment_cert_id",
-            "component_id",  # The user-facing attribute
+            "component_id",
             "key_type",
         ]
     }
-    provisioning_key["enrollment_cert_id"] = enrollment_cert_id  # Set the fetched ID
-    provisioning_key_id = module.params.get("id", None)
-
-    # Debugging: Display the desired state
-    # module.warn(f"Desired provisioning key: {provisioning_key}")
+    provisioning_key["enrollment_cert_id"] = enrollment_cert_id
+    # module.warn(f"Provisioning key parameters initialized: {provisioning_key}")
 
     existing_key = None
-    if provisioning_key_id is not None:
+    if provisioning_key["id"]:
+        # Fetch by ID if ID is provided
+        # module.warn(f"Fetching existing key by ID: {provisioning_key['id']}")
         existing_key = client.provisioning.get_provisioning_key(
-            key_id=provisioning_key_id, key_type=key_type
+            key_id=provisioning_key["id"], key_type=key_type
         )
     else:
+        # Fetch by name if ID is not provided
+        # module.warn(f"Fetching existing keys by name: {provisioning_key['name']}")
         keys = client.provisioning.list_provisioning_keys(key_type=key_type).to_list()
         for k in keys:
-            if k.get("name") == module.params.get("name"):
+            if k.get("name") == provisioning_key["name"]:
                 existing_key = k
                 break
+    module.warn(f"Existing key found: {existing_key}")
 
-    # Debugging: Display the current state (what Ansible sees from the API)
-    # module.warn(f"Current provisioning key from API: {existing_key}")
+    if existing_key:
+        # Normalize and compare existing key to see if an update is needed
+        desired_key = normalize_provisioning_key(provisioning_key)
+        current_key = normalize_provisioning_key(existing_key)
+        module.warn(f"Normalized desired key: {desired_key}")
+        module.warn(f"Normalized current key: {current_key}")
 
-    # Set defaults for desired state to avoid drift due to None values
-    if provisioning_key.get("enabled") is None:
-        provisioning_key["enabled"] = True  # Set to True if not explicitly set
+        # Fields to exclude from comparison, such as IDs and auto-generated values
+        fields_to_exclude = ["id", "key_type", "provisioning_key"]
 
-    desired_key = normalize_provisioning_key(provisioning_key)
-    current_key = normalize_provisioning_key(existing_key) if existing_key else {}
+        # Check for actual differences, excluding fields with None in desired_key
+        differences_detected = any(
+            desired_key.get(key) is not None and desired_key.get(key) != current_key.get(key)
+            for key in desired_key
+            if key not in fields_to_exclude
+        )
 
-    # Handle the component_id/zcomponent_id mapping during comparison only
-    if "zcomponent_id" in current_key:
-        current_key["component_id"] = current_key.pop("zcomponent_id")
+        # module.warn(f"Differences detected: {differences_detected}")
 
-    # Debugging: Show normalized values for comparison
-    # module.warn(f"Normalized Desired: {desired_key}")
-    # module.warn(f"Normalized Current: {current_key}")
+        if module.check_mode:
+            # If in check mode, report changes and exit
+            module.warn("Running in check mode")
+            if state == "present" and (existing_key is None or differences_detected):
+                module.exit_json(changed=True)
+            elif state == "absent" and existing_key is not None:
+                module.exit_json(changed=True)
+            else:
+                module.exit_json(changed=False)
 
-    fields_to_exclude = ["id", "key_type"]
-    differences_detected = False
-    for key, value in desired_key.items():
-        # Debugging: Track comparisons for each key-value pair
-        # module.warn(f"Comparing key: {key}, Desired: {value}, Current: {current_key.get(key)}")
-        if key not in fields_to_exclude and current_key.get(key) != value:
-            differences_detected = True
-            # module.warn(f"Difference detected in {key}. Current: {current_key.get(key)}, Desired: {value}")
-
-    if module.check_mode:
-        # If in check mode, report changes and exit
-        if state == "present" and (existing_key is None or differences_detected):
-            module.exit_json(changed=True)
-        elif state == "absent" and existing_key is not None:
-            module.exit_json(changed=True)
-        else:
-            module.exit_json(changed=False)
-
-    # module.warn(f"Final payload being sent to SDK: {provisioning_key}")
-    if existing_key is not None:
-        id = existing_key.get("id")
-        existing_key.update(provisioning_key)
-        existing_key["id"] = id
-
-    # module.warn(f"Final payload being sent to SDK: {server_group}")
-    if state == "present":
-        if existing_key is not None:
+        if state == "present":
             if differences_detected:
-                """Update"""
-                existing_key = deleteNone(
+                # Update the existing provisioning key if differences are found
+                update_payload = deleteNone(
                     dict(
                         key_id=existing_key.get("id"),
-                        name=existing_key.get("name", None),
-                        enabled=existing_key.get("enabled", None),
-                        max_usage=existing_key.get("max_usage", None),
-                        enrollment_cert_id=existing_key.get("enrollment_cert_id", None),
-                        component_id=existing_key.get("component_id", None),
-                        key_type=existing_key.get("key_type", None),
+                        name=provisioning_key["name"],
+                        enabled=provisioning_key.get("enabled"),
+                        max_usage=provisioning_key.get("max_usage"),
+                        enrollment_cert_id=provisioning_key.get("enrollment_cert_id"),
+                        component_id=provisioning_key.get("component_id"),
+                        key_type=provisioning_key.get("key_type"),
                     )
                 )
-                # module.warn(f"Payload Update for SDK: {existing_key}")
-                existing_key = client.provisioning.update_provisioning_key(
-                    **existing_key
+                # module.warn(f"Update payload: {update_payload}")
+                updated_key = client.provisioning.update_provisioning_key(
+                    **update_payload
                 )
-                module.exit_json(changed=True, data=existing_key)
+                # module.warn(f"Response from update: {updated_key}")
+                module.exit_json(changed=True, data=updated_key)
             else:
-                """No Changes Needed"""
+                # No update required
+                # module.warn("No update required; exiting without changes")
                 module.exit_json(changed=False, data=existing_key)
-        else:
-            """Create"""
-            provisioning_key = deleteNone(
-                dict(
-                    name=provisioning_key.get("name", None),
-                    enabled=provisioning_key.get("enabled", None),
-                    max_usage=provisioning_key.get("max_usage", None),
-                    enrollment_cert_id=provisioning_key.get("enrollment_cert_id", None),
-                    component_id=provisioning_key.get("component_id", None),
-                    key_type=provisioning_key.get("key_type", None),
-                )
-            )
-            provisioning_key = client.provisioning.add_provisioning_key(
-                **provisioning_key
-            ).to_dict()
-            module.exit_json(changed=True, data=provisioning_key)
 
-    elif state == "absent" and existing_key is not None:
-        # Debugging: Log the provisioning key ID and key type being passed for deletion
-        # module.warn(f"Attempting to delete provisioning key with ID: {provisioning_key_id} and key_type: {key_type}")
-        if not provisioning_key_id:
-            # module.warn(f"Provisioning key ID is missing, fetching it from existing_key: {existing_key}")
-            provisioning_key_id = existing_key.get("id")
-        # Debugging: Log the final provisioning key ID and key_type before making the delete request
-        # module.warn(f"Final provisioning key ID for deletion: {provisioning_key_id}, key_type: {key_type}")
-        code = client.provisioning.delete_provisioning_key(
-            key_id=provisioning_key_id, key_type=key_type
+        elif state == "absent":
+            # Delete the existing provisioning key
+            # module.warn(f"Deleting provisioning key with ID: {existing_key['id']}")
+            delete_code = client.provisioning.delete_provisioning_key(
+                key_id=existing_key["id"], key_type=key_type
+            )
+            # module.warn(f"Response code from delete: {delete_code}")
+            if delete_code > 299:
+                module.fail_json(msg="Failed to delete the provisioning key", code=delete_code)
+            module.exit_json(changed=True, data=existing_key)
+
+    elif state == "present":
+        # Create a new provisioning key if it does not exist
+        create_payload = deleteNone(
+            dict(
+                name=provisioning_key["name"],
+                enabled=provisioning_key["enabled"],
+                max_usage=provisioning_key["max_usage"],
+                enrollment_cert_id=provisioning_key["enrollment_cert_id"],
+                component_id=provisioning_key["component_id"],
+                key_type=provisioning_key["key_type"],
+            )
         )
-        # Debugging: Log the API response code for deletion
-        # module.warn(f"Deletion API response code: {code}")
-        if code > 299:
-            # module.warn(f"Deletion failed with status code: {code}")
-            module.exit_json(changed=False, data=None)
-        # module.warn(f"Provisioning key with ID {provisioning_key_id} was successfully deleted.")
-        module.exit_json(changed=True, data=existing_key)
-    # Debugging: Log if no existing key is found when state is absent
-    elif state == "absent" and existing_key is None:
-        # module.warn(f"No existing provisioning key found for deletion with name: {module.params.get('name')}")
-        module.exit_json(changed=False, data=None)
+        # module.warn(f"Create payload: {create_payload}")
+        new_key = client.provisioning.add_provisioning_key(**create_payload).to_dict()
+        module.warn(f"Response from create: {new_key}")
+        module.exit_json(changed=True, data=new_key)
+
+    elif state == "absent" and not existing_key:
+        # No action needed if resource does not exist and state is absent
+        # module.warn("No existing key to delete; exiting without changes")
+        module.exit_json(changed=False)
 
 
 def main():

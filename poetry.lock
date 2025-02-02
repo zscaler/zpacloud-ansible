@@ -3232,4 +3232,4 @@ dev = ["aenum", "black (>=24.3.0)", "pydash (>=8.0.3)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "7e376648057a8f0fdd194f26ef8aa6becc11e8e5ff713332f754483acf1a76df"
+content-hash = "695e98e658cebf933cb866ca463a07e62f11bc129ea8493ac5f8729ed1a0d9b7"

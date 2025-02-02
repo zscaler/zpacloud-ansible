@@ -24,7 +24,7 @@ sphinx-ansible-theme = "^0.10.3"
 python-box = "^7.1.1"
 jinja2 = ">=3.0.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 black = "24.3.0"
 pytest = "^8.2.1"
 coverage = ">=4.5.4"

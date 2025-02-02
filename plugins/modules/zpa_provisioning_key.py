@@ -203,7 +203,8 @@ def core(module):
 
         # Check for actual differences, excluding fields with None in desired_key
         differences_detected = any(
-            desired_key.get(key) is not None and desired_key.get(key) != current_key.get(key)
+            desired_key.get(key) is not None
+            and desired_key.get(key) != current_key.get(key)
             for key in desired_key
             if key not in fields_to_exclude
         )
@@ -253,7 +254,9 @@ def core(module):
             )
             # module.warn(f"Response code from delete: {delete_code}")
             if delete_code > 299:
-                module.fail_json(msg="Failed to delete the provisioning key", code=delete_code)
+                module.fail_json(
+                    msg="Failed to delete the provisioning key", code=delete_code
+                )
             module.exit_json(changed=True, data=existing_key)
 
     elif state == "present":

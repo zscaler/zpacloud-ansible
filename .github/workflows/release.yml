@@ -207,7 +207,7 @@ jobs:
           mkdir -p zpacloud-ansible/ansible_collections/zscaler/zpacloud
 
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4.6.8
+        uses: JamesIves/github-pages-deploy-action@v4.7.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages

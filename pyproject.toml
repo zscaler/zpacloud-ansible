@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "zpacloud-ansible"
-version = "1.4.2"
+version = "1.4.3"
 description = "Ansible collection for Zscaler Private Access (ZPA)"
 authors = ["Zscaler Technology Alliances <devrel@zscaler.com>"]
 license = "MIT"
@@ -11,8 +11,8 @@ repository = "https://github.com/zscaler/zpacloud-ansible"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-zscaler-sdk-python = ">=0.9.5"
-xmltodict = "^0.12.0"
+zscaler-sdk-python = ">=0.10.4"
+xmltodict = "^0.14.2"
 aiohttp = ">=3.10.2"
 dpath = "^2.1.5"
 #rstcheck-core = "1.2.0"  # Using a specific version to ensure compatibility
@@ -22,6 +22,7 @@ netaddr = ">=1.2.1"
 pycountry = ">=23.12.11"
 sphinx-ansible-theme = "^0.10.3"
 python-box = "^7.1.1"
+jinja2 = ">=3.0.0"
 
 [tool.poetry.dev-dependencies]
 black = "24.3.0"

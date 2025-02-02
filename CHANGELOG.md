@@ -1,5 +1,15 @@
 # Zscaler Private Access (ZPA) Ansible Collection Changelog
 
+## 1.4.3 (February, 1 2025)
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+### Bug Fixes
+
+- [PR #55](https://github.com/zscaler/zpacloud-ansible/pull/55) Fixed drift issues with the attribute `domain_names` within the resources: `zpa_application_segment`, `zpa_application_segment_pra`, and `zpa_application_segment_inspection`.
+
 ## 1.4.2 (November, 4 2024)
 
 ### Notes

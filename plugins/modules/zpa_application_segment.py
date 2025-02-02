@@ -353,12 +353,33 @@ def core(module):
 
     fields_to_exclude = ["id"]
     differences_detected = False
-    for key, value in desired_app.items():
-        if key not in fields_to_exclude and current_app.get(key) != value:
-            differences_detected = True
-            # module.warn(
-            #     f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
-            # )
+
+    for key, desired_value in desired_app.items():
+        if key in fields_to_exclude:
+            continue
+
+        current_value = current_app.get(key)
+
+        if key == "domain_names":
+            # Compare them as sorted lists to ignore order differences
+            if sorted(current_value or []) != sorted(desired_value or []):
+                differences_detected = True
+                module.warn(
+                    f"Difference detected in domain_names. "
+                    f"Current (sorted): {sorted(current_value or [])}, "
+                    f"Desired (sorted): {sorted(desired_value or [])}"
+                )
+        else:
+            # Normal comparison for everything else
+            if current_value != desired_value:
+                differences_detected = True
+                module.warn(
+                    f"Difference detected in {key}. "
+                    f"Current: {current_value}, Desired: {desired_value}"
+                )
+                # module.warn(
+                #     f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {desired_value}"
+                # )
 
     if module.check_mode:
         # If in check mode, report changes and exit
@@ -374,7 +395,7 @@ def core(module):
         existing_app.update(app)
         existing_app["id"] = id
 
-    # module.warn(f"Final payload being sent to SDK: {app}")
+    module.warn(f"Final payload being sent to SDK: {app}")
     if state == "present":
         if existing_app is not None:
             if differences_detected:
@@ -419,7 +440,7 @@ def core(module):
                         ),
                     )
                 )
-                # module.warn("Payload Update for SDK: {}".format(existing_app))
+                module.warn("Payload Update for SDK: {}".format(existing_app))
                 existing_app = client.app_segments.update_segment(
                     **existing_app
                 ).to_dict()
@@ -428,7 +449,7 @@ def core(module):
                 """No Changes Needed"""
                 module.exit_json(changed=False, data=existing_app)
         else:
-            # module.warn("Creating app segment as no existing app segment was found")
+            module.warn("Creating app segment as no existing app segment was found")
             """Create"""
             app = deleteNone(
                 dict(
@@ -459,7 +480,7 @@ def core(module):
                     udp_port_ranges=convert_ports_list(app.get("udp_port_range", None)),
                 )
             )
-            # module.warn("Payload for SDK: {}".format(app))
+            module.warn("Payload for SDK: {}".format(app))
             app = client.app_segments.add_segment(**app)
             module.exit_json(changed=True, data=app)
     elif (

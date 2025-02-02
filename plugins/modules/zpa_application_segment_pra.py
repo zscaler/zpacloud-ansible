@@ -459,13 +459,33 @@ def core(module):
 
     fields_to_exclude = ["id"]
     differences_detected = False
-    for key, value in desired_app.items():
-        if key not in fields_to_exclude and current_app.get(key) != value:
-            differences_detected = True
-            break
-        # module.warn(
-        #     f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
-        # )
+
+    for key, desired_value in desired_app.items():
+        if key in fields_to_exclude:
+            continue
+
+        current_value = current_app.get(key)
+
+        if key == "domain_names":
+            # Compare them as sorted lists to ignore order differences
+            if sorted(current_value or []) != sorted(desired_value or []):
+                differences_detected = True
+                module.warn(
+                    f"Difference detected in domain_names. "
+                    f"Current (sorted): {sorted(current_value or [])}, "
+                    f"Desired (sorted): {sorted(desired_value or [])}"
+                )
+        else:
+            # Normal comparison for everything else
+            if current_value != desired_value:
+                differences_detected = True
+                module.warn(
+                    f"Difference detected in {key}. "
+                    f"Current: {current_value}, Desired: {desired_value}"
+                )
+                # module.warn(
+                #     f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {desired_value}"
+                # )
 
     if module.check_mode:
         # If in check mode, report changes and exit

@@ -1,4 +1,4 @@
-name: CI
+name: Release
 
 on:
   push:
@@ -135,7 +135,6 @@ jobs:
           name: collection
           path: |
             *.tar.gz
-
 
   ## ---------------------------------------------------------------------------
   ## 4) Documentation

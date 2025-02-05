@@ -21,6 +21,18 @@ Version 1.4.5
 
 ### Bug Fixes
 
+* (`#58 <https://github.com/zscaler/zpacloud-ansible/pull/58>`_) Removed `ansible.cfg` from Ansible Automation Hub and Galaxy GitHub Actions workflow
+
+
+1.4.5 (February, 5 2025)
+---------------------------
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+### Bug Fixes
+
 * (`#57 <https://github.com/zscaler/zpacloud-ansible/pull/57>`_) Removed `ansible.cfg` from Ansible Automation Hub and Galaxy GitHub Actions workflow
 
 

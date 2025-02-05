@@ -1,25 +1,10 @@
-name: Release the ansible collection
+name: CI
 
 on:
-  workflow_call:
-    inputs:
-      ah_publish:
-        description: Publish the collection on automation hub
-        default: true
-        type: boolean
-      environment:
-        description: The deployment environment
-        required: true
-        type: string
-      galaxy_publish:
-        default: true
-        description: Publish the collection on galaxy
-        type: boolean
-    secrets:
-      ah_token:
-        required: false
-      ansible_galaxy_api_key:
-        required: false
+  push:
+    branches:
+      - master
+  pull_request:
 
 env:
   NAMESPACE: zscaler
@@ -27,7 +12,9 @@ env:
   PYTHON_VERSION: 3.8
 
 jobs:
-  # 1) Sanity
+  ################################################################
+  # 1) Sanity Job (unchanged from your example)
+  ################################################################
   sanity:
     name: Sanity (Ⓐ${{ matrix.ansible }})
     strategy:
@@ -71,15 +58,19 @@ jobs:
         timeout-minutes: 10
         run: poetry run make new-sanity
 
-  # 2) Release
-  release:
-    name: release
+  ################################################################
+  # 2) pre_release Job (local steps you MUST run first)
+  ################################################################
+  pre_release:
+    name: pre_release
     needs: [sanity]
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 2.1) Import GPG Key
       - name: Import GPG key
         id: import_gpg
         uses: crazy-max/ghaction-import-gpg@v6
@@ -87,6 +78,7 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
 
+      # 2.2) Create release and publish via semantic-release
       - name: Create release and publish
         id: release
         uses: cycjimmy/semantic-release-action@v4
@@ -101,35 +93,43 @@ jobs:
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # 2.3) (Optional) Build your collection here, if you want.
+      #      Or let the next job build it.
+      #      If you do build it, store it as an artifact:
+      - name: Build collection
+        run: |
+          ansible-galaxy collection build
+
       - name: Store built collection
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: collection
+          name: built-collection
           path: |
             *.tar.gz
 
-      # 2a) Publish to Automation Hub
-      - name: Publish to Automation Hub
-        if: ${{ inputs.ah_publish == 'true' }}
-        uses: ansible/team-devtools/.github/workflows/release_ah.yml@main
-        with:
-          environment: ${{ inputs.environment }}
-          ah_token: ${{ secrets.ah_token }} # pass as input, not in "secrets:"
+  ################################################################
+  # 3) release Job (calls Red Hat's Reusable Workflow)
+  ################################################################
+  release:
+    name: release
+    needs: [pre_release]
+    uses: ansible/devtools/.github/workflows/release_collection.yml@main
+    with:
+      environment: release
+    secrets:
+      ah_token: ${{ secrets.AH_TOKEN }}
+      ansible_galaxy_api_key: ${{ secrets.ANSIBLE_GALAXY_API_KEY }}
 
-      # 2b) Publish to Galaxy
-      - name: Publish to Galaxy
-        if: ${{ inputs.galaxy_publish == 'true' }}
-        uses: ansible/team-devtools/.github/workflows/release_galaxy.yml@main
-        with:
-          environment: ${{ inputs.environment }}
-          ansible_galaxy_api_key: ${{ secrets.ansible_galaxy_api_key }}
-
-  # 3) Docs
+  ################################################################
+  # 4) docs Job (unchanged)
+  ################################################################
   docs:
     name: docs
+    needs: [release]  # Wait for release to finish
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    needs: [release]
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: ./ansible_collections/zscaler/zpacloud

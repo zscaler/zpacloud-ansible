@@ -27,8 +27,7 @@ env:
   PYTHON_VERSION: 3.8
 
 jobs:
-  ## 1) Sanity Job
-  # --------------------------------------------------
+  # 1) Sanity
   sanity:
     name: Sanity (Ⓐ${{ matrix.ansible }})
     strategy:
@@ -72,8 +71,7 @@ jobs:
         timeout-minutes: 10
         run: poetry run make new-sanity
 
-  ## 2) Release Job (NEW)
-  # --------------------------------------------------
+  # 2) Release
   release:
     name: release
     needs: [sanity]
@@ -110,31 +108,23 @@ jobs:
           path: |
             *.tar.gz
 
-  ## 3) Release Automation Hub Job
-  # --------------------------------------------------
-  release_automation_hub:
-    name: release_automation_hub
-    uses: ansible/team-devtools/.github/workflows/release_ah.yml@main
-    # Make it run AFTER the release job
-    needs: [release]
-    with:
-      environment: release
-    secrets:
-      ah_token: ${{ secrets.AH_TOKEN }}
+      # 2a) Publish to Automation Hub
+      - name: Publish to Automation Hub
+        if: ${{ inputs.ah_publish == 'true' }}
+        uses: ansible/team-devtools/.github/workflows/release_ah.yml@main
+        with:
+          environment: ${{ inputs.environment }}
+          ah_token: ${{ secrets.ah_token }} # pass as input, not in "secrets:"
 
-  ## 4) Release Galaxy Job
-  # --------------------------------------------------
-  release_galaxy:
-    name: release_galaxy
-    uses: ansible/team-devtools/.github/workflows/release_galaxy.yml@main
-    needs: [release_automation_hub]
-    with:
-      environment: release
-    secrets:
-      ansible_galaxy_api_key: ${{ secrets.ANSIBLE_GALAXY_API_KEY }}
+      # 2b) Publish to Galaxy
+      - name: Publish to Galaxy
+        if: ${{ inputs.galaxy_publish == 'true' }}
+        uses: ansible/team-devtools/.github/workflows/release_galaxy.yml@main
+        with:
+          environment: ${{ inputs.environment }}
+          ansible_galaxy_api_key: ${{ secrets.ansible_galaxy_api_key }}
 
-  ## 5) Documentation Job
-  # --------------------------------------------------
+  # 3) Docs
   docs:
     name: docs
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
@@ -143,6 +133,7 @@ jobs:
     defaults:
       run:
         working-directory: ./ansible_collections/zscaler/zpacloud
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4

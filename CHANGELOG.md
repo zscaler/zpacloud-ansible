@@ -8,7 +8,7 @@
 
 ### Bug Fixes
 
-- [PR #56](https://github.com/zscaler/zpacloud-ansible/pull/56) Removed `ansible.cfg` from Ansible Automation Hub and Galaxy GitHub Actions workflow
+- [PR #57](https://github.com/zscaler/zpacloud-ansible/pull/57) Removed `ansible.cfg` from Ansible Automation Hub and Galaxy GitHub Actions workflow
 
 ## 1.4.3 (February, 1 2025)
 

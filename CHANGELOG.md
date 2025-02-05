@@ -1,5 +1,15 @@
 # Zscaler Private Access (ZPA) Ansible Collection Changelog
 
+## 1.4.4 (February, 5 2025)
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+### Bug Fixes
+
+- [PR #56](https://github.com/zscaler/zpacloud-ansible/pull/56) Removed `ansible.cfg` from Ansible Automation Hub and Galaxy GitHub Actions workflow
+
 ## 1.4.3 (February, 1 2025)
 
 ### Notes

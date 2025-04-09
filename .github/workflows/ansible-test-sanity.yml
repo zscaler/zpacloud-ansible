@@ -10,7 +10,7 @@ on:
 env:
   NAMESPACE: zscaler
   COLLECTION_NAME: zpacloud
-  PYTHON_VERSION: 3.8
+  PYTHON_VERSION: 3.11
 
 jobs:
   ## Sanity is required:

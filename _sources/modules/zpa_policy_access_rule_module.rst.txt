@@ -536,6 +536,8 @@ Parameters
       - :ansible-option-choices-entry:`"MACHINE\_GRP"`
       - :ansible-option-choices-entry:`"COUNTRY\_CODE"`
       - :ansible-option-choices-entry:`"PLATFORM"`
+      - :ansible-option-choices-entry:`"RISK\_FACTOR\_TYPE"`
+      - :ansible-option-choices-entry:`"CHROME\_ENTERPRISE"`
 
 
       .. raw:: html

@@ -9,7 +9,7 @@ on:
 
 env:
   NAMESPACE: zscaler
-  COLLECTION_NAME: ziacloud
+  COLLECTION_NAME: zpacloud
 
 jobs:
   needs-update:

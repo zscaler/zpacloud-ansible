@@ -1,5 +1,19 @@
 # Zscaler Private Access (ZPA) Ansible Collection Changelog
 
+## 1.4.6 (April, 8 2025)
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+### Bug Fixes
+
+- [PR #62](https://github.com/zscaler/zpacloud-ansible/pull/62) Upgraded to [Zscaler SDK Python v0.10.6](https://github.com/zscaler/zscaler-sdk-python/releases/tag/v0.10.6)
+
+### Enhancements
+
+- [PR #62](https://github.com/zscaler/zpacloud-ansible/pull/62) Included new ZPA `policies` `object_types`. `RISK_FACTOR_TYPE` and `CHROME_ENTERPRISE`.
+
 ## 1.4.5 (February, 5 2025)
 
 ### Notes

@@ -12,7 +12,7 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.9"
-zscaler-sdk-python = ">=0.10.4"
+zscaler-sdk-python = ">=0.10.6"
 xmltodict = "^0.14.2"
 aiohttp = ">=3.10.11"
 dpath = "^2.1.5"
@@ -23,7 +23,7 @@ netaddr = ">=1.2.1"
 pycountry = ">=23.12.11"
 sphinx-ansible-theme = "^0.10.3"
 python-box = "^7.1.1"
-jinja2 = ">=3.0.0"
+jinja2 = ">=3.1.6"
 
 [tool.poetry.group.dev.dependencies]
 black = "24.3.0"

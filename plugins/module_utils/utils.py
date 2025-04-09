@@ -346,45 +346,6 @@ def normalize_policy(policy):
     return normalized
 
 
-
-# def normalize_policy(policy):
-#     normalized = policy.copy()
-
-#     # Exclude the computed values from the data
-#     computed_values = [
-#         "modified_time",
-#         "creation_time",
-#         "modified_by",
-#         "rule_order",
-#         "idp_id",
-#     ]
-#     for attr in computed_values:
-#         normalized.pop(attr, None)
-
-#     # # Normalize action attribute
-#     # if "action" in normalized:
-#     #     normalized["action"] = normalized["action"].upper()
-
-#     # Normalize action attribute
-#     if "action" in normalized and normalized["action"] is not None:
-#         normalized["action"] = normalized["action"].upper()
-#     elif "action" in normalized and normalized["action"] is None:
-#         normalized.pop("action", None)  # Remove 'action' key if the value is None
-
-#     # Remove IDs from conditions and operands but keep the main policy rule ID
-#     for condition in normalized.get("conditions", []):
-#         condition.pop("id", None)  # remove ID from condition
-#         for operand in condition.get("operands", []):
-#             operand.pop("id", None)  # remove ID from operand
-#             operand.pop("name", None)  # remove name from operand
-#             operand.pop("idp_id", None)  # remove idp_id from operand
-
-#             # Adjust the operand key from "objectType" to "object_type"
-#             if "objectType" in operand:
-#                 operand["object_type"] = operand.pop("objectType")
-
-#     return normalized
-
 def validate_operand(operand, module):
     def lhsWarn(object_type, expected, got, error=None):
         error_msg = f"Invalid LHS for '{object_type}'. Expected {expected}, but got '{got}'"
@@ -464,7 +425,6 @@ def validate_operand(operand, module):
         # lhs can only be 'managed'
         if lhs not in ["managed"]:
             return lhsWarn(object_type, "one of ['managed']", lhs)
-
 
     elif object_type == "RISK_FACTOR_TYPE":
         valid_risk_factors = ["UNKNOWN", "LOW", "MEDIUM", "HIGH", "CRITICAL"]

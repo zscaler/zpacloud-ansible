@@ -102,4 +102,5 @@ install:
 	ansible-galaxy collection install zscaler* --force
 	rm -f zscaler*
 
+
 .PHONY: clean-pyc clean-build docs clean local-setup

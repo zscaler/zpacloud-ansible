@@ -9,17 +9,37 @@ Releases
 Zscaler Private Access (ZPA) Ansible Collection Changelog
 ---------------------------------------------------------
 
-Version 1.4.5
+Version 1.4.6
 ==============
+
+1.4.6 (April, 8 2025)
+---------------------------
+
+Notes
+-----
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+Bug Fixes
+------------
+
+- (`#62 <https://github.com/zscaler/zpacloud-ansible/pull/62>`_) Upgraded to `Zscaler SDK Python v0.10.6`
+
+Enhancements
+-------------
+
+- (`#62 <https://github.com/zscaler/zpacloud-ansible/pull/62>`_) Included new ZPA `policies` `object_types`. `RISK_FACTOR_TYPE` and `CHROME_ENTERPRISE`.
 
 1.4.5 (February, 5 2025)
 ---------------------------
 
-### Notes
+Notes
+------
 
 - Python Versions: **v3.9, v3.10, v3.11**
 
-### Bug Fixes
+Bug Fixes
+------------
 
 * (`#58 <https://github.com/zscaler/zpacloud-ansible/pull/58>`_) Removed `ansible.cfg` from Ansible Automation Hub and Galaxy GitHub Actions workflow
 
@@ -27,11 +47,13 @@ Version 1.4.5
 1.4.5 (February, 5 2025)
 ---------------------------
 
-### Notes
+Notes
+------------
 
 - Python Versions: **v3.9, v3.10, v3.11**
 
-### Bug Fixes
+Bug Fixes
+------------
 
 * (`#57 <https://github.com/zscaler/zpacloud-ansible/pull/57>`_) Removed `ansible.cfg` from Ansible Automation Hub and Galaxy GitHub Actions workflow
 
@@ -39,11 +61,13 @@ Version 1.4.5
 1.4.4 (February, 5 2025)
 ---------------------------
 
-### Notes
+Notes
+------------
 
 - Python Versions: **v3.9, v3.10, v3.11**
 
-### Bug Fixes
+Bug Fixes
+------------
 
 * (`#57 <https://github.com/zscaler/zpacloud-ansible/pull/57>`_) Removed `ansible.cfg` from Ansible Automation Hub and Galaxy GitHub Actions workflow
 
@@ -51,11 +75,13 @@ Version 1.4.5
 1.4.3 (February, 1 2025)
 ---------------------------
 
-### Notes
+Notes
+------------
 
 - Python Versions: **v3.9, v3.10, v3.11**
 
-### Bug Fixes
+Bug Fixes
+------------
 
 * (`#55 <https://github.com/zscaler/zpacloud-ansible/pull/55>`_) Fixed drift issues with the attribute `domain_names` within the resources: `zpa_application_segment`, `zpa_application_segment_pra`, and `zpa_application_segment_inspection`.
 

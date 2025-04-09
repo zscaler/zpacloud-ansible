@@ -137,6 +137,8 @@ options:
               - MACHINE_GRP
               - COUNTRY_CODE
               - PLATFORM
+              - RISK_FACTOR_TYPE
+              - CHROME_ENTERPRISE
 """
 
 EXAMPLES = """
@@ -299,9 +301,9 @@ def core(module):
         for key, value in desired_policy.items():
             if key not in fields_to_exclude and current_policy.get(key) != value:
                 differences_detected = True
-                # module.warn(
-                #     f"Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}"
-                # )
+                module.warn(
+                    f"Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}"
+                )
 
     if existing_policy:
         desired_order = policy.get("rule_order")
@@ -309,7 +311,7 @@ def core(module):
         if desired_order and desired_order != current_order:
             try:
                 reordered_policy = client.policies.reorder_rule(
-                    policy_type="client_forwarding",
+                    policy_type="access",
                     rule_id=existing_policy["id"],
                     rule_order=desired_order,
                 )
@@ -448,6 +450,9 @@ def main():
                                 "MACHINE_GRP",
                                 "COUNTRY_CODE",
                                 "PLATFORM",
+                                "RISK_FACTOR_TYPE",
+                                "CHROME_ENTERPRISE"
+
                             ],
                         ),
                     ),
@@ -483,6 +488,8 @@ def main():
                     "MACHINE_GRP",
                     "COUNTRY_CODE",
                     "PLATFORM",
+                    "RISK_FACTOR_TYPE",
+                    "CHROME_ENTERPRISE"
                 ]
                 if (
                     object_type is None or object_type == ""

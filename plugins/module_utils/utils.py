@@ -151,21 +151,17 @@ def normalize_app(app):
         "check_control_deployment_status",
         "controls_facts",
         "lss_app_connector_group",
+        "clientless_app_ids",
     ]
     for attr in computed_values:
         normalized.pop(attr, None)
 
-    # Fix: Convert app_connector_groups to app_connector_group_ids
-    if "app_connector_groups" in app:
-        normalized["app_connector_group_ids"] = [
-            group["id"] for group in app["app_connector_groups"]
-        ]
+    if "domain_names" in normalized and isinstance(normalized["domain_names"], list):
+        normalized["domain_names"].sort()
 
-    # Fix: Convert clientless_apps to clientless_app_ids
-    # if "clientless_apps" in app:
-    #     normalized["clientless_app_ids"] = [
-    #         segment["id"] for segment in app["clientless_apps"]
-    #     ]
+    # Normalize app_connector_group_ids for proper comparison
+    if "app_connector_group_ids" in normalized:
+        normalized["app_connector_group_ids"] = sorted(normalized["app_connector_group_ids"])
 
     if "tcp_keep_alive" in normalized:
         normalized["tcp_keep_alive"] = convert_str_to_bool(normalized["tcp_keep_alive"])
@@ -313,6 +309,20 @@ def normalize_policy(policy):
     for attr in computed_values:
         normalized.pop(attr, None)
 
+    # Convert server's app_connector_groups to app_connector_group_ids
+    if "app_connector_groups" in normalized and isinstance(normalized["app_connector_groups"], list):
+        normalized["app_connector_group_ids"] = [
+            group["id"] for group in normalized["app_connector_groups"] if "id" in group
+        ]
+        del normalized["app_connector_groups"]
+
+    # Convert server's app_server_groups to app_server_group_ids
+    if "app_server_groups" in normalized and isinstance(normalized["app_server_groups"], list):
+        normalized["app_server_group_ids"] = [
+            group["id"] for group in normalized["app_server_groups"] if "id" in group
+        ]
+        del normalized["app_server_groups"]
+
     # Normalize action attribute
     if "action" in normalized and normalized["action"] is not None:
         normalized["action"] = normalized["action"].upper()
@@ -322,14 +332,12 @@ def normalize_policy(policy):
     # Remove IDs from conditions and operands but keep the main policy rule ID
     for condition in normalized.get("conditions", []):
         condition.pop("id", None)  # remove ID from condition
-        condition.pop(
-            "negated", None
-        )  # remove 'negated' as it is deprecated and can cause issues if not used
+        condition.pop("negated", None)  # remove 'negated' as it is deprecated
 
         for operand in condition.get("operands", []):
-            operand.pop("id", None)  # remove ID from operand
-            operand.pop("name", None)  # remove name from operand
-            operand.pop("idp_id", None)  # remove idp_id from operand
+            operand.pop("id", None)       # remove ID from operand
+            operand.pop("name", None)     # remove name from operand
+            operand.pop("idp_id", None)   # remove idp_id from operand
 
             # Adjust the operand key from "objectType" to "object_type"
             if "objectType" in operand:
@@ -338,66 +346,21 @@ def normalize_policy(policy):
     return normalized
 
 
-# def normalize_policy(policy):
-#     normalized = policy.copy()
-
-#     # Exclude the computed values from the data
-#     computed_values = [
-#         "modified_time",
-#         "creation_time",
-#         "modified_by",
-#         "rule_order",
-#         "idp_id",
-#     ]
-#     for attr in computed_values:
-#         normalized.pop(attr, None)
-
-#     # # Normalize action attribute
-#     # if "action" in normalized:
-#     #     normalized["action"] = normalized["action"].upper()
-
-#     # Normalize action attribute
-#     if "action" in normalized and normalized["action"] is not None:
-#         normalized["action"] = normalized["action"].upper()
-#     elif "action" in normalized and normalized["action"] is None:
-#         normalized.pop("action", None)  # Remove 'action' key if the value is None
-
-#     # Remove IDs from conditions and operands but keep the main policy rule ID
-#     for condition in normalized.get("conditions", []):
-#         condition.pop("id", None)  # remove ID from condition
-#         for operand in condition.get("operands", []):
-#             operand.pop("id", None)  # remove ID from operand
-#             operand.pop("name", None)  # remove name from operand
-#             operand.pop("idp_id", None)  # remove idp_id from operand
-
-#             # Adjust the operand key from "objectType" to "object_type"
-#             if "objectType" in operand:
-#                 operand["object_type"] = operand.pop("objectType")
-
-#     return normalized
-
-
 def validate_operand(operand, module):
     def lhsWarn(object_type, expected, got, error=None):
-        error_msg = (
-            "Invalid LHS for '{object_type}'. Expected {expected}, but got '{got}'"
-        )
+        error_msg = f"Invalid LHS for '{object_type}'. Expected {expected}, but got '{got}'"
         if error:
             error_msg += f". Error details: {error}"
         return error_msg
 
     def rhsWarn(object_type, expected, got, error=None):
-        error_msg = (
-            f"Invalid RHS for '{object_type}'. Expected {expected}, but got '{got}'"
-        )
+        error_msg = f"Invalid RHS for '{object_type}'. Expected {expected}, but got '{got}'"
         if error:
             error_msg += f". Error details: {error}"
         return error_msg
 
     def idpWarn(object_type, expected, got, error=None):
-        error_msg = (
-            f"Invalid IDP_ID for '{object_type}'. Expected {expected}, but got '{got}'"
-        )
+        error_msg = f"Invalid IDP_ID for '{object_type}'. Expected {expected}, but got '{got}'"
         if error:
             error_msg += f". Error details: {error}"
         return error_msg
@@ -407,14 +370,10 @@ def validate_operand(operand, module):
     rhs = operand.get("rhs")
     idp_id = operand.get("idp_id")
 
-    # Validate non-emptiness
-    if not object_type or not lhs or not rhs:
-        return "Object type, LHS, and RHS cannot be empty or None"
-
-    # Ensure lhs and rhs are strings
-    if not isinstance(lhs, str):
+    # Ensure lhs and rhs are strings for safety
+    if lhs is not None and not isinstance(lhs, str):
         lhs = str(lhs)
-    if not isinstance(rhs, str):
+    if rhs is not None and not isinstance(rhs, str):
         rhs = str(rhs)
 
     valid_object_types = [
@@ -430,18 +389,24 @@ def validate_operand(operand, module):
         "SCIM_GROUP",
         "SCIM",
         "SAML",
+        "RISK_FACTOR_TYPE",
+        "CHROME_ENTERPRISE"
     ]
 
     if object_type not in valid_object_types:
         return f"Invalid object type: {object_type}. Supported types are: {', '.join(valid_object_types)}"
 
     if object_type in ["APP", "APP_GROUP", "MACHINE_GRP", "EDGE_CONNECTOR_GROUP"]:
+        if not lhs:
+            return lhsWarn(object_type, "id", lhs)
         if lhs != "id":
             return lhsWarn(object_type, "id", lhs)
         if not rhs:
             return rhsWarn(object_type, "non-empty string", rhs)
 
     elif object_type in ["POSTURE", "TRUSTED_NETWORK"]:
+        if not lhs:
+            return lhsWarn(object_type, "non-empty string", lhs)
         if rhs not in ["true", "false"]:
             return rhsWarn(object_type, "one of ['true', 'false']", rhs)
 
@@ -452,6 +417,23 @@ def validate_operand(operand, module):
             return lhsWarn(
                 object_type, "one of ['linux', 'android', 'windows', 'ios', 'mac']", lhs
             )
+
+    elif object_type == "CHROME_ENTERPRISE":
+        # Expect rhs to be 'true' or 'false' (strings)
+        if rhs not in ["true", "false"]:
+            return rhsWarn(object_type, "one of ['true', 'false']", rhs)
+        # lhs can only be 'managed'
+        if lhs not in ["managed"]:
+            return lhsWarn(object_type, "one of ['managed']", lhs)
+
+    elif object_type == "RISK_FACTOR_TYPE":
+        valid_risk_factors = ["UNKNOWN", "LOW", "MEDIUM", "HIGH", "CRITICAL"]
+        # lhs can only be "ZIA"
+        if lhs not in ["ZIA"]:
+            return lhsWarn(object_type, "one of ['ZIA']", lhs)
+        # rhs must be one of the valid_risk_factors
+        if rhs not in valid_risk_factors:
+            return rhsWarn(object_type, f"one of {valid_risk_factors}", rhs)
 
     elif object_type == "COUNTRY_CODE":
         if rhs != "true":
@@ -465,6 +447,8 @@ def validate_operand(operand, module):
             )
 
     elif object_type == "CLIENT_TYPE":
+        if not lhs:
+            return lhsWarn(object_type, "id", lhs)
         if lhs != "id":
             return lhsWarn(object_type, "id", lhs)
         valid_client_types = [
@@ -482,29 +466,145 @@ def validate_operand(operand, module):
         if rhs not in valid_client_types:
             return rhsWarn(object_type, f"one of {valid_client_types}", rhs)
 
-    # New validation logic for SCIM_GROUP, SCIM, and SAML
-    if object_type in ["SCIM_GROUP", "SCIM", "SAML"]:
+    elif object_type in ["SCIM_GROUP", "SCIM", "SAML"]:
         if not lhs:
             return lhsWarn(object_type, "non-empty string", lhs)
         if not rhs:
             return rhsWarn(object_type, "non-empty string", rhs)
-        if not idp_id:  # Check if idp_id is empty or None
+        if not idp_id:
             return idpWarn(object_type, "non-empty string", idp_id)
 
-        # Specific validation for each object type
-        if object_type == "SCIM_GROUP":
-            # Add proper check for Identity Provider ID and SCIM Group ID if necessary
-            pass  # Placeholder for any additional validation logic needed for SCIM_GROUP
-
-        elif object_type == "SCIM":
-            # Add proper check for SCIM Attribute Header ID and SCIM Attribute Value if necessary
-            pass  # Placeholder for any additional validation logic needed for SCIM
-
-        elif object_type == "SAML":
-            # Add proper check for SAML Attribute ID and SAML Attribute Value if necessary
-            pass  # Placeholder for any additional validation logic needed for SAML
-
     return None
+
+
+# def validate_operand(operand, module):
+#     def lhsWarn(object_type, expected, got, error=None):
+#         error_msg = (
+#             "Invalid LHS for '{object_type}'. Expected {expected}, but got '{got}'"
+#         )
+#         if error:
+#             error_msg += f". Error details: {error}"
+#         return error_msg
+
+#     def rhsWarn(object_type, expected, got, error=None):
+#         error_msg = (
+#             f"Invalid RHS for '{object_type}'. Expected {expected}, but got '{got}'"
+#         )
+#         if error:
+#             error_msg += f". Error details: {error}"
+#         return error_msg
+
+#     def idpWarn(object_type, expected, got, error=None):
+#         error_msg = (
+#             f"Invalid IDP_ID for '{object_type}'. Expected {expected}, but got '{got}'"
+#         )
+#         if error:
+#             error_msg += f". Error details: {error}"
+#         return error_msg
+
+#     object_type = operand.get("object_type", "").upper()
+#     lhs = operand.get("lhs")
+#     rhs = operand.get("rhs")
+#     idp_id = operand.get("idp_id")
+
+#     # Validate non-emptiness
+#     if not object_type or not lhs or not rhs:
+#         return "Object type, LHS, and RHS cannot be empty or None"
+
+#     # Ensure lhs and rhs are strings
+#     if not isinstance(lhs, str):
+#         lhs = str(lhs)
+#     if not isinstance(rhs, str):
+#         rhs = str(rhs)
+
+#     valid_object_types = [
+#         "APP",
+#         "APP_GROUP",
+#         "MACHINE_GRP",
+#         "EDGE_CONNECTOR_GROUP",
+#         "POSTURE",
+#         "TRUSTED_NETWORK",
+#         "PLATFORM",
+#         "COUNTRY_CODE",
+#         "CLIENT_TYPE",
+#         "SCIM_GROUP",
+#         "SCIM",
+#         "SAML",
+#     ]
+
+#     if object_type not in valid_object_types:
+#         return f"Invalid object type: {object_type}. Supported types are: {', '.join(valid_object_types)}"
+
+#     if object_type in ["APP", "APP_GROUP", "MACHINE_GRP", "EDGE_CONNECTOR_GROUP"]:
+#         if lhs != "id":
+#             return lhsWarn(object_type, "id", lhs)
+#         if not rhs:
+#             return rhsWarn(object_type, "non-empty string", rhs)
+
+#     elif object_type in ["POSTURE", "TRUSTED_NETWORK"]:
+#         if rhs not in ["true", "false"]:
+#             return rhsWarn(object_type, "one of ['true', 'false']", rhs)
+
+#     elif object_type == "PLATFORM":
+#         if rhs != "true":
+#             return rhsWarn(object_type, "true", rhs)
+#         if lhs not in ["linux", "android", "windows", "ios", "mac"]:
+#             return lhsWarn(
+#                 object_type, "one of ['linux', 'android', 'windows', 'ios', 'mac']", lhs
+#             )
+
+#     elif object_type == "COUNTRY_CODE":
+#         if rhs != "true":
+#             return rhsWarn(object_type, "true", rhs)
+#         if not validate_iso3166_alpha2(lhs):
+#             return lhsWarn(
+#                 object_type,
+#                 "a valid ISO-3166 Alpha-2 country code",
+#                 lhs,
+#                 "Please visit the following site for reference: https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes",
+#             )
+
+#     elif object_type == "CLIENT_TYPE":
+#         if lhs != "id":
+#             return lhsWarn(object_type, "id", lhs)
+#         valid_client_types = [
+#             "zpn_client_type_exporter",
+#             "zpn_client_type_exporter_noauth",
+#             "zpn_client_type_browser_isolation",
+#             "zpn_client_type_machine_tunnel",
+#             "zpn_client_type_ip_anchoring",
+#             "zpn_client_type_edge_connector",
+#             "zpn_client_type_zapp",
+#             "zpn_client_type_slogger",
+#             "zpn_client_type_zapp_partner",
+#             "zpn_client_type_branch_connector",
+#         ]
+#         if rhs not in valid_client_types:
+#             return rhsWarn(object_type, f"one of {valid_client_types}", rhs)
+
+#     # New validation logic for SCIM_GROUP, SCIM, and SAML
+#     if object_type in ["SCIM_GROUP", "SCIM", "SAML"]:
+#         if not lhs:
+#             return lhsWarn(object_type, "non-empty string", lhs)
+#         if not rhs:
+#             return rhsWarn(object_type, "non-empty string", rhs)
+#         if not idp_id:  # Check if idp_id is empty or None
+#             return idpWarn(object_type, "non-empty string", idp_id)
+
+#         # Specific validation for each object type
+#         if object_type == "SCIM_GROUP":
+#             # Add proper check for Identity Provider ID and SCIM Group ID if necessary
+#             pass  # Placeholder for any additional validation logic needed for SCIM_GROUP
+
+#         elif object_type == "SCIM":
+#             # Add proper check for SCIM Attribute Header ID and SCIM Attribute Value if necessary
+#             pass  # Placeholder for any additional validation logic needed for SCIM
+
+#         elif object_type == "SAML":
+#             # Add proper check for SAML Attribute ID and SAML Attribute Value if necessary
+#             pass  # Placeholder for any additional validation logic needed for SAML
+
+#     return None
 
 
 def validate_iso3166_alpha2(country_code):

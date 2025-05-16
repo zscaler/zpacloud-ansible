@@ -169,53 +169,67 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
-
-
-from traceback import format_exc
-
-from ansible.module_utils._text import to_native
-from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
-    ZPAClientHelper,
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
 )
 
 
 def core(module):
     control_id = module.params.get("id")
     control_name = module.params.get("name")
-    version = module.params.get("version")
+    control_group = module.params.get("control_group")
     client = ZPAClientHelper(module)
-    controls = []
 
+    # Lookup by ID
     if control_id:
-        control_box = client.inspection.get_predef_control(control_id=control_id)
-        if not control_box:
+        result, _, error = client.app_protection.get_predef_control(
+            control_id=control_id
+        )
+        if error or not result:
             module.fail_json(
-                msg="Failed to retrieve App Protection Predefined Control ID: '{control_id}'"
+                msg=f"Failed to retrieve App Protection Predefined Control ID: '{control_id}'"
             )
-        controls = [control_box.to_dict()]
+        module.exit_json(
+            changed=False,
+            data=[result.as_dict() if hasattr(result, "as_dict") else result],
+        )
 
-    elif control_name:
-        try:
-            control = client.inspection.get_predef_control_by_name(
-                control_name, version
+    # Build query parameters for SDK
+    query_params = {}
+    if control_group:
+        query_params = {"search": "controlGroup", "search_field": control_group}
+
+    # Fetch all predefined controls (filtered via SDK if control_group used)
+    controls, _, err = client.app_protection.list_predef_controls(
+        query_params=query_params
+    )
+    if err:
+        module.fail_json(msg=f"Error retrieving predefined controls: {to_native(err)}")
+
+    # Optional local filtering by name (exact match)
+    if control_name:
+        match = next(
+            (c for c in controls if getattr(c, "name", None) == control_name), None
+        )
+        if not match:
+            available = [getattr(c, "name", "") for c in controls]
+            module.fail_json(
+                msg=f"Predefined control '{control_name}' not found. Available: {available}"
             )
-            controls = [control.to_dict()]
-        except ValueError as ve:
-            module.fail_json(msg=to_native(ve))
+        controls = [match]
 
-    else:
-        controls = client.inspection.list_predef_controls(version=version).to_list()
-
-    module.exit_json(changed=False, controls=controls)
+    module.exit_json(
+        changed=False,
+        data=[c.as_dict() if hasattr(c, "as_dict") else c for c in controls],
+    )
 
 
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
         name=dict(type="str", required=False),
-        version=dict(type="str", default="OWASP_CRS/3.3.0"),
         id=dict(type="str", required=False),
+        control_group=dict(type="str", required=False),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:

@@ -218,38 +218,57 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
-    idp_id = module.params.get("id", None)
-    idp_name = module.params.get("name", None)
-    state = module.params.get("state", None)  # Get the state parameter
     client = ZPAClientHelper(module)
 
-    if state == "gathered":
-        # Logic for the gathered state
-        idps = []
-        if idp_id is not None:
-            idp_box = client.idp.get_idp(idp_id=idp_id)
-            if idp_box is None:
-                module.fail_json(
-                    msg="Failed to retrieve Identity Provider ID: '%s'" % (idp_id)
-                )
-            idps = [idp_box.to_dict()]
-        else:
-            idps = client.idp.list_idps(pagesize=500).to_list()
-            if idp_name is not None:
-                idp_found = False
-                for idp in idps:
-                    if idp.get("name") == idp_name:
-                        idp_found = True
-                        idps = [idp]
-                if not idp_found:
-                    module.fail_json(
-                        msg="Failed to retrieve Identity Provider Name: '%s'"
-                        % (idp_name)
-                    )
-        module.exit_json(changed=False, idps=idps)
+    idp_id = module.params.get("id")
+    idp_name = module.params.get("name")
+    scim_enabled = module.params.get("scim_enabled")
+    user_attributes = module.params.get("user_attributes")
+
+    query_params = {}
+    if scim_enabled is not None:
+        query_params["scim_enabled"] = scim_enabled
+    if user_attributes is not None:
+        query_params["user_attributes"] = user_attributes
+
+    # If ID is specified, get a single IdP
+    if idp_id:
+        result, _, error = client.idp.get_idp(idp_id, query_params)
+        if error or result is None:
+            module.fail_json(
+                msg=f"Failed to retrieve Identity Provider ID '{idp_id}': {to_native(error)}"
+            )
+        module.exit_json(
+            changed=False,
+            data=[result.as_dict() if hasattr(result, "as_dict") else result],
+        )
+
+    # Fetch all IdPs with filters
+    idps, err = collect_all_items(client.idp.list_idps, query_params)
+    if err:
+        module.fail_json(msg=f"Error retrieving Identity Providers: {to_native(err)}")
+
+    result_list = [idp.as_dict() if hasattr(idp, "as_dict") else idp for idp in idps]
+
+    # If name is provided, filter it
+    if idp_name:
+        matched = next(
+            (idp for idp in result_list if idp.get("name") == idp_name), None
+        )
+        if not matched:
+            available = [idp.get("name") for idp in result_list]
+            module.fail_json(
+                msg=f"Identity Provider '{idp_name}' not found. Available: {available}"
+            )
+        result_list = [matched]
+
+    module.exit_json(changed=False, data=result_list)
 
 
 def main():
@@ -257,9 +276,8 @@ def main():
     argument_spec.update(
         name=dict(type="str", required=False),
         id=dict(type="str", required=False),
-        state=dict(
-            type="str", choices=["gathered"], default="gathered"
-        ),  # Add state parameter
+        scim_enabled=dict(type="bool", required=False),
+        user_attributes=dict(type="bool", required=False),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:

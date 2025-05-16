@@ -26,15 +26,15 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-DOCUMENTATION = r"""
+DOCUMENTATION = """
 ---
-module: zpa_policy_access_forwarding_rule
-short_description: Create a Policy Forwarding Rule.
+module: zpa_policy_access_rule_v2
+short_description: Create a Policy Access Rule
 description:
-  - This module will create, update or delete a specific Policy Forwarding Rule
+  - This module create/update/delete Create a Policy Access Rule
 author:
   - William Guilherme (@willguibr)
-version_added: "1.0.0"
+version_added: "2.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
 notes:
@@ -46,137 +46,112 @@ extends_documentation_fragment:
 
 options:
   id:
-    description: "The unique identifier of the policy set"
+    description: "The unique identifier of the policy rule."
     type: str
+    required: false
   name:
-    description: "The name of the forwarding rule"
     type: str
-    required: True
+    required: true
+    description:
+      - The name of the Privileged Credential Rule
   description:
-    description: "The description of the forwarding rule"
+    description:
+      - This is the description of the Privileged Credential Rule
     type: str
-    required: False
-  action:
-    description: "The action of the forwarding rule"
+    required: false
+  policy_type:
+    description: "The value for differentiating policy types."
     type: str
-    required: False
-    choices:
-      - INTERCEPT
-      - INTERCEPT_ACCESSIBLE
-      - BYPASS
-      - bypass
-      - intercept
-      - intercept_accessible
+    required: false
   rule_order:
     description: "The policy evaluation order number of the rule."
     type: str
     required: false
   operator:
-    description: "Denotes the operation type. These are operands used between criteria"
+    description:
+      - This denotes the operation type.
     type: str
     required: false
-    choices: ["AND", "OR"]
-  policy_type:
-    description: "Indicates the policy type. The following value is supported: client_forwarding"
+    choices:
+      - AND
+      - OR
+  zpn_isolation_profile_id:
+    description:
+      - The isolation profile ID associated with the rule.
     type: str
     required: false
   conditions:
-    description: "Specifies the set of conditions for the policy rule"
     type: list
     elements: dict
     required: false
+    description: "This is for providing the set of conditions for the policy"
     suboptions:
       operator:
-        description: "The operator of the condition set"
+        description: "The operation type. Supported values: AND, OR"
         type: str
-        required: True
+        required: false
         choices: ["AND", "OR"]
       operands:
-        description: "The operands of the condition set"
+        description: "The various policy criteria. Array of attributes (e.g., objectType, lhs, rhs, name)"
         type: list
         elements: dict
         required: false
         suboptions:
           idp_id:
-            description: "The unique identifier of the IdP"
+            description: "The ID information for the Identity Provider (IdP)"
             type: str
             required: false
           lhs:
-            description: "The key for the object type"
+            description: "The key for the object type. String ID example: id"
             type: str
             required: false
           rhs:
-            description: "The value for the given object type. Its value depends upon the key"
+            description: >
+                - The value for the given object type. Its value depends upon the key
+                - For APP, APP_GROUP, and IDP, the supported value is entity id
+                - For CLIENT_TYPE, the supported values are: zpn_client_type_zapp (for Zscaler Client Connector), zpn_client_type_exporter (for Clientless)
+                - For POSTURE, the supported values are: true (verified), false (verification failed)
+                - For TRUSTED_NETWORK, the supported value is true
             type: str
             required: false
           object_type:
-            description: "The object type of the operand"
+            description: >
+              - This is for specifying the policy criteria
+              - Supported values: APP, APP_GROUP, SAML, IDP, CLIENT_TYPE, POSTURE, TRUSTED_NETWORK, MACHINE_GRP, SCIM, SCIM_GROUP.
+              - POSTURE and TRUSTED_NETWORK values are only supported for the CLIENT_TYPE.
             type: str
             required: false
-            choices:
-              [
-                "APP",
-                "APP_GROUP",
-                "SAML",
-                "IDP",
-                "SCIM",
-                "SCIM_GROUP",
-                "CLIENT_TYPE",
-                "TRUSTED_NETWORK",
-                "MACHINE_GRP",
-                "POSTURE",
-                "PLATFORM",
-                "BRANCH_CONNECTOR_GROUP",
-                "EDGE_CONNECTOR_GROUP",
-              ]
 """
 
-EXAMPLES = r"""
-- name: Policy Forwarding Rule - Example
-  zscaler.zpacloud.zpa_policy_access_forwarding_rule:
+EXAMPLES = """
+- name: "Policy Isolation Rule - Example"
+  zscaler.zpacloud.zpa_policy_access_isolation_rule:
     provider: "{{ zpa_cloud }}"
-    name: "Policy Forwarding Rule - Example"
-    description: "Policy Forwarding Rule - Example"
-    action: "BYPASS"
+    name: "Policy Isolation Rule - Example"
+    description: "Policy Isolation Rule - Example"
+    action: "ISOLATE"
     rule_order: 1
     operator: "AND"
+    zpn_isolation_profile_id: "216196257331286656"
     conditions:
       - operator: "OR"
         operands:
-          - name: "app_segment"
-            object_type: "APP"
+          - object_type: "APP"
             lhs: "id"
             rhs: "216196257331292105"
-      - operator: "OR"
-        operands:
-          - name: "segment_group"
-            object_type: "APP_GROUP"
+          - object_type: "APP_GROUP"
             lhs: "id"
             rhs: "216196257331292103"
       - operator: "OR"
         operands:
-          - name: "zpn_client_type_exporter"
-            object_type: "CLIENT_TYPE"
-            lhs: "id"
-            rhs: "zpn_client_type_exporter"
-          - name: "zpn_client_type_browser_isolation"
-            object_type: "CLIENT_TYPE"
-            lhs: "id"
-            rhs: "zpn_client_type_browser_isolation"
-          - name: "zpn_client_type_zapp"
+          - name:
             object_type: "CLIENT_TYPE"
             lhs: "id"
             rhs: "zpn_client_type_zapp"
-      - operator: "OR"
-        operands:
-          - name: "CrowdStrike_ZPA_ZTA_80"
-            object_type: "POSTURE"
-            lhs: "{{ postures.data[0].posture_udid }}"
-            rhs: "false"
 """
 
-RETURN = r"""
-# The newly created access client forwarding policy rule resource record.
+RETURN = """
+# The newly created policy access isolation rule resource record.
 """
 
 from traceback import format_exc
@@ -184,9 +159,10 @@ from traceback import format_exc
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
-    map_conditions,
-    validate_operand,
-    normalize_policy,
+    map_conditions_v2,
+    normalize_policy_v2,
+    validate_operand_v2,
+    convert_conditions_v1_to_v2,
     collect_all_items,
     deleteNone,
 )
@@ -215,19 +191,21 @@ def core(module):
         "description": module.params.get("description"),
         "action": module.params.get("action"),
         "rule_order": module.params.get("rule_order"),
+        "app_connector_group_ids": module.params.get("app_connector_group_ids"),
+        "app_server_group_ids": module.params.get("app_server_group_ids"),
         "conditions": module.params.get("conditions"),
     }
 
     for condition in rule.get("conditions") or []:
         for operand in condition.get("operands", []):
-            validation_result = validate_operand(operand, module)
+            validation_result = validate_operand_v2(operand, module)
             if validation_result:
                 module.fail_json(msg=validation_result)
 
     existing_rule = None
     if rule_id:
         result, _, error = client.policies.get_rule(
-            policy_type="client_forwarding", rule_id=rule_id, query_params=query_params
+            policy_type="access", rule_id=rule_id, query_params=query_params
         )
         if error:
             module.fail_json(
@@ -237,25 +215,25 @@ def core(module):
         module.warn(f"Fetched existing rule: {existing_rule}")
     else:
         rules_list, error = collect_all_items(
-            lambda qp: client.policies.list_rules("client_forwarding", query_params=qp),
+            lambda qp: client.policies.list_rules("access", query_params=qp),
             query_params,
         )
         if error:
-            module.fail_json(msg=f"Error listing access rules: {to_native(error)}")
+            module.fail_json(msg=f"Error listing isolation rules: {to_native(error)}")
         for r in rules_list:
             if r.name == rule_name:
                 existing_rule = r.as_dict()
                 break
 
-    desired = normalize_policy(
-        {**rule, "conditions": map_conditions(rule.get("conditions", []))}
+    desired = normalize_policy_v2(
+        {**rule, "conditions": map_conditions_v2(rule.get("conditions", []))}
     )
 
     if existing_rule:
-        existing_rule["conditions"] = map_conditions(
-            existing_rule.get("conditions", [])
+        existing_rule["conditions"] = convert_conditions_v1_to_v2(
+            existing_rule.get("conditions", []), module=module
         )
-        current = normalize_policy(existing_rule)
+        current = normalize_policy_v2(existing_rule)
     else:
         current = {}
 
@@ -272,16 +250,16 @@ def core(module):
         if isinstance(current_value, list) and not current_value:
             current_value = []
 
-    if str(desired_value) != str(current_value):
-        differences_detected = True
-        module.warn(
-            f"Drift detected in '{key}': desired=({type(desired_value).__name__}) {desired_value} | "
-            f"current=({type(current_value).__name__}) {current_value}"
-        )
+        if str(desired_value) != str(current_value):
+            differences_detected = True
+            module.warn(
+                f"Drift detected in '{key}': desired=({type(desired_value).__name__}) {desired_value} | "
+                f"current=({type(current_value).__name__}) {current_value}"
+            )
 
-    if key == "conditions":
-        module.warn(f"→ Desired: {json.dumps(desired_value, indent=2)}")
-        module.warn(f"→ Current: {json.dumps(current_value, indent=2)}")
+        if key == "conditions":
+            module.warn(f"→ Desired: {json.dumps(desired_value, indent=2)}")
+            module.warn(f"→ Current: {json.dumps(current_value, indent=2)}")
 
     # Reorder if specified
     if existing_rule and rule.get("rule_order"):
@@ -290,7 +268,7 @@ def core(module):
         if desired_order != current_order:
             try:
                 _, _, error = client.policies.reorder_rule(
-                    policy_type="client_forwarding",
+                    policy_type="access",
                     rule_id=existing_rule["id"],
                     rule_order=desired_order,
                 )
@@ -308,11 +286,10 @@ def core(module):
         else:
             module.exit_json(changed=False)
 
-    # Update or create
     if state == "present":
         if existing_rule and differences_detected:
             """Update"""
-            update_data = deleteNone(
+            update_rule = deleteNone(
                 {
                     "rule_id": existing_rule["id"],
                     "microtenant_id": rule["microtenant_id"],
@@ -320,47 +297,53 @@ def core(module):
                     "description": rule["description"],
                     "action": rule["action"],
                     "rule_order": rule["rule_order"],
-                    "conditions": map_conditions(rule["conditions"]),
+                    "access": rule["access"],
+                    "app_connector_group_ids": rule["app_connector_group_ids"],
+                    "app_server_group_ids": rule["app_server_group_ids"],
+                    "conditions": map_conditions_v2(rule["conditions"]),
                 }
             )
-            module.warn(f"Update payload to SDK: {update_data}")
-            result, _, error = client.policies.update_client_forwarding_rule(
-                **update_data
+            module.warn(f"Payload Update for SDK: {update_rule}")
+            updated_group, _, error = client.policies.update_access_rule_v2(
+                rule_id=update_rule.pop("rule_id"), **update_rule
             )
             if error:
                 module.fail_json(msg=f"Error updating rule: {to_native(error)}")
-            module.exit_json(changed=True, data=result.as_dict())
-
-        elif not existing_rule:
-            """Create"""
-            create_data = deleteNone(
-                {
-                    "microtenant_id": rule["microtenant_id"],
-                    "name": rule["name"],
-                    "description": rule["description"],
-                    "action": rule["action"],
-                    "rule_order": rule["rule_order"],
-                    "conditions": map_conditions(rule["conditions"]),
-                }
-            )
-            module.warn(f"Create payload to SDK: {create_data}")
-            result, _, error = client.policies.add_client_forwarding_rule(**create_data)
-            if error:
-                module.fail_json(msg=f"Error creating rule: {to_native(error)}")
-            module.exit_json(changed=True, data=result.as_dict())
-
+            module.exit_json(changed=True, data=updated_group.as_dict())
         else:
             module.exit_json(changed=False, data=existing_rule)
 
-    elif state == "absent" and existing_rule:
-        _, _, error = client.policies.delete_rule(
-            policy_type="client_forwarding", rule_id=existing_rule["id"]
-        )
-        if error:
-            module.fail_json(msg=f"Error deleting rule: {to_native(error)}")
-        module.exit_json(changed=True, data=existing_rule)
+    elif state == "absent":
+        if existing_rule:
+            _, _, error = client.policies.delete_rule(
+                rule_id=existing_rule.get("id"),
+                microtenant_id=microtenant_id,
+            )
+            if error:
+                module.fail_json(msg=f"Error deleting rule: {to_native(error)}")
+            module.exit_json(changed=True, data=existing_rule)
 
-    module.exit_json(changed=False)
+    else:
+        """Create"""
+        create_rule = deleteNone(
+            {
+                "microtenant_id": rule["microtenant_id"],
+                "name": rule["name"],
+                "description": rule["description"],
+                "action": rule["action"],
+                "rule_order": rule["rule_order"],
+                "app_connector_group_ids": rule["app_connector_group_ids"],
+                "app_server_group_ids": rule["app_server_group_ids"],
+                "conditions": map_conditions_v2(rule["conditions"]),
+            }
+        )
+        module.warn("Payload Update for SDK: {}".format(create_rule))
+        created, _, error = client.policies.add_access_rule_v2(**create_rule)
+        if error:
+            module.fail_json(msg=f"Error creating rule: {to_native(error)}")
+        module.exit_json(changed=True, data=created.as_dict())
+
+    module.exit_json(changed=False, data={})
 
 
 def main():
@@ -371,50 +354,43 @@ def main():
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
         policy_type=dict(type="str", required=False),
+        operator=dict(type="str", required=False, choices=["AND", "OR"]),
+        rule_order=dict(type="str", required=False),
+        app_connector_group_ids=dict(type="list", elements="str", required=False),
+        app_server_group_ids=dict(type="list", elements="str", required=False),
         action=dict(
             type="str",
             required=False,
             choices=[
-                "BYPASS",
-                "INTERCEPT",
-                "INTERCEPT_ACCESSIBLE",
-                "bypass",
-                "intercept",
-                "intercept_accessible",
+                "ALLOW",
+                "DENY",
+                "REQUIRE_APPROVAL",
+                "allow",
+                "deny",
+                "require_approval",
             ],
         ),
-        operator=dict(type="str", required=False, choices=["AND", "OR"]),
-        rule_order=dict(type="str", required=False),
         conditions=dict(
             type="list",
             elements="dict",
             options=dict(
-                operator=dict(type="str", required=True, choices=["AND", "OR"]),
+                operator=dict(type="str", required=False, choices=["AND", "OR"]),
                 operands=dict(
                     type="list",
                     elements="dict",
                     options=dict(
-                        idp_id=dict(type="str", required=False),
-                        lhs=dict(type="str", required=False),
-                        rhs=dict(type="str", required=False),
+                        values=dict(type="list", elements="str", required=False),
+                        entry_values=dict(
+                            type="dict",
+                            required=False,
+                            options=dict(
+                                lhs=dict(type="str", required=False),
+                                rhs=dict(type="str", required=False),
+                            ),
+                        ),
                         object_type=dict(
                             type="str",
                             required=False,
-                            choices=[
-                                "APP",
-                                "APP_GROUP",
-                                "CLIENT_TYPE",
-                                "BRANCH_CONNECTOR_GROUP",
-                                "EDGE_CONNECTOR_GROUP",
-                                "POSTURE",
-                                "MACHINE_GRP",
-                                "TRUSTED_NETWORK",
-                                "PLATFORM",
-                                "IDP",
-                                "SAML",
-                                "SCIM",
-                                "SCIM_GROUP",
-                            ],
                         ),
                     ),
                     required=False,
@@ -434,16 +410,7 @@ def main():
             for operand in operands:
                 object_type = operand.get("object_type")
                 valid_object_types = [
-                    "APP",
-                    "APP_GROUP",
-                    "CLIENT_TYPE",
-                    "BRANCH_CONNECTOR_GROUP",
-                    "EDGE_CONNECTOR_GROUP",
-                    "POSTURE",
-                    "MACHINE_GRP",
-                    "TRUSTED_NETWORK",
-                    "PLATFORM",
-                    "IDP",
+                    "CONSOLE",
                     "SAML",
                     "SCIM",
                     "SCIM_GROUP",

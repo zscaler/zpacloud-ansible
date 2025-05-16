@@ -92,15 +92,20 @@ old-sanity:		## Sanity tests for Ansible v2.9 and Ansible v2.10
 new-sanity:		## Sanity tests for Ansible v2.11 and above
 	ansible-test sanity -v --skip-test pylint --python $(python_version)
 
+.PHONY: new-sanity-docker
+new-sanity-docker:
+	ansible-test sanity --docker default -v
+
 .PHONY: reqs
 reqs:       ## Recreate the requirements.txt file
-	poetry export -f requirements.txt --output requirements.txt
+	poetry export -f requirements.txt --output requirements.txt --only=main --without-hashes
+	poetry run python ./.github/update-requirements.py
 
 install:
 	rm -f zscaler*
 	ansible-galaxy collection build . --force
 	ansible-galaxy collection install zscaler* --force
+	sudo cp -R /Users/wguilherme/ansible_collections/zscaler/ziacloud /Users/wguilherme/ansible_collections/zscaler/ziacloud /Users/wguilherme/.pyenv/versions/3.11.8/lib/python3.11/site-packages/ansible_collections/zscaler
 	rm -f zscaler*
-
 
 .PHONY: clean-pyc clean-build docs clean local-setup

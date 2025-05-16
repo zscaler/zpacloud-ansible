@@ -137,34 +137,47 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
-    server_id = module.params.get("id", None)
-    server_name = module.params.get("name", None)
     client = ZPAClientHelper(module)
-    servers = []
-    if server_id is not None:
-        server_box = client.servers.get_server(server_id=server_id)
-        if server_box is None:
+
+    server_id = module.params.get("id")
+    server_name = module.params.get("name")
+    microtenant_id = module.params.get("microtenant_id")
+
+    query_params = {}
+    if microtenant_id:
+        query_params["microtenant_id"] = microtenant_id
+
+    if server_id:
+        result, _, error = client.servers.get_server(server_id, query_params)
+        if error or result is None:
             module.fail_json(
-                msg="Failed to retrieve Application Server ID: '%s'" % (server_id)
+                msg=f"Failed to retrieve Application Server ID '{server_id}': {to_native(error)}"
             )
-        servers = [server_box.to_dict()]
-    else:
-        servers = client.servers.list_servers(pagesize=500).to_list()
-        if server_name is not None:
-            server_found = False
-            for server in servers:
-                if server.get("name") == server_name:
-                    server_found = True
-                    servers = [server]
-            if not server_found:
-                module.fail_json(
-                    msg="Failed to retrieve Application Server Name: '%s'"
-                    % (server_name)
-                )
-    module.exit_json(changed=False, servers=servers)
+        module.exit_json(changed=False, groups=[result.as_dict()])
+
+    # If no ID, we fetch all
+    server_list, err = collect_all_items(client.servers.list_servers, query_params)
+    if err:
+        module.fail_json(msg=f"Error retrieving Application Servers: {to_native(err)}")
+
+    result_list = [g.as_dict() for g in server_list]
+
+    if server_name:
+        matched = next((g for g in result_list if g.get("name") == server_name), None)
+        if not matched:
+            available = [g.get("name") for g in result_list]
+            module.fail_json(
+                msg=f"Application Server '{server_name}' not found. Available: {available}"
+            )
+        result_list = [matched]
+
+    module.exit_json(changed=False, groups=result_list)
 
 
 def main():
@@ -172,6 +185,7 @@ def main():
     argument_spec.update(
         name=dict(type="str", required=False),
         id=dict(type="str", required=False),
+        microtenant_id=dict(type="str", required=False),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:

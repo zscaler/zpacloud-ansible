@@ -208,37 +208,52 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
-    certificate_id = module.params.get("id", None)
-    certificate_name = module.params.get("name", None)
     client = ZPAClientHelper(module)
-    certificates = []
-    if certificate_id is not None:
-        certificate_box = client.certificates.get_enrolment(
-            certificate_id=certificate_id
+
+    certificate_id = module.params.get("id")
+    certificate_name = module.params.get("name")
+
+    query_params = {}
+
+    if certificate_id:
+        result, _, error = client.enrollment_certificates.get_enrolment(
+            certificate_id, query_params
         )
-        if certificate_box is None:
+        if error or result is None:
             module.fail_json(
-                msg="Failed to retrieve Enrollment Certificate ID: '%s'"
-                % (certificate_id)
+                msg=f"Failed to retrieve Enrollment Certificate ID '{certificate_id}': {to_native(error)}"
             )
-        certificates = [certificate_box.to_dict()]
-    else:
-        certificates = client.certificates.list_enrolment(pagesize=500).to_list()
-        if certificate_name is not None:
-            certificate_found = False
-            for certificate in certificates:
-                if certificate.get("name") == certificate_name:
-                    certificate_found = True
-                    certificates = [certificate]
-            if not certificate_found:
-                module.fail_json(
-                    msg="Failed to retrieve Enrollment Certificate Name: '%s'"
-                    % (certificate_name)
-                )
-    module.exit_json(changed=False, certificates=certificates)
+        module.exit_json(changed=False, groups=[result.as_dict()])
+
+    # If no ID, we fetch all
+    cert_list, err = collect_all_items(
+        client.enrollment_certificates.list_enrolment, query_params
+    )
+    if err:
+        module.fail_json(
+            msg=f"Error retrieving Enrollment Certificates: {to_native(err)}"
+        )
+
+    result_list = [g.as_dict() for g in cert_list]
+
+    if certificate_name:
+        matched = next(
+            (g for g in result_list if g.get("name") == certificate_name), None
+        )
+        if not matched:
+            available = [g.get("name") for g in result_list]
+            module.fail_json(
+                msg=f"Enrollment Certificate '{certificate_name}' not found. Available: {available}"
+            )
+        result_list = [matched]
+
+    module.exit_json(changed=False, groups=result_list)
 
 
 def main():

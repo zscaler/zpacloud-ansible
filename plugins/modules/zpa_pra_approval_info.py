@@ -162,52 +162,61 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
 def core(module):
     client = ZPAClientHelper(module)
 
-    portal_id = module.params.get("id")
-    portal_name = module.params.get("name")
+    approval_id = module.params.get("id")
+    email_id = module.params.get("email_id")
     microtenant_id = module.params.get("microtenant_id")
+    sort_by = module.params.get("sort_by")
+    sort_dir = module.params.get("sort_dir")
 
+    # Construct query parameters
     query_params = {}
     if microtenant_id:
         query_params["microtenant_id"] = microtenant_id
+    if sort_by:
+        query_params["sort_by"] = sort_by
+    if sort_dir:
+        query_params["sort_dir"] = sort_dir
 
-    if portal_id:
-        result, _, error = client.pra_portal.get_portal(portal_id, query_params)
+    # 🔥 Strict search syntax: "emailIds+EQ+<email>"
+    if email_id:
+        query_params["search"] = f"emailIds+EQ+{email_id}"
+
+    # Lookup by ID
+    if approval_id:
+        result, _, error = client.pra_approval.get_approval(approval_id, query_params)
         if error or result is None:
             module.fail_json(
-                msg=f"Failed to retrieve PRA Portal ID '{portal_id}': {to_native(error)}"
+                msg=f"Failed to retrieve PRA Approval ID '{approval_id}': {to_native(error)}"
             )
-        module.exit_json(changed=False, groups=[result.as_dict()])
+        module.exit_json(
+            changed=False,
+            data=[result.as_dict() if hasattr(result, "as_dict") else result],
+        )
 
-    # Warn log before pagination call
-    module.warn(f"[PRA Portal] Fetching all portals with query_params: {query_params}")
-
-    # If no ID, we fetch all
-    portal_list, err = collect_all_items(client.pra_portal.list_portals, query_params)
+    # Fetch all (filtered or not)
+    module.warn(
+        f"[PRA Approval] Fetching all approvals with query_params: {query_params}"
+    )
+    approval_list, err = collect_all_items(
+        client.pra_approval.list_approval, query_params
+    )
     if err:
-        module.fail_json(msg=f"Error retrieving PRA Portals: {to_native(err)}")
+        module.fail_json(msg=f"Error retrieving PRA Approvals: {to_native(err)}")
 
-    module.warn(f"[PRA Portal] Total portals retrieved: {len(portal_list)}")
+    module.warn(f"[PRA Approval] Total approvals retrieved: {len(approval_list)}")
 
-    result_list = [g.as_dict() for g in portal_list]
-
-    if portal_name:
-        matched = next((g for g in result_list if g.get("name") == portal_name), None)
-        if not matched:
-            available = [g.get("name") for g in result_list]
-            module.fail_json(
-                msg=f"PRA Portal '{portal_name}' not found. Available: {available}"
-            )
-        result_list = [matched]
-
-    module.exit_json(changed=False, groups=result_list)
+    result_list = [a.as_dict() if hasattr(a, "as_dict") else a for a in approval_list]
+    module.exit_json(changed=False, data=result_list)
 
 
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
-        name=dict(type="str", required=False),
         id=dict(type="str", required=False),
+        email_id=dict(type="str", required=False),
         microtenant_id=dict(type="str", required=False),
+        sort_by=dict(type="str", required=False),
+        sort_dir=dict(type="str", required=False, choices=["ASC", "DESC"]),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:

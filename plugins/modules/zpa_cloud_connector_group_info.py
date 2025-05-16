@@ -83,34 +83,48 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
-    group_id = module.params.get("id", None)
-    group_name = module.params.get("name", None)
     client = ZPAClientHelper(module)
-    groups = []
-    if group_id is not None:
-        group_box = client.cloud_connector_groups.get_group(group_id=group_id)
-        if group_box is None:
+
+    group_id = module.params.get("id")
+    group_name = module.params.get("name")
+
+    query_params = {}
+
+    if group_id:
+        result, _, error = client.cloud_connector_groups.get_cloud_connector_groups(
+            group_id, query_params
+        )
+        if error or result is None:
             module.fail_json(
-                msg="Failed to retrieve Cloud Connector Group ID: '%s'" % (group_id)
+                msg=f"Failed to retrieve Cloud Connector ID '{group_id}': {to_native(error)}"
             )
-        groups = [group_box.to_dict()]
-    else:
-        groups = client.cloud_connector_groups.list_groups(pagesize=500).to_list()
-        if group_name is not None:
-            group_found = False
-            for group in groups:
-                if group.get("name") == group_name:
-                    group_found = True
-                    groups = [group]
-            if not group_found:
-                module.fail_json(
-                    msg="Failed to retrieve Cloud Connector Group Name: '%s'"
-                    % (group_name)
-                )
-    module.exit_json(changed=False, groups=groups)
+        module.exit_json(changed=False, groups=[result.as_dict()])
+
+    # If no ID, we fetch all
+    cert_list, err = collect_all_items(
+        client.cloud_connector_groups.list_cloud_connector_groups, query_params
+    )
+    if err:
+        module.fail_json(msg=f"Error retrieving Cloud Connectors: {to_native(err)}")
+
+    result_list = [g.as_dict() for g in cert_list]
+
+    if group_name:
+        matched = next((g for g in result_list if g.get("name") == group_name), None)
+        if not matched:
+            available = [g.get("name") for g in result_list]
+            module.fail_json(
+                msg=f"Cloud Connector '{group_name}' not found. Available: {available}"
+            )
+        result_list = [matched]
+
+    module.exit_json(changed=False, groups=result_list)
 
 
 def main():

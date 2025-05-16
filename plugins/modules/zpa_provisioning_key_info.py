@@ -165,45 +165,74 @@ from traceback import format_exc
 
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
 
 
 def core(module):
-    provisioning_key_id = module.params.get("id", None)
-    provisioning_key_name = module.params.get("name", None)
-    key_type = module.params.get("key_type", None)
-    client = ZPAClientHelper(module)
-    provisioning_keys = []
+    provisioning_key_id = module.params.get("id")
+    provisioning_key_name = module.params.get("name")
+    key_type = module.params.get("key_type")
 
-    if provisioning_key_id is not None:
-        key_box = client.provisioning.get_provisioning_key(
+    if not key_type:
+        module.fail_json(
+            msg="Parameter 'key_type' is required (e.g., 'connector' or 'service_edge')."
+        )
+
+    client = ZPAClientHelper(module)
+
+    # Get provisioning key by ID
+    if provisioning_key_id:
+        result, _, error = client.provisioning.get_provisioning_key(
             key_id=provisioning_key_id, key_type=key_type
         )
-        if not key_box:
+        if error or not result:
             module.fail_json(
-                msg="Failed to retrieve App Connector ID: '%s'" % provisioning_key_id
+                msg=f"Failed to retrieve Provisioning Key ID: '{provisioning_key_id}'"
             )
-        provisioning_keys = [key_box.to_dict()]
-    else:
-        all_keys = client.provisioning.list_provisioning_keys(
-            key_type=key_type, pagesize=500
-        ).to_list()
+        module.exit_json(
+            changed=False,
+            data=[result.as_dict() if hasattr(result, "as_dict") else result],
+        )
 
-        if provisioning_key_name:
-            provisioning_keys = [
-                key for key in all_keys if key.get("name") == provisioning_key_name
-            ]
-            if not provisioning_keys:
-                module.fail_json(
-                    msg="Failed to retrieve App Connector Name: '%s'"
-                    % provisioning_key_name
-                )
-        else:
-            provisioning_keys = all_keys
+    # Build query parameters for list
+    query_params = {}
+    if provisioning_key_name:
+        query_params["search"] = provisioning_key_name
 
-    module.exit_json(changed=False, provisioning_keys=provisioning_keys)
+    # List provisioning keys
+    module.warn(
+        f"[Provisioning Key] Fetching keys of type '{key_type}' with params: {query_params}"
+    )
+    keys, err = collect_all_items(
+        lambda qp: client.provisioning.list_provisioning_keys(
+            key_type=key_type, query_params=qp
+        ),
+        query_params,
+    )
+    if err:
+        module.fail_json(msg=f"Error retrieving provisioning keys: {to_native(err)}")
+
+    module.warn(f"[Provisioning Key] Total keys retrieved: {len(keys)}")
+
+    # Optional filtering by name after retrieval (case-sensitive exact match)
+    if provisioning_key_name:
+        filtered = [
+            k for k in keys if getattr(k, "name", None) == provisioning_key_name
+        ]
+        if not filtered:
+            available = [getattr(k, "name", None) for k in keys]
+            module.fail_json(
+                msg=f"Provisioning Key '{provisioning_key_name}' not found. Available: {available}"
+            )
+        keys = filtered
+
+    result = [k.as_dict() if hasattr(k, "as_dict") else k for k in keys]
+    module.exit_json(changed=False, data=result)
 
 
 def main():

@@ -29,9 +29,9 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: zpa_policy_access_app_protection_rule
-short_description: Create a Policy App Protection Rule in the ZPA Cloud.
+short_description: Create a Policy App Protection Rule.
 description:
-  - This module create/update/delete a Policy Isolation Rule in the ZPA Cloud.
+  - This module create/update/delete a app protection Rule.
 author:
   - William Guilherme (@willguibr)
 version_added: "1.0.0"
@@ -175,161 +175,174 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     map_conditions,
     normalize_policy,
     validate_operand,
+    collect_all_items,
     deleteNone,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+import json
 
 
 def core(module):
     state = module.params.get("state", "present")
     client = ZPAClientHelper(module)
-    policy_rule_id = module.params.get("id", None)
-    policy_rule_name = module.params.get("name", None)
-    policy = dict()
-    params = [
-        "id",
-        "name",
-        "description",
-        "policy_type",
-        "rule_order",
-        "action",
-        "operator",
-        "zpn_inspection_profile_id",
-        "conditions",
-    ]
 
-    for param_name in params:
-        policy[param_name] = module.params.get(param_name, None)
+    rule_id = module.params.get("id")
+    rule_name = module.params.get("name")
 
-    conditions = module.params.get("conditions") or []
+    query_params = {}
 
-    # Validate each operand in the conditions
-    for condition in conditions:
-        operands = condition.get("operands", [])
-        for operand in operands:
+    rule = {
+        "id": module.params.get("id"),
+        "microtenant_id": module.params.get("microtenant_id"),
+        "name": module.params.get("name"),
+        "description": module.params.get("description"),
+        "action": module.params.get("action"),
+        "rule_order": module.params.get("rule_order"),
+        "zpn_inspection_profile_id": module.params.get("zpn_inspection_profile_id"),
+        "conditions": module.params.get("conditions"),
+    }
+
+    for condition in rule.get("conditions") or []:
+        for operand in condition.get("operands", []):
             validation_result = validate_operand(operand, module)
             if validation_result:
-                module.fail_json(
-                    msg=validation_result
-                )  # Fail if validation returns a warning or error message
+                module.fail_json(msg=validation_result)
 
-    existing_policy = None
-    if policy_rule_id is not None:
-        existing_policy = client.policies.get_rule(
-            policy_type="inspection", rule_id=policy_rule_id
+    existing_rule = None
+    if rule_id:
+        result, _, error = client.policies.get_rule(
+            policy_type="inspection", rule_id=rule_id, query_params=query_params
         )
-    elif policy_rule_name is not None:
-        rules = client.policies.list_rules(policy_type="inspection").to_list()
-        for rule in rules:
-            if rule.get("name") == policy_rule_name:
-                existing_policy = rule
+        if error:
+            module.fail_json(
+                msg=f"Error retrieving rule with id {rule_id}: {to_native(error)}"
+            )
+        existing_rule = result.as_dict()
+        module.warn(f"Fetched existing rule: {existing_rule}")
+    else:
+        rules_list, error = collect_all_items(
+            lambda qp: client.policies.list_rules("inspection"),
+        )
+        if error:
+            module.fail_json(msg=f"Error listing inspection rules: {to_native(error)}")
+        for r in rules_list:
+            if r.name == rule_name:
+                existing_rule = r.as_dict()
                 break
 
-    if existing_policy is not None:
-        # Normalize both policies' conditions
-        policy["conditions"] = map_conditions(policy.get("conditions", []))
-        existing_policy["conditions"] = map_conditions(
-            existing_policy.get("conditions", [])
+    desired = normalize_policy(
+        {**rule, "conditions": map_conditions(rule.get("conditions", []))}
+    )
+
+    if existing_rule:
+        existing_rule["conditions"] = map_conditions(
+            existing_rule.get("conditions", [])
+        )
+        current = normalize_policy(existing_rule)
+    else:
+        current = {}
+
+    differences_detected = False
+    for key in desired:
+        if key in ["id", "policy_type"]:
+            continue
+
+        desired_value = desired.get(key)
+        current_value = current.get(key)
+
+        if isinstance(desired_value, list) and not desired_value:
+            desired_value = []
+        if isinstance(current_value, list) and not current_value:
+            current_value = []
+
+    if str(desired_value) != str(current_value):
+        differences_detected = True
+        module.warn(
+            f"Drift detected in '{key}': desired=({type(desired_value).__name__}) {desired_value} | "
+            f"current=({type(current_value).__name__}) {current_value}"
         )
 
-        desired_policy = normalize_policy(policy)
-        current_policy = normalize_policy(existing_policy)
+    if key == "conditions":
+        module.warn(f"→ Desired: {json.dumps(desired_value, indent=2)}")
+        module.warn(f"→ Current: {json.dumps(current_value, indent=2)}")
 
-        fields_to_exclude = ["id", "policy_type"]
-        differences_detected = False
-        for key, value in desired_policy.items():
-            if key not in fields_to_exclude and current_policy.get(key) != value:
-                differences_detected = True
-                # module.warn(
-                #     f"Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}"
-                # )
-
-    if existing_policy:
-        desired_order = policy.get("rule_order")
-        current_order = str(existing_policy.get("order", ""))
-        if desired_order and desired_order != current_order:
+    # Reorder if specified
+    if existing_rule and rule.get("rule_order"):
+        current_order = str(existing_rule.get("order", ""))
+        desired_order = str(rule["rule_order"])
+        if desired_order != current_order:
             try:
-                reordered_policy = client.policies.reorder_rule(
-                    policy_type="client_forwarding",
-                    rule_id=existing_policy["id"],
+                _, _, error = client.policies.reorder_rule(
+                    policy_type="inspection",
+                    rule_id=existing_rule["id"],
                     rule_order=desired_order,
                 )
-                if reordered_policy:
-                    module.warn("Reordered rule to new order: {}".format(desired_order))
-                else:
-                    module.fail_json(msg="Failed to reorder rule, no policy returned.")
+                if error:
+                    module.fail_json(msg=f"Error reordering rule: {to_native(error)}")
+                module.warn(f"Reordered rule to order {desired_order}")
             except Exception as e:
-                module.fail_json(msg="Failed to reorder rule: {}".format(str(e)))
+                module.fail_json(msg=f"Failed to reorder rule: {to_native(e)}")
 
     if module.check_mode:
-        # If in check mode, report changes and exit
-        if state == "present" and (existing_policy is None or differences_detected):
+        if state == "present" and (not existing_rule or differences_detected):
             module.exit_json(changed=True)
-        elif state == "absent" and existing_policy is not None:
+        elif state == "absent" and existing_rule:
             module.exit_json(changed=True)
         else:
             module.exit_json(changed=False)
 
-    if existing_policy is not None:
-        id = existing_policy.get("id")
-        existing_policy.update(policy)
-        existing_policy["id"] = id
-
     if state == "present":
-        if existing_policy is not None and differences_detected:
+        if existing_rule and differences_detected:
             """Update"""
-            updated_policy = {
-                "policy_type": "inspection",
-                "rule_id": existing_policy.get("id", None),
-                "name": existing_policy.get("name", None),
-                "description": existing_policy.get("description", None),
-                "rule_order": existing_policy.get("rule_order", None),
-                "action": (
-                    existing_policy.get("action", "").upper()
-                    if existing_policy.get("action")
-                    else None
-                ),
-                "zpn_inspection_profile_id": existing_policy.get(
-                    "zpn_inspection_profile_id", None
-                ),
-                "conditions": map_conditions(existing_policy.get("conditions", [])),
-            }
-
-            cleaned_policy = deleteNone(updated_policy)
-            updated_policy = client.policies.update_rule(**cleaned_policy)
-            module.exit_json(changed=True, data=updated_policy)
-        elif existing_policy is None:
-            """Create"""
-            new_policy = {
-                "name": policy.get("name", None),
-                "description": policy.get("description", None),
-                "rule_order": policy.get("rule_order", None),
-                "action": (
-                    policy.get("action", "").upper() if policy.get("action") else None
-                ),
-                "zpn_inspection_profile_id": policy.get(
-                    "zpn_inspection_profile_id", None
-                ),
-                "conditions": map_conditions(policy.get("conditions", [])),
-            }
-            module.warn(
-                "zpn_inspection_profile_id: {policy.get('zpn_inspection_profile_id', None)}"
+            update_data = deleteNone(
+                {
+                    "rule_id": existing_rule["id"],
+                    "name": rule["name"],
+                    "description": rule["description"],
+                    "action": rule["action"],
+                    "rule_order": rule["rule_order"],
+                    "zpn_inspection_profile_id": rule["zpn_inspection_profile_id"],
+                    "conditions": map_conditions(rule["conditions"]),
+                }
             )
-            cleaned_policy = deleteNone(new_policy)
-            created_policy = client.policies.add_app_protection_rule(**cleaned_policy)
-            module.exit_json(changed=True, data=created_policy)
+            module.warn(f"Update payload to SDK: {update_data}")
+            result, _, error = client.policies.update_app_protection_rule(**update_data)
+            if error:
+                module.fail_json(msg=f"Error updating rule: {to_native(error)}")
+            module.exit_json(changed=True, data=result.as_dict())
+
+        elif not existing_rule:
+            """Create"""
+            create_data = deleteNone(
+                {
+                    "name": rule["name"],
+                    "description": rule["description"],
+                    "action": rule["action"],
+                    "rule_order": rule["rule_order"],
+                    "zpn_inspection_profile_id": rule["zpn_inspection_profile_id"],
+                    "conditions": map_conditions(rule["conditions"]),
+                }
+            )
+            module.warn(f"Create payload to SDK: {create_data}")
+            result, _, error = client.policies.add_app_protection_rule(**create_data)
+            if error:
+                module.fail_json(msg=f"Error creating rule: {to_native(error)}")
+            module.exit_json(changed=True, data=result.as_dict())
+
         else:
-            module.exit_json(changed=False, data=existing_policy)
-    elif state == "absent" and existing_policy:
-        code = client.policies.delete_rule(
-            policy_type="inspection", rule_id=existing_policy.get("id")
+            module.exit_json(changed=False, data=existing_rule)
+
+    elif state == "absent" and existing_rule:
+        _, _, error = client.policies.delete_rule(
+            policy_type="inspection", rule_id=existing_rule["id"]
         )
-        if code > 299:
-            module.exit_json(changed=False, data=None)
-        module.exit_json(changed=True, data=existing_policy)
-    module.exit_json(changed=False, data={})
+        if error:
+            module.fail_json(msg=f"Error deleting rule: {to_native(error)}")
+        module.exit_json(changed=True, data=existing_rule)
+
+    module.exit_json(changed=False)
 
 
 def main():

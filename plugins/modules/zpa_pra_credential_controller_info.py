@@ -143,35 +143,56 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
-    credential_id = module.params.get("id", None)
-    cred_name = module.params.get("name", None)
     client = ZPAClientHelper(module)
-    creds = []
-    if credential_id is not None:
-        cred_box = client.privileged_remote_access.get_credential(
-            credential_id=credential_id
+
+    credential_id = module.params.get("id")
+    cred_name = module.params.get("name")
+    microtenant_id = module.params.get("microtenant_id")
+
+    query_params = {}
+    if microtenant_id:
+        query_params["microtenant_id"] = microtenant_id
+
+    # Lookup by ID
+    if credential_id:
+        result, _, error = client.pra_credential.get_credential(
+            credential_id, query_params
         )
-        if cred_box is None:
+        if error or result is None:
             module.fail_json(
-                msg="Failed to retrieve PRA Credential ID: '%s'" % (credential_id)
+                msg=f"Failed to retrieve PRA Credential ID '{credential_id}': {to_native(error)}"
             )
-        creds = [cred_box.to_dict()]
-    else:
-        creds = client.privileged_remote_access.list_credentials(pagesize=500).to_list()
-        if cred_name is not None:
-            cred_found = False
-            for cred in creds:
-                if cred.get("name") == cred_name:
-                    cred_found = True
-                    creds = [cred]
-            if not cred_found:
-                module.fail_json(
-                    msg="Failed to retrieve PRA Credential Name: '%s'" % (cred_name)
-                )
-    module.exit_json(changed=False, creds=creds)
+        module.exit_json(
+            changed=False,
+            data=[result.as_dict() if hasattr(result, "as_dict") else result],
+        )
+
+    # Fetch all credentials (with microtenant context if needed)
+    credential_list, err = collect_all_items(
+        client.pra_credential.list_credentials, query_params
+    )
+    if err:
+        module.fail_json(msg=f"Error retrieving PRA Credentials: {to_native(err)}")
+
+    result_list = [g.as_dict() if hasattr(g, "as_dict") else g for g in credential_list]
+
+    # Optional name filtering
+    if cred_name:
+        matched = next((g for g in result_list if g.get("name") == cred_name), None)
+        if not matched:
+            available = [g.get("name") for g in result_list]
+            module.fail_json(
+                msg=f"PRA Credential '{cred_name}' not found. Available: {available}"
+            )
+        result_list = [matched]
+
+    module.exit_json(changed=False, data=result_list)
 
 
 def main():

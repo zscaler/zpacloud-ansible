@@ -139,46 +139,96 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
-    saml_attr_name = module.params.get("name", None)
-    saml_attr_id = module.params.get("id", None)
-    idp_name = module.params.get("idp_name", None)
+    saml_attr_name = module.params.get("name")
+    saml_attr_id = module.params.get("id")
+    idp_name = module.params.get("idp_name")
     client = ZPAClientHelper(module)
-    saml_attributes = []
-    if saml_attr_id is not None:
-        attribute_box = client.saml_attributes.get_attribute(attribute_id=saml_attr_id)
-        if attribute_box is None:
-            module.fail_json(msg="Failed to retrieve saml attribute ID: '%s'" % (id))
-        saml_attributes = [attribute_box.to_dict()]
-    elif saml_attr_name is not None:
-        attributes = client.saml_attributes.list_attributes(pagesize=500).to_list()
-        if attributes is None:
+
+    # Lookup by ID
+    if saml_attr_id:
+        result, _, err = client.saml_attributes.get_saml_attribute(
+            attribute_id=saml_attr_id
+        )
+        if err or not result:
             module.fail_json(
-                msg="Failed to retrieve saml attribute Name: '%s'" % (saml_attr_name)
+                msg=f"SAML attribute with ID '{saml_attr_id}' not found: {to_native(err)}"
             )
-        saml_attr_found = False
-        for saml_attribute in attributes:
-            if saml_attribute.get("name") == saml_attr_name:
-                saml_attr_found = True
-                saml_attributes = [saml_attribute]
-        if not saml_attr_found:
+        module.exit_json(
+            changed=False,
+            data=[result if isinstance(result, dict) else result.as_dict()],
+        )
+
+    # Lookup by name
+    if saml_attr_name:
+        query_params = {"search": saml_attr_name}
+        attributes, err = collect_all_items(
+            lambda qp: client.saml_attributes.list_saml_attributes(query_params=qp),
+            query_params,
+        )
+        if err:
+            module.fail_json(msg=f"Error retrieving SAML attributes: {to_native(err)}")
+
+        matched = next(
+            (
+                a
+                for a in attributes
+                if a.name == saml_attr_name or a.get("name") == saml_attr_name
+            ),
+            None,
+        )
+        if not matched:
             module.fail_json(
-                msg="Failed to retrieve SAML attribute Name: '%s'" % (saml_attr_name)
+                msg=f"SAML attribute with name '{saml_attr_name}' not found"
             )
-    elif idp_name is not None:
-        idp_id = ""
-        idps = client.idp.list_idps()
-        for idp in idps:
-            if idp.get("name") == idp_name:
-                idp_id = idp.get("id")
-        saml_attributes = client.saml_attributes.list_attributes_by_idp(
-            idp_id=idp_id
-        ).to_list()
-    else:
-        saml_attributes = client.saml_attributes.list_attributes().to_list()
-    module.exit_json(changed=False, saml_attributes=saml_attributes)
+        module.exit_json(
+            changed=False,
+            data=[matched.as_dict() if hasattr(matched, "as_dict") else matched],
+        )
+
+    # List by IDP name (optional)
+    if idp_name:
+        idps, _, err = client.idp.list_idps(query_params={"search": idp_name})
+        if err:
+            module.fail_json(
+                msg=f"Error searching for IdP '{idp_name}': {to_native(err)}"
+            )
+        idp_id = next((idp.id for idp in idps if idp.name == idp_name), None)
+        if not idp_id:
+            module.fail_json(msg=f"IdP with name '{idp_name}' not found")
+
+        attributes, err = collect_all_items(
+            lambda qp: client.saml_attributes.list_saml_attributes_by_idp(
+                idp_id=idp_id, query_params=qp
+            ),
+            {},
+        )
+        if err:
+            module.fail_json(
+                msg=f"Error listing SAML attributes for IdP '{idp_name}': {to_native(err)}"
+            )
+
+        module.exit_json(
+            changed=False,
+            data=[a.as_dict() if hasattr(a, "as_dict") else a for a in attributes],
+        )
+
+    # Fallback: list all attributes
+    attributes, err = collect_all_items(
+        lambda qp: client.saml_attributes.list_saml_attributes(query_params=qp), {}
+    )
+    if err:
+        module.fail_json(msg=f"Error listing all SAML attributes: {to_native(err)}")
+
+    module.exit_json(
+        changed=False,
+        data=[a.as_dict() if hasattr(a, "as_dict") else a for a in attributes],
+    )
 
 
 def main():

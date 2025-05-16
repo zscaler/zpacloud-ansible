@@ -132,6 +132,9 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
@@ -140,38 +143,85 @@ def core(module):
     idp_name = module.params.get("idp_name")
     client = ZPAClientHelper(module)
 
-    # Get the IDP ID based on idp_name
-    idp_id = next(
-        (
-            idp.get("id")
-            for idp in client.idp.list_idps()
-            if idp.get("name") == idp_name
-        ),
-        None,
-    )
+    # Build query parameters from supported fields
+    supported_params = [
+        "start_time",
+        "end_time",
+        "idp_group_id",
+        "scim_user_id",
+        "scim_user_name",
+        "search",
+        "sort_order",
+        "sort_by",
+        "all_entries",
+    ]
+    query_params = {}
+    for param in supported_params:
+        val = module.params.get(param)
+        if val is not None:
+            query_params[param] = val
+
+    # Lookup IdP ID from provided idp_name
+    idps, _, err = client.idp.list_idps(query_params={"search": idp_name})
+    if err:
+        module.fail_json(msg=f"Error searching for IdP '{idp_name}': {to_native(err)}")
+    idp_id = next((idp.id for idp in idps if idp.name == idp_name), None)
     if not idp_id:
-        module.fail_json(msg=f"IDP with name '{idp_name}' not found")
+        module.fail_json(msg=f"IdP with name '{idp_name}' not found")
 
+    # Get SCIM group by ID
     if scim_group_id:
-        # Fetch group by ID
-        group = client.scim_groups.get_group(group_id=scim_group_id)
-        if not group:
-            module.fail_json(msg=f"SCIM group with ID '{scim_group_id}' not found")
-        module.exit_json(changed=False, data=[group.to_dict()])
+        result, _, err = client.scim_groups.get_scim_group(scim_group_id)
+        if err or not result:
+            module.fail_json(
+                msg=f"SCIM group with ID '{scim_group_id}' not found: {to_native(err)}"
+            )
+        module.exit_json(changed=False, data=[result.as_dict()])
 
+    # Warn log before pagination call
+    # module.warn(f"[SCIM Groups] Fetching all portals with query_params: {query_params}")
+
+    # Get SCIM group by name
     if scim_group_name:
-        # Fetch groups and filter by name
-        all_groups = client.scim_groups.list_groups(
-            idp_id=idp_id, search=scim_group_name
+        query_params["search"] = scim_group_name
+        groups, err = collect_all_items(
+            lambda qp: client.scim_groups.list_scim_groups(
+                idp_id=idp_id, query_params=qp
+            ),
+            query_params,
         )
-        group = next((g for g in all_groups if g.get("name") == scim_group_name), None)
-        if not group:
+        if err:
+            module.fail_json(msg=f"Error searching SCIM groups: {to_native(err)}")
+        matched = next(
+            (
+                g
+                for g in groups
+                if g.name == scim_group_name or g.get("name") == scim_group_name
+            ),
+            None,
+        )
+        if not matched:
             module.fail_json(msg=f"SCIM group with name '{scim_group_name}' not found")
-        module.exit_json(changed=False, data=[group])
+        module.exit_json(
+            changed=False,
+            data=[matched.as_dict() if hasattr(matched, "as_dict") else matched],
+        )
 
-    # If no specific group ID or name is provided, list all groups
-    all_groups = client.scim_groups.list_groups(idp_id=idp_id)
-    module.exit_json(changed=False, data=[g.to_dict() for g in all_groups])
+    # List all SCIM groups for the given IdP
+    groups, err = collect_all_items(
+        lambda qp: client.scim_groups.list_scim_groups(idp_id=idp_id, query_params=qp),
+        query_params,
+    )
+    if err:
+        module.fail_json(msg=f"Error listing SCIM groups: {to_native(err)}")
+
+    # module.warn(f"[SCIM Groups] Total groups retrieved: {len(groups)}")
+
+    # ✅ Safely serialize model instances or dicts
+    module.exit_json(
+        changed=False,
+        data=[g.as_dict() if hasattr(g, "as_dict") else g for g in groups],
+    )
 
 
 def main():
@@ -180,6 +230,15 @@ def main():
         name=dict(type="str", required=False),
         id=dict(type="str", required=False),
         idp_name=dict(type="str", required=True),
+        start_time=dict(type="str", required=False),
+        end_time=dict(type="str", required=False),
+        idp_group_id=dict(type="str", required=False),
+        scim_user_id=dict(type="str", required=False),
+        scim_user_name=dict(type="str", required=False),
+        search=dict(type="str", required=False),
+        sort_order=dict(type="str", required=False, choices=["ASC", "DSC"]),
+        sort_by=dict(type="str", required=False),
+        all_entries=dict(type="bool", required=False, default=False),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:

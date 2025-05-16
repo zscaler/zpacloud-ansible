@@ -148,11 +148,12 @@ RETURN = """
 from traceback import format_exc
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
-    ZPAClientHelper,
-)
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     deleteNone,
+    collect_all_items,
+)
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
+    ZPAClientHelper,
 )
 
 
@@ -163,10 +164,9 @@ def normalize_approval(approval):
     normalized = approval.copy()
 
     computed_values = [
-        "id",
-        "start_time",
-        "end_time",
-        # "application_ids",
+        # "id",
+        # "start_time",
+        # "end_time",
     ]
     for attr in computed_values:
         normalized.pop(attr, None)
@@ -180,35 +180,76 @@ def core(module):
     approval = dict()
     params = [
         "id",
+        "microtenant_id",
         "email_ids",
         "start_time",
         "end_time",
         "application_ids",
         "working_hours",
+        "status",
     ]
     for param_name in params:
         approval[param_name] = module.params.get(param_name, None)
+
     approval_id = approval.get("id", None)
-    email_ids = approval.get("email_ids", None)
+    email_ids = approval.get(
+        "email_ids", None
+    )  # We'll search by these if no id is given
+    microtenant_id = module.params.get("microtenant_id")
+
+    query_params = {}
+    if microtenant_id:
+        query_params["microtenant_id"] = microtenant_id
 
     existing_approval = None
-    if approval_id is not None:
-        approval_box = client.privileged_remote_access.get_approval(
-            approval_id=approval_id
+
+    if approval_id:
+        # If user provided an ID, fetch directly by ID
+        result, _, error = client.pra_approval.get_approval(
+            approval_id, query_params={"microtenant_id": microtenant_id}
         )
-        if approval_box is not None:
-            existing_approval = approval_box.to_dict()
-    elif email_ids is not None:
-        approvals = client.privileged_remote_access.list_approval().to_list()
-        for approval_ in approvals:
-            if approval_.get("email_ids") == email_ids:
-                existing_approval = approval_
-                break
+        if error:
+            module.fail_json(
+                msg=f"Error fetching pra approval with id {approval_id}: {to_native(error)}"
+            )
+        existing_approval = result.as_dict()
+    else:
+        # Otherwise, retrieve entire list and match on email_ids
+        result, error = collect_all_items(
+            client.pra_approval.list_approval, query_params
+        )
+        if error:
+            module.fail_json(msg=f"Error pra approvals: {to_native(error)}")
+
+        if result and email_ids:
+            for approval_ in result:
+                # Compare the sorted lists to see if they match
+                # (assuming order doesn't matter, or all must match)
+                if sorted(approval_.email_ids or []) == sorted(email_ids or []):
+                    existing_approval = approval_.as_dict()
+                    break
 
     desired_approval = normalize_approval(approval)
     current_approval = (
         normalize_approval(existing_approval) if existing_approval else {}
     )
+
+    # 🔧 Normalize current_group: convert app_connector_groups to app_connector_group_ids
+    if "applications" in current_approval:
+        current_approval["application_ids"] = sorted(
+            [
+                g.get("id")
+                for g in current_approval.get("applications", [])
+                if g.get("id")
+            ]
+        )
+        del current_approval["applications"]
+
+    # 🔧 Normalize desired_group: ensure app_connector_group_ids is sorted for accurate comparison
+    if "application_ids" in desired_approval and desired_approval["application_ids"]:
+        desired_approval["application_ids"] = sorted(
+            desired_approval["application_ids"]
+        )
 
     fields_to_exclude = ["id"]
     differences_detected = False
@@ -220,7 +261,6 @@ def core(module):
             )
 
     if module.check_mode:
-        # If in check mode, report changes and exit
         if state == "present" and (existing_approval is None or differences_detected):
             module.exit_json(changed=True)
         elif state == "absent" and existing_approval is not None:
@@ -229,61 +269,68 @@ def core(module):
             module.exit_json(changed=False)
 
     if existing_approval is not None:
-        id = existing_approval.get("id")
+        # Keep the same structure
+        id_ = existing_approval.get("id")
         existing_approval.update(approval)
-        existing_approval["id"] = id
+        existing_approval["id"] = id_
 
     module.warn(f"Final payload being sent to SDK: {approval}")
+
     if state == "present":
         if existing_approval is not None:
             if differences_detected:
-                """Update"""
-                existing_approval = deleteNone(
+                # Update
+                update_approval = deleteNone(
                     {
                         "approval_id": existing_approval.get("id"),
-                        "email_ids": existing_approval.get("email_ids"),
-                        "start_time": existing_approval.get("start_time"),
-                        "end_time": existing_approval.get("end_time"),
-                        "application_ids": existing_approval.get("application_ids"),
-                        "working_hours": existing_approval.get("working_hours"),
+                        "microtenant_id": desired_approval.get("microtenant_id"),
+                        "email_ids": desired_approval.get("email_ids"),
+                        "start_time": desired_approval.get("start_time"),
+                        "end_time": desired_approval.get("end_time"),
+                        "status": desired_approval.get("status"),
+                        "application_ids": desired_approval.get("application_ids"),
+                        "working_hours": desired_approval.get("working_hours"),
                     }
                 )
-                module.warn("Payload Update for SDK: {}".format(existing_approval))
-                existing_approval = client.privileged_remote_access.update_approval(
-                    **existing_approval
-                ).to_dict()
-                module.exit_json(changed=True, data=existing_approval)
+                module.warn("Payload Update for SDK: {}".format(update_approval))
+                updated_approval, _, error = client.pra_approval.update_approval(
+                    approval_id=update_approval.get("approval_id"), **existing_approval
+                )
+                if error:
+                    module.fail_json(msg=f"Error updating approval: {to_native(error)}")
+                module.exit_json(changed=True, data=updated_approval.as_dict())
             else:
-                """No Changes Needed"""
                 module.exit_json(changed=False, data=existing_approval)
         else:
             module.warn("Creating pra approval as no existing approval was found")
-            """Create"""
-            approval_cleaned = deleteNone(
+            # Create
+            create_approval = deleteNone(
                 {
-                    "email_ids": approval.get("email_ids"),
-                    "start_time": approval.get("start_time"),
-                    "end_time": approval.get("end_time"),
-                    "application_ids": approval.get("application_ids"),
-                    "working_hours": approval.get("working_hours"),
+                    "microtenant_id": desired_approval.get("microtenant_id"),
+                    "email_ids": desired_approval.get("email_ids"),
+                    "start_time": desired_approval.get("start_time"),
+                    "end_time": desired_approval.get("end_time"),
+                    "status": desired_approval.get("status"),
+                    "application_ids": desired_approval.get("application_ids"),
+                    "working_hours": desired_approval.get("working_hours"),
                 }
             )
-            module.warn(f"Payload for SDK: {approval_cleaned}")
-            approval_response = client.privileged_remote_access.add_approval(
-                **approval_cleaned
+            module.warn(f"Payload for SDK: {create_approval}")
+            new_approval, _, error = client.pra_approval.add_approval(**create_approval)
+            if error:
+                module.fail_json(msg=f"Error creating approval: {to_native(error)}")
+            module.exit_json(changed=True, data=new_approval.as_dict())
+
+    elif state == "absent":
+        if existing_approval:
+            _, _, error = client.pra_approval.delete_approval(
+                approval_id=existing_approval.get("id"),
+                microtenant_id=microtenant_id,
             )
-            module.exit_json(changed=True, data=approval_response)
-    elif (
-        state == "absent"
-        and existing_approval is not None
-        and existing_approval.get("id") is not None
-    ):
-        code = client.privileged_remote_access.delete_approval(
-            approval_id=existing_approval.get("id")
-        )
-        if code > 299:
-            module.exit_json(changed=False, data=None)
-        module.exit_json(changed=True, data=existing_approval)
+            if error:
+                module.fail_json(msg=f"Error deleting pra approval: {to_native(error)}")
+            module.exit_json(changed=True, data=existing_approval)
+
     module.exit_json(changed=False, data={})
 
 
@@ -291,9 +338,11 @@ def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
         id=dict(type="str", required=False),
+        microtenant_id=dict(type="str", required=False),
         email_ids=dict(type="list", elements="str", required=False),
         start_time=dict(type="str", required=False),
         end_time=dict(type="str", required=False),
+        status=dict(type="str", required=False),
         application_ids=dict(type="list", elements="str", required=False),
         working_hours=dict(
             type="dict",

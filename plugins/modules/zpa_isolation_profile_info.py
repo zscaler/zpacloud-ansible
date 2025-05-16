@@ -139,35 +139,48 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
-    profile_id = module.params.get("id", None)
-    profile_name = module.params.get("name", None)
+    profile_id = module.params.get("id")
+    profile_name = module.params.get("name")
     client = ZPAClientHelper(module)
-    profiles = []
-    if profile_id is not None:
-        profile_box = client.isolation.get_profile(profile_id=profile_id)
-        if profile_box is None:
-            module.fail_json(
-                msg="Failed to retrieve Cloud Browser Isolation profile ID: '%s'"
-                % (profile_id)
-            )
-        profiles = [profile_box.to_dict()]
-    else:
-        profiles = client.isolation.list_profiles(pagesize=500).to_list()
-        if profile_name is not None:
-            profile_found = False
-            for profile in profiles:
-                if profile.get("name") == profile_name:
-                    profile_found = True
-                    profiles = [profile]
-            if not profile_found:
-                module.fail_json(
-                    msg="Failed to retrieve Cloud Browser Isolation Name: '%s'"
-                    % (profile_name)
-                )
-    module.exit_json(changed=False, profiles=profiles)
+
+    # Fetch all profiles using collect_all_items
+    profiles, err = collect_all_items(
+        lambda qp: client.cbi_zpa_profile.list_isolation_profiles(query_params=qp), {}
+    )
+    if err:
+        module.fail_json(msg=f"Error retrieving CBI profiles: {to_native(err)}")
+
+    # Lookup by ID
+    if profile_id:
+        matched = next((p for p in profiles if str(p.id) == str(profile_id)), None)
+        if not matched:
+            module.fail_json(msg=f"CBI Profile with ID '{profile_id}' not found")
+        module.exit_json(
+            changed=False,
+            data=[matched.as_dict() if hasattr(matched, "as_dict") else matched],
+        )
+
+    # Lookup by Name
+    if profile_name:
+        matched = next((p for p in profiles if p.name == profile_name), None)
+        if not matched:
+            module.fail_json(msg=f"CBI Profile with name '{profile_name}' not found")
+        module.exit_json(
+            changed=False,
+            data=[matched.as_dict() if hasattr(matched, "as_dict") else matched],
+        )
+
+    # Return all profiles
+    module.exit_json(
+        changed=False,
+        data=[p.as_dict() if hasattr(p, "as_dict") else p for p in profiles],
+    )
 
 
 def main():

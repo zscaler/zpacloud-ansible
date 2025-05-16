@@ -111,9 +111,10 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 
 
 def core(module):
-    state = module.params.get("state", None)
+    state = module.params.get("state")
     client = ZPAClientHelper(module)
-    server = dict()
+
+    # Collect input parameters
     params = [
         "id",
         "name",
@@ -121,99 +122,112 @@ def core(module):
         "address",
         "enabled",
         "app_server_group_ids",
+        "microtenant_id",
     ]
-    for param_name in params:
-        server[param_name] = module.params.get(param_name, None)
-    server_id = server.get("id", None)
-    server_name = server.get("name", None)
+    server = {param: module.params.get(param) for param in params}
+    server_id = server.get("id")
+    server_name = server.get("name")
+    microtenant_id = server.get("microtenant_id")
 
     existing_server = None
-    if server_id is not None:
-        server_box = client.servers.get_server(server_id=server_id)
-        if server_box is not None:
-            existing_server = server_box.to_dict()
-    elif server_name is not None:
-        servers = client.servers.list_servers().to_list()
-        for server_ in servers:
-            if server_.get("name") == server_name:
-                existing_server = server_
+
+    # Fetch by ID
+    if server_id:
+        result, _, error = client.servers.get_server(
+            server_id, query_params={"microtenant_id": microtenant_id}
+        )
+        if error:
+            module.fail_json(msg=f"Error retrieving server by ID: {to_native(error)}")
+        if result:
+            existing_server = result.as_dict()
+
+    # Fetch by Name
+    elif server_name:
+        query_params = {"microtenant_id": microtenant_id} if microtenant_id else {}
+        server_list, _, error = client.servers.list_servers(query_params)
+        if error:
+            module.fail_json(msg=f"Error listing servers: {to_native(error)}")
+        for item in server_list or []:
+            item_dict = item.as_dict()
+            if item_dict.get("name") == server_name:
+                existing_server = item_dict
                 break
 
-    if state == "gathered":
-        # In gathered state, return the current state of the server without making changes
-        if existing_server is None:
-            module.exit_json(changed=False, msg="Server not found.")
-        else:
-            module.exit_json(changed=False, data=existing_server)
+    # Drift detection logic
+    desired = normalize_app(server)
+    current = normalize_app(existing_server) if existing_server else {}
 
-    # Normalize and compare existing and desired application data
-    desired_app = normalize_app(server)
-    current_app = normalize_app(existing_server) if existing_server else {}
+    drift_keys = []
+    for k in desired:
+        if k == "id":
+            continue
 
-    fields_to_exclude = ["id"]
-    differences_detected = False
-    for key, value in desired_app.items():
-        if key not in fields_to_exclude and current_app.get(key) != value:
-            differences_detected = True
-            # module.warn(
-            #     f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}"
-            # )
+        desired_val = desired.get(k)
+        current_val = current.get(k)
+
+        # Handle [] vs None comparison for app_server_group_ids
+        if k == "app_server_group_ids":
+            if not desired_val and not current_val:
+                continue  # No drift if both are empty or None
+
+        if desired_val != current_val:
+            drift_keys.append(k)
+            module.warn(f"[DRIFT] {k}: current={current_val} | desired={desired_val}")
+
+    drift = bool(drift_keys)
+    module.warn(f"[DRIFT] Detected: {drift} | Keys: {drift_keys or 'None'}")
 
     if module.check_mode:
-        # If in check mode, report changes and exit
-        if state == "present" and (existing_server is None or differences_detected):
+        if state == "present" and (not existing_server or drift):
             module.exit_json(changed=True)
-        elif state == "absent" and existing_server is not None:
+        elif state == "absent" and existing_server:
             module.exit_json(changed=True)
         else:
             module.exit_json(changed=False)
 
-    if existing_server is not None:
-        id = existing_server.get("id")
-        existing_server.update(server)
-        existing_server["id"] = id
-
-        if state == "present":
-            if differences_detected:
-                """Update"""
-                existing_server = deleteNone(
-                    dict(
-                        server_id=existing_server.get("id"),
-                        name=existing_server.get("name"),
-                        description=existing_server.get("description"),
-                        address=existing_server.get("address"),
-                        enabled=existing_server.get("enabled"),
-                        app_server_group_ids=existing_server.get(
-                            "app_server_group_ids"
-                        ),
-                    )
+    if state == "present":
+        if existing_server:
+            if drift:
+                payload = deleteNone(
+                    {
+                        "server_id": existing_server.get("id"),
+                        "name": desired.get("name"),
+                        "description": desired.get("description"),
+                        "address": desired.get("address"),
+                        "enabled": desired.get("enabled"),
+                        "app_server_group_ids": desired.get("app_server_group_ids"),
+                        "microtenant_id": desired.get("microtenant_id"),
+                    }
                 )
-                existing_server = client.servers.update_server(
-                    **existing_server
-                ).to_dict()
-                module.exit_json(changed=True, data=existing_server)
+                updated, _, error = client.servers.update_server(**payload)
+                if error:
+                    module.fail_json(msg=f"Error updating server: {to_native(error)}")
+                module.exit_json(changed=True, data=updated.as_dict())
             else:
-                """No Changes Needed"""
                 module.exit_json(changed=False, data=existing_server)
-        elif state == "absent":
-            code = client.servers.delete_server(server_id=existing_server.get("id"))
-            if code > 299:
-                module.exit_json(changed=False, data=None)
-            module.exit_json(changed=True, data=existing_server)
-    else:
-        if state == "present":
-            """Create"""
-            server = deleteNone(
-                dict(
-                    name=server.get("name"),
-                    description=server.get("description"),
-                    address=server.get("address"),
-                    enabled=server.get("enabled"),
-                    app_server_group_ids=server.get("app_server_group_ids"),
-                )
+        else:
+            payload = deleteNone(
+                {
+                    "name": desired.get("name"),
+                    "description": desired.get("description"),
+                    "address": desired.get("address"),
+                    "enabled": desired.get("enabled"),
+                    "app_server_group_ids": desired.get("app_server_group_ids"),
+                    "microtenant_id": desired.get("microtenant_id"),
+                }
             )
-            server = client.servers.add_server(**server).to_dict()
-            module.exit_json(changed=True, data=server)
+            created, _, error = client.servers.add_server(**payload)
+            if error:
+                module.fail_json(msg=f"Error creating server: {to_native(error)}")
+            module.exit_json(changed=True, data=created.as_dict())
+
+    elif state == "absent" and existing_server:
+        _, _, error = client.servers.delete_server(
+            server_id=existing_server.get("id"), microtenant_id=microtenant_id
+        )
+        if error:
+            module.fail_json(msg=f"Error deleting server: {to_native(error)}")
+        module.exit_json(changed=True, data=existing_server)
 
     module.exit_json(changed=False, data={})
 

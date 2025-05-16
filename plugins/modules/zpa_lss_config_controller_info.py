@@ -58,16 +58,16 @@ options:
 
 EXAMPLES = """
 - name: Get Information Details of All Cloud lss_configs
-  zscaler.zpacloud.zpa_lss_config_controller_facts:
+  zscaler.zpacloud.zpa_lss_config_controller_info:
     provider: "{{ zpa_cloud }}"
 
 - name: Get Information Details of a LSS Config controlle by Name
-  zscaler.zpacloud.zpa_lss_config_controller_facts:
+  zscaler.zpacloud.zpa_lss_config_controller_info:
     provider: "{{ zpa_cloud }}"
     name: Example_LSS_Config_Controller
 
 - name: Get Information Details of a LSS Config controlle by ID
-  zscaler.zpacloud.zpa_lss_config_controller_facts:
+  zscaler.zpacloud.zpa_lss_config_controller_info:
     provider: "{{ zpa_cloud }}"
     id: "216196257331292017"
 """
@@ -83,33 +83,52 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
-    lss_config_name = module.params.get("name", None)
-    lss_config_id = module.params.get("id", None)
+    lss_config_id = module.params.get("id")
+    lss_config_name = module.params.get("name")
     client = ZPAClientHelper(module)
-    lss_configs = []
-    if lss_config_id is not None:
-        lss_config = client.lss.get_config(lss_id=lss_config_id)
-        if lss_config is None:
-            module.fail_json(msg="Failed to retrieve lss_config ID: '%s'" % (id))
-        lss_configs = [lss_config]
-    elif lss_config_name is not None:
-        lss_configs_ = client.lss.list_configs(pagesize=500).to_list()
-        found = False
-        for k in lss_configs_:
-            if k.get("config").get("name") == lss_config_name:
-                lss_configs = [k]
-                found = True
-                break
-        if not found:
+
+    # Lookup by ID
+    if lss_config_id:
+        result, _, error = client.lss.get_config(lss_config_id=lss_config_id)
+        if error or not result:
+            module.fail_json(msg=f"Failed to retrieve LSS Config ID '{lss_config_id}'")
+        module.exit_json(
+            changed=False,
+            data=[result.as_dict() if hasattr(result, "as_dict") else result],
+        )
+
+    # Fetch all configs using pagination
+    configs, err = collect_all_items(client.lss.list_configs, {})
+    if err:
+        module.fail_json(msg=f"Error retrieving LSS Configs: {to_native(err)}")
+
+    # Filter by name if provided
+    if lss_config_name:
+        match = next(
+            (
+                c
+                for c in configs
+                if getattr(c, "config", {}).get("name") == lss_config_name
+            ),
+            None,
+        )
+        if not match:
+            available = [getattr(c, "config", {}).get("name", "") for c in configs]
             module.fail_json(
-                msg="Failed to retrieve lss_config Name: '%s'" % (lss_config_name)
+                msg=f"LSS Config with name '{lss_config_name}' not found. Available: {available}"
             )
-    else:
-        lss_configs = client.lss.list_configs().to_list()
-    module.exit_json(changed=False, lss_configs=lss_configs)
+        configs = [match]
+
+    module.exit_json(
+        changed=False,
+        data=[c.as_dict() if hasattr(c, "as_dict") else c for c in configs],
+    )
 
 
 def main():

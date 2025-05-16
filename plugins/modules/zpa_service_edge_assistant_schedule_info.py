@@ -137,12 +137,12 @@ def core(module):
         query_params["microtenantId"] = microtenant_id
 
     # Always fetch the schedule (only one is returned by the API)
-    result, _, error = client.app_connector_schedule.get_connector_schedule(
+    result, _, error = client.service_edge_schedule.get_service_edge_schedule(
         customer_id=customer_id
     )
     if error or result is None:
         module.fail_json(
-            msg=f"Failed to retrieve App Connector Schedule for customer ID: '{customer_id}'"
+            msg=f"Failed to retrieve Service Edge Schedule for customer ID: '{customer_id}'"
         )
 
     # If ID is provided, manually validate
@@ -150,7 +150,7 @@ def core(module):
         schedule_data = result.as_dict() if hasattr(result, "as_dict") else result
         if str(schedule_data.get("id")) != str(schedule_id):
             module.fail_json(
-                msg=f"No App Connector Schedule found with ID '{schedule_id}'"
+                msg=f"No Service Edge Schedule found with ID '{schedule_id}'"
             )
         module.exit_json(changed=False, data=[schedule_data])
 

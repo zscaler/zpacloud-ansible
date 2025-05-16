@@ -116,6 +116,7 @@ from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     deleteNone,
+    collect_all_items,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
@@ -141,6 +142,7 @@ def core(module):
     portal = dict()
     params = [
         "id",
+        "microtenant_id",
         "name",
         "description",
         "enabled",
@@ -151,20 +153,34 @@ def core(module):
     ]
     for param_name in params:
         portal[param_name] = module.params.get(param_name, None)
+
     portal_id = portal.get("id", None)
     portal_name = portal.get("name", None)
+    microtenant_id = module.params.get("microtenant_id")
+
+    query_params = {}
+    if microtenant_id:
+        query_params["microtenant_id"] = microtenant_id
 
     existing_portal = None
     if portal_id is not None:
-        portal_box = client.privileged_remote_access.get_portal(portal_id=portal_id)
-        if portal_box is not None:
-            existing_portal = portal_box.to_dict()
-    elif portal_name is not None:
-        portals = client.privileged_remote_access.list_portals().to_list()
-        for portal_ in portals:
-            if portal_.get("name") == portal_name:
-                existing_portal = portal_
-                break
+        result, _, error = client.pra_portal.get_portal(
+            portal_id, query_params={"microtenant_id": microtenant_id}
+        )
+        if error:
+            module.fail_json(
+                msg=f"Error fetching pra portal with id {portal_id}: {to_native(error)}"
+            )
+        existing_portal = result.as_dict()
+    else:
+        result, error = collect_all_items(client.pra_portal.list_portals, query_params)
+        if error:
+            module.fail_json(msg=f"Error pra portals: {to_native(error)}")
+        if result:
+            for portal_ in result:
+                if portal_.name == portal_name:
+                    existing_portal = portal_.as_dict()
+                    break
 
     desired_portal = normalize_creds(portal)
     current_portal = normalize_creds(existing_portal) if existing_portal else {}
@@ -197,59 +213,63 @@ def core(module):
         if existing_portal is not None:
             if differences_detected:
                 """Update"""
-                existing_portal = deleteNone(
+                update_portal = deleteNone(
                     {
                         "portal_id": existing_portal.get("id"),
-                        "name": existing_portal.get("name"),
-                        "description": existing_portal.get("description"),
-                        "enabled": existing_portal.get("enabled"),
-                        "domain": existing_portal.get("domain"),
-                        "certificate_id": existing_portal.get("certificate_id"),
-                        "user_notification": existing_portal.get("user_notification"),
-                        "user_notification_enabled": existing_portal.get(
+                        "microtenant_id": desired_portal.get("microtenant_id", None),
+                        "name": desired_portal.get("name"),
+                        "description": desired_portal.get("description"),
+                        "enabled": desired_portal.get("enabled"),
+                        "domain": desired_portal.get("domain"),
+                        "certificate_id": desired_portal.get("certificate_id"),
+                        "user_notification": desired_portal.get("user_notification"),
+                        "user_notification_enabled": desired_portal.get(
                             "user_notification_enabled"
                         ),
                     }
                 )
-                existing_portal = client.privileged_remote_access.update_portal(
-                    **existing_portal
-                ).to_dict()
-                module.exit_json(changed=True, data=existing_portal)
+                module.warn("Payload Update for SDK: {}".format(update_portal))
+                updated_portal, _, error = client.pra_portal.update_portal(
+                    portal_id=update_portal.pop("portal_id"), **existing_portal
+                )
+                if error:
+                    module.fail_json(msg=f"Error updating portal: {to_native(error)}")
+                module.exit_json(changed=True, data=updated_portal.as_dict())
             else:
-                """No Changes Needed"""
                 module.exit_json(changed=False, data=existing_portal)
         else:
             module.warn("Creating pra portal as no existing portal was found")
             """Create"""
-            portal_cleaned = deleteNone(
+            create_portal = deleteNone(
                 {
-                    "name": portal.get("name"),
-                    "description": portal.get("description"),
-                    "enabled": portal.get("enabled"),
-                    "domain": portal.get("domain"),
-                    "certificate_id": portal.get("certificate_id"),
-                    "user_notification": portal.get("user_notification"),
-                    "user_notification_enabled": portal.get(
+                    "microtenant_id": desired_portal.get("microtenant_id", None),
+                    "name": desired_portal.get("name"),
+                    "description": desired_portal.get("description"),
+                    "enabled": desired_portal.get("enabled"),
+                    "domain": desired_portal.get("domain"),
+                    "certificate_id": desired_portal.get("certificate_id"),
+                    "user_notification": desired_portal.get("user_notification"),
+                    "user_notification_enabled": desired_portal.get(
                         "user_notification_enabled"
                     ),
                 }
             )
-            module.warn(f"Payload for SDK: {portal_cleaned}")
-            portal_response = client.privileged_remote_access.add_portal(
-                **portal_cleaned
+            module.warn(f"Payload for SDK: {create_portal}")
+            new_portal, _, error = client.pra_portal.add_portal(**create_portal)
+            if error:
+                module.fail_json(msg=f"Error creating portal: {to_native(error)}")
+            module.exit_json(changed=True, data=new_portal.as_dict())
+
+    elif state == "absent":
+        if existing_portal:
+            _, _, error = client.pra_portal.delete_portal(
+                portal_id=existing_portal.get("id"),
+                microtenant_id=microtenant_id,
             )
-            module.exit_json(changed=True, data=portal_response)
-    elif (
-        state == "absent"
-        and existing_portal is not None
-        and existing_portal.get("id") is not None
-    ):
-        code = client.privileged_remote_access.delete_portal(
-            portal_id=existing_portal.get("id")
-        )
-        if code > 299:
-            module.exit_json(changed=False, data=None)
+        if error:
+            module.fail_json(msg=f"Error deleting portal: {to_native(error)}")
         module.exit_json(changed=True, data=existing_portal)
+
     module.exit_json(changed=False, data={})
 
 
@@ -257,6 +277,7 @@ def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
         id=dict(type="str", required=False),
+        microtenant_id=dict(type="str", required=False),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
         enabled=dict(type="bool", required=False, default=True),

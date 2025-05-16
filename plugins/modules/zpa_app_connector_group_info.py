@@ -229,39 +229,49 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
-    group_id = module.params.get("id", None)
-    group_name = module.params.get("name", None)
     client = ZPAClientHelper(module)
-    groups = []
-    if group_id is not None:
-        group_box = client.connectors.get_connector_group(group_id=group_id)
-        if group_box is None:
-            module.fail_json(
-                msg="Failed to retrieve App Connector Group ID: '%s'" % (group_id)
-            )
-        groups = [group_box.to_dict()]
-    else:
-        # Fetch all pages by setting a large pagesize, or implementing a loop for multiple pages if necessary
-        all_groups = client.connectors.list_connector_groups(pagesize=500).to_list()
-        if group_name:
-            group_found = False
-            for group in all_groups:
-                if group.get("name") == group_name:
-                    groups = [group]
-                    group_found = True
-                    break
-            if not group_found:
-                module.fail_json(
-                    msg="Failed to retrieve App Connector Group Name: '%s'"
-                    % (group_name)
-                )
-        else:
-            groups = all_groups
 
-    module.exit_json(changed=False, groups=groups)
+    group_id = module.params.get("id")
+    group_name = module.params.get("name")
+    microtenant_id = module.params.get("microtenant_id")
+
+    query_params = {}
+    if microtenant_id:
+        query_params["microtenant_id"] = microtenant_id
+
+    if group_id:
+        result, _, error = client.app_connector_groups.get_group(group_id, query_params)
+        if error or result is None:
+            module.fail_json(
+                msg=f"Failed to retrieve App Connector Group ID '{group_id}': {to_native(error)}"
+            )
+        module.exit_json(changed=False, groups=[result.as_dict()])
+
+    # If no ID, we fetch all
+    group_list, err = collect_all_items(
+        client.app_connector_groups.list_groups, query_params
+    )
+    if err:
+        module.fail_json(msg=f"Error retrieving App Connector Groups: {to_native(err)}")
+
+    result_list = [g.as_dict() for g in group_list]
+
+    if group_name:
+        matched = next((g for g in result_list if g.get("name") == group_name), None)
+        if not matched:
+            available = [g.get("name") for g in result_list]
+            module.fail_json(
+                msg=f"App Connector Group '{group_name}' not found. Available: {available}"
+            )
+        result_list = [matched]
+
+    module.exit_json(changed=False, groups=result_list)
 
 
 def main():
@@ -269,6 +279,7 @@ def main():
     argument_spec.update(
         name=dict(type="str", required=False),
         id=dict(type="str", required=False),
+        microtenant_id=dict(type="str", required=False),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:

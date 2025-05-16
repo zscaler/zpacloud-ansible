@@ -83,33 +83,53 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
-    connector_id = module.params.get("id", None)
-    connector_name = module.params.get("name", None)
     client = ZPAClientHelper(module)
-    connectors = []
-    if connector_id is not None:
-        connector_box = client.connectors.get_connector(connector_id=connector_id)
-        if connector_box is None:
+
+    connector_id = module.params.get("id")
+    connector_name = module.params.get("name")
+    microtenant_id = module.params.get("microtenant_id")
+
+    query_params = {}
+    if microtenant_id:
+        query_params["microtenant_id"] = microtenant_id
+
+    if connector_id:
+        result, _, error = client.app_connectors.get_connector(
+            connector_id, query_params
+        )
+        if error or result is None:
             module.fail_json(
-                msg="Failed to retrieve App Connector ID: '%s'" % (connector_id)
+                msg=f"Failed to retrieve App Connector ID '{connector_id}': {to_native(error)}"
             )
-        connectors = [connector_box.to_dict()]
-    else:
-        connectors = client.connectors.list_connectors(pagesize=500).to_list()
-        if connector_name is not None:
-            connector_found = False
-            for connector in connectors:
-                if connector.get("name") == connector_name:
-                    connector_found = True
-                    connectors = [connector]
-            if not connector_found:
-                module.fail_json(
-                    msg="Failed to retrieve App Connector Name: '%s'" % (connector_name)
-                )
-    module.exit_json(changed=False, connectors=connectors)
+        module.exit_json(changed=False, groups=[result.as_dict()])
+
+    # If no ID, we fetch all
+    connector_list, err = collect_all_items(
+        client.app_connectors.list_connectors, query_params
+    )
+    if err:
+        module.fail_json(msg=f"Error retrieving App Connectors: {to_native(err)}")
+
+    result_list = [g.as_dict() for g in connector_list]
+
+    if connector_name:
+        matched = next(
+            (g for g in result_list if g.get("name") == connector_name), None
+        )
+        if not matched:
+            available = [g.get("name") for g in result_list]
+            module.fail_json(
+                msg=f"App Connector '{connector_name}' not found. Available: {available}"
+            )
+        result_list = [matched]
+
+    module.exit_json(changed=False, groups=result_list)
 
 
 def main():
@@ -117,6 +137,7 @@ def main():
     argument_spec.update(
         name=dict(type="str", required=False),
         id=dict(type="str", required=False),
+        microtenant_id=dict(type="str", required=False),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:

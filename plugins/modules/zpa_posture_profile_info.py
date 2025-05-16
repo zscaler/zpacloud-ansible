@@ -137,6 +137,7 @@ from traceback import format_exc
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
     remove_cloud_suffix,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
@@ -145,33 +146,52 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 
 
 def core(module):
-    profile_id = module.params.get("id", None)
-    profile_name = module.params.get("name", None)
     client = ZPAClientHelper(module)
-    profiles = []
-    if profile_id is not None:
-        profile_box = client.posture_profiles.get_profile(profile_id=profile_id)
-        if profile_box is None:
+
+    profile_id = module.params.get("id")
+    profile_name = module.params.get("name")
+
+    query_params = {}
+
+    # Get profile by ID
+    if profile_id:
+        result, _, error = client.posture_profiles.get_profile(profile_id, query_params)
+        if error or result is None:
             module.fail_json(
-                msg="Failed to retrieve Posture Profile ID: '%s'" % (profile_id)
+                msg=f"Failed to retrieve Posture Profile ID '{profile_id}': {to_native(error)}"
             )
-        profiles = [profile_box.to_dict()]
-    else:
-        profiles = client.posture_profiles.list_profiles(pagesize=500).to_list()
-        if profile_name is not None:
-            profile_found = False
-            for profile in profiles:
-                if remove_cloud_suffix(profile.get("name")) == remove_cloud_suffix(
-                    profile_name
-                ):
-                    profile_found = True
-                    profiles = [profile]
-            if not profile_found:
-                module.fail_json(
-                    msg="Failed to retrieve Posture Profile  Name: '%s'"
-                    % (profile_name)
-                )
-    module.exit_json(changed=False, profiles=profiles)
+        module.exit_json(
+            changed=False,
+            data=[result.as_dict() if hasattr(result, "as_dict") else result],
+        )
+
+    # Fetch all profiles
+    profile_list, err = collect_all_items(
+        client.posture_profiles.list_posture_profiles, query_params
+    )
+    if err:
+        module.fail_json(msg=f"Error retrieving Posture Profiles: {to_native(err)}")
+
+    result_list = [p.as_dict() if hasattr(p, "as_dict") else p for p in profile_list]
+
+    # Match user-friendly profile name without requiring suffix
+    if profile_name:
+        matched = next(
+            (
+                p
+                for p in result_list
+                if remove_cloud_suffix(p.get("name", "")) == profile_name
+            ),
+            None,
+        )
+        if not matched:
+            available = [remove_cloud_suffix(p.get("name", "")) for p in result_list]
+            module.fail_json(
+                msg=f"Posture Profile '{profile_name}' not found. Available: {available}"
+            )
+        result_list = [matched]
+
+    module.exit_json(changed=False, data=result_list)
 
 
 def main():
@@ -179,6 +199,7 @@ def main():
     argument_spec.update(
         name=dict(type="str", required=False),
         id=dict(type="str", required=False),
+        microtenant_id=dict(type="str", required=False),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:

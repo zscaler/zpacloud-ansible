@@ -196,8 +196,24 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 import json
 
 
+from traceback import format_exc
+from ansible.module_utils._text import to_native
+from ansible.module_utils.basic import AnsibleModule
+import json
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    map_conditions,
+    validate_operand,
+    normalize_policy,
+    deleteNone,
+    collect_all_items,
+)
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
+    ZPAClientHelper,
+)
+
+
 def core(module):
-    state = module.params.get("state", "present")
+    state = module.params.get("state")
     client = ZPAClientHelper(module)
 
     rule_id = module.params.get("id")
@@ -218,6 +234,7 @@ def core(module):
         "conditions": module.params.get("conditions"),
     }
 
+    # Validate operands
     for condition in rule.get("conditions") or []:
         for operand in condition.get("operands", []):
             validation_result = validate_operand(operand, module)
@@ -241,7 +258,13 @@ def core(module):
             query_params,
         )
         if error:
-            module.fail_json(msg=f"Error listing access rules: {to_native(error)}")
+            module.fail_json(
+                msg=f"Error listing client forwarding rules: {to_native(error)}"
+            )
+        if error:
+            module.fail_json(
+                msg=f"Error listing client forwardin rules: {to_native(error)}"
+            )
         for r in rules_list:
             if r.name == rule_name:
                 existing_rule = r.as_dict()
@@ -256,6 +279,7 @@ def core(module):
             existing_rule.get("conditions", [])
         )
         current = normalize_policy(existing_rule)
+        current["rule_order"] = str(existing_rule.get("order", ""))
     else:
         current = {}
 
@@ -267,21 +291,22 @@ def core(module):
         desired_value = desired.get(key)
         current_value = current.get(key)
 
+        # Normalize None vs empty list
         if isinstance(desired_value, list) and not desired_value:
             desired_value = []
         if isinstance(current_value, list) and not current_value:
             current_value = []
 
-    if str(desired_value) != str(current_value):
-        differences_detected = True
-        module.warn(
-            f"Drift detected in '{key}': desired=({type(desired_value).__name__}) {desired_value} | "
-            f"current=({type(current_value).__name__}) {current_value}"
-        )
+        if str(desired_value) != str(current_value):
+            differences_detected = True
+            module.warn(
+                f"Drift detected in '{key}': desired=({type(desired_value).__name__}) "
+                f"{desired_value} | current=({type(current_value).__name__}) {current_value}"
+            )
 
-    if key == "conditions":
-        module.warn(f"→ Desired: {json.dumps(desired_value, indent=2)}")
-        module.warn(f"→ Current: {json.dumps(current_value, indent=2)}")
+        if key == "conditions":
+            module.warn(f"→ Desired: {json.dumps(desired_value, indent=2)}")
+            module.warn(f"→ Current: {json.dumps(current_value, indent=2)}")
 
     # Reorder if specified
     if existing_rule and rule.get("rule_order"):
@@ -370,7 +395,7 @@ def main():
         microtenant_id=dict(type="str", required=False),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
-        policy_type=dict(type="str", required=False),
+        # policy_type=dict(type="str", required=False),
         action=dict(
             type="str",
             required=False,
@@ -426,38 +451,6 @@ def main():
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 
-    # Custom validation for object_type
-    conditions = module.params["conditions"]
-    if conditions:  # Add this check to handle when conditions is None
-        for condition in conditions:
-            operands = condition.get("operands", [])
-            for operand in operands:
-                object_type = operand.get("object_type")
-                valid_object_types = [
-                    "APP",
-                    "APP_GROUP",
-                    "CLIENT_TYPE",
-                    "BRANCH_CONNECTOR_GROUP",
-                    "EDGE_CONNECTOR_GROUP",
-                    "POSTURE",
-                    "MACHINE_GRP",
-                    "TRUSTED_NETWORK",
-                    "PLATFORM",
-                    "IDP",
-                    "SAML",
-                    "SCIM",
-                    "SCIM_GROUP",
-                ]
-                if (
-                    object_type is None or object_type == ""
-                ):  # Explicitly check for None or empty string
-                    module.fail_json(
-                        msg="object_type cannot be empty or None. Must be one of: {', '.join(valid_object_types)}"
-                    )
-                elif object_type not in valid_object_types:
-                    module.fail_json(
-                        msg="Invalid object_type: {object_type}. Must be one of: {', '.join(valid_object_types)}"
-                    )
     try:
         core(module)
     except Exception as e:

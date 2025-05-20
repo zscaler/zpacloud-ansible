@@ -28,10 +28,10 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: zpa_policy_credential_access_rule
-short_description: Create Privileged Credential Rule
+module: zpa_policy_access_app_protection_rule_v2
+short_description: Create a Policy App Protection Rule V2
 description:
-  - This module create/update/delete Create Privileged Credential Rule
+  - This module create/update/delete Create a Policy App Protection Rule V2
 author:
   - William Guilherme (@willguibr)
 version_added: "2.0.0"
@@ -53,28 +53,16 @@ options:
     type: str
     required: true
     description:
-      - The name of the Privileged Credential Rule
+      - The name of the app protection rule
   description:
     description:
-      - This is the description of the Privileged Credential Rule
-    type: str
-    required: false
-  policy_type:
-    description: "The value for differentiating policy types."
+      - This is the description of the app protection rule
     type: str
     required: false
   rule_order:
     description: "The policy evaluation order number of the rule."
     type: str
     required: false
-  operator:
-    description:
-      - This denotes the operation type.
-    type: str
-    required: false
-    choices:
-      - AND
-      - OR
   conditions:
     type: list
     elements: dict
@@ -87,7 +75,7 @@ options:
         required: false
         choices: ["AND", "OR"]
       operands:
-        description: "The various policy criteria. Array of attributes (e.g., object_type, lhs, rhs, name)"
+        description: "The various policy criteria. Array of attributes (e.g., objectType, lhs, rhs, name)"
         type: list
         elements: dict
         required: false
@@ -124,6 +112,7 @@ EXAMPLES = """
     provider: "{{ zpa_cloud }}"
     name: "Policy Isolation Rule - Example"
     description: "Policy Isolation Rule - Example"
+    action: "ISOLATE"
     rule_order: 1
     operator: "AND"
     zpn_isolation_profile_id: "216196257331286656"
@@ -145,7 +134,7 @@ EXAMPLES = """
 """
 
 RETURN = """
-# The newly created policy credential access rule resource record.
+# The newly created policy access isolation rule resource record.
 """
 
 from traceback import format_exc
@@ -172,26 +161,28 @@ def core(module):
 
     rule_id = module.params.get("id")
     rule_name = module.params.get("name")
-    microtenant_id = module.params.get("microtenant_id")
 
     query_params = {}
-    if microtenant_id:
-        query_params["microtenant_id"] = microtenant_id
 
     rule = {
         "id": module.params.get("id"),
-        "microtenant_id": module.params.get("microtenant_id"),
         "name": module.params.get("name"),
         "description": module.params.get("description"),
         "action": module.params.get("action"),
         "rule_order": module.params.get("rule_order"),
-        "credential": module.params.get("credential"),
-        "credential_pool": module.params.get("credential_pool"),
+        "zpn_inspection_profile_id": module.params.get("zpn_inspection_profile_id"),
         "conditions": module.params.get("conditions"),
     }
 
-    # module.warn(f"[core] Input rule: {json.dumps(rule, indent=2)}")
+    if (
+        str(rule["action"]).upper() == "BYPASS_INSPECT"
+        and rule["zpn_inspection_profile_id"]
+    ):
+        module.fail_json(
+            msg="`zpn_inspection_profile_id` must NOT be set when action is BYPASS_INSPECT."
+        )
 
+    # Validate operands
     for condition in rule.get("conditions") or []:
         for operand in condition.get("operands", []):
             validation_result = validate_operand_v2(operand, module)
@@ -201,29 +192,28 @@ def core(module):
     existing_rule = None
     if rule_id:
         result, _, error = client.policies.get_rule(
-            policy_type="credential", rule_id=rule_id, query_params=query_params
+            policy_type="inspection", rule_id=rule_id, query_params=query_params
         )
         if error:
             module.fail_json(
                 msg=f"Error retrieving rule with id {rule_id}: {to_native(error)}"
             )
         existing_rule = result.as_dict()
-        # module.warn(f"Fetched existing rule: {existing_rule}")
-        # module.warn(f"[core] Existing rule from ID: {json.dumps(existing_rule, indent=2)}")
+        module.warn(f"Fetched existing rule: {existing_rule}")
     else:
-        # module.warn("[core] Listing rules to match by name...")
         rules_list, error = collect_all_items(
-            lambda qp: client.policies.list_rules("credential", query_params=qp),
+            lambda qp: client.policies.list_rules("inspection", query_params=qp),
             query_params,
         )
         if error:
-            module.fail_json(msg=f"Error listing credential rules: {to_native(error)}")
+            module.fail_json(
+                msg=f"Error listing app protection rules: {to_native(error)}"
+            )
         for r in rules_list:
             if r.name == rule_name:
                 existing_rule = r.as_dict()
                 break
 
-    # module.warn("[core] Normalizing desired state...")
     desired = normalize_policy_v2(
         {**rule, "conditions": map_conditions_v2(rule.get("conditions", []))}
     )
@@ -236,8 +226,8 @@ def core(module):
     else:
         current = {}
 
-    # module.warn(f"[core] Normalized desired: {json.dumps(desired, indent=2)}")
-    # module.warn(f"[core] Normalized current: {json.dumps(current, indent=2)}")
+    module.warn(f"[core] Normalized desired: {json.dumps(desired, indent=2)}")
+    module.warn(f"[core] Normalized current: {json.dumps(current, indent=2)}")
 
     differences_detected = False
     for key in desired:
@@ -259,9 +249,9 @@ def core(module):
                 f"current=({type(current_value).__name__}) {current_value}"
             )
 
-            if key == "conditions":
-                module.warn(f"→ Desired: {json.dumps(desired_value, indent=2)}")
-                module.warn(f"→ Current: {json.dumps(current_value, indent=2)}")
+        if key == "conditions":
+            module.warn(f"→ Desired: {json.dumps(desired_value, indent=2)}")
+            module.warn(f"→ Current: {json.dumps(current_value, indent=2)}")
 
     # Reorder if specified
     if existing_rule and rule.get("rule_order"):
@@ -270,13 +260,13 @@ def core(module):
         if desired_order != current_order:
             try:
                 _, _, error = client.policies.reorder_rule(
-                    policy_type="credential",
+                    policy_type="inspection",
                     rule_id=existing_rule["id"],
                     rule_order=desired_order,
                 )
                 if error:
                     module.fail_json(msg=f"Error reordering rule: {to_native(error)}")
-                # module.warn(f"Reordered rule to order {desired_order}")
+                module.warn(f"Reordered rule to order {desired_order}")
             except Exception as e:
                 module.fail_json(msg=f"Failed to reorder rule: {to_native(e)}")
 
@@ -288,119 +278,41 @@ def core(module):
         else:
             module.exit_json(changed=False)
 
+    # Update or create
     if state == "present":
         if existing_rule and differences_detected:
-            """Update"""
             update_data = deleteNone(
                 {
                     "rule_id": existing_rule["id"],
-                    "microtenant_id": rule["microtenant_id"],
                     "name": rule["name"],
                     "description": rule["description"],
                     "action": rule["action"],
                     "rule_order": rule["rule_order"],
-                    "credential": rule["credential"],
-                    "credential_pool": rule["credential_pool"],
+                    "zpn_inspection_profile_id": rule["zpn_inspection_profile_id"],
                     "conditions": map_conditions_v2(rule["conditions"]),
                 }
             )
-            module.warn(
-                f"[core] Update data before credential unpack: {json.dumps(update_data, indent=2)}"
+            module.warn(f"Update payload to SDK: {update_data}")
+            result, _, error = client.policies.update_app_protection_rule_v2(
+                **update_data
             )
-            credential_id = None
-            credential_pool_id = None
-
-            credential = update_data.pop("credential", {})
-            credential_pool = update_data.pop("credential_pool", {})
-
-            if isinstance(credential, dict):
-                credential_id = credential.get("id")
-
-            if isinstance(credential_pool, dict):
-                credential_pool_id = credential_pool.get("id")
-
-            if credential_id and credential_pool_id:
-                module.fail_json(
-                    msg="Only one of 'credential' or 'credential_pool' may be specified."
-                )
-            elif not credential_id and not credential_pool_id:
-                module.fail_json(
-                    msg="You must specify either 'credential.id' or 'credential_pool.id'."
-                )
-
-            update_data["credential_id"] = credential_id
-            update_data["credential_pool_id"] = credential_pool_id
-
-            name = update_data.pop("name")
-            module.warn(
-                f"[core] Invoking update SDK with: {json.dumps(update_data, indent=2)}"
-            )
-            result, _, error = client.policies.update_privileged_credential_rule_v2(
-                rule_id=update_data.pop("rule_id"),
-                name=name,
-                **update_data,
-            )
-
             if error:
                 module.fail_json(msg=f"Error updating rule: {to_native(error)}")
             module.exit_json(changed=True, data=result.as_dict())
 
         elif not existing_rule:
-            """Create"""
             create_data = deleteNone(
                 {
-                    "microtenant_id": rule["microtenant_id"],
                     "name": rule["name"],
                     "description": rule["description"],
                     "action": rule["action"],
                     "rule_order": rule["rule_order"],
-                    "credential": rule["credential"],
-                    "credential_pool": rule["credential_pool"],
+                    "zpn_inspection_profile_id": rule["zpn_inspection_profile_id"],
                     "conditions": map_conditions_v2(rule["conditions"]),
                 }
             )
-
-            credential_id = None
-            credential_pool_id = None
-
-            credential = create_data.pop("credential", {})
-            credential_pool = create_data.pop("credential_pool", {})
-
-            if isinstance(credential, dict):
-                credential_id = credential.get("id")
-
-            if isinstance(credential_pool, dict):
-                credential_pool_id = credential_pool.get("id")
-
-            if credential_id and credential_pool_id:
-                module.fail_json(
-                    msg="Only one of 'credential' or 'credential_pool' may be specified."
-                )
-            elif not credential_id and not credential_pool_id:
-                module.fail_json(
-                    msg="You must specify either 'credential.id' or 'credential_pool.id'."
-                )
-
-            create_data["credential_id"] = credential_id
-            create_data["credential_pool_id"] = credential_pool_id
-
-            name = create_data.pop("name")
-            conditions = create_data.pop("conditions", [])
-
-            module.warn(
-                f"[core] Invoking create SDK with: name={name}, credential_id={credential_id}, credential_pool_id={credential_pool_id}"
-            )
-            module.warn(
-                f"[core] Conditions payload: {json.dumps(conditions, indent=2)}"
-            )
-            module.warn(f"[core] Create body: {json.dumps(create_data, indent=2)}")
-
-            result, _, error = client.policies.add_privileged_credential_rule_v2(
-                name=name,
-                conditions=conditions,
-                **create_data,
-            )
-
+            module.warn(f"Create payload to SDK: {create_data}")
+            result, _, error = client.policies.add_app_protection_rule_v2(**create_data)
             if error:
                 module.fail_json(msg=f"Error creating rule: {to_native(error)}")
             module.exit_json(changed=True, data=result.as_dict())
@@ -410,7 +322,7 @@ def core(module):
 
     elif state == "absent" and existing_rule:
         _, _, error = client.policies.delete_rule(
-            policy_type="credential", rule_id=existing_rule["id"]
+            policy_type="inspection", rule_id=existing_rule["id"]
         )
         if error:
             module.fail_json(msg=f"Error deleting rule: {to_native(error)}")
@@ -423,26 +335,14 @@ def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
         id=dict(type="str", required=False),
-        microtenant_id=dict(type="str", required=False),
         name=dict(type="str", required=True),
-        action=dict(type="str", required=False, default="INJECT_CREDENTIALS"),
         description=dict(type="str", required=False),
-        policy_type=dict(type="str", required=False),
-        # operator=dict(type="str", required=False, choices=["AND", "OR"]),
         rule_order=dict(type="str", required=False),
-        credential=dict(
-            type="dict",
+        zpn_inspection_profile_id=dict(type="str", required=False),
+        action=dict(
+            type="str",
             required=False,
-            options=dict(
-                id=dict(type="str", required=False),
-            ),
-        ),
-        credential_pool=dict(
-            type="dict",
-            required=False,
-            options=dict(
-                id=dict(type="str", required=False),
-            ),
+            choices=["INSPECT", "inspect", "BYPASS_INSPECT", "bypass_inspect"],
         ),
         conditions=dict(
             type="list",
@@ -466,10 +366,18 @@ def main():
                             type="str",
                             required=False,
                             choices=[
-                                "CONSOLE",
+                                "APP",
+                                "APP_GROUP",
+                                "CLIENT_TYPE",
+                                "EDGE_CONNECTOR_GROUP",
+                                "IDP",
+                                "POSTURE",
                                 "SAML",
                                 "SCIM",
                                 "SCIM_GROUP",
+                                "TRUSTED_NETWORK",
+                                "PLATFORM",
+                                "MACHINE_GRP",
                             ],
                         ),
                     ),

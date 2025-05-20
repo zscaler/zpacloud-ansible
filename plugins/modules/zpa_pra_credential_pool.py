@@ -94,20 +94,22 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     deleteNone,
     collect_all_items,
-    normalize_app
+    normalize_app,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+
 
 def core(module):
     state = module.params.get("state")
     client = ZPAClientHelper(module)
 
     # Collect parameters
-    cred = {k: module.params.get(k) for k in [
-        "id", "microtenant_id", "name", "credential_type", "credential_ids"
-    ]}
+    cred = {
+        k: module.params.get(k)
+        for k in ["id", "microtenant_id", "name", "credential_type", "credential_ids"]
+    }
 
     pool_id = cred.get("id")
     cred_name = cred.get("name")
@@ -134,7 +136,9 @@ def core(module):
             pool_id, query_params=query_params
         )
         if error:
-            module.fail_json(msg=f"Error fetching credential pool by ID: {to_native(error)}")
+            module.fail_json(
+                msg=f"Error fetching credential pool by ID: {to_native(error)}"
+            )
         existing_cred = result.as_dict()
 
     # Normalize desired and current
@@ -152,7 +156,9 @@ def core(module):
         current_cred.pop("credentials", None)
 
     if "credential_ids" in desired_cred:
-        desired_cred["credential_ids"] = sorted(map(str, desired_cred["credential_ids"]))
+        desired_cred["credential_ids"] = sorted(
+            map(str, desired_cred["credential_ids"])
+        )
 
     # Drift detection
     fields_to_exclude = ["id"]
@@ -164,7 +170,9 @@ def core(module):
 
         if key not in fields_to_exclude and current_value != value:
             differences_detected = True
-            module.warn(f"Difference detected in {key}. Current: {current_value}, Desired: {value}")
+            module.warn(
+                f"Difference detected in {key}. Current: {current_value}, Desired: {value}"
+            )
 
     if module.check_mode:
         if state == "present" and (not existing_cred or differences_detected):
@@ -184,36 +192,50 @@ def core(module):
     if state == "present":
         if existing_cred:
             if differences_detected:
-                if existing_cred.get("credential_type") != desired_cred.get("credential_type"):
-                    module.fail_json(msg="Credential type cannot be modified after creation.")
+                if existing_cred.get("credential_type") != desired_cred.get(
+                    "credential_type"
+                ):
+                    module.fail_json(
+                        msg="Credential type cannot be modified after creation."
+                    )
 
-                update_payload = deleteNone({
-                    "pool_id": existing_cred["id"],
-                    "microtenant_id": desired_cred.get("microtenant_id"),
-                    "name": desired_cred.get("name"),
-                    "credential_type": desired_cred.get("credential_type"),
-                    "credential_ids": desired_cred.get("credential_ids"),
-                })
+                update_payload = deleteNone(
+                    {
+                        "pool_id": existing_cred["id"],
+                        "microtenant_id": desired_cred.get("microtenant_id"),
+                        "name": desired_cred.get("name"),
+                        "credential_type": desired_cred.get("credential_type"),
+                        "credential_ids": desired_cred.get("credential_ids"),
+                    }
+                )
 
                 module.warn(f"[UPDATE] Payload: {update_payload}")
-                updated_cred, _, error = client.pra_credential_pool.update_credential_pool(
-                    pool_id=update_payload.pop("pool_id"), **update_payload
+                updated_cred, _, error = (
+                    client.pra_credential_pool.update_credential_pool(
+                        pool_id=update_payload.pop("pool_id"), **update_payload
+                    )
                 )
                 if error:
-                    module.fail_json(msg=f"Error updating credential: {to_native(error)}")
+                    module.fail_json(
+                        msg=f"Error updating credential: {to_native(error)}"
+                    )
                 module.exit_json(changed=True, data=updated_cred.as_dict())
             else:
                 module.exit_json(changed=False, data=existing_cred)
         else:
-            create_payload = deleteNone({
-                "microtenant_id": desired_cred.get("microtenant_id"),
-                "name": desired_cred.get("name"),
-                "credential_type": desired_cred.get("credential_type"),
-                "credential_ids": desired_cred.get("credential_ids"),
-            })
+            create_payload = deleteNone(
+                {
+                    "microtenant_id": desired_cred.get("microtenant_id"),
+                    "name": desired_cred.get("name"),
+                    "credential_type": desired_cred.get("credential_type"),
+                    "credential_ids": desired_cred.get("credential_ids"),
+                }
+            )
 
             module.warn(f"[CREATE] Payload: {create_payload}")
-            new_cred, _, error = client.pra_credential_pool.add_credential_pool(**create_payload)
+            new_cred, _, error = client.pra_credential_pool.add_credential_pool(
+                **create_payload
+            )
             if error:
                 module.fail_json(msg=f"Error creating credential: {to_native(error)}")
             module.exit_json(changed=True, data=new_cred.as_dict())

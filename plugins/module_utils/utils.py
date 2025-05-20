@@ -338,6 +338,61 @@ def map_conditions(conditions_obj):
     return result
 
 
+# def normalize_policy(policy):
+#     normalized = policy.copy()
+
+#     # Exclude the computed values from the data
+#     computed_values = [
+#         "modified_time",
+#         "creation_time",
+#         "modified_by",
+#         "rule_order",
+#         "idp_id",
+#     ]
+#     for attr in computed_values:
+#         normalized.pop(attr, None)
+
+#     # Convert server's app_connector_groups to app_connector_group_ids
+#     if "app_connector_groups" in normalized and isinstance(
+#         normalized["app_connector_groups"], list
+#     ):
+#         normalized["app_connector_group_ids"] = [
+#             group["id"] for group in normalized["app_connector_groups"] if "id" in group
+#         ]
+#         del normalized["app_connector_groups"]
+
+#     # Convert server's app_server_groups to app_server_group_ids
+#     if "app_server_groups" in normalized and isinstance(
+#         normalized["app_server_groups"], list
+#     ):
+#         normalized["app_server_group_ids"] = [
+#             group["id"] for group in normalized["app_server_groups"] if "id" in group
+#         ]
+#         del normalized["app_server_groups"]
+
+#     # Normalize action attribute
+#     if "action" in normalized and normalized["action"] is not None:
+#         normalized["action"] = normalized["action"].upper()
+#     elif "action" in normalized and normalized["action"] is None:
+#         normalized.pop("action", None)  # Remove 'action' key if the value is None
+
+#     # Remove IDs from conditions and operands but keep the main policy rule ID
+#     for condition in normalized.get("conditions", []):
+#         condition.pop("id", None)  # remove ID from condition
+#         condition.pop("negated", None)  # remove 'negated' as it is deprecated
+
+#         for operand in condition.get("operands", []):
+#             operand.pop("id", None)  # remove ID from operand
+#             operand.pop("name", None)  # remove name from operand
+#             operand.pop("idp_id", None)  # remove idp_id from operand
+
+#             # Adjust the operand key from "objectType" to "object_type"
+#             if "objectType" in operand:
+#                 operand["object_type"] = operand.pop("objectType")
+
+#     return normalized
+
+
 def normalize_policy(policy):
     normalized = policy.copy()
 
@@ -352,29 +407,41 @@ def normalize_policy(policy):
     for attr in computed_values:
         normalized.pop(attr, None)
 
-    # Convert server's app_connector_groups to app_connector_group_ids
-    if "app_connector_groups" in normalized and isinstance(
-        normalized["app_connector_groups"], list
-    ):
+    # ------------------------------------------------ group ids
+    # (keep the object lists around for a moment; we drop them later)
+    if "app_connector_groups" in normalized:
         normalized["app_connector_group_ids"] = [
-            group["id"] for group in normalized["app_connector_groups"] if "id" in group
+            g.get("id") for g in normalized["app_connector_groups"] if g.get("id")
         ]
-        del normalized["app_connector_groups"]
 
-    # Convert server's app_server_groups to app_server_group_ids
-    if "app_server_groups" in normalized and isinstance(
-        normalized["app_server_groups"], list
-    ):
+    if "app_server_groups" in normalized:
         normalized["app_server_group_ids"] = [
-            group["id"] for group in normalized["app_server_groups"] if "id" in group
+            g.get("id") for g in normalized["app_server_groups"] if g.get("id")
         ]
-        del normalized["app_server_groups"]
 
     # Normalize action attribute
     if "action" in normalized and normalized["action"] is not None:
         normalized["action"] = normalized["action"].upper()
     elif "action" in normalized and normalized["action"] is None:
         normalized.pop("action", None)  # Remove 'action' key if the value is None
+
+    for grp_key, id_key in (
+        ("app_connector_groups", "app_connector_group_ids"),
+        ("app_server_groups", "app_server_group_ids"),
+    ):
+        if id_key not in normalized or normalized[id_key] in (None, []):
+            objs = normalized.get(grp_key, [])
+            if objs:
+                normalized[id_key] = [o["id"] for o in objs if "id" in o]
+
+        # Always store as a sorted list (or empty list)
+        if normalized.get(id_key) is None:
+            normalized[id_key] = []
+        else:
+            normalized[id_key] = sorted(normalized[id_key])
+
+        # The heavy object lists are no longer needed for comparison
+        normalized.pop(grp_key, None)
 
     # Remove IDs from conditions and operands but keep the main policy rule ID
     for condition in normalized.get("conditions", []):
@@ -535,11 +602,379 @@ def validate_operand(operand, module):
     return None
 
 
+# Working function
+# def normalize_policy_v2(policy):
+#     """
+#     Canonical-ise an access-rule dict so that the 'conditions' list is stable
+#     (same order, same key order) and—critically—forces value-based operand
+#     groups to use operator "OR", matching what the API returns.
+#     """
+#     import copy
+
+#     normalized = copy.deepcopy(policy)
+
+#     # ------------------------------------------------ metadata
+#     for k in (
+#         "modified_time",
+#         "creation_time",
+#         "modified_by",
+#         "policy_type",
+#         "rule_order",
+#     ):
+#         normalized.pop(k, None)
+
+#     # ------------------------------------------------ group ids
+#     if "app_connector_groups" in normalized:
+#         normalized["app_connector_group_ids"] = [
+#             g["id"] for g in normalized["app_connector_groups"] if "id" in g
+#         ]
+#         normalized.pop("app_connector_groups", None)
+
+#     if "app_server_groups" in normalized:
+#         normalized["app_server_group_ids"] = [
+#             g["id"] for g in normalized["app_server_groups"] if "id" in g
+#         ]
+#         normalized.pop("app_server_groups", None)
+
+#     # ------------------------------------------------ credential refs
+#     if isinstance(normalized.get("credential"), dict):
+#         normalized["credential_id"] = normalized["credential"].get("id")
+#         normalized.pop("credential", None)
+
+#     if isinstance(normalized.get("credential_pool"), dict):
+#         normalized["credential_pool_id"] = normalized["credential_pool"].get("id")
+#         normalized.pop("credential_pool", None)
+
+#     if "action" in normalized:
+#         normalized["action"] = str(normalized["action"]).upper()
+
+#     # ------------------------------------------------ type sets
+#     VALUE_TYPES = {
+#         "APP",
+#         "APP_GROUP",
+#         "CLIENT_TYPE",
+#         "MACHINE_GRP",
+#         "EDGE_CONNECTOR_GROUP",
+#         "CONSOLE",
+#         "LOCATION",
+#         "BRANCH_CONNECTOR_GROUP",
+#     }
+
+#     ENTRY_TYPES = {
+#         "PLATFORM",
+#         "POSTURE",
+#         "TRUSTED_NETWORK",
+#         "SAML",
+#         "SCIM",
+#         "SCIM_GROUP",
+#         "COUNTRY_CODE",
+#         "RISK_FACTOR_TYPE",
+#         "CHROME_ENTERPRISE",
+#     }
+
+#     v2_conds = []
+
+#     # ------------------------------------------------ iterate user-supplied conditions
+#     for cond in normalized.get("conditions", []):
+
+#         # 1) tuple/list wrapper:  ("AND"/"OR", inner)
+#         if (
+#             isinstance(cond, (tuple, list))
+#             and len(cond) == 2
+#             and str(cond[0]).upper() in ("AND", "OR")
+#         ):
+#             op = str(cond[0]).upper()
+#             inner = cond[1]
+
+#             # inner = (obj, lhs, rhs)
+#             if isinstance(inner, (tuple, list)) and len(inner) == 3:
+#                 obj, lhs, rhs = inner
+#                 obj = obj.upper()
+#                 if obj in ENTRY_TYPES:
+#                     operands = [
+#                         {"object_type": obj, "entry_values": [{"lhs": lhs, "rhs": rhs}]}
+#                     ]
+#                 else:
+#                     operands = [{"object_type": obj, "values": sorted([str(rhs)])}]
+
+#             # inner = (obj, values / [(lhs,rhs)...])
+#             elif isinstance(inner, (tuple, list)) and len(inner) == 2:
+#                 obj, vals = inner
+#                 obj = obj.upper()
+#                 if (
+#                     isinstance(vals, list)
+#                     and vals
+#                     and all(isinstance(v, (tuple, list)) and len(v) == 2 for v in vals)
+#                 ):
+#                     operands = [
+#                         {
+#                             "object_type": obj,
+#                             "entry_values": [{"lhs": v[0], "rhs": v[1]} for v in vals],
+#                         }
+#                     ]
+#                 else:
+#                     vals = vals if isinstance(vals, list) else [vals]
+#                     operands = [{"object_type": obj, "values": sorted([str(v) for v in vals])}]
+#             else:
+#                 continue
+
+#             v2_conds.append({"operands": operands, "operator": op})
+#             continue
+
+#         # 2) plain (obj, values / tuples)
+#         if isinstance(cond, (tuple, list)) and len(cond) == 2:
+#             obj, vals = cond
+#             obj = obj.upper()
+
+#             if (
+#                 isinstance(vals, list)
+#                 and vals
+#                 and all(isinstance(v, (tuple, list)) and len(v) == 2 for v in vals)
+#             ):
+#                 operands = [
+#                     {
+#                         "object_type": obj,
+#                         "entry_values": [{"lhs": v[0], "rhs": v[1]} for v in vals],
+#                     }
+#                 ]
+#             else:
+#                 vals = vals if isinstance(vals, list) else [vals]
+#                 operands = [{"object_type": obj, "values": sorted([str(v) for v in vals])}]
+
+#             v2_conds.append({"operands": operands})
+#             continue
+
+#         # 3) already dict-style
+#         if isinstance(cond, dict) and "operands" in cond:
+#             op = str(cond.get("operator", "AND")).upper()
+#             ops = cond["operands"]
+#             # Sort values in existing dict-style conditions if present
+#             for operand in ops:
+#                 if "values" in operand:
+#                     operand["values"] = sorted([str(v) for v in operand["values"]])
+#             v2_conds.append({"operands": ops, **({"operator": op} if op else {})})
+
+#     # ------------------------------------------------ canonicalise operator for VALUE_TYPES
+#     for c in v2_conds:
+#         first_obj = c["operands"][0]["object_type"].upper()
+#         if first_obj in VALUE_TYPES:
+#             c["operator"] = "OR"  # API always returns OR for value lists
+
+#     # ------------------------------------------------ stable ordering
+#     def _key(c):
+#         obj = c["operands"][0]["object_type"]
+#         op = c["operator"]
+#         return (obj, op)
+
+#     normalized["conditions"] = sorted(v2_conds, key=_key)
+#     return normalized
+
+# Working function version 2
+# def normalize_policy_v2(policy):
+#     """
+#     Canonical-ise an access-rule dict so that the 'conditions' list is stable
+#     (same order, same key order) and—critically—ignores operand ordering
+#     inside 'values' lists.  It now also handles raw 3-tuple conditions.
+#     """
+#     import copy
+
+#     normalized = copy.deepcopy(policy)
+
+#     # ------------------------------------------------ metadata
+#     for k in (
+#         "modified_time",
+#         "creation_time",
+#         "modified_by",
+#         "policy_type",
+#         "rule_order",
+#     ):
+#         normalized.pop(k, None)
+
+#     # ------------------------------------------------ group ids
+#     if "app_connector_groups" in normalized:
+#         normalized["app_connector_group_ids"] = [
+#             g["id"] for g in normalized["app_connector_groups"] if "id" in g
+#         ]
+#         normalized.pop("app_connector_groups", None)
+
+#     if "app_server_groups" in normalized:
+#         normalized["app_server_group_ids"] = [
+#             g["id"] for g in normalized["app_server_groups"] if "id" in g
+#         ]
+#         normalized.pop("app_server_groups", None)
+
+#     # ------------------------------------------------ credential refs
+#     if isinstance(normalized.get("credential"), dict):
+#         normalized["credential_id"] = normalized["credential"].get("id")
+#         normalized.pop("credential", None)
+
+#     if isinstance(normalized.get("credential_pool"), dict):
+#         normalized["credential_pool_id"] = normalized["credential_pool"].get("id")
+#         normalized.pop("credential_pool", None)
+
+#     if "action" in normalized:
+#         normalized["action"] = str(normalized["action"]).upper()
+
+#     # ------------------------------------------------ type sets
+#     VALUE_TYPES = {
+#         "APP",
+#         "APP_GROUP",
+#         "CLIENT_TYPE",
+#         "MACHINE_GRP",
+#         "EDGE_CONNECTOR_GROUP",
+#         "CONSOLE",
+#         "LOCATION",
+#         "BRANCH_CONNECTOR_GROUP",
+#     }
+
+#     ENTRY_TYPES = {
+#         "PLATFORM",
+#         "POSTURE",
+#         "TRUSTED_NETWORK",
+#         "SAML",
+#         "SCIM",
+#         "SCIM_GROUP",
+#         "COUNTRY_CODE",
+#         "RISK_FACTOR_TYPE",
+#         "CHROME_ENTERPRISE",
+#     }
+
+#     v2_conds = []
+
+#     # ------------------------------------------------ iterate user-supplied conditions
+#     for cond in normalized.get("conditions", []):
+
+#         # 0) plain triple ── (obj, lhs, rhs) or (obj, val, None)
+#         if isinstance(cond, (tuple, list)) and len(cond) == 3:
+#             obj, lhs, rhs = cond
+#             obj = obj.upper()
+
+#             if obj in ENTRY_TYPES:
+#                 operands = [
+#                     {
+#                         "object_type": obj,
+#                         "entry_values": [{"lhs": lhs, "rhs": rhs}],
+#                     }
+#                 ]
+#             else:
+#                 operands = [
+#                     {
+#                         "object_type": obj,
+#                         "values": [str(rhs)],
+#                     }
+#                 ]
+
+#             v2_conds.append({"operands": operands, "operator": "OR"})
+#             continue
+
+#         # 1) wrapper ── ("AND"/"OR", inner)
+#         if (
+#             isinstance(cond, (tuple, list))
+#             and len(cond) == 2
+#             and str(cond[0]).upper() in ("AND", "OR")
+#         ):
+#             op = str(cond[0]).upper()
+#             inner = cond[1]
+
+#             # inner triple
+#             if isinstance(inner, (tuple, list)) and len(inner) == 3:
+#                 obj, lhs, rhs = inner
+#                 obj = obj.upper()
+#                 if obj in ENTRY_TYPES:
+#                     operands = [
+#                         {
+#                             "object_type": obj,
+#                             "entry_values": [{"lhs": lhs, "rhs": rhs}],
+#                         }
+#                     ]
+#                 else:
+#                     operands = [
+#                         {
+#                             "object_type": obj,
+#                             "values": [str(rhs)],
+#                         }
+#                     ]
+
+#             # inner pair
+#             elif isinstance(inner, (tuple, list)) and len(inner) == 2:
+#                 obj, vals = inner
+#                 obj = obj.upper()
+#                 if (
+#                     isinstance(vals, list)
+#                     and vals
+#                     and all(isinstance(v, (tuple, list)) and len(v) == 2 for v in vals)
+#                 ):
+#                     operands = [
+#                         {
+#                             "object_type": obj,
+#                             "entry_values": [{"lhs": v[0], "rhs": v[1]} for v in vals],
+#                         }
+#                     ]
+#                 else:
+#                     vals = vals if isinstance(vals, list) else [vals]
+#                     operands = [{"object_type": obj, "values": [str(v) for v in vals]}]
+#             else:
+#                 continue
+
+#             v2_conds.append({"operands": operands, "operator": op})
+#             continue
+
+#         # 2) plain pair ── (obj, vals / [ (lhs,rhs)... ])
+#         if isinstance(cond, (tuple, list)) and len(cond) == 2:
+#             obj, vals = cond
+#             obj = obj.upper()
+
+#             if (
+#                 isinstance(vals, list)
+#                 and vals
+#                 and all(isinstance(v, (tuple, list)) and len(v) == 2 for v in vals)
+#             ):
+#                 operands = [
+#                     {
+#                         "object_type": obj,
+#                         "entry_values": [{"lhs": v[0], "rhs": v[1]} for v in vals],
+#                     }
+#                 ]
+#             else:
+#                 vals = vals if isinstance(vals, list) else [vals]
+#                 operands = [{"object_type": obj, "values": [str(v) for v in vals]}]
+
+#             v2_conds.append({"operands": operands})
+#             continue
+
+#         # 3) already a dict
+#         if isinstance(cond, dict) and "operands" in cond:
+#             op = str(cond.get("operator", "AND")).upper()
+#             ops = cond["operands"]
+#             v2_conds.append({"operands": ops, **({"operator": op} if op else {})})
+
+#     # ------------------------------------------------ canonicalise operator for VALUE_TYPES
+#     for c in v2_conds:
+#         first_obj = c["operands"][0]["object_type"].upper()
+#         if first_obj in VALUE_TYPES:
+#             c["operator"] = "OR"  # API always returns OR for value lists
+
+#     # ------------------------------------------------ order-insensitive 'values' lists
+#     for c in v2_conds:
+#         for operand in c["operands"]:
+#             if "values" in operand:
+#                 operand["values"] = sorted(str(v) for v in operand["values"])
+
+#     # ------------------------------------------------ stable ordering
+#     def _key(c):
+#         obj = c["operands"][0]["object_type"]
+#         op = c["operator"]
+#         return (obj, op)
+
+#     normalized["conditions"] = sorted(v2_conds, key=_key)
+#     return normalized
+
+
 def normalize_policy_v2(policy):
     """
     Canonical-ise an access-rule dict so that the 'conditions' list is stable
-    (same order, same key order) and—critically—forces value-based operand
-    groups to use operator "OR", matching what the API returns.
+    (same order, same key order) and—critically—ignores operand ordering
+    inside 'values' lists.  It now also handles raw 3-tuple conditions.
     """
     import copy
 
@@ -556,17 +991,16 @@ def normalize_policy_v2(policy):
         normalized.pop(k, None)
 
     # ------------------------------------------------ group ids
+    # (keep the object lists around for a moment; we drop them later)
     if "app_connector_groups" in normalized:
         normalized["app_connector_group_ids"] = [
-            g["id"] for g in normalized["app_connector_groups"] if "id" in g
+            g.get("id") for g in normalized["app_connector_groups"] if g.get("id")
         ]
-        normalized.pop("app_connector_groups", None)
 
     if "app_server_groups" in normalized:
         normalized["app_server_group_ids"] = [
-            g["id"] for g in normalized["app_server_groups"] if "id" in g
+            g.get("id") for g in normalized["app_server_groups"] if g.get("id")
         ]
-        normalized.pop("app_server_groups", None)
 
     # ------------------------------------------------ credential refs
     if isinstance(normalized.get("credential"), dict):
@@ -579,6 +1013,25 @@ def normalize_policy_v2(policy):
 
     if "action" in normalized:
         normalized["action"] = str(normalized["action"]).upper()
+
+    # ------------------------------------------------ ensure ID lists exist, sorted, and objects removed
+    for grp_key, id_key in (
+        ("app_connector_groups", "app_connector_group_ids"),
+        ("app_server_groups", "app_server_group_ids"),
+    ):
+        if id_key not in normalized or normalized[id_key] in (None, []):
+            objs = normalized.get(grp_key, [])
+            if objs:
+                normalized[id_key] = [o["id"] for o in objs if "id" in o]
+
+        # Always store as a sorted list (or empty list)
+        if normalized.get(id_key) is None:
+            normalized[id_key] = []
+        else:
+            normalized[id_key] = sorted(normalized[id_key])
+
+        # The heavy object lists are no longer needed for comparison
+        normalized.pop(grp_key, None)
 
     # ------------------------------------------------ type sets
     VALUE_TYPES = {
@@ -609,7 +1062,30 @@ def normalize_policy_v2(policy):
     # ------------------------------------------------ iterate user-supplied conditions
     for cond in normalized.get("conditions", []):
 
-        # 1) tuple/list wrapper:  ("AND"/"OR", inner)
+        # 0) plain triple ── (obj, lhs, rhs) or (obj, val, None)
+        if isinstance(cond, (tuple, list)) and len(cond) == 3:
+            obj, lhs, rhs = cond
+            obj = obj.upper()
+
+            if obj in ENTRY_TYPES:
+                operands = [
+                    {
+                        "object_type": obj,
+                        "entry_values": [{"lhs": lhs, "rhs": rhs}],
+                    }
+                ]
+            else:
+                operands = [
+                    {
+                        "object_type": obj,
+                        "values": [str(rhs)],
+                    }
+                ]
+
+            v2_conds.append({"operands": operands, "operator": "OR"})
+            continue
+
+        # 1) wrapper ── ("AND"/"OR", inner)
         if (
             isinstance(cond, (tuple, list))
             and len(cond) == 2
@@ -618,18 +1094,26 @@ def normalize_policy_v2(policy):
             op = str(cond[0]).upper()
             inner = cond[1]
 
-            # inner = (obj, lhs, rhs)
+            # inner triple
             if isinstance(inner, (tuple, list)) and len(inner) == 3:
                 obj, lhs, rhs = inner
                 obj = obj.upper()
                 if obj in ENTRY_TYPES:
                     operands = [
-                        {"object_type": obj, "entry_values": [{"lhs": lhs, "rhs": rhs}]}
+                        {
+                            "object_type": obj,
+                            "entry_values": [{"lhs": lhs, "rhs": rhs}],
+                        }
                     ]
                 else:
-                    operands = [{"object_type": obj, "values": [rhs]}]
+                    operands = [
+                        {
+                            "object_type": obj,
+                            "values": [str(rhs)],
+                        }
+                    ]
 
-            # inner = (obj, values / [(lhs,rhs)...])
+            # inner pair
             elif isinstance(inner, (tuple, list)) and len(inner) == 2:
                 obj, vals = inner
                 obj = obj.upper()
@@ -653,7 +1137,7 @@ def normalize_policy_v2(policy):
             v2_conds.append({"operands": operands, "operator": op})
             continue
 
-        # 2) plain (obj, values / tuples)
+        # 2) plain pair ── (obj, vals / [ (lhs,rhs)... ])
         if isinstance(cond, (tuple, list)) and len(cond) == 2:
             obj, vals = cond
             obj = obj.upper()
@@ -676,7 +1160,7 @@ def normalize_policy_v2(policy):
             v2_conds.append({"operands": operands})
             continue
 
-        # 3) already dict-style
+        # 3) already a dict
         if isinstance(cond, dict) and "operands" in cond:
             op = str(cond.get("operator", "AND")).upper()
             ops = cond["operands"]
@@ -686,7 +1170,13 @@ def normalize_policy_v2(policy):
     for c in v2_conds:
         first_obj = c["operands"][0]["object_type"].upper()
         if first_obj in VALUE_TYPES:
-            c["operator"] = "OR"        # API always returns OR for value lists
+            c["operator"] = "OR"  # API always returns OR for value lists
+
+    # ------------------------------------------------ order-insensitive 'values' lists
+    for c in v2_conds:
+        for operand in c["operands"]:
+            if "values" in operand:
+                operand["values"] = sorted(str(v) for v in operand["values"])
 
     # ------------------------------------------------ stable ordering
     def _key(c):
@@ -696,6 +1186,7 @@ def normalize_policy_v2(policy):
 
     normalized["conditions"] = sorted(v2_conds, key=_key)
     return normalized
+
 
 def map_conditions_v2(conditions_obj):
     """
@@ -710,17 +1201,23 @@ def map_conditions_v2(conditions_obj):
         op = (cond.get("operator") or "").upper() or None
 
         for operand in cond.get("operands", []):
-            obj = (operand.get("object_type") or operand.get("objectType") or "").lower()
+            obj = (
+                operand.get("object_type") or operand.get("objectType") or ""
+            ).lower()
             if not obj:
                 continue
 
             # ------------------------------------------------ entry_values path
             entry_vals = operand.get("entry_values") or operand.get("entryValues")
-            if entry_vals:                                   # <- guards against None
+            if entry_vals:  # <- guards against None
                 pairs = entry_vals if isinstance(entry_vals, list) else [entry_vals]
                 tuples = [(str(p["lhs"]), str(p["rhs"])) for p in pairs]
 
-                payload = (obj, tuples[0][0], tuples[0][1]) if len(tuples) == 1 else (obj, tuples)
+                payload = (
+                    (obj, tuples[0][0], tuples[0][1])
+                    if len(tuples) == 1
+                    else (obj, tuples)
+                )
                 out.append((op, payload) if op else payload)
                 continue
 
@@ -739,7 +1236,9 @@ def map_conditions_v2(conditions_obj):
             out.append((op, payload) if op else payload)
 
     # strip (None, payload) wrappers (shouldn't occur, but keeps list clean)
-    return [p if not (isinstance(p, tuple) and p[0] in [None, ""]) else p[1] for p in out]
+    return [
+        p if not (isinstance(p, tuple) and p[0] in [None, ""]) else p[1] for p in out
+    ]
 
 
 def convert_conditions_v1_to_v2(v1_conditions, module=None):
@@ -777,9 +1276,9 @@ def convert_conditions_v1_to_v2(v1_conditions, module=None):
         "CHROME_ENTERPRISE",
     }
 
-    module and module.warn(
-        f"[convert_conditions_v1_to_v2] Input (v1-style): {json.dumps(v1_conditions, indent=2)}"
-    )
+    # module and module.warn(
+    #     f"[convert_conditions_v1_to_v2] Input (v1-style): {json.dumps(v1_conditions, indent=2)}"
+    # )
 
     # (operator, object_type) → list(ids)   …for value-based object types
     grouped_values: dict[tuple[str, str], list[str]] = defaultdict(list)
@@ -789,7 +1288,9 @@ def convert_conditions_v1_to_v2(v1_conditions, module=None):
         cond_op = (condition.get("operator") or "OR").upper()
 
         for operand in condition.get("operands", []):
-            obj = (operand.get("objectType") or operand.get("object_type") or "").upper()
+            obj = (
+                operand.get("objectType") or operand.get("object_type") or ""
+            ).upper()
             if not obj:
                 continue
 
@@ -831,52 +1332,251 @@ def convert_conditions_v1_to_v2(v1_conditions, module=None):
     # stable order → avoids diff shuffle
     v2_conditions.sort(key=lambda c: (c["operands"][0]["object_type"], c["operator"]))
 
-    module and module.warn(
-        f"[convert_conditions_v1_to_v2] Output (v2-style): {json.dumps(v2_conditions, indent=2)}"
-    )
+    # module and module.warn(
+    #     f"[convert_conditions_v1_to_v2] Output (v2-style): {json.dumps(v2_conditions, indent=2)}"
+    # )
     return v2_conditions
 
 
-def validate_operand_v2(operand, module):
-    object_type = operand.get("object_type", "").upper()
+# def validate_operand_v2(operand, module):
+#     object_type = operand.get("object_type", "").upper()
 
+#     if not object_type:
+#         return "object_type is required in each operand."
+
+#     valid_object_types = [
+#         "APP",
+#         "APP_GROUP",
+#         "CONSOLE",
+#         "SAML",
+#         "SCIM",
+#         "SCIM_GROUP",
+#         "POSTURE",
+#         "TRUSTED_NETWORK",
+#         "CLIENT_TYPE",
+#         "MACHINE_GRP",
+#         "PLATFORM",
+#         "CHROME_ENTERPRISE",
+#         "COUNTRY_CODE",
+#         "RISK_FACTOR_TYPE",
+#     ]
+
+#     if object_type not in valid_object_types:
+#         return f"Invalid object_type: {object_type}. Supported types: {', '.join(valid_object_types)}"
+
+#     if object_type in [
+#         "APP",
+#         "APP_GROUP",
+#         "CONSOLE",
+#         "CLIENT_TYPE",
+#         "MACHINE_GRP",
+#         "TRUSTED_NETWORK",
+#     ]:
+#         values = operand.get("values")
+#         if not isinstance(values, list) or not values:
+#             return f"'values' must be a non-empty list for {object_type}"
+
+#     elif object_type in [
+#         "SCIM",
+#         "SCIM_GROUP",
+#         "SAML",
+#         "POSTURE",
+#         "PLATFORM",
+#         "CHROME_ENTERPRISE",
+#         "COUNTRY_CODE",
+#         "RISK_FACTOR_TYPE",
+#     ]:
+#         ev = operand.get("entry_values")
+#         if not isinstance(ev, dict) or not ev.get("lhs") or not ev.get("rhs"):
+#             return (
+#                 f"'entry_values' must be a dict with 'lhs' and 'rhs' for {object_type}"
+#             )
+
+#     else:
+#         return f"Operand must contain a valid structure for object_type '{object_type}'"
+
+#     return None
+
+# def validate_operand_v2(operand, module):
+#     """
+#     Checks a single operand dict for structural and semantic correctness.
+
+#     Returns:
+#         None if valid, otherwise a string describing the first problem found.
+#     """
+#     object_type = str(operand.get("object_type", "")).upper()
+#     if not object_type:
+#         return "object_type is required in each operand."
+
+#     # ------------------------------------------------------------------ type sets
+#     VALUE_OBJECT_TYPES = {
+#         "APP",
+#         "APP_GROUP",
+#         "MACHINE_GRP",
+#         "EDGE_CONNECTOR_GROUP",
+#         "LOCATION",
+#         "CLIENT_TYPE",  # still uses `values` but with a constrained enum
+#     }
+
+#     ENTRY_OBJECT_TYPES = {
+#         "PLATFORM",
+#         "COUNTRY_CODE",
+#         "SCIM_GROUP",
+#         "SCIM",
+#         "SAML",
+#         "RISK_FACTOR_TYPE",
+#         "CHROME_ENTERPRISE",
+#         "POSTURE",
+#         "TRUSTED_NETWORK",
+#     }
+
+#     ALL_OBJECT_TYPES = VALUE_OBJECT_TYPES | ENTRY_OBJECT_TYPES
+
+#     # ------------------------------------------------------------------ basic guard-rails
+#     if object_type not in ALL_OBJECT_TYPES:
+#         return (
+#             f"Invalid object_type: {object_type}. "
+#             f"Supported types: {', '.join(sorted(ALL_OBJECT_TYPES))}"
+#         )
+
+#     # ------------------------------------------------------------------ values-style operands
+#     if object_type in VALUE_OBJECT_TYPES:
+#         values = operand.get("values")
+#         if not isinstance(values, list) or not values:
+#             return f"'values' must be a non-empty list for {object_type}"
+
+#         # extra enum check for CLIENT_TYPE
+#         if object_type == "CLIENT_TYPE":
+#             allowed_client_types = [
+#                 "zpn_client_type_exporter",
+#                 "zpn_client_type_machine_tunnel",
+#                 "zpn_client_type_edge_connector",
+#                 "zpn_client_type_vdi",
+#                 "zpn_client_type_zapp",
+#                 "zpn_client_type_browser_isolation",
+#                 "zpn_client_type_ip_anchoring",
+#                 "zpn_client_type_zapp_partner",
+#                 "zpn_client_type_branch_connector",
+#             ]
+#             invalid = [v for v in values if v not in allowed_client_types]
+#             if invalid:
+#                 return (
+#                     f"Invalid CLIENT_TYPE value(s): {', '.join(invalid)}. "
+#                     f"Permitted values: {', '.join(allowed_client_types)}"
+#                 )
+
+#         else:  # object_type in ENTRY_OBJECT_TYPES
+#             ev = operand.get("entry_values")
+#             if not isinstance(ev, dict):
+#                 return f"'entry_values' must be a dict for {object_type}"
+#             if not ev.get("lhs") or not ev.get("rhs"):
+#                 return (
+#                     f"'entry_values' must contain non-empty 'lhs' and 'rhs' for {object_type}"
+#                 )
+
+#             # ----- extra enum check for PLATFORM (runs here, because PLATFORM ∈ ENTRY_OBJECT_TYPES)
+#             if object_type == "PLATFORM":
+#                 allowed_platforms = ["android", "ios", "linux", "mac", "windows"]
+#                 lhs_val = str(ev.get("lhs", "")).lower()
+#                 rhs_val = str(ev.get("rhs", "")).lower()
+
+#                 if lhs_val not in allowed_platforms:
+#                     return (
+#                         f"Invalid PLATFORM lhs: {lhs_val}. "
+#                         f"Permitted values: {', '.join(allowed_platforms)}"
+#                     )
+#                 if rhs_val != "true":
+#                     return "For PLATFORM, rhs must be 'true'."
+#     # ------------------------------------------------------------------ entry_values-style operands
+#     else:  # object_type in ENTRY_OBJECT_TYPES
+#         ev = operand.get("entry_values")
+#         if not isinstance(ev, dict):
+#             return f"'entry_values' must be a dict for {object_type}"
+#         if not ev.get("lhs") or not ev.get("rhs"):
+#             return (
+#                 f"'entry_values' must contain non-empty 'lhs' and 'rhs' for {object_type}"
+#             )
+
+#     return None  # ✓ valid
+
+
+def validate_operand_v2(operand, module):
+    object_type = str(operand.get("object_type", "")).upper()
     if not object_type:
         return "object_type is required in each operand."
 
-    valid_object_types = [
+    VALUE_OBJECT_TYPES = {
         "APP",
         "APP_GROUP",
         "CONSOLE",
-        "SAML",
-        "SCIM",
+        "MACHINE_GRP",
+        "EDGE_CONNECTOR_GROUP",
+        "LOCATION",
+        "CLIENT_TYPE",
+    }
+
+    ENTRY_OBJECT_TYPES = {
+        "PLATFORM",
+        "COUNTRY_CODE",
         "SCIM_GROUP",
+        "SCIM",
+        "SAML",
+        "RISK_FACTOR_TYPE",
+        "CHROME_ENTERPRISE",
         "POSTURE",
         "TRUSTED_NETWORK",
-        "CLIENT_TYPE",
-        "MACHINE_GRP",
-        "PLATFORM",
-        "CHROME_ENTERPRISE",
-        "COUNTRY_CODE",
-        "RISK_FACTOR_TYPE",
-    ]
+    }
 
-    if object_type not in valid_object_types:
-        return f"Invalid object_type: {object_type}. Supported types: {', '.join(valid_object_types)}"
+    if object_type not in VALUE_OBJECT_TYPES | ENTRY_OBJECT_TYPES:
+        return (
+            f"Invalid object_type: {object_type}. Supported types: "
+            f"{', '.join(sorted(VALUE_OBJECT_TYPES | ENTRY_OBJECT_TYPES))}"
+        )
 
-    if object_type in ["APP", "APP_GROUP", "CONSOLE", "CLIENT_TYPE", "MACHINE_GRP", "TRUSTED_NETWORK"]:
+    # ---------------------------------------------------------------- values-style
+    if object_type in VALUE_OBJECT_TYPES:
         values = operand.get("values")
         if not isinstance(values, list) or not values:
             return f"'values' must be a non-empty list for {object_type}"
 
-    elif object_type in ["SCIM", "SCIM_GROUP", "SAML", "POSTURE", "PLATFORM", "CHROME_ENTERPRISE", "COUNTRY_CODE", "RISK_FACTOR_TYPE"]:
-        ev = operand.get("entry_values")
-        if not isinstance(ev, dict) or not ev.get("lhs") or not ev.get("rhs"):
-            return f"'entry_values' must be a dict with 'lhs' and 'rhs' for {object_type}"
+        if object_type == "CLIENT_TYPE":
+            allowed = [
+                "zpn_client_type_exporter",
+                "zpn_client_type_machine_tunnel",
+                "zpn_client_type_edge_connector",
+                "zpn_client_type_vdi",
+                "zpn_client_type_zapp",
+                "zpn_client_type_browser_isolation",
+                "zpn_client_type_ip_anchoring",
+                "zpn_client_type_zapp_partner",
+                "zpn_client_type_branch_connector",
+            ]
+            bad = [v for v in values if v not in allowed]
+            if bad:
+                return (
+                    f"Invalid CLIENT_TYPE value(s): {', '.join(bad)}. "
+                    f"Permitted values: {', '.join(allowed)}"
+                )
 
-    else:
-        return f"Operand must contain a valid structure for object_type '{object_type}'"
+        return None  # ✅ nothing more to check for other value-types
 
-    return None
+    # ----------------------------------------------------------- entry_values-style
+    ev = operand.get("entry_values")
+    if not isinstance(ev, dict):
+        return f"'entry_values' must be a dict for {object_type}"
+    if not ev.get("lhs") or not ev.get("rhs"):
+        return "'entry_values' must contain non-empty 'lhs' and 'rhs'"
+
+    if object_type == "PLATFORM":
+        allowed = ["android", "ios", "linux", "mac", "windows"]
+        lhs = str(ev["lhs"]).lower()
+        rhs = str(ev["rhs"]).lower()
+        if lhs not in allowed:
+            return f"Invalid PLATFORM lhs: {lhs}. Permitted: {', '.join(allowed)}"
+        if rhs != "true":
+            return "For PLATFORM, rhs must be 'true'."
+
+    return None  # ✓ valid
 
 
 def validate_iso3166_alpha2(country_code):

@@ -267,6 +267,7 @@ def core(module):
         "conditions": module.params.get("conditions"),
     }
 
+    # Validate operands
     for condition in rule.get("conditions") or []:
         for operand in condition.get("operands", []):
             validation_result = validate_operand(operand, module)
@@ -291,6 +292,8 @@ def core(module):
         )
         if error:
             module.fail_json(msg=f"Error listing access rules: {to_native(error)}")
+        if error:
+            module.fail_json(msg=f"Error listing access rules: {to_native(error)}")
         for r in rules_list:
             if r.name == rule_name:
                 existing_rule = r.as_dict()
@@ -305,6 +308,7 @@ def core(module):
             existing_rule.get("conditions", [])
         )
         current = normalize_policy(existing_rule)
+        current["rule_order"] = str(existing_rule.get("order", ""))
     else:
         current = {}
 
@@ -316,21 +320,22 @@ def core(module):
         desired_value = desired.get(key)
         current_value = current.get(key)
 
+        # Normalize None vs empty list
         if isinstance(desired_value, list) and not desired_value:
             desired_value = []
         if isinstance(current_value, list) and not current_value:
             current_value = []
 
-    if str(desired_value) != str(current_value):
-        differences_detected = True
-        module.warn(
-            f"Drift detected in '{key}': desired=({type(desired_value).__name__}) {desired_value} | "
-            f"current=({type(current_value).__name__}) {current_value}"
-        )
+        if str(desired_value) != str(current_value):
+            differences_detected = True
+            module.warn(
+                f"Drift detected in '{key}': desired=({type(desired_value).__name__}) "
+                f"{desired_value} | current=({type(current_value).__name__}) {current_value}"
+            )
 
-    if key == "conditions":
-        module.warn(f"→ Desired: {json.dumps(desired_value, indent=2)}")
-        module.warn(f"→ Current: {json.dumps(current_value, indent=2)}")
+        if key == "conditions":
+            module.warn(f"→ Desired: {json.dumps(desired_value, indent=2)}")
+            module.warn(f"→ Current: {json.dumps(current_value, indent=2)}")
 
     # Reorder if specified
     if existing_rule and rule.get("rule_order"):
@@ -376,7 +381,7 @@ def core(module):
                 }
             )
             module.warn(f"Update payload to SDK: {update_data}")
-            result, _, error = client.policies.update_access_rule_v2(**update_data)
+            result, _, error = client.policies.update_access_rule(**update_data)
             if error:
                 module.fail_json(msg=f"Error updating rule: {to_native(error)}")
             module.exit_json(changed=True, data=result.as_dict())
@@ -397,7 +402,7 @@ def core(module):
                 }
             )
             module.warn(f"Create payload to SDK: {create_data}")
-            result, _, error = client.policies.add_access_rule_v2(**create_data)
+            result, _, error = client.policies.add_access_rule(**create_data)
             if error:
                 module.fail_json(msg=f"Error creating rule: {to_native(error)}")
             module.exit_json(changed=True, data=result.as_dict())

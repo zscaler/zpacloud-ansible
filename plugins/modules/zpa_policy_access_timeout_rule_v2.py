@@ -65,10 +65,6 @@ options:
     required: false
     choices:
       - RE_AUTH
-  policy_type:
-    description: "Indicates the policy type. The following value is supported: client_forwarding"
-    type: str
-    required: false
   rule_order:
     description: "The policy evaluation order number of the rule."
     type: str
@@ -168,39 +164,6 @@ EXAMPLES = r"""
           - object_type: "APP_GROUP"
             lhs: "id"
             rhs: "216196257331292103"
-      - operator: "AND"
-        operands:
-          - object_type: "PLATFORM"
-            lhs: ios
-            rhs: "true"
-          - object_type: "PLATFORM"
-            lhs: linux
-            rhs: "true"
-          - object_type: "PLATFORM"
-            lhs: windows
-            rhs: "true"
-      - operator: "OR"
-        operands:
-          - object_type: "SCIM_GROUP"
-            lhs: "72058304855015574"
-            rhs: "490880"
-            idp_id: "72058304855015574"
-          - object_type: "SCIM_GROUP"
-            lhs: "72058304855015574"
-            rhs: "490877"
-            idp_id: "72058304855015574"
-      - operator: "AND"
-        operands:
-          - object_type: "SCIM"
-            lhs: "72058304855015576"
-            rhs: "Smith"
-            idp_id: "72058304855015574"
-      - operator: "AND"
-        operands:
-          - object_type: "SAML"
-            lhs: "72058304855021553"
-            rhs: "jdoe@acme.com"
-            idp_id: "72058304855015574"
       - operator: "OR"
         operands:
           - object_type: "CLIENT_TYPE"
@@ -217,20 +180,6 @@ EXAMPLES = r"""
           - object_type: "POSTURE"
             lhs: "13ba3d97-aefb-4acc-9e54-6cc230dee4a5"
             rhs: "true"
-      - operator: "AND"
-        operands:
-          - object_type: "CLIENT_TYPE"
-            lhs: "id"
-            rhs: "zpn_client_type_exporter"
-          - object_type: "CLIENT_TYPE"
-            lhs: "id"
-            rhs: "zpn_client_type_zapp_partner"
-          - object_type: "CLIENT_TYPE"
-            lhs: "id"
-            rhs: "zpn_client_type_browser_isolation"
-          - object_type: "CLIENT_TYPE"
-            lhs: "id"
-            rhs: "zpn_client_type_zapp"
 """
 
 RETURN = r"""
@@ -243,9 +192,10 @@ from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 import json
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
-    map_conditions,
-    normalize_policy,
-    validate_operand,
+    normalize_policy_v2,
+    map_conditions_v2,
+    validate_operand_v2,
+    convert_conditions_v1_to_v2,
     validate_timeout_intervals,
     collect_all_items,
     deleteNone,
@@ -306,7 +256,7 @@ def core(module):
     # Validate operands
     for condition in rule.get("conditions") or []:
         for operand in condition.get("operands", []):
-            validation_result = validate_operand(operand, module)
+            validation_result = validate_operand_v2(operand, module)
             if validation_result:
                 module.fail_json(msg=validation_result)
 
@@ -322,12 +272,11 @@ def core(module):
         existing_rule = result.as_dict()
         module.warn(f"Fetched existing rule: {existing_rule}")
     else:
+        # module.warn("[core] Listing rules to match by name...")
         rules_list, error = collect_all_items(
             lambda qp: client.policies.list_rules("timeout", query_params=qp),
             query_params,
         )
-        if error:
-            module.fail_json(msg=f"Error listing timeout rules: {to_native(error)}")
         if error:
             module.fail_json(msg=f"Error listing timeout rules: {to_native(error)}")
         for r in rules_list:
@@ -335,18 +284,21 @@ def core(module):
                 existing_rule = r.as_dict()
                 break
 
-    desired = normalize_policy(
-        {**rule, "conditions": map_conditions(rule.get("conditions", []))}
+    # module.warn("[core] Normalizing desired state...")
+    desired = normalize_policy_v2(
+        {**rule, "conditions": map_conditions_v2(rule.get("conditions", []))}
     )
 
     if existing_rule:
-        existing_rule["conditions"] = map_conditions(
-            existing_rule.get("conditions", [])
+        existing_rule["conditions"] = convert_conditions_v1_to_v2(
+            existing_rule.get("conditions", []), module=module
         )
-        current = normalize_policy(existing_rule)
-        current["rule_order"] = str(existing_rule.get("order", ""))
+        current = normalize_policy_v2(existing_rule)
     else:
         current = {}
+
+    module.warn(f"[core] Normalized desired: {json.dumps(desired, indent=2)}")
+    module.warn(f"[core] Normalized current: {json.dumps(current, indent=2)}")
 
     differences_detected = False
     for key in desired:
@@ -365,13 +317,13 @@ def core(module):
         if str(desired_value) != str(current_value):
             differences_detected = True
             module.warn(
-                f"Drift detected in '{key}': desired=({type(desired_value).__name__}) "
-                f"{desired_value} | current=({type(current_value).__name__}) {current_value}"
+                f"Drift detected in '{key}': desired=({type(desired_value).__name__}) {desired_value} | "
+                f"current=({type(current_value).__name__}) {current_value}"
             )
 
-        if key == "conditions":
-            module.warn(f"→ Desired: {json.dumps(desired_value, indent=2)}")
-            module.warn(f"→ Current: {json.dumps(current_value, indent=2)}")
+            if key == "conditions":
+                module.warn(f"→ Desired: {json.dumps(desired_value, indent=2)}")
+                module.warn(f"→ Current: {json.dumps(current_value, indent=2)}")
 
     # Reorder if specified
     if existing_rule and rule.get("rule_order"):
@@ -412,11 +364,11 @@ def core(module):
                     "rule_order": rule["rule_order"],
                     "reauth_timeout": rule["reauth_timeout"],
                     "reauth_idle_timeout": rule["reauth_idle_timeout"],
-                    "conditions": map_conditions(rule["conditions"]),
+                    "conditions": map_conditions_v2(rule["conditions"]),
                 }
             )
             module.warn(f"Update payload to SDK: {update_data}")
-            result, _, error = client.policies.update_timeout_rule(**update_data)
+            result, _, error = client.policies.update_timeout_rule_v2(**update_data)
             if error:
                 module.fail_json(msg=f"Error updating rule: {to_native(error)}")
             module.exit_json(changed=True, data=result.as_dict())
@@ -432,11 +384,11 @@ def core(module):
                     "rule_order": rule["rule_order"],
                     "reauth_timeout": rule["reauth_timeout"],
                     "reauth_idle_timeout": rule["reauth_idle_timeout"],
-                    "conditions": map_conditions(rule["conditions"]),
+                    "conditions": map_conditions_v2(rule["conditions"]),
                 }
             )
             module.warn(f"Create payload to SDK: {create_data}")
-            result, _, error = client.policies.add_timeout_rule(**create_data)
+            result, _, error = client.policies.add_timeout_rule_v2(**create_data)
             if error:
                 module.fail_json(msg=f"Error creating rule: {to_native(error)}")
             module.exit_json(changed=True, data=result.as_dict())
@@ -476,9 +428,15 @@ def main():
                     type="list",
                     elements="dict",
                     options=dict(
-                        idp_id=dict(type="str", required=False),
-                        lhs=dict(type="str", required=False),
-                        rhs=dict(type="str", required=False),
+                        values=dict(type="list", elements="str", required=False),
+                        entry_values=dict(
+                            type="dict",
+                            required=False,
+                            options=dict(
+                                lhs=dict(type="str", required=False),
+                                rhs=dict(type="str", required=False),
+                            ),
+                        ),
                         object_type=dict(
                             type="str",
                             required=False,
@@ -504,34 +462,6 @@ def main():
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 
-    # Custom validation for object_type
-    conditions = module.params["conditions"]
-    if conditions:  # Add this check to handle when conditions is None
-        for condition in conditions:
-            operands = condition.get("operands", [])
-            for operand in operands:
-                object_type = operand.get("object_type")
-                valid_object_types = [
-                    "APP",
-                    "APP_GROUP",
-                    "CLIENT_TYPE",
-                    "IDP",
-                    "POSTURE",
-                    "PLATFORM",
-                    "SAML",
-                    "SCIM",
-                    "SCIM_GROUP",
-                ]
-                if (
-                    object_type is None or object_type == ""
-                ):  # Explicitly check for None or empty string
-                    module.fail_json(
-                        msg=f"object_type cannot be empty or None. Must be one of: {', '.join(valid_object_types)}"
-                    )
-                elif object_type not in valid_object_types:
-                    module.fail_json(
-                        msg=f"Invalid object_type: {object_type}. Must be one of: {', '.join(valid_object_types)}"
-                    )
     try:
         core(module)
     except Exception as e:

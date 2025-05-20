@@ -53,31 +53,14 @@ options:
     type: str
     required: true
     description:
-      - The name of the Privileged Credential Rule
+      - The name of the Policy Access Rule
   description:
     description:
-      - This is the description of the Privileged Credential Rule
-    type: str
-    required: false
-  policy_type:
-    description: "The value for differentiating policy types."
+      - This is the description of the Policy Access Rule
     type: str
     required: false
   rule_order:
     description: "The policy evaluation order number of the rule."
-    type: str
-    required: false
-  operator:
-    description:
-      - This denotes the operation type.
-    type: str
-    required: false
-    choices:
-      - AND
-      - OR
-  zpn_isolation_profile_id:
-    description:
-      - The isolation profile ID associated with the rule.
     type: str
     required: false
   conditions:
@@ -189,6 +172,7 @@ def core(module):
         "microtenant_id": module.params.get("microtenant_id"),
         "name": module.params.get("name"),
         "description": module.params.get("description"),
+        "custom_msg": module.params.get("custom_msg"),
         "action": module.params.get("action"),
         "rule_order": module.params.get("rule_order"),
         "app_connector_group_ids": module.params.get("app_connector_group_ids"),
@@ -196,6 +180,7 @@ def core(module):
         "conditions": module.params.get("conditions"),
     }
 
+    # Validate operands
     for condition in rule.get("conditions") or []:
         for operand in condition.get("operands", []):
             validation_result = validate_operand_v2(operand, module)
@@ -236,6 +221,9 @@ def core(module):
         current = normalize_policy_v2(existing_rule)
     else:
         current = {}
+
+    module.warn(f"[core] Normalized desired: {json.dumps(desired, indent=2)}")
+    module.warn(f"[core] Normalized current: {json.dumps(current, indent=2)}")
 
     differences_detected = False
     for key in desired:
@@ -286,64 +274,61 @@ def core(module):
         else:
             module.exit_json(changed=False)
 
+    # Update or create
     if state == "present":
         if existing_rule and differences_detected:
-            """Update"""
-            update_rule = deleteNone(
+            update_data = deleteNone(
                 {
                     "rule_id": existing_rule["id"],
                     "microtenant_id": rule["microtenant_id"],
                     "name": rule["name"],
                     "description": rule["description"],
+                    "custom_msg": rule["custom_msg"],
                     "action": rule["action"],
                     "rule_order": rule["rule_order"],
-                    "access": rule["access"],
                     "app_connector_group_ids": rule["app_connector_group_ids"],
                     "app_server_group_ids": rule["app_server_group_ids"],
                     "conditions": map_conditions_v2(rule["conditions"]),
                 }
             )
-            module.warn(f"Payload Update for SDK: {update_rule}")
-            updated_group, _, error = client.policies.update_access_rule_v2(
-                rule_id=update_rule.pop("rule_id"), **update_rule
-            )
+            module.warn(f"Update payload to SDK: {update_data}")
+            result, _, error = client.policies.update_access_rule_v2(**update_data)
             if error:
                 module.fail_json(msg=f"Error updating rule: {to_native(error)}")
-            module.exit_json(changed=True, data=updated_group.as_dict())
+            module.exit_json(changed=True, data=result.as_dict())
+
+        elif not existing_rule:
+            create_data = deleteNone(
+                {
+                    "microtenant_id": rule["microtenant_id"],
+                    "name": rule["name"],
+                    "description": rule["description"],
+                    "custom_msg": rule["custom_msg"],
+                    "action": rule["action"],
+                    "rule_order": rule["rule_order"],
+                    "app_connector_group_ids": rule["app_connector_group_ids"],
+                    "app_server_group_ids": rule["app_server_group_ids"],
+                    "conditions": map_conditions_v2(rule["conditions"]),
+                }
+            )
+            module.warn(f"Create payload to SDK: {create_data}")
+            result, _, error = client.policies.add_access_rule_v2(**create_data)
+            if error:
+                module.fail_json(msg=f"Error creating rule: {to_native(error)}")
+            module.exit_json(changed=True, data=result.as_dict())
+
         else:
             module.exit_json(changed=False, data=existing_rule)
 
-    elif state == "absent":
-        if existing_rule:
-            _, _, error = client.policies.delete_rule(
-                rule_id=existing_rule.get("id"),
-                microtenant_id=microtenant_id,
-            )
-            if error:
-                module.fail_json(msg=f"Error deleting rule: {to_native(error)}")
-            module.exit_json(changed=True, data=existing_rule)
-
-    else:
-        """Create"""
-        create_rule = deleteNone(
-            {
-                "microtenant_id": rule["microtenant_id"],
-                "name": rule["name"],
-                "description": rule["description"],
-                "action": rule["action"],
-                "rule_order": rule["rule_order"],
-                "app_connector_group_ids": rule["app_connector_group_ids"],
-                "app_server_group_ids": rule["app_server_group_ids"],
-                "conditions": map_conditions_v2(rule["conditions"]),
-            }
+    elif state == "absent" and existing_rule:
+        _, _, error = client.policies.delete_rule(
+            policy_type="access", rule_id=existing_rule["id"]
         )
-        module.warn("Payload Update for SDK: {}".format(create_rule))
-        created, _, error = client.policies.add_access_rule_v2(**create_rule)
         if error:
-            module.fail_json(msg=f"Error creating rule: {to_native(error)}")
-        module.exit_json(changed=True, data=created.as_dict())
+            module.fail_json(msg=f"Error deleting rule: {to_native(error)}")
+        module.exit_json(changed=True, data=existing_rule)
 
-    module.exit_json(changed=False, data={})
+    module.exit_json(changed=False)
 
 
 def main():
@@ -353,8 +338,7 @@ def main():
         microtenant_id=dict(type="str", required=False),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
-        policy_type=dict(type="str", required=False),
-        operator=dict(type="str", required=False, choices=["AND", "OR"]),
+        custom_msg=dict(type="str", required=False),
         rule_order=dict(type="str", required=False),
         app_connector_group_ids=dict(type="list", elements="str", required=False),
         app_server_group_ids=dict(type="list", elements="str", required=False),
@@ -391,6 +375,25 @@ def main():
                         object_type=dict(
                             type="str",
                             required=False,
+                            choices=[
+                                "APP",
+                                "APP_GROUP",
+                                "LOCATION",
+                                "IDP",
+                                "SAML",
+                                "SCIM",
+                                "SCIM_GROUP",
+                                "CLIENT_TYPE",
+                                "POSTURE",
+                                "TRUSTED_NETWORK",
+                                "BRANCH_CONNECTOR_GROUP",
+                                "EDGE_CONNECTOR_GROUP",
+                                "MACHINE_GRP",
+                                "COUNTRY_CODE",
+                                "PLATFORM",
+                                "RISK_FACTOR_TYPE",
+                                "CHROME_ENTERPRISE",
+                            ],
                         ),
                     ),
                     required=False,
@@ -402,29 +405,6 @@ def main():
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 
-    # Custom validation for object_type
-    conditions = module.params["conditions"]
-    if conditions:  # Add this check to handle when conditions is None
-        for condition in conditions:
-            operands = condition.get("operands", [])
-            for operand in operands:
-                object_type = operand.get("object_type")
-                valid_object_types = [
-                    "CONSOLE",
-                    "SAML",
-                    "SCIM",
-                    "SCIM_GROUP",
-                ]
-                if (
-                    object_type is None or object_type == ""
-                ):  # Explicitly check for None or empty string
-                    module.fail_json(
-                        msg="object_type cannot be empty or None. Must be one of: {', '.join(valid_object_types)}"
-                    )
-                elif object_type not in valid_object_types:
-                    module.fail_json(
-                        msg="Invalid object_type: {object_type}. Must be one of: {', '.join(valid_object_types)}"
-                    )
     try:
         core(module)
     except Exception as e:

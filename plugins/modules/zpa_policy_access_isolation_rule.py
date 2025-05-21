@@ -205,11 +205,11 @@ def core(module):
     }
 
     if (
-        str(rule["action"]).upper() == "BYPASS_INSPECT"
-        and rule["zpn_inspection_profile_id"]
+        str(rule["action"]).upper() == "BYPASS_ISOLATE"
+        and rule["zpn_isolation_profile_id"]
     ):
         module.fail_json(
-            msg="`zpn_inspection_profile_id` must NOT be set when action is BYPASS_INSPECT."
+            msg="`zpn_isolation_profile_id` must NOT be set when action is BYPASS_ISOLATE."
         )
 
     # Validate operands

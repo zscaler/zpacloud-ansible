@@ -28,10 +28,10 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: zpa_policy_access_rule_v2
-short_description: Create a Policy Access Rule
+module: zpa_policy_access_redirection_rule
+short_description: Create a Policy Redirection Rule
 description:
-  - This module create/update/delete Create a Policy Access Rule
+  - This module create/update/delete Create a Policy Redirection Rule
 author:
   - William Guilherme (@willguibr)
 version_added: "2.0.0"
@@ -53,10 +53,10 @@ options:
     type: str
     required: true
     description:
-      - The name of the Policy Access Rule
+      - The name of the Policy Redirection Rule
   description:
     description:
-      - This is the description of the Policy Access Rule
+      - This is the description of the Policy Redirection Rule
     type: str
     required: false
   rule_order:
@@ -172,11 +172,9 @@ def core(module):
         "microtenant_id": module.params.get("microtenant_id"),
         "name": module.params.get("name"),
         "description": module.params.get("description"),
-        "custom_msg": module.params.get("custom_msg"),
         "action": module.params.get("action"),
         "rule_order": module.params.get("rule_order"),
-        "app_connector_group_ids": module.params.get("app_connector_group_ids"),
-        "app_server_group_ids": module.params.get("app_server_group_ids"),
+        "service_edge_group_ids": module.params.get("service_edge_group_ids"),
         "conditions": module.params.get("conditions"),
     }
 
@@ -190,7 +188,7 @@ def core(module):
     existing_rule = None
     if rule_id:
         result, _, error = client.policies.get_rule(
-            policy_type="access", rule_id=rule_id, query_params=query_params
+            policy_type="redirection", rule_id=rule_id, query_params=query_params
         )
         if error:
             module.fail_json(
@@ -200,11 +198,11 @@ def core(module):
         module.warn(f"Fetched existing rule: {existing_rule}")
     else:
         rules_list, error = collect_all_items(
-            lambda qp: client.policies.list_rules("access", query_params=qp),
+            lambda qp: client.policies.list_rules("redirection", query_params=qp),
             query_params,
         )
         if error:
-            module.fail_json(msg=f"Error listing isolation rules: {to_native(error)}")
+            module.fail_json(msg=f"Error listing redirection rules: {to_native(error)}")
         for r in rules_list:
             if r.name == rule_name:
                 existing_rule = r.as_dict()
@@ -256,7 +254,7 @@ def core(module):
         if desired_order != current_order:
             try:
                 _, _, error = client.policies.reorder_rule(
-                    policy_type="access",
+                    policy_type="redirection",
                     rule_id=existing_rule["id"],
                     rule_order=desired_order,
                 )
@@ -283,16 +281,14 @@ def core(module):
                     "microtenant_id": rule["microtenant_id"],
                     "name": rule["name"],
                     "description": rule["description"],
-                    "custom_msg": rule["custom_msg"],
                     "action": rule["action"],
                     "rule_order": rule["rule_order"],
-                    "app_connector_group_ids": rule["app_connector_group_ids"],
-                    "app_server_group_ids": rule["app_server_group_ids"],
+                    "service_edge_group_ids": rule["service_edge_group_ids"],
                     "conditions": map_conditions_v2(rule["conditions"]),
                 }
             )
             module.warn(f"Update payload to SDK: {update_data}")
-            result, _, error = client.policies.update_access_rule_v2(**update_data)
+            result, _, error = client.policies.update_redirection_rule_v2(**update_data)
             if error:
                 module.fail_json(msg=f"Error updating rule: {to_native(error)}")
             module.exit_json(changed=True, data=result.as_dict())
@@ -303,16 +299,14 @@ def core(module):
                     "microtenant_id": rule["microtenant_id"],
                     "name": rule["name"],
                     "description": rule["description"],
-                    "custom_msg": rule["custom_msg"],
                     "action": rule["action"],
                     "rule_order": rule["rule_order"],
-                    "app_connector_group_ids": rule["app_connector_group_ids"],
-                    "app_server_group_ids": rule["app_server_group_ids"],
+                    "service_edge_group_ids": rule["service_edge_group_ids"],
                     "conditions": map_conditions_v2(rule["conditions"]),
                 }
             )
             module.warn(f"Create payload to SDK: {create_data}")
-            result, _, error = client.policies.add_access_rule_v2(**create_data)
+            result, _, error = client.policies.add_redirection_rule_v2(**create_data)
             if error:
                 module.fail_json(msg=f"Error creating rule: {to_native(error)}")
             module.exit_json(changed=True, data=result.as_dict())
@@ -322,7 +316,7 @@ def core(module):
 
     elif state == "absent" and existing_rule:
         _, _, error = client.policies.delete_rule(
-            policy_type="access", rule_id=existing_rule["id"]
+            policy_type="redirection", rule_id=existing_rule["id"]
         )
         if error:
             module.fail_json(msg=f"Error deleting rule: {to_native(error)}")
@@ -338,20 +332,15 @@ def main():
         microtenant_id=dict(type="str", required=False),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
-        custom_msg=dict(type="str", required=False),
         rule_order=dict(type="str", required=False),
-        app_connector_group_ids=dict(type="list", elements="str", required=False),
-        app_server_group_ids=dict(type="list", elements="str", required=False),
+        service_edge_group_ids=dict(type="list", elements="str", required=False),
         action=dict(
             type="str",
             required=False,
             choices=[
-                "ALLOW",
-                "DENY",
-                "REQUIRE_APPROVAL",
-                "allow",
-                "deny",
-                "require_approval",
+                "REDIRECT_DEFAULT",
+                "REDIRECT_PREFERRED",
+                "REDIRECT_ALWAYS",
             ],
         ),
         conditions=dict(
@@ -376,24 +365,10 @@ def main():
                             type="str",
                             required=False,
                             choices=[
-                                "APP",
-                                "APP_GROUP",
-                                "LOCATION",
-                                "IDP",
+                                "CLIENT_TYPE",
+                                "COUNTRY_CODE",
                                 "SAML",
                                 "SCIM",
-                                "SCIM_GROUP",
-                                "CLIENT_TYPE",
-                                "POSTURE",
-                                "TRUSTED_NETWORK",
-                                "BRANCH_CONNECTOR_GROUP",
-                                "EDGE_CONNECTOR_GROUP",
-                                "MACHINE_GRP",
-                                "COUNTRY_CODE",
-                                "PLATFORM",
-                                "RISK_FACTOR_TYPE",
-                                "CHROME_ENTERPRISE",
-                                "CHROME_POSTURE_PROFILE",
                             ],
                         ),
                     ),

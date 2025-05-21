@@ -28,10 +28,10 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: zpa_policy_access_rule_v2
-short_description: Create a Policy Access Rule
+module: zpa_policy_capabilities_access_rule
+short_description: Create a Policy Capability Rule
 description:
-  - This module create/update/delete Create a Policy Access Rule
+  - This module create/update/delete Create a Policy Capability Rule
 author:
   - William Guilherme (@willguibr)
 version_added: "2.0.0"
@@ -53,10 +53,10 @@ options:
     type: str
     required: true
     description:
-      - The name of the Policy Access Rule
+      - The name of the Policy Redirection Rule
   description:
     description:
-      - This is the description of the Policy Access Rule
+      - This is the description of the Policy Redirection Rule
     type: str
     required: false
   rule_order:
@@ -107,11 +107,11 @@ options:
 """
 
 EXAMPLES = """
-- name: "Policy Isolation Rule - Example"
-  zscaler.zpacloud.zpa_policy_access_isolation_rule:
+- name: "Policy Capability Rule - Example"
+  zscaler.zpacloud.zpa_policy_capabilities_access_rule:
     provider: "{{ zpa_cloud }}"
-    name: "Policy Isolation Rule - Example"
-    description: "Policy Isolation Rule - Example"
+    name: "Policy Capability Rule - Example"
+    description: "Policy Capability Rule - Example"
     action: "ISOLATE"
     rule_order: 1
     operator: "AND"
@@ -155,6 +155,191 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 import json
 
 
+# def core(module):
+#     state = module.params.get("state", "present")
+#     client = ZPAClientHelper(module)
+
+#     rule_id = module.params.get("id")
+#     rule_name = module.params.get("name")
+#     microtenant_id = module.params.get("microtenant_id")
+
+#     query_params = {}
+#     if microtenant_id:
+#         query_params["microtenant_id"] = microtenant_id
+
+#     rule = {
+#         "id": module.params.get("id"),
+#         "microtenant_id": module.params.get("microtenant_id"),
+#         "name": module.params.get("name"),
+#         "description": module.params.get("description"),
+#         "rule_order": module.params.get("rule_order"),
+#         "privileged_capabilities": module.params.get("privileged_capabilities"),
+#         "conditions": module.params.get("conditions"),
+#     }
+
+#     # Validate operands
+#     for condition in rule.get("conditions") or []:
+#         for operand in condition.get("operands", []):
+#             validation_result = validate_operand_v2(operand, module)
+#             if validation_result:
+#                 module.fail_json(msg=validation_result)
+
+#     existing_rule = None
+#     if rule_id:
+#         result, _, error = client.policies.get_rule(
+#             policy_type="capabilities", rule_id=rule_id, query_params=query_params
+#         )
+#         if error:
+#             module.fail_json(
+#                 msg=f"Error retrieving rule with id {rule_id}: {to_native(error)}"
+#             )
+
+#         # 🔍 DEBUG: Check what the SDK model contains and what .as_dict() produces
+#         module.warn(f"[sdk raw object] result: {result}")
+#         module.warn(f"[sdk .as_dict()] result: {result.as_dict()}")
+
+#         existing_rule = result.as_dict()
+#         module.warn(f"Fetched existing rule: {existing_rule}")
+
+#     else:
+#         rules_list, error = collect_all_items(
+#             lambda qp: client.policies.list_rules("capabilities", query_params=qp),
+#             query_params,
+#         )
+#         if error:
+#             module.fail_json(msg=f"Error listing redirection rules: {to_native(error)}")
+#         for r in rules_list:
+#             if r.name == rule_name:
+#                 existing_rule = r.as_dict()
+#                 break
+
+#     desired = normalize_policy_v2(
+#         {**rule, "conditions": map_conditions_v2(rule.get("conditions", []))}
+#     )
+
+#     # 🔧 Strip out falsy or null values from desired["privileged_capabilities"]
+#     if "privileged_capabilities" in desired:
+#         desired["privileged_capabilities"] = {
+#             k: v for k, v in desired["privileged_capabilities"].items() if v is True
+#         }
+
+#     if existing_rule:
+#         existing_rule["conditions"] = convert_conditions_v1_to_v2(
+#             existing_rule.get("conditions", []), module=module
+#         )
+#         current = normalize_policy_v2(existing_rule)
+
+#         # ✅ Strip all falsy capability flags to match Ansible format
+#         if "privileged_capabilities" in current:
+#             current["privileged_capabilities"] = {
+#                 k: v for k, v in current["privileged_capabilities"].items() if v is True
+#             }
+#     else:
+#         current = {}
+
+
+#     module.warn(f"[core] Normalized desired: {json.dumps(desired, indent=2)}")
+#     module.warn(f"[core] Normalized current: {json.dumps(current, indent=2)}")
+
+#     differences_detected = False
+#     for key in desired:
+#         if key in ["id", "policy_type"]:
+#             continue
+
+#         desired_value = desired.get(key)
+#         current_value = current.get(key)
+
+#         if isinstance(desired_value, list) and not desired_value:
+#             desired_value = []
+#         if isinstance(current_value, list) and not current_value:
+#             current_value = []
+
+#         if str(desired_value) != str(current_value):
+#             differences_detected = True
+#             module.warn(
+#                 f"Drift detected in '{key}': desired=({type(desired_value).__name__}) {desired_value} | "
+#                 f"current=({type(current_value).__name__}) {current_value}"
+#             )
+
+#         if key == "conditions":
+#             module.warn(f"→ Desired: {json.dumps(desired_value, indent=2)}")
+#             module.warn(f"→ Current: {json.dumps(current_value, indent=2)}")
+
+#     # Reorder if specified
+#     if existing_rule and rule.get("rule_order"):
+#         current_order = str(existing_rule.get("order", ""))
+#         desired_order = str(rule["rule_order"])
+#         if desired_order != current_order:
+#             try:
+#                 _, _, error = client.policies.reorder_rule(
+#                     policy_type="capabilities",
+#                     rule_id=existing_rule["id"],
+#                     rule_order=desired_order,
+#                 )
+#                 if error:
+#                     module.fail_json(msg=f"Error reordering rule: {to_native(error)}")
+#                 module.warn(f"Reordered rule to order {desired_order}")
+#             except Exception as e:
+#                 module.fail_json(msg=f"Failed to reorder rule: {to_native(e)}")
+
+#     if module.check_mode:
+#         if state == "present" and (not existing_rule or differences_detected):
+#             module.exit_json(changed=True)
+#         elif state == "absent" and existing_rule:
+#             module.exit_json(changed=True)
+#         else:
+#             module.exit_json(changed=False)
+
+#     # Update or create
+#     if state == "present":
+#         if existing_rule and differences_detected:
+#             update_data = deleteNone(
+#                 {
+#                     "rule_id": existing_rule["id"],
+#                     "microtenant_id": rule["microtenant_id"],
+#                     "name": rule["name"],
+#                     "description": rule["description"],
+#                     "rule_order": rule["rule_order"],
+#                     "privileged_capabilities": rule["privileged_capabilities"],
+#                     "conditions": map_conditions_v2(rule["conditions"]),
+#                 }
+#             )
+#             module.warn(f"Update payload to SDK: {update_data}")
+#             result, _, error = client.policies.update_capabilities_rule_v2(**update_data)
+#             if error:
+#                 module.fail_json(msg=f"Error updating rule: {to_native(error)}")
+#             module.exit_json(changed=True, data=result.as_dict())
+
+#         elif not existing_rule:
+#             create_data = deleteNone(
+#                 {
+#                     "microtenant_id": rule["microtenant_id"],
+#                     "name": rule["name"],
+#                     "description": rule["description"],
+#                     "rule_order": rule["rule_order"],
+#                     "privileged_capabilities": rule["privileged_capabilities"],
+#                     "conditions": map_conditions_v2(rule["conditions"]),
+#                 }
+#             )
+#             module.warn(f"Create payload to SDK: {create_data}")
+#             result, _, error = client.policies.add_capabilities_rule_v2(**create_data)
+#             if error:
+#                 module.fail_json(msg=f"Error creating rule: {to_native(error)}")
+#             module.exit_json(changed=True, data=result.as_dict())
+
+#         else:
+#             module.exit_json(changed=False, data=existing_rule)
+
+#     elif state == "absent" and existing_rule:
+#         _, _, error = client.policies.delete_rule(
+#             policy_type="capabilities", rule_id=existing_rule["id"]
+#         )
+#         if error:
+#             module.fail_json(msg=f"Error deleting rule: {to_native(error)}")
+#         module.exit_json(changed=True, data=existing_rule)
+
+#     module.exit_json(changed=False)
+
 def core(module):
     state = module.params.get("state", "present")
     client = ZPAClientHelper(module)
@@ -172,11 +357,8 @@ def core(module):
         "microtenant_id": module.params.get("microtenant_id"),
         "name": module.params.get("name"),
         "description": module.params.get("description"),
-        "custom_msg": module.params.get("custom_msg"),
-        "action": module.params.get("action"),
         "rule_order": module.params.get("rule_order"),
-        "app_connector_group_ids": module.params.get("app_connector_group_ids"),
-        "app_server_group_ids": module.params.get("app_server_group_ids"),
+        "privileged_capabilities": module.params.get("privileged_capabilities"),
         "conditions": module.params.get("conditions"),
     }
 
@@ -190,7 +372,7 @@ def core(module):
     existing_rule = None
     if rule_id:
         result, _, error = client.policies.get_rule(
-            policy_type="access", rule_id=rule_id, query_params=query_params
+            policy_type="capabilities", rule_id=rule_id, query_params=query_params
         )
         if error:
             module.fail_json(
@@ -200,7 +382,7 @@ def core(module):
         module.warn(f"Fetched existing rule: {existing_rule}")
     else:
         rules_list, error = collect_all_items(
-            lambda qp: client.policies.list_rules("access", query_params=qp),
+            lambda qp: client.policies.list_rules("capabilities", query_params=qp),
             query_params,
         )
         if error:
@@ -214,11 +396,22 @@ def core(module):
         {**rule, "conditions": map_conditions_v2(rule.get("conditions", []))}
     )
 
+    if "privileged_capabilities" in desired:
+        desired["privileged_capabilities"] = {
+            k: v for k, v in desired["privileged_capabilities"].items() if v is True
+        }
+
     if existing_rule:
         existing_rule["conditions"] = convert_conditions_v1_to_v2(
             existing_rule.get("conditions", []), module=module
         )
         current = normalize_policy_v2(existing_rule)
+
+        # ✅ Strip all falsy capability flags to match Ansible format
+        if "privileged_capabilities" in current:
+            current["privileged_capabilities"] = {
+                k: v for k, v in current["privileged_capabilities"].items() if v is True
+            }
     else:
         current = {}
 
@@ -256,7 +449,7 @@ def core(module):
         if desired_order != current_order:
             try:
                 _, _, error = client.policies.reorder_rule(
-                    policy_type="access",
+                    policy_type="capabilities",
                     rule_id=existing_rule["id"],
                     rule_order=desired_order,
                 )
@@ -283,16 +476,13 @@ def core(module):
                     "microtenant_id": rule["microtenant_id"],
                     "name": rule["name"],
                     "description": rule["description"],
-                    "custom_msg": rule["custom_msg"],
-                    "action": rule["action"],
                     "rule_order": rule["rule_order"],
-                    "app_connector_group_ids": rule["app_connector_group_ids"],
-                    "app_server_group_ids": rule["app_server_group_ids"],
+                    "privileged_capabilities": rule["privileged_capabilities"],
                     "conditions": map_conditions_v2(rule["conditions"]),
                 }
             )
             module.warn(f"Update payload to SDK: {update_data}")
-            result, _, error = client.policies.update_access_rule_v2(**update_data)
+            result, _, error = client.policies.update_capabilities_rule_v2(**update_data)
             if error:
                 module.fail_json(msg=f"Error updating rule: {to_native(error)}")
             module.exit_json(changed=True, data=result.as_dict())
@@ -303,16 +493,13 @@ def core(module):
                     "microtenant_id": rule["microtenant_id"],
                     "name": rule["name"],
                     "description": rule["description"],
-                    "custom_msg": rule["custom_msg"],
-                    "action": rule["action"],
                     "rule_order": rule["rule_order"],
-                    "app_connector_group_ids": rule["app_connector_group_ids"],
-                    "app_server_group_ids": rule["app_server_group_ids"],
+                    "privileged_capabilities": rule["privileged_capabilities"],
                     "conditions": map_conditions_v2(rule["conditions"]),
                 }
             )
             module.warn(f"Create payload to SDK: {create_data}")
-            result, _, error = client.policies.add_access_rule_v2(**create_data)
+            result, _, error = client.policies.add_capabilities_rule_v2(**create_data)
             if error:
                 module.fail_json(msg=f"Error creating rule: {to_native(error)}")
             module.exit_json(changed=True, data=result.as_dict())
@@ -322,7 +509,7 @@ def core(module):
 
     elif state == "absent" and existing_rule:
         _, _, error = client.policies.delete_rule(
-            policy_type="access", rule_id=existing_rule["id"]
+            policy_type="capabilities", rule_id=existing_rule["id"]
         )
         if error:
             module.fail_json(msg=f"Error deleting rule: {to_native(error)}")
@@ -338,21 +525,21 @@ def main():
         microtenant_id=dict(type="str", required=False),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
-        custom_msg=dict(type="str", required=False),
         rule_order=dict(type="str", required=False),
-        app_connector_group_ids=dict(type="list", elements="str", required=False),
-        app_server_group_ids=dict(type="list", elements="str", required=False),
-        action=dict(
-            type="str",
+        privileged_capabilities=dict(
+            type="dict",
             required=False,
-            choices=[
-                "ALLOW",
-                "DENY",
-                "REQUIRE_APPROVAL",
-                "allow",
-                "deny",
-                "require_approval",
-            ],
+            options=dict(
+                clipboard_copy=dict(type="bool", required=False),
+                clipboard_paste=dict(type="bool", required=False),
+                file_download=dict(type="bool", required=False),
+                file_upload=dict(type="bool", required=False),
+                inspect_file_upload=dict(type="bool", required=False),
+                inspect_file_download=dict(type="bool", required=False),
+                monitor_session=dict(type="bool", required=False),
+                record_session=dict(type="bool", required=False),
+                share_session=dict(type="bool", required=False),
+            ),
         ),
         conditions=dict(
             type="list",
@@ -378,22 +565,9 @@ def main():
                             choices=[
                                 "APP",
                                 "APP_GROUP",
-                                "LOCATION",
-                                "IDP",
                                 "SAML",
                                 "SCIM",
                                 "SCIM_GROUP",
-                                "CLIENT_TYPE",
-                                "POSTURE",
-                                "TRUSTED_NETWORK",
-                                "BRANCH_CONNECTOR_GROUP",
-                                "EDGE_CONNECTOR_GROUP",
-                                "MACHINE_GRP",
-                                "COUNTRY_CODE",
-                                "PLATFORM",
-                                "RISK_FACTOR_TYPE",
-                                "CHROME_ENTERPRISE",
-                                "CHROME_POSTURE_PROFILE",
                             ],
                         ),
                     ),

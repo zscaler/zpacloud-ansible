@@ -601,7 +601,7 @@ def validate_operand(operand, module):
 
     return None
 
-
+# CURRENT WORKING FUNCTION - DO NOT CHANGE
 def normalize_policy_v2(policy):
     """
     Canonical-ise an access-rule dict so that the 'conditions' list is stable
@@ -680,6 +680,7 @@ def normalize_policy_v2(policy):
         "CONSOLE",
         "LOCATION",
         "BRANCH_CONNECTOR_GROUP",
+        "CHROME_POSTURE_PROFILE",
     }
 
     ENTRY_TYPES = {
@@ -925,6 +926,7 @@ def convert_conditions_v1_to_v2(v1_conditions, module=None):
         "CONSOLE",
         "LOCATION",
         "BRANCH_CONNECTOR_GROUP",
+        "CHROME_POSTURE_PROFILE",
     }
 
     ENTRY_TYPES = {
@@ -939,9 +941,9 @@ def convert_conditions_v1_to_v2(v1_conditions, module=None):
         "CHROME_ENTERPRISE",
     }
 
-    # module and module.warn(
-    #     f"[convert_conditions_v1_to_v2] Input (v1-style): {json.dumps(v1_conditions, indent=2)}"
-    # )
+    module and module.warn(
+        f"[convert_conditions_v1_to_v2] Input (v1-style): {json.dumps(v1_conditions, indent=2)}"
+    )
 
     # (operator, object_type) → list(ids)   …for value-based object types
     grouped_values: dict[tuple[str, str], list[str]] = defaultdict(list)
@@ -995,9 +997,9 @@ def convert_conditions_v1_to_v2(v1_conditions, module=None):
     # stable order → avoids diff shuffle
     v2_conditions.sort(key=lambda c: (c["operands"][0]["object_type"], c["operator"]))
 
-    # module and module.warn(
-    #     f"[convert_conditions_v1_to_v2] Output (v2-style): {json.dumps(v2_conditions, indent=2)}"
-    # )
+    module and module.warn(
+        f"[convert_conditions_v1_to_v2] Output (v2-style): {json.dumps(v2_conditions, indent=2)}"
+    )
     return v2_conditions
 
 

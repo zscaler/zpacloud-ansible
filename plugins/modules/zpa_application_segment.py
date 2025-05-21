@@ -183,6 +183,11 @@ options:
       - Indicates if the Zscaler Client Connector (formerly Zscaler App or Z App) receives CNAME DNS records from the connectors.
     type: bool
     required: false
+  fqdn_dns_check:
+    description:
+      - If set to true, performs a DNS check to find an A or AAAA record for this application.
+    type: bool
+    required: false
   health_reporting:
     description:
       - Whether health reporting for the app is Continuous or On Access. Supported values are NONE, ON_ACCESS, CONTINUOUS

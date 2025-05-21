@@ -70,6 +70,11 @@ options:
       - Whether Source IP Anchoring for use with ZIA, is enabled or disabled for the app.
     type: bool
     required: false
+  fqdn_dns_check:
+    description:
+      - If set to true, performs a DNS check to find an A or AAAA record for this application.
+    type: bool
+    required: false
   tcp_port_range:
     type: list
     elements: dict
@@ -397,6 +402,7 @@ def core(module):
         "segment_group_id",
         "server_group_ids",
         "domain_names",
+        "fqdn_dns_check",
     ]
     for param_name in params:
         app[param_name] = module.params.get(param_name)
@@ -520,6 +526,7 @@ def core(module):
                         is_cname_enabled=existing_app.get("is_cname_enabled", None),
                         tcp_keep_alive=existing_app.get("tcp_keep_alive", None),
                         icmp_access_type=existing_app.get("icmp_access_type", None),
+                        fqdn_dns_check=existing_app.get("fqdn_dns_check", None),
                         select_connector_close_to_app=existing_app.get(
                             "select_connector_close_to_app", None
                         ),
@@ -569,6 +576,7 @@ def core(module):
                     is_cname_enabled=app.get("is_cname_enabled", None),
                     tcp_keep_alive=app.get("tcp_keep_alive", None),
                     icmp_access_type=app.get("icmp_access_type", None),
+                    fqdn_dns_check=existing_app.get("fqdn_dns_check", None),
                     passive_health_enabled=app.get("passive_health_enabled", None),
                     select_connector_close_to_app=app.get(
                         "select_connector_close_to_app", None
@@ -639,6 +647,7 @@ def main():
         use_in_dr_mode=dict(type="bool", required=False),
         is_incomplete_dr_config=dict(type="bool", required=False),
         inspect_traffic_with_zia=dict(type="bool", required=False),
+        fqdn_dns_check=dict(type="bool", required=False, default=False),
         bypass_type=dict(
             type="str",
             required=False,

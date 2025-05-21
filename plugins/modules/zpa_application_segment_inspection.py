@@ -158,6 +158,11 @@ options:
       - and applies Data Loss Prevention policies to the application segment you are creating
     type: bool
     required: false
+  fqdn_dns_check:
+    description:
+      - If set to true, performs a DNS check to find an A or AAAA record for this application.
+    type: bool
+    required: false
   adp_enabled:
     description:
       - Indicates if Active Directory Inspection is enabled or not for the application.
@@ -391,6 +396,7 @@ def core(module):
         "segment_group_id",
         "server_group_ids",
         "domain_names",
+        "fqdn_dns_check",
     ]
     for param_name in params:
         app[param_name] = module.params.get(param_name)
@@ -527,6 +533,7 @@ def core(module):
                         is_cname_enabled=existing_app.get("is_cname_enabled", None),
                         tcp_keep_alive=existing_app.get("tcp_keep_alive", None),
                         icmp_access_type=existing_app.get("icmp_access_type", None),
+                        fqdn_dns_check=existing_app.get("fqdn_dns_check", None),
                         select_connector_close_to_app=existing_app.get(
                             "select_connector_close_to_app", None
                         ),
@@ -579,6 +586,7 @@ def core(module):
                     tcp_keep_alive=app.get("tcp_keep_alive", None),
                     icmp_access_type=app.get("icmp_access_type", None),
                     passive_health_enabled=app.get("passive_health_enabled", None),
+                    fqdn_dns_check=existing_app.get("fqdn_dns_check", None),
                     select_connector_close_to_app=app.get(
                         "select_connector_close_to_app", None
                     ),
@@ -660,7 +668,7 @@ def main():
         passive_health_enabled=dict(type="bool", required=False),
         ip_anchored=dict(type="bool", required=False),
         icmp_access_type=dict(type="bool", required=False, default=False),
-        server_group_ids=id_name_spec,
+        fqdn_dns_check=dict(type="bool", required=False, default=False),
         domain_names=dict(type="list", elements="str", required=True),
         common_apps_dto=dict(
             type="dict",
@@ -682,6 +690,7 @@ def main():
         udp_port_range=dict(
             type="list", elements="dict", options=port_spec, required=False
         ),
+        server_group_ids=id_name_spec,
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

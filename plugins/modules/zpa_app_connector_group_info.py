@@ -246,7 +246,7 @@ def core(module):
         query_params["microtenant_id"] = microtenant_id
 
     if group_id:
-        result, _, error = client.app_connector_groups.get_group(group_id, query_params)
+        result, _, error = client.app_connector_groups.get_connector_group(group_id, query_params)
         if error or result is None:
             module.fail_json(
                 msg=f"Failed to retrieve App Connector Group ID '{group_id}': {to_native(error)}"
@@ -255,7 +255,7 @@ def core(module):
 
     # If no ID, we fetch all
     group_list, err = collect_all_items(
-        client.app_connector_groups.list_groups, query_params
+        client.app_connector_groups.list_connector_groups, query_params
     )
     if err:
         module.fail_json(msg=f"Error retrieving App Connector Groups: {to_native(err)}")

@@ -444,10 +444,20 @@ def core(module):
                 }
             )
             module.warn("Payload Update for SDK: {}".format(create_group))
-            new_group = client.service_edge_group.add_service_edge_group(**create_group)
+            created, _, error = client.service_edge_group.add_service_edge_group(
+                **create_group
+            )
             if error:
-                module.fail_json(msg=f"Error creating group: {to_native(error)}")
-            module.exit_json(changed=True, data=new_group.as_dict())
+                module.fail_json(
+                    msg=f"Error creating app connector group: {to_native(error)}"
+                )
+            module.exit_json(changed=True, data=created.as_dict())
+
+            # module.warn("Payload Update for SDK: {}".format(create_group))
+            # new_group = client.service_edge_group.add_service_edge_group(**create_group)
+            # if error:
+            #     module.fail_json(msg=f"Error creating group: {to_native(error)}")
+            # module.exit_json(changed=True, data=new_group.as_dict())
 
     elif state == "absent":
         if existing_group:

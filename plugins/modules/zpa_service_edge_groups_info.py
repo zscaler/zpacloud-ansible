@@ -199,7 +199,7 @@ def core(module):
         query_params["microtenant_id"] = microtenant_id
 
     if group_id:
-        result, _, error = client.service_edge_group.get_group(group_id, query_params)
+        result, _, error = client.service_edge_group.get_service_edge_group(group_id, query_params)
         if error or result is None:
             module.fail_json(
                 msg=f"Failed to retrieve Service Edge Group ID '{group_id}': {to_native(error)}"
@@ -208,7 +208,7 @@ def core(module):
 
     # If no ID, we fetch all
     group_list, err = collect_all_items(
-        client.service_edge_group.list_groups, query_params
+        client.service_edge_group.list_service_edge_groups, query_params
     )
     if err:
         module.fail_json(msg=f"Error retrieving Service Edge Groups: {to_native(err)}")

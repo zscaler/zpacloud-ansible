@@ -268,64 +268,14 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     deleteNone,
     convert_bool_to_str,
-    convert_ports,
     convert_ports_list,
     collect_all_items,
-    normalize_app,
+    normalize_port_processing,
+    warn_drift,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
-
-
-def warn_drift(module, desired, actual):
-    """
-    Compare desired vs. actual, warn about any differences.
-    This helps track down which attributes are the culprit for drift.
-    """
-    for key, desired_val in desired.items():
-        actual_val = actual.get(key)
-        # If both are lists, compare sorted versions to ignore order
-        if isinstance(desired_val, list) or isinstance(actual_val, list):
-            if sorted(desired_val or []) != sorted(actual_val or []):
-                module.warn(
-                    f"[POST-UPDATE DRIFT] Key='{key}' => Desired={desired_val}, Actual={actual_val}"
-                )
-        else:
-            if desired_val != actual_val:
-                module.warn(
-                    f"[POST-UPDATE DRIFT] Key='{key}' => Desired={desired_val}, Actual={actual_val}"
-                )
-
-
-def normalize_app(app):
-    """Normalize application segment data, handling port ranges specially"""
-    if not app:
-        return {}
-
-    normalized = {k: v for k, v in app.items() if v is not None}
-
-    # Ensure both port range formats are present and consistent
-    for proto in ["tcp", "udp"]:
-        range_key = f"{proto}_port_range"
-        ranges_key = f"{proto}_port_ranges"
-
-        # If we have one format but not the other, create the missing one
-        if range_key in normalized and ranges_key not in normalized:
-            if normalized[range_key]:
-                normalized[ranges_key] = []
-                for r in normalized[range_key]:
-                    if "from" in r and "to" in r:
-                        normalized[ranges_key].extend([r["from"], r["to"]])
-
-        elif ranges_key in normalized and range_key not in normalized:
-            if normalized[ranges_key]:
-                normalized[range_key] = [
-                    {"from": p[0], "to": p[1]}
-                    for p in convert_ports(normalized[ranges_key])
-                ]
-
-    return normalized
 
 
 def core(module):
@@ -431,8 +381,8 @@ def core(module):
                     existing_app = segment_.as_dict()
                     break
 
-    desired_app = normalize_app(app)
-    current_app = normalize_app(existing_app) if existing_app else {}
+    desired_app = normalize_port_processing(app)
+    current_app = normalize_port_processing(existing_app) if existing_app else {}
 
     # Convert server_groups -> server_group_ids in current_app
     if "server_groups" in current_app:
@@ -448,6 +398,7 @@ def core(module):
     # Compare for drift
     fields_to_exclude = ["id"]
     differences_detected = False
+
     for key, desired_val in desired_app.items():
         if key in fields_to_exclude:
             continue
@@ -485,11 +436,9 @@ def core(module):
 
     module.warn(f"Final payload being sent to SDK: {app}")
 
-    # ----------------- STATE: PRESENT -----------------
     if state == "present":
         if existing_app:
             if differences_detected:
-                # Build update payload
                 update_segment = deleteNone(
                     {
                         "segment_id": existing_app.get("id"),
@@ -528,12 +477,8 @@ def core(module):
                         ),
                         "segment_group_id": desired_app.get("segment_group_id"),
                         "server_group_ids": desired_app.get("server_group_ids"),
-                        "tcp_port_ranges": convert_ports(
-                            existing_app.get("tcp_port_range", None)
-                        ),
-                        "udp_port_ranges": convert_ports(
-                            existing_app.get("udp_port_range", None)
-                        ),
+                        "tcp_port_ranges": convert_ports_list(existing_app.get("tcp_port_range", None)),
+                        "udp_port_ranges": convert_ports_list(existing_app.get("udp_port_range", None)),
                         "tcp_protocols": desired_app.get("tcp_protocols"),
                         "udp_protocols": desired_app.get("udp_protocols"),
                     }
@@ -542,7 +487,7 @@ def core(module):
 
                 # Update
                 updated_segment, _, error = client.application_segment.update_segment(
-                    segment_id=update_segment.pop("segment_id"), **existing_app
+                    segment_id=update_segment.pop("segment_id"), **update_segment
                 )
                 if error:
                     module.fail_json(
@@ -560,7 +505,7 @@ def core(module):
                         f"[POST-UPDATE] Failed to retrieve updated resource by ID. Error: {to_native(err)}"
                     )
                 else:
-                    final_app = normalize_app(refreshed.as_dict())
+                    final_app = normalize_port_processing(refreshed.as_dict())
                     warn_drift(module, desired_app, final_app)
 
                 module.exit_json(changed=True, data=updated_segment.as_dict())
@@ -634,7 +579,7 @@ def core(module):
                     f"[POST-CREATE] Failed to retrieve newly created resource. Error: {to_native(err)}"
                 )
             else:
-                final_app = normalize_app(refreshed.as_dict())
+                final_app = normalize_port_processing(refreshed.as_dict())
                 warn_drift(module, desired_app, final_app)
 
             module.exit_json(changed=True, data=new_segment.as_dict())

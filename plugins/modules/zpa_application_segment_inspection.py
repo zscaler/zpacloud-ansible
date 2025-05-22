@@ -554,10 +554,10 @@ def core(module):
                         ),
                         segment_group_id=existing_app.get("segment_group_id", None),
                         server_group_ids=existing_app.get("server_group_ids", None),
-                        tcp_port_ranges=convert_ports(
+                        tcp_port_ranges=convert_ports_list(
                             existing_app.get("tcp_port_range", None)
                         ),
-                        udp_port_ranges=convert_ports(
+                        udp_port_ranges=convert_ports_list(
                             existing_app.get("udp_port_range", None)
                         ),
                     )

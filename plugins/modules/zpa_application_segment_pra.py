@@ -314,64 +314,16 @@ from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     deleteNone,
-    convert_ports,
+    collect_all_items,
     convert_ports_list,
-    convert_bool_to_str,
-    convert_str_to_bool,
-    normalize_common_apps,
+    map_pra_apps_to_common_apps,
+    normalize_port_processing,
+    normalize_app,
+    warn_drift,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
-
-
-def normalize_app_segment_pra(app):
-    """
-    Normalize application segment pra data by setting computed values.
-    """
-    normalized = app.copy()
-
-    computed_values = [
-        "id",
-        "creation_time",
-        "modified_by",
-        "enabled",
-        "config_space",
-        "microtenant_name",
-        "segment_group_name",
-        "server_groups",
-        "app_id",
-        "name",
-        "ip_anchored",
-        "is_incomplete_dr_config",
-        "inspect_traffic_with_zia",
-        "tcp_port_range",
-        "udp_port_range",
-        "description",
-        "bypass_type",
-        "health_reporting",
-        "use_in_dr_mode",
-    ]
-    for attr in computed_values:
-        normalized.pop(attr, None)
-
-    if "tcp_keep_alive" in normalized:
-        normalized["tcp_keep_alive"] = convert_str_to_bool(normalized["tcp_keep_alive"])
-
-    if "icmp_access_type" in normalized:
-        normalized["icmp_access_type"] = normalized["icmp_access_type"] in [
-            "PING",
-            "PING_TRACEROUTING",
-        ]
-
-    if "server_groups" in app:
-        normalized["server_group_ids"] = [group["id"] for group in app["server_groups"]]
-
-    if "common_apps_dto" in normalized and normalized["common_apps_dto"]:
-        normalized["common_apps_dto"] = normalize_common_apps(
-            normalized["common_apps_dto"]
-        )
-    return normalized
 
 
 def core(module):
@@ -417,25 +369,25 @@ def core(module):
     # module.warn("Final Payload before API call: {app}")
 
     # Usage for tcp_keep_alive
-    tcp_keep_alive = module.params.get("tcp_keep_alive")
-    converted_tcp_keep_alive = convert_bool_to_str(
-        tcp_keep_alive, true_value="1", false_value="0"
-    )
-    app["tcp_keep_alive"] = converted_tcp_keep_alive
+    # tcp_keep_alive = module.params.get("tcp_keep_alive")
+    # converted_tcp_keep_alive = convert_bool_to_str(
+    #     tcp_keep_alive, true_value="1", false_value="0"
+    # )
+    # app["tcp_keep_alive"] = converted_tcp_keep_alive
 
-    # Get icmp_access_type
-    icmp_access_type = module.params.get("icmp_access_type")
+    # # Get icmp_access_type
+    # icmp_access_type = module.params.get("icmp_access_type")
 
-    # Convert icmp_access_type
-    if isinstance(icmp_access_type, bool):
-        app["icmp_access_type"] = "PING" if icmp_access_type else "NONE"
-    else:
-        # You might want to fail the module here since you only want to allow boolean values
-        module.fail_json(
-            msg="Invalid value for icmp_access_type: {}. Only boolean values are allowed.".format(
-                icmp_access_type
-            )
-        )
+    # # Convert icmp_access_type
+    # if isinstance(icmp_access_type, bool):
+    #     app["icmp_access_type"] = "PING" if icmp_access_type else "NONE"
+    # else:
+    #     # You might want to fail the module here since you only want to allow boolean values
+    #     module.fail_json(
+    #         msg="Invalid value for icmp_access_type: {}. Only boolean values are allowed.".format(
+    #             icmp_access_type
+    #         )
+    #     )
 
     select_connector_close_to_app = module.params.get(
         "select_connector_close_to_app", None
@@ -447,23 +399,76 @@ def core(module):
             msg="Invalid configuration: 'select_connector_close_to_app' cannot be set to True when 'udp_port_range' is defined."
         )
 
-    segment_id = module.params.get("id", None)
-    appsegment_name = module.params.get("name", None)
+    segment_id = module.params.get("id")
+    segment_name = module.params.get("name")
+    microtenant_id = module.params.get("microtenant_id")
+
+    query_params = {}
+    if microtenant_id:
+        query_params["microtenant_id"] = microtenant_id
+
     existing_app = None
-    if segment_id is not None:
-        existing_app = client.app_segments_pra.get_segment_pra(segment_id=segment_id)
-    elif appsegment_name is not None:
-        ba_app_segments = client.app_segments_pra.list_segments_pra().to_list()
-        for ba_app_segment in ba_app_segments:
-            if ba_app_segment.get("name") == appsegment_name:
-                existing_app = ba_app_segment
-                break
+    # -- Lookup existing resource
+    if segment_id:
+        result, _, error = client.app_segments_pra.get_segment_pra(
+            segment_id, query_params={"microtenant_id": microtenant_id}
+        )
+        if error:
+            module.fail_json(
+                msg=f"Error fetching application segment with id {segment_id}: {to_native(error)}"
+            )
+        existing_app = result.as_dict()
+    else:
+        result, error = collect_all_items(
+            client.app_segments_pra.list_segments_pra, query_params
+        )
+        if error:
+            module.fail_json(
+                msg=f"Error listing application segments: {to_native(error)}"
+            )
+        if result:
+            for segment_ in result:
+                if segment_.name == segment_name:
+                    existing_app = segment_.as_dict()
+                    break
 
     # Normalize and compare existing and desired application data
-    desired_app = normalize_app_segment_pra(app)
-    current_app = normalize_app_segment_pra(existing_app) if existing_app else {}
+    # desired_app = normalize_port_processing(app)
+    # current_app = normalize_port_processing(existing_app) if existing_app else {}
+    desired_app = normalize_app(normalize_port_processing(app))
+    current_app = normalize_app(normalize_port_processing(existing_app)) if existing_app else {}
 
-    fields_to_exclude = ["id"]
+
+    # Convert server_groups -> server_group_ids in current_app
+    if "server_groups" in current_app:
+        current_app["server_group_ids"] = sorted(
+            [g.get("id") for g in current_app.get("server_groups", []) if g.get("id")]
+        )
+        del current_app["server_groups"]
+
+    # Ensure server_group_ids is sorted in desired_app for accurate comparison
+    if "server_group_ids" in desired_app and desired_app["server_group_ids"]:
+        desired_app["server_group_ids"] = sorted(desired_app["server_group_ids"])
+
+    fields_to_exclude = ["id", "common_apps_dto"]
+    # Special comparison for common_apps_dto
+    if "common_apps_dto" in desired_app:
+        current_pra_apps = current_app.get("pra_apps", [])
+        desired_apps_config = desired_app["common_apps_dto"].get("apps_config", [])
+
+        # Convert current pra_apps to the same format as desired apps_config
+        normalized_current = map_pra_apps_to_common_apps(current_pra_apps)
+        normalized_current_apps = normalized_current.get("apps_config", [])
+
+        # Compare the normalized versions
+        if sorted(normalized_current_apps, key=lambda x: x.get("domain", "")) != \
+          sorted(desired_apps_config, key=lambda x: x.get("domain", "")):
+            differences_detected = True
+            module.warn(
+                f"Difference detected in application configurations. "
+                f"Current: {normalized_current_apps}, Desired: {desired_apps_config}"
+            )
+
     differences_detected = False
 
     for key, desired_value in desired_app.items():
@@ -489,12 +494,11 @@ def core(module):
                     f"Difference detected in {key}. "
                     f"Current: {current_value}, Desired: {desired_value}"
                 )
-                # module.warn(
-                #     f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {desired_value}"
-                # )
+                module.warn(
+                    f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {desired_value}"
+                )
 
     if module.check_mode:
-        # If in check mode, report changes and exit
         if state == "present" and (existing_app is None or differences_detected):
             module.exit_json(changed=True)
         elif state == "absent" and existing_app is not None:
@@ -508,102 +512,176 @@ def core(module):
         existing_app["id"] = id
 
     if state == "present":
-        if existing_app is not None:
+        if existing_app:
             if differences_detected:
-                """Update"""
-                existing_app = deleteNone(
+                # ✅ Inject app_id and correct pra_app_id per apps_config entry
+                if desired_app.get("common_apps_dto") and "apps_config" in desired_app["common_apps_dto"]:
+                    app_configs = desired_app["common_apps_dto"]["apps_config"]
+
+                    # Step 1: Fetch all SECURE_REMOTE_ACCESS app configs
+                    segments_list, err = collect_all_items(
+                        lambda qp: client.app_segment_by_type.get_segments_by_type(
+                            application_type="SECURE_REMOTE_ACCESS",
+                            expand_all=False,
+                            query_params=qp,
+                        ),
+                        query_params={"applicationType": "SECURE_REMOTE_ACCESS"},
+                    )
+
+                    if err:
+                        module.fail_json(msg=f"Failed to fetch Secure Remote Access segments: {to_native(err)}")
+
+                    # Step 2: Build a lookup from app name → PRA segment ID
+                    pra_segment_lookup = {
+                        getattr(s, "name", None): getattr(s, "id", None)
+                        for s in segments_list
+                        if getattr(s, "app_id", None) == existing_app["id"]
+                    }
+
+                    if not pra_segment_lookup:
+                        module.fail_json(
+                            msg=f"No matching PRA apps found with app_id = {existing_app['id']}"
+                        )
+
+                    # Step 3: Assign app_id and correct pra_app_id per config
+                    for app_config in app_configs:
+                        app_config["app_id"] = existing_app["id"]
+                        app_name = app_config.get("name")
+
+                        pra_id = pra_segment_lookup.get(app_name)
+                        if not pra_id:
+                            module.fail_json(msg=f"No PRA app_id found for app_config name={app_name}")
+
+                        app_config["pra_app_id"] = pra_id
+
+                    desired_app["common_apps_dto"]["apps_config"] = app_configs
+
+                # ✅ Now build update payload
+                update_segment = deleteNone(
                     dict(
                         segment_id=existing_app.get("id"),
-                        name=existing_app.get("name", None),
-                        description=existing_app.get("description", None),
-                        enabled=existing_app.get("enabled", None),
-                        bypass_type=existing_app.get("bypass_type", None),
-                        domain_names=existing_app.get("domain_names", None),
-                        double_encrypt=existing_app.get("double_encrypt", None),
-                        health_check_type=existing_app.get("health_check_type", None),
-                        health_reporting=existing_app.get("health_reporting", None),
-                        ip_anchored=existing_app.get("ip_anchored", None),
-                        is_cname_enabled=existing_app.get("is_cname_enabled", None),
-                        tcp_keep_alive=existing_app.get("tcp_keep_alive", None),
-                        icmp_access_type=existing_app.get("icmp_access_type", None),
-                        fqdn_dns_check=existing_app.get("fqdn_dns_check", None),
-                        select_connector_close_to_app=existing_app.get(
-                            "select_connector_close_to_app", None
-                        ),
-                        use_in_dr_mode=existing_app.get("use_in_dr_mode", None),
-                        is_incomplete_dr_config=existing_app.get(
-                            "is_incomplete_dr_config", None
-                        ),
-                        inspect_traffic_with_zia=existing_app.get(
-                            "inspect_traffic_with_zia", None
-                        ),
-                        common_apps_dto=existing_app.get(
-                            "common_apps_dto", None
-                        ),  # Add this line
-                        passive_health_enabled=existing_app.get(
-                            "passive_health_enabled", None
-                        ),
-                        segment_group_id=existing_app.get("segment_group_id", None),
-                        server_group_ids=existing_app.get("server_group_ids", None),
-                        tcp_port_ranges=convert_ports(
-                            existing_app.get("tcp_port_range", None)
-                        ),
-                        udp_port_ranges=convert_ports(
-                            existing_app.get("udp_port_range", None)
-                        ),
+                        microtenant_id=desired_app.get("microtenant_id"),
+                        name=desired_app.get("name", None),
+                        description=desired_app.get("description", None),
+                        enabled=desired_app.get("enabled", None),
+                        bypass_type=desired_app.get("bypass_type", None),
+                        domain_names=desired_app.get("domain_names", None),
+                        double_encrypt=desired_app.get("double_encrypt", None),
+                        health_check_type=desired_app.get("health_check_type", None),
+                        health_reporting=desired_app.get("health_reporting", None),
+                        ip_anchored=desired_app.get("ip_anchored", None),
+                        is_cname_enabled=desired_app.get("is_cname_enabled", None),
+                        tcp_keep_alive=desired_app.get("tcp_keep_alive", None),
+                        icmp_access_type=desired_app.get("icmp_access_type", None),
+                        fqdn_dns_check=desired_app.get("fqdn_dns_check", None),
+                        select_connector_close_to_app=desired_app.get("select_connector_close_to_app", None),
+                        use_in_dr_mode=desired_app.get("use_in_dr_mode", None),
+                        is_incomplete_dr_config=desired_app.get("is_incomplete_dr_config", None),
+                        inspect_traffic_with_zia=desired_app.get("inspect_traffic_with_zia", None),
+                        common_apps_dto=desired_app.get("common_apps_dto", None),
+                        passive_health_enabled=desired_app.get("passive_health_enabled", None),
+                        segment_group_id=desired_app.get("segment_group_id", None),
+                        server_group_ids=desired_app.get("server_group_ids", None),
+                        tcp_port_ranges=convert_ports_list(existing_app.get("tcp_port_range", None)),
+                        udp_port_ranges=convert_ports_list(existing_app.get("udp_port_range", None)),
                     )
                 )
-                existing_app = client.app_segments_pra.update_segment_pra(
-                    **existing_app
+
+                module.warn(f"Payload Update for SDK: {update_segment}")
+
+                updated_segment, _, error = client.application_segment.update_segment(
+                    segment_id=update_segment.pop("segment_id"), **update_segment
                 )
-                module.exit_json(changed=True, data=existing_app)
+                if error:
+                    module.fail_json(
+                        msg=f"Error updating application segment: {to_native(error)}"
+                    )
+
+                refreshed, _, err = client.app_segments_pra.get_segment_pra(
+                    updated_segment.id,
+                    query_params={"microtenant_id": desired_app.get("microtenant_id")},
+                )
+                if err:
+                    module.warn(
+                        f"[POST-UPDATE] Failed to retrieve updated resource by ID. Error: {to_native(err)}"
+                    )
+                else:
+                    final_app = normalize_port_processing(refreshed.as_dict())
+                    warn_drift(module, desired_app, final_app)
+
+                module.exit_json(changed=True, data=updated_segment.as_dict())
             else:
-                """No Changes Needed"""
                 module.exit_json(changed=False, data=existing_app)
+
         else:
             """Create"""
-            app = deleteNone(
+            create_pra_segment = deleteNone(
                 dict(
-                    name=app.get("name", None),
-                    description=app.get("description", None),
-                    enabled=app.get("enabled", None),
-                    bypass_type=app.get("bypass_type", None),
-                    domain_names=app.get("domain_names", None),
-                    double_encrypt=app.get("double_encrypt", None),
-                    health_check_type=app.get("health_check_type", None),
-                    health_reporting=app.get("health_reporting", None),
-                    ip_anchored=app.get("ip_anchored", None),
-                    is_cname_enabled=app.get("is_cname_enabled", None),
-                    tcp_keep_alive=app.get("tcp_keep_alive", None),
-                    icmp_access_type=app.get("icmp_access_type", None),
-                    fqdn_dns_check=existing_app.get("fqdn_dns_check", None),
-                    passive_health_enabled=app.get("passive_health_enabled", None),
-                    select_connector_close_to_app=app.get(
+                    microtenant_id=desired_app.get("microtenant_id", None),
+                    name=desired_app.get("name", None),
+                    description=desired_app.get("description", None),
+                    enabled=desired_app.get("enabled", None),
+                    bypass_type=desired_app.get("bypass_type", None),
+                    domain_names=desired_app.get("domain_names", None),
+                    double_encrypt=desired_app.get("double_encrypt", None),
+                    health_check_type=desired_app.get("health_check_type", None),
+                    health_reporting=desired_app.get("health_reporting", None),
+                    ip_anchored=desired_app.get("ip_anchored", None),
+                    is_cname_enabled=desired_app.get("is_cname_enabled", None),
+                    tcp_keep_alive=desired_app.get("tcp_keep_alive", None),
+                    icmp_access_type=desired_app.get("icmp_access_type", None),
+                    fqdn_dns_check=desired_app.get("fqdn_dns_check", None),
+                    passive_health_enabled=desired_app.get("passive_health_enabled", None),
+                    select_connector_close_to_app=desired_app.get(
                         "select_connector_close_to_app", None
                     ),
-                    use_in_dr_mode=app.get("use_in_dr_mode", None),
-                    common_apps_dto=app.get("common_apps_dto", None),  # Add this line
-                    is_incomplete_dr_config=app.get("is_incomplete_dr_config", None),
-                    inspect_traffic_with_zia=app.get("inspect_traffic_with_zia", None),
-                    segment_group_id=app.get("segment_group_id", None),
-                    server_group_ids=app.get("server_group_ids", None),
+                    use_in_dr_mode=desired_app.get("use_in_dr_mode", None),
+                    common_apps_dto=desired_app.get("common_apps_dto", None),  # Add this line
+                    is_incomplete_dr_config=desired_app.get("is_incomplete_dr_config", None),
+                    inspect_traffic_with_zia=desired_app.get("inspect_traffic_with_zia", None),
+                    segment_group_id=desired_app.get("segment_group_id", None),
+                    server_group_ids=desired_app.get("server_group_ids", None),
                     tcp_port_ranges=convert_ports_list(app.get("tcp_port_range", None)),
                     udp_port_ranges=convert_ports_list(app.get("udp_port_range", None)),
                 )
             )
-            app = client.app_segments_pra.add_segment_pra(**app)
-            module.exit_json(changed=True, data=app)
-    elif (
-        state == "absent"
-        and existing_app is not None
-        and existing_app.get("id") is not None
-    ):
-        code = client.app_segments_pra.delete_segment_pra(
-            segment_id=existing_app.get("id"), force_delete=True
-        )
-        if code > 299:
-            module.exit_json(changed=False, data=None)
-        module.exit_json(changed=True, data=existing_app)
+            module.warn(f"Payload for SDK: {create_pra_segment}")
+            new_segment, _, error = client.app_segments_pra.add_segment_pra(
+                **create_pra_segment
+            )
+            if error:
+                module.fail_json(
+                    msg=f"Error creating application segment: {to_native(error)}"
+                )
+
+            # -- After creation, fetch the newly-created resource for drift check
+            refreshed, _, err = client.app_segments_pra.get_segment_pra(
+                new_segment.id,
+                query_params={"microtenant_id": desired_app.get("microtenant_id")},
+            )
+            if err:
+                module.warn(
+                    f"[POST-CREATE] Failed to retrieve newly created resource. Error: {to_native(err)}"
+                )
+            else:
+                final_app = normalize_port_processing(refreshed.as_dict())
+                warn_drift(module, desired_app, final_app)
+
+            module.exit_json(changed=True, data=new_segment.as_dict())
+
+    elif state == "absent":
+        if existing_app:
+            _, _, error = client.app_segments_pra.delete_segment_pra(
+                segment_id=existing_app.get("id"),
+                microtenant_id=microtenant_id,
+            )
+            if error:
+                module.fail_json(
+                    msg=f"Error deleting application segment: {to_native(error)}"
+                )
+            module.exit_json(changed=True, data=existing_app)
+        module.exit_json(changed=False, data={})
+
     module.exit_json(changed=False, data={})
 
 
@@ -623,13 +701,13 @@ def main():
         app_types=dict(
             type="list",
             elements="str",
-            choices=["BROWSER_ACCESS", "SIPA", "INSPECT", "SECURE_REMOTE_ACCESS"],
+            choices=["BROWSER_ACCESS", "INSPECT", "SECURE_REMOTE_ACCESS"],
             required=True,
         ),
         application_port=dict(type="str", required=True),
         application_protocol=dict(
             type="str",
-            choices=["HTTP", "HTTPS", "FTP", "RDP", "SSH", "WEBSOCKET", "VNC", "NONE"],
+            choices=["RDP", "SSH", "VNC"],
             required=True,
         ),
         connection_security=dict(

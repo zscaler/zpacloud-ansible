@@ -199,7 +199,7 @@ EXAMPLES = """
           - object_type: "SAML"
             entry_values:
               lhs: "72058304855021553"
-              rhs: "jdoe@securitygeek.io"
+              rhs: "jdoe@acme.com"
       - operands:
           - object_type: "PLATFORM"
             entry_values:

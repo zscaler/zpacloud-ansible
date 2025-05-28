@@ -206,7 +206,7 @@ EXAMPLES = """
         operands:
           - object_type: "SAML"
             lhs: "72058304855021553"
-            rhs: "wguilherme@securitygeek.io"
+            rhs: "jdoe@acme.com"
             idp_id: "72058304855015574"
       - operator: "AND"
         operands:

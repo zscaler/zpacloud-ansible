@@ -75,8 +75,8 @@ EXAMPLES = """
 - name: Onboard ZPA BA Certificate
   zscaler.zpacloud.zpa_ba_certificate:
     provider: "{{ zpa_cloud }}"
-    name: server1.securitygeek.io
-    description: server1.securitygeek.io
+    name: server1.acme.com
+    description: server1.acme.com
     cert_blob: "{{ lookup('file', 'server1.pem') }}"
 """
 

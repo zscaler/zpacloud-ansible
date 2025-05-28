@@ -214,13 +214,13 @@ EXAMPLES = """
           - object_type: "SAML"
             entry_values:
               lhs: "72058304855021553"
-              rhs: "wguilherme@securitygeek.io"
+              rhs: "jdoe@acme.com"
       - operator: "OR"
         operands:
           - object_type: "SAML"
             entry_values:
               lhs: "72058304855021553"
-              rhs: "jdoe@securitygeek.io"
+              rhs: "janedoe@acme.com"
     privileged_capabilities:
       clipboard_copy: true
       clipboard_paste: true

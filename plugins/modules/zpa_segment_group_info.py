@@ -54,6 +54,11 @@ options:
      - ID of the server group.
     required: false
     type: str
+  microtenant_id:
+      description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+      required: false
+      type: str
 """
 
 EXAMPLES = """
@@ -150,7 +155,7 @@ def core(module):
         query_params["microtenant_id"] = microtenant_id
 
     if group_id:
-        result, _, error = client.segment_groups.get_group(group_id, query_params)
+        result, _unused, error = client.segment_groups.get_group(group_id, query_params)
         if error or result is None:
             module.fail_json(
                 msg=f"Failed to retrieve Segment Group ID '{group_id}': {to_native(error)}"

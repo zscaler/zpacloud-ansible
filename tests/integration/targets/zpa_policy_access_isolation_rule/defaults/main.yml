@@ -2,4 +2,5 @@
 rule_name: test_zpa_policy_access_isolation_rule
 description: test_zpa_policy_access_isolation_rule
 rule_action: isolate
-operator: AND
+operator: OR
+policy_type: isolation

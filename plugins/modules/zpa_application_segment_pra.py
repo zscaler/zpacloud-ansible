@@ -121,6 +121,11 @@ options:
     type: list
     elements: str
     required: false
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
   common_apps_dto:
     type: dict
     required: true
@@ -149,7 +154,8 @@ options:
             type: list
             elements: str
             required: true
-            choices: ["BROWSER_ACCESS", "SIPA", "INSPECT", "SECURE_REMOTE_ACCESS"]
+            choices:
+              - SECURE_REMOTE_ACCESS
           application_port:
             description: "Port for the application."
             type: str
@@ -158,12 +164,21 @@ options:
             description: "Protocol for the application."
             type: str
             required: true
-            choices: ["HTTP", "HTTPS", "FTP", "RDP", "SSH", "WEBSOCKET", "VNC", "NONE"]
+            choices:
+              - RDP
+              - SSH
+              - VNC
           connection_security:
             description: "The security type of the connection."
             type: str
             required: false
-            choices: ["ANY", "NLA", "NLA_EXT", "TLS", "VM_CONNECT", "RDP"]
+            choices:
+              - ANY
+              - NLA
+              - NLA_EXT
+              - TLS
+              - VM_CONNECT
+              - RDP
           domain:
             description: "The domain of the application."
             type: str
@@ -336,6 +351,8 @@ def core(module):
         "description",
         "tcp_port_range",
         "udp_port_range",
+        "tcp_port_ranges",
+        "udp_port_ranges",
         "enabled",
         "bypass_type",
         "health_reporting",
@@ -348,6 +365,7 @@ def core(module):
         "use_in_dr_mode",
         "is_incomplete_dr_config",
         "inspect_traffic_with_zia",
+        "adp_enabled",
         "ip_anchored",
         "icmp_access_type",
         "common_apps_dto",
@@ -361,33 +379,7 @@ def core(module):
 
     common_apps_dto = module.params.get("common_apps_dto")
     if common_apps_dto:
-        app["common_apps_dto"] = (
-            common_apps_dto  # Ensuring the key is set in the dictionary
-        )
-
-    # For debugging purposes: Print the app dictionary before API calls
-    # module.warn("Final Payload before API call: {app}")
-
-    # Usage for tcp_keep_alive
-    # tcp_keep_alive = module.params.get("tcp_keep_alive")
-    # converted_tcp_keep_alive = convert_bool_to_str(
-    #     tcp_keep_alive, true_value="1", false_value="0"
-    # )
-    # app["tcp_keep_alive"] = converted_tcp_keep_alive
-
-    # # Get icmp_access_type
-    # icmp_access_type = module.params.get("icmp_access_type")
-
-    # # Convert icmp_access_type
-    # if isinstance(icmp_access_type, bool):
-    #     app["icmp_access_type"] = "PING" if icmp_access_type else "NONE"
-    # else:
-    #     # You might want to fail the module here since you only want to allow boolean values
-    #     module.fail_json(
-    #         msg="Invalid value for icmp_access_type: {}. Only boolean values are allowed.".format(
-    #             icmp_access_type
-    #         )
-    #     )
+        app["common_apps_dto"] = common_apps_dto
 
     select_connector_close_to_app = module.params.get(
         "select_connector_close_to_app", None
@@ -410,7 +402,7 @@ def core(module):
     existing_app = None
     # -- Lookup existing resource
     if segment_id:
-        result, _, error = client.app_segments_pra.get_segment_pra(
+        result, _unused, error = client.app_segments_pra.get_segment_pra(
             segment_id, query_params={"microtenant_id": microtenant_id}
         )
         if error:
@@ -432,12 +424,10 @@ def core(module):
                     existing_app = segment_.as_dict()
                     break
 
-    # Normalize and compare existing and desired application data
-    # desired_app = normalize_port_processing(app)
-    # current_app = normalize_port_processing(existing_app) if existing_app else {}
     desired_app = normalize_app(normalize_port_processing(app))
-    current_app = normalize_app(normalize_port_processing(existing_app)) if existing_app else {}
-
+    current_app = (
+        normalize_app(normalize_port_processing(existing_app)) if existing_app else {}
+    )
 
     # Convert server_groups -> server_group_ids in current_app
     if "server_groups" in current_app:
@@ -453,21 +443,22 @@ def core(module):
     fields_to_exclude = ["id", "common_apps_dto"]
     # Special comparison for common_apps_dto
     if "common_apps_dto" in desired_app:
-        current_pra_apps = current_app.get("pra_apps", [])
+        current_inspect_apps = current_app.get("pra_apps", [])
         desired_apps_config = desired_app["common_apps_dto"].get("apps_config", [])
 
-        # Convert current pra_apps to the same format as desired apps_config
-        normalized_current = map_pra_apps_to_common_apps(current_pra_apps)
+        # Convert current inspectionApps to the same format as desired apps_config
+        normalized_current = map_pra_apps_to_common_apps(current_inspect_apps)
         normalized_current_apps = normalized_current.get("apps_config", [])
 
         # Compare the normalized versions
-        if sorted(normalized_current_apps, key=lambda x: x.get("domain", "")) != \
-          sorted(desired_apps_config, key=lambda x: x.get("domain", "")):
+        if sorted(normalized_current_apps, key=lambda x: x.get("domain", "")) != sorted(
+            desired_apps_config, key=lambda x: x.get("domain", "")
+        ):
             differences_detected = True
-            # module.warn(
-            #     f"Difference detected in application configurations. "
-            #     f"Current: {normalized_current_apps}, Desired: {desired_apps_config}"
-            # )
+            module.warn(
+                f"Difference detected in application configurations. "
+                f"Current: {normalized_current_apps}, Desired: {desired_apps_config}"
+            )
 
     differences_detected = False
 
@@ -481,22 +472,30 @@ def core(module):
             # Compare them as sorted lists to ignore order differences
             if sorted(current_value or []) != sorted(desired_value or []):
                 differences_detected = True
-                # module.warn(
-                #     f"Difference detected in domain_names. "
-                #     f"Current (sorted): {sorted(current_value or [])}, "
-                #     f"Desired (sorted): {sorted(desired_value or [])}"
-                # )
+                module.warn(
+                    f"Difference detected in domain_names. "
+                    f"Current (sorted): {sorted(current_value or [])}, "
+                    f"Desired (sorted): {sorted(desired_value or [])}"
+                )
         else:
             # Normal comparison for everything else
             if current_value != desired_value:
                 differences_detected = True
-                # module.warn(
-                #     f"Difference detected in {key}. "
-                #     f"Current: {current_value}, Desired: {desired_value}"
-                # )
-                # module.warn(
-                #     f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {desired_value}"
-                # )
+                module.warn(
+                    f"Difference detected in {key}. "
+                    f"Current: {current_value}, Desired: {desired_value}"
+                )
+                module.warn(
+                    f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {desired_value}"
+                )
+
+    if module.check_mode:
+        if state == "present" and (existing_app is None or differences_detected):
+            module.exit_json(changed=True)
+        elif state == "absent" and existing_app is not None:
+            module.exit_json(changed=True)
+        else:
+            module.exit_json(changed=False)
 
     if module.check_mode:
         if state == "present" and (existing_app is None or differences_detected):
@@ -511,52 +510,78 @@ def core(module):
         existing_app.update(app)
         existing_app["id"] = id
 
+    # Enrich common_apps_dto with app_id/pra_app_id and detect deletions
+    # ------------------------------------------------------------------
+    # Enrich common_apps_dto with app_id / pra_app_id and detect deletions
+    # ------------------------------------------------------------------
+    if "common_apps_dto" in desired_app:
+        desired_configs = desired_app["common_apps_dto"].get("apps_config", [])
+
+        segments_list, err = collect_all_items(
+            lambda qp: client.app_segment_by_type.get_segments_by_type(
+                application_type="SECURE_REMOTE_ACCESS",
+                expand_all=False,
+                # only filter by appId when we are updating
+                query_params={"appId": existing_app["id"]} if existing_app else {},
+            ),
+            query_params={},
+        )
+        if err:
+            module.fail_json(msg=f"Failed to fetch PRA apps: {to_native(err)}")
+
+        # ------ extra debug so we know what came back ------
+        module.warn(f"[DEBUG] fetched {len(segments_list)} PRA segment(s)")
+
+        if existing_app:
+            target_app_id = existing_app.get("id")
+            module.warn(f"[DEBUG] existing_app.id = {target_app_id}")
+            pra_by_domain = {
+                getattr(s, "domain"): s
+                for s in segments_list
+                if getattr(s, "app_id", None) == target_app_id
+            }
+        else:
+            module.warn("[DEBUG] existing_app is None (create flow)")
+            pra_by_domain = {getattr(s, "domain"): s for s in segments_list}
+
+        updated_configs = []
+        deleted_ids = []
+        found_domains = set()
+
+        for config in desired_configs:
+            domain = config.get("domain")
+            pra_app = pra_by_domain.get(domain)
+
+            # on create we do not have an app_id yet
+            config["app_id"] = existing_app["id"] if existing_app else ""
+            if pra_app:
+                config["pra_app_id"] = pra_app.id
+                found_domains.add(domain)
+            else:
+                config["pra_app_id"] = ""
+
+            updated_configs.append(config)
+
+        for domain, pra in pra_by_domain.items():
+            if domain not in found_domains:
+                deleted_ids.append(pra.id)
+
+        desired_app["common_apps_dto"]["apps_config"] = updated_configs
+        if deleted_ids:
+            desired_app["common_apps_dto"]["deleted_pra_apps"] = deleted_ids
+
+        desired_app["domain_names"] = [
+            a["domain"] for a in updated_configs if a.get("domain")
+        ]
+        desired_app["tcp_port_range"] = [
+            {"from": a["application_port"], "to": a["application_port"]}
+            for a in updated_configs
+            if a.get("application_port")
+        ]
+
     if state == "present":
         if existing_app:
             if differences_detected:
-                # ✅ Inject app_id and correct pra_app_id per apps_config entry
-                if desired_app.get("common_apps_dto") and "apps_config" in desired_app["common_apps_dto"]:
-                    app_configs = desired_app["common_apps_dto"]["apps_config"]
-
-                    # Step 1: Fetch all SECURE_REMOTE_ACCESS app configs
-                    segments_list, err = collect_all_items(
-                        lambda qp: client.app_segment_by_type.get_segments_by_type(
-                            application_type="SECURE_REMOTE_ACCESS",
-                            expand_all=False,
-                            query_params=qp,
-                        ),
-                        query_params={"applicationType": "SECURE_REMOTE_ACCESS"},
-                    )
-
-                    if err:
-                        module.fail_json(msg=f"Failed to fetch Secure Remote Access segments: {to_native(err)}")
-
-                    # Step 2: Build a lookup from app name → PRA segment ID
-                    pra_segment_lookup = {
-                        getattr(s, "name", None): getattr(s, "id", None)
-                        for s in segments_list
-                        if getattr(s, "app_id", None) == existing_app["id"]
-                    }
-
-                    if not pra_segment_lookup:
-                        module.fail_json(
-                            msg=f"No matching PRA apps found with app_id = {existing_app['id']}"
-                        )
-
-                    # Step 3: Assign app_id and correct pra_app_id per config
-                    for app_config in app_configs:
-                        app_config["app_id"] = existing_app["id"]
-                        app_name = app_config.get("name")
-
-                        pra_id = pra_segment_lookup.get(app_name)
-                        if not pra_id:
-                            module.fail_json(msg=f"No PRA app_id found for app_config name={app_name}")
-
-                        app_config["pra_app_id"] = pra_id
-
-                    desired_app["common_apps_dto"]["apps_config"] = app_configs
-
-                # ✅ Now build update payload
                 update_segment = deleteNone(
                     dict(
                         segment_id=existing_app.get("id"),
@@ -574,29 +599,43 @@ def core(module):
                         tcp_keep_alive=desired_app.get("tcp_keep_alive", None),
                         icmp_access_type=desired_app.get("icmp_access_type", None),
                         fqdn_dns_check=desired_app.get("fqdn_dns_check", None),
-                        select_connector_close_to_app=desired_app.get("select_connector_close_to_app", None),
+                        select_connector_close_to_app=desired_app.get(
+                            "select_connector_close_to_app", None
+                        ),
                         use_in_dr_mode=desired_app.get("use_in_dr_mode", None),
-                        is_incomplete_dr_config=desired_app.get("is_incomplete_dr_config", None),
-                        inspect_traffic_with_zia=desired_app.get("inspect_traffic_with_zia", None),
+                        is_incomplete_dr_config=desired_app.get(
+                            "is_incomplete_dr_config", None
+                        ),
+                        inspect_traffic_with_zia=desired_app.get(
+                            "inspect_traffic_with_zia", None
+                        ),
                         common_apps_dto=desired_app.get("common_apps_dto", None),
-                        passive_health_enabled=desired_app.get("passive_health_enabled", None),
+                        passive_health_enabled=desired_app.get(
+                            "passive_health_enabled", None
+                        ),
                         segment_group_id=desired_app.get("segment_group_id", None),
                         server_group_ids=desired_app.get("server_group_ids", None),
-                        tcp_port_ranges=convert_ports_list(existing_app.get("tcp_port_range", None)),
-                        udp_port_ranges=convert_ports_list(existing_app.get("udp_port_range", None)),
+                        tcp_port_ranges=convert_ports_list(
+                            existing_app.get("tcp_port_range", None)
+                        ),
+                        udp_port_ranges=convert_ports_list(
+                            existing_app.get("udp_port_range", None)
+                        ),
                     )
                 )
 
                 # module.warn(f"Payload Update for SDK: {update_segment}")
-                updated_segment, _, error = client.application_segment.update_segment(
-                    segment_id=update_segment.pop("segment_id"), **update_segment
+                updated_segment, _unused, error = (
+                    client.app_segments_pra.update_segment_pra(
+                        segment_id=update_segment.pop("segment_id"), **update_segment
+                    )
                 )
                 if error:
                     module.fail_json(
                         msg=f"Error updating application segment: {to_native(error)}"
                     )
 
-                refreshed, _, err = client.app_segments_pra.get_segment_pra(
+                refreshed, _unused, err = client.app_segments_pra.get_segment_pra(
                     updated_segment.id,
                     query_params={"microtenant_id": desired_app.get("microtenant_id")},
                 )
@@ -614,7 +653,7 @@ def core(module):
 
         else:
             """Create"""
-            create_pra_segment = deleteNone(
+            create_inspect_segment = deleteNone(
                 dict(
                     microtenant_id=desired_app.get("microtenant_id", None),
                     name=desired_app.get("name", None),
@@ -630,23 +669,31 @@ def core(module):
                     tcp_keep_alive=desired_app.get("tcp_keep_alive", None),
                     icmp_access_type=desired_app.get("icmp_access_type", None),
                     fqdn_dns_check=desired_app.get("fqdn_dns_check", None),
-                    passive_health_enabled=desired_app.get("passive_health_enabled", None),
+                    passive_health_enabled=desired_app.get(
+                        "passive_health_enabled", None
+                    ),
                     select_connector_close_to_app=desired_app.get(
                         "select_connector_close_to_app", None
                     ),
                     use_in_dr_mode=desired_app.get("use_in_dr_mode", None),
-                    common_apps_dto=desired_app.get("common_apps_dto", None),  # Add this line
-                    is_incomplete_dr_config=desired_app.get("is_incomplete_dr_config", None),
-                    inspect_traffic_with_zia=desired_app.get("inspect_traffic_with_zia", None),
+                    common_apps_dto=desired_app.get(
+                        "common_apps_dto", None
+                    ),  # Add this line
+                    is_incomplete_dr_config=desired_app.get(
+                        "is_incomplete_dr_config", None
+                    ),
+                    inspect_traffic_with_zia=desired_app.get(
+                        "inspect_traffic_with_zia", None
+                    ),
                     segment_group_id=desired_app.get("segment_group_id", None),
                     server_group_ids=desired_app.get("server_group_ids", None),
                     tcp_port_ranges=convert_ports_list(app.get("tcp_port_range", None)),
                     udp_port_ranges=convert_ports_list(app.get("udp_port_range", None)),
                 )
             )
-            module.warn(f"Payload for SDK: {create_pra_segment}")
-            new_segment, _, error = client.app_segments_pra.add_segment_pra(
-                **create_pra_segment
+            module.warn(f"Payload for SDK: {create_inspect_segment}")
+            new_segment, _unused, error = client.app_segments_pra.add_segment_pra(
+                **create_inspect_segment
             )
             if error:
                 module.fail_json(
@@ -654,7 +701,7 @@ def core(module):
                 )
 
             # -- After creation, fetch the newly-created resource for drift check
-            refreshed, _, err = client.app_segments_pra.get_segment_pra(
+            refreshed, _unused, err = client.app_segments_pra.get_segment_pra(
                 new_segment.id,
                 query_params={"microtenant_id": desired_app.get("microtenant_id")},
             )
@@ -670,13 +717,13 @@ def core(module):
 
     elif state == "absent":
         if existing_app:
-            _, _, error = client.app_segments_pra.delete_segment_pra(
+            _unused, _unused, error = client.app_segments_pra.delete_segment_pra(
                 segment_id=existing_app.get("id"),
                 microtenant_id=microtenant_id,
             )
             if error:
                 module.fail_json(
-                    msg=f"Error deleting application segment: {to_native(error)}"
+                    msg=f"Error deleting pra application segment: {to_native(error)}"
                 )
             module.exit_json(changed=True, data=existing_app)
         module.exit_json(changed=False, data={})
@@ -700,7 +747,7 @@ def main():
         app_types=dict(
             type="list",
             elements="str",
-            choices=["BROWSER_ACCESS", "INSPECT", "SECURE_REMOTE_ACCESS"],
+            choices=["SECURE_REMOTE_ACCESS"],
             required=True,
         ),
         application_port=dict(type="str", required=True),
@@ -724,7 +771,7 @@ def main():
         use_in_dr_mode=dict(type="bool", required=False),
         is_incomplete_dr_config=dict(type="bool", required=False),
         inspect_traffic_with_zia=dict(type="bool", required=False),
-        fqdn_dns_check=dict(type="bool", required=False, default=False),
+        fqdn_dns_check=dict(type="bool", required=False),
         bypass_type=dict(
             type="str",
             required=False,

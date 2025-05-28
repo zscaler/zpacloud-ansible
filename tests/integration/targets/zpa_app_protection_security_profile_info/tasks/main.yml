@@ -25,41 +25,39 @@
       cloud: '{{ lookup("env", "ZSCALER_CLOUD") | default(omit) }}'
   no_log: true
 
-- name: Main block to Test Isolation Profiles
+- name: Main block to Test App Protection Profile
   block:
-    - name: Fetch all Isolation Profiles
-      zscaler.zpacloud.zpa_isolation_profile_info:
+    - name: Fetch All App Protection Profile
+      zscaler.zpacloud.zpa_app_protection_security_profile_info:
         provider: "{{ zpa_cloud }}"
       register: result
 
-    - name: Ensure all Isolation Profiles found
+    - name: Ensure All App Protection Profile found
       ansible.builtin.assert:
         that:
           - not result.changed
           - result.profiles is defined
 
-    - name: Fetch Profile1 Isolation Profile
-      zscaler.zpacloud.zpa_isolation_profile_info:
+    - name: Fetch OWASP Top-10 for Visibility Posture Profile
+      zscaler.zpacloud.zpa_app_protection_security_profile_info:
         provider: "{{ zpa_cloud }}"
-        name: "{{ profile1 }}"
+        name: "{{ profile_1 }}"
       register: result
 
-    - name: Ensure Profile1 Isolation Profile found
+    - name: Ensure OWASP Top-10 for Visibility Posture Profile found
       ansible.builtin.assert:
         that:
           - not result.changed
           - result.profiles is defined
-          - result.profiles[0].name == profile1
 
-    - name: Fetch Profile2 Isolation Profile
-      zscaler.zpacloud.zpa_isolation_profile_info:
+    - name: Fetch BD_AppProtection_Profile1 Posture Profile
+      zscaler.zpacloud.zpa_app_protection_security_profile_info:
         provider: "{{ zpa_cloud }}"
-        name: "{{ profile2 }}"
+        name: "{{ profile_2 }}"
       register: result
 
-    - name: Ensure Profile2 Isolation Profile is found
+    - name: Ensure BD_AppProtection_Profile1 Posture Profile found
       ansible.builtin.assert:
         that:
           - not result.changed
           - result.profiles is defined
-          - result.profiles[0].name == profile2

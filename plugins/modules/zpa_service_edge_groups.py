@@ -146,12 +146,17 @@ options:
     choices:
       - MILES
       - KMS
-  trusted_networks_ids:
+  trusted_network_ids:
     description:
       - The list of trusted networks in the ZPA Private Service Edge Group.
     type: list
     elements: str
     required: false
+  microtenant_id:
+      description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+      required: false
+      type: str
 """
 
 EXAMPLES = """
@@ -227,7 +232,7 @@ def core(module):
         "grace_distance_enabled",
         "grace_distance_value",
         "grace_distance_value_unit",
-        "service_edge_ids",
+        # "service_edge_ids",
         "trusted_network_ids",
     ]
     for param_name in params:
@@ -267,7 +272,7 @@ def core(module):
 
     existing_group = None
     if group_id is not None:
-        result, _, error = client.service_edge_group.get_service_edge_group(
+        result, _unused, error = client.service_edge_group.get_service_edge_group(
             group_id, query_params={"microtenant_id": microtenant_id}
         )
         if error:
@@ -389,14 +394,14 @@ def core(module):
                         "grace_distance_value_unit": desired_group.get(
                             "grace_distance_value_unit", None
                         ),
-                        "service_edge_ids": desired_group.get("service_edge_ids", None),
+                        # "service_edge_ids": desired_group.get("service_edge_ids", None),
                         "trusted_network_ids": desired_group.get(
                             "trusted_network_ids", None
                         ),
                     }
                 )
                 module.warn("Payload Update for SDK: {}".format(update_group))
-                updated_group, _, error = (
+                updated_group, _unused, error = (
                     client.service_edge_group.update_service_edge_group(
                         group_id=update_group.pop("group_id"), **update_group
                     )
@@ -437,14 +442,14 @@ def core(module):
                     "grace_distance_value_unit": desired_group.get(
                         "grace_distance_value_unit", None
                     ),
-                    "service_edge_ids": desired_group.get("service_edge_ids", None),
+                    # "service_edge_ids": desired_group.get("service_edge_ids", None),
                     "trusted_network_ids": desired_group.get(
                         "trusted_network_ids", None
                     ),
                 }
             )
             module.warn("Payload Update for SDK: {}".format(create_group))
-            created, _, error = client.service_edge_group.add_service_edge_group(
+            created, _unused, error = client.service_edge_group.add_service_edge_group(
                 **create_group
             )
             if error:
@@ -461,9 +466,11 @@ def core(module):
 
     elif state == "absent":
         if existing_group:
-            _, _, error = client.service_edge_group.delete_service_edge_group(
-                group_id=existing_group.get("id"),
-                microtenant_id=microtenant_id,
+            _unused, _unused, error = (
+                client.service_edge_group.delete_service_edge_group(
+                    group_id=existing_group.get("id"),
+                    microtenant_id=microtenant_id,
+                )
             )
         if error:
             module.fail_json(msg=f"Error deleting group: {to_native(error)}")
@@ -510,7 +517,7 @@ def main():
             type="str", required=False, choices=["MILES", "KMS"]
         ),
         trusted_network_ids=dict(type="list", elements="str", required=False),
-        service_edge_ids=dict(type="list", elements="str", required=False),
+        # service_edge_ids=dict(type="list", elements="str", required=False),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

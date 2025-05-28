@@ -34,11 +34,12 @@
 
 - name: Ensure ZIA Credential environment variables are set
   ansible.builtin.set_fact:
-    zia_cloud:
-      client_id: "{{ lookup('env', 'ZSCALER_CLIENT_ID') }}"
-      client_secret: "{{ lookup('env', 'ZSCALER_CLIENT_SECRET') }}"
-      vanity_domain: "{{ lookup('env', 'ZSCALER_VANITY_DOMAIN') }}"
-      cloud: "{{ lookup('env', 'ZSCALER_CLOUD') | default(omit) }}"
+    zpa_cloud:
+      client_id: '{{ lookup("env", "ZSCALER_CLIENT_ID") }}'
+      client_secret: '{{ lookup("env", "ZSCALER_CLIENT_SECRET") | default(omit) }}'
+      vanity_domain: '{{ lookup("env", "ZSCALER_VANITY_DOMAIN") | default(omit) }}'
+      customer_id: '{{ lookup("env", "ZPA_CUSTOMER_ID") | default(omit) }}'
+      cloud: '{{ lookup("env", "ZSCALER_CLOUD") | default(omit) }}'
   no_log: true
 
 - name: Main block to Test Policy Access App Protection Rule
@@ -82,7 +83,6 @@
         description: "{{ appended_description }}"
         action: "{{ rule_action }}"
         zpn_inspection_profile_id: "{{ profile_id }}"
-        operator: "{{ operator }}"
         conditions:
           - operator: AND
             operands:
@@ -118,7 +118,6 @@
         description: "{{ appended_description }}"
         action: "{{ rule_action }}"
         zpn_inspection_profile_id: "{{ profile_id }}"
-        operator: "{{ operator }}"
         conditions:
           - operator: AND
             operands:
@@ -143,8 +142,9 @@
           - not result.changed # Expect no changes on idempotent operation
 
     - name: Fetch all Policy Access App Protection Rule
-      zscaler.zpacloud.zpa_policy_access_app_protection_rule_info:
+      zscaler.zpacloud.zpa_policy_access_rule_info:
         provider: "{{ zpa_cloud }}"
+        policy_type: "{{ policy_type }}"
       register: result
 
     - name: Ensure all Policy Access App Protection Rule found
@@ -154,9 +154,10 @@
           - result.policy_rules[0] is defined
 
     - name: Fetch this Policy Access App Protection Rule
-      zscaler.zpacloud.zpa_policy_access_app_protection_rule_info:
+      zscaler.zpacloud.zpa_policy_access_rule_info:
         provider: "{{ zpa_cloud }}"
         name: "{{ appended_name }}"
+        policy_type: "{{ policy_type }}"
       register: result
 
     - name: Ensure this Policy Access App Protection Rule is found

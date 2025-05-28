@@ -100,7 +100,7 @@ def core(module):
         query_params["microtenant_id"] = microtenant_id
 
     if connector_id:
-        result, _, error = client.app_connectors.get_connector(
+        result, _unused, error = client.app_connectors.get_connector(
             connector_id, query_params
         )
         if error or result is None:

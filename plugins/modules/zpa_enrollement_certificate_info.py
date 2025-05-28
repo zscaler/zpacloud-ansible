@@ -222,14 +222,14 @@ def core(module):
     query_params = {}
 
     if certificate_id:
-        result, _, error = client.enrollment_certificates.get_enrolment(
+        result, _unused, error = client.enrollment_certificates.get_enrolment(
             certificate_id, query_params
         )
         if error or result is None:
             module.fail_json(
                 msg=f"Failed to retrieve Enrollment Certificate ID '{certificate_id}': {to_native(error)}"
             )
-        module.exit_json(changed=False, groups=[result.as_dict()])
+        module.exit_json(changed=False, certificates=[result.as_dict()])
 
     # If no ID, we fetch all
     cert_list, err = collect_all_items(
@@ -253,7 +253,7 @@ def core(module):
             )
         result_list = [matched]
 
-    module.exit_json(changed=False, groups=result_list)
+    module.exit_json(changed=False, certificates=result_list)
 
 
 def main():

@@ -76,10 +76,11 @@ options:
     type: str
     required: false
     choices: ["AND", "OR"]
-  policy_type:
-    description: "Indicates the policy type. The following value is supported: client_forwarding"
-    type: str
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
     required: false
+    type: str
   conditions:
     description: "Specifies the set of conditions for the policy rule"
     type: list
@@ -243,7 +244,7 @@ def core(module):
 
     existing_rule = None
     if rule_id:
-        result, _, error = client.policies.get_rule(
+        result, _unused, error = client.policies.get_rule(
             policy_type="client_forwarding", rule_id=rule_id, query_params=query_params
         )
         if error:
@@ -314,7 +315,7 @@ def core(module):
         desired_order = str(rule["rule_order"])
         if desired_order != current_order:
             try:
-                _, _, error = client.policies.reorder_rule(
+                _unused, _unused, error = client.policies.reorder_rule(
                     policy_type="client_forwarding",
                     rule_id=existing_rule["id"],
                     rule_order=desired_order,
@@ -331,7 +332,7 @@ def core(module):
         elif state == "absent" and existing_rule:
             module.exit_json(changed=True)
         else:
-            module.exit_json(changed=False)
+            module.exit_json(changed=False, data=existing_rule or {})
 
     # Update or create
     if state == "present":
@@ -349,7 +350,7 @@ def core(module):
                 }
             )
             module.warn(f"Update payload to SDK: {update_data}")
-            result, _, error = client.policies.update_client_forwarding_rule(
+            result, _unused, error = client.policies.update_client_forwarding_rule(
                 **update_data
             )
             if error:
@@ -369,7 +370,9 @@ def core(module):
                 }
             )
             module.warn(f"Create payload to SDK: {create_data}")
-            result, _, error = client.policies.add_client_forwarding_rule(**create_data)
+            result, _unused, error = client.policies.add_client_forwarding_rule(
+                **create_data
+            )
             if error:
                 module.fail_json(msg=f"Error creating rule: {to_native(error)}")
             module.exit_json(changed=True, data=result.as_dict())
@@ -378,14 +381,14 @@ def core(module):
             module.exit_json(changed=False, data=existing_rule)
 
     elif state == "absent" and existing_rule:
-        _, _, error = client.policies.delete_rule(
+        _unused, _unused, error = client.policies.delete_rule(
             policy_type="client_forwarding", rule_id=existing_rule["id"]
         )
         if error:
             module.fail_json(msg=f"Error deleting rule: {to_native(error)}")
         module.exit_json(changed=True, data=existing_rule)
 
-    module.exit_json(changed=False)
+    module.exit_json(changed=False, data=existing_rule or {})
 
 
 def main():
@@ -395,7 +398,6 @@ def main():
         microtenant_id=dict(type="str", required=False),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
-        # policy_type=dict(type="str", required=False),
         action=dict(
             type="str",
             required=False,

@@ -94,7 +94,7 @@ def core(module):
 
     # Lookup by ID
     if control_id:
-        result, _, error = client.app_protection.get_custom_control(
+        result, _unused, error = client.app_protection.get_custom_control(
             control_id=control_id
         )
         if error or not result:

@@ -159,7 +159,9 @@ def core(module):
     query_params = {}
 
     if profile_id:
-        result, _, error = client.app_protection.get_profile(profile_id, query_params)
+        result, _unused, error = client.app_protection.get_profile(
+            profile_id, query_params
+        )
         if error or result is None:
             module.fail_json(
                 msg=f"Failed to retrieve app protection profile ID '{profile_id}': {to_native(error)}"

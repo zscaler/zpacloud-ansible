@@ -84,6 +84,12 @@ options:
     description:
         - The SSH private key associated with the username for the login you want to use for the privileged credential
     required: false
+  update_secret:
+    type: bool
+    description:
+        - Required when attempting to update an existing credential value i.e password
+    required: false
+    default: false
   user_domain:
     type: str
     description:
@@ -91,11 +97,16 @@ options:
         - You can also include the domain name as part of the username
         - The domain name only needs to be specified with logging in to an RDP console that is connected to an Active Directory Domain
     required: false
-  username:
+  user_name:
     type: str
     description:
-        - The username for the login you want to use for the privileged credential
+        - The username for the login you want to use for the privileged credential.
     required: false
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = """
@@ -160,7 +171,7 @@ def core(module):
 
     existing_cred = None
     if credential_id:
-        result, _, error = client.pra_credential.get_credential(
+        result, _unused, error = client.pra_credential.get_credential(
             credential_id, query_params=query_params
         )
         if error:
@@ -235,7 +246,7 @@ def core(module):
                 )
 
                 module.warn(f"[UPDATE] Payload: {update_payload}")
-                updated_cred, _, error = client.pra_credential.update_credential(
+                updated_cred, _unused, error = client.pra_credential.update_credential(
                     credential_id=update_payload.pop("credential_id"), **update_payload
                 )
                 if error:
@@ -259,21 +270,23 @@ def core(module):
                 }
             )
             module.warn(f"[CREATE] Payload: {create_payload}")
-            new_cred, _, error = client.pra_credential.add_credential(**create_payload)
+            new_cred, _unused, error = client.pra_credential.add_credential(
+                **create_payload
+            )
             if error:
                 module.fail_json(msg=f"Error creating credential: {to_native(error)}")
             module.exit_json(changed=True, data=new_cred.as_dict())
 
-    elif state == "absent" and existing_cred:
-        _, _, error = client.pra_credential.delete_credential(
-            credential_id=existing_cred.get("id"),
-            microtenant_id=microtenant_id,
-        )
-        if error:
-            module.fail_json(msg=f"Error deleting credential: {to_native(error)}")
-        module.exit_json(changed=True, data=existing_cred)
-
-    module.exit_json(changed=False)
+    elif state == "absent":
+        if existing_cred:
+            _unused, _unused, error = client.pra_credential.delete_credential(
+                credential_id=existing_cred.get("id"),
+                microtenant_id=microtenant_id,
+            )
+            if error:
+                module.fail_json(msg=f"Error deleting credential: {to_native(error)}")
+            module.exit_json(changed=True, data=existing_cred)
+        module.exit_json(changed=False, data=None)  # Always return data field
 
 
 def main():

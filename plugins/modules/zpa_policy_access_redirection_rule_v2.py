@@ -26,19 +26,20 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-DOCUMENTATION = """
+DOCUMENTATION = r"""
 ---
-module: zpa_policy_access_redirection_rule
-short_description: Create a Policy Redirection Rule
+module: zpa_policy_access_redirection_rule_v2
+short_description: Manage ZPA Access Redirection Policy Rules
 description:
-  - This module create/update/delete Create a Policy Redirection Rule
+  - Create, update, or delete a ZPA Access Redirection Policy Rule.
+  - These rules determine how users are redirected to specific service edge groups based on identity, geography, or client type.
+version_added: "2.0.0"
 author:
   - William Guilherme (@willguibr)
-version_added: "2.0.0"
 requirements:
-    - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+  - Zscaler SDK Python (https://pypi.org/project/zscaler-sdk-python/)
 notes:
-    - Check mode is supported.
+  - Check mode is supported.
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
   - zscaler.zpacloud.fragments.documentation
@@ -46,64 +47,107 @@ extends_documentation_fragment:
 
 options:
   id:
-    description: "The unique identifier of the policy rule."
+    description:
+      - The unique identifier of the redirection policy rule.
     type: str
     required: false
+
   name:
+    description:
+      - The name of the redirection rule.
     type: str
     required: true
-    description:
-      - The name of the Policy Redirection Rule
+
   description:
     description:
-      - This is the description of the Policy Redirection Rule
+      - A description of the redirection rule.
     type: str
     required: false
+
   rule_order:
-    description: "The policy evaluation order number of the rule."
+    description:
+      - The evaluation order of the rule within the policy set.
     type: str
     required: false
+
+  microtenant_id:
+    description:
+      - The identifier of the microtenant associated with the rule.
+    type: str
+    required: false
+
+  service_edge_group_ids:
+    description:
+      - A list of Service Edge Group IDs to redirect traffic to.
+    type: list
+    elements: str
+    required: false
+
+  action:
+    description:
+      - The redirection action to apply when the rule conditions match.
+    type: str
+    required: false
+    choices:
+      - REDIRECT_DEFAULT
+      - REDIRECT_PREFERRED
+      - REDIRECT_ALWAYS
+
   conditions:
+    description:
+      - Defines the match conditions under which the redirection rule is applied.
     type: list
     elements: dict
     required: false
-    description: "This is for providing the set of conditions for the policy"
     suboptions:
       operator:
-        description: "The operation type. Supported values: AND, OR"
+        description:
+          - Logical operator used to combine multiple operands.
         type: str
-        required: false
         choices: ["AND", "OR"]
+        required: false
+
       operands:
-        description: "The various policy criteria. Array of attributes (e.g., objectType, lhs, rhs, name)"
+        description:
+          - List of operand objects used to evaluate the condition.
         type: list
         elements: dict
         required: false
         suboptions:
-          idp_id:
-            description: "The ID information for the Identity Provider (IdP)"
-            type: str
-            required: false
-          lhs:
-            description: "The key for the object type. String ID example: id"
-            type: str
-            required: false
-          rhs:
-            description: >
-                - The value for the given object type. Its value depends upon the key
-                - For APP, APP_GROUP, and IDP, the supported value is entity id
-                - For CLIENT_TYPE, the supported values are: zpn_client_type_zapp (for Zscaler Client Connector), zpn_client_type_exporter (for Clientless)
-                - For POSTURE, the supported values are: true (verified), false (verification failed)
-                - For TRUSTED_NETWORK, the supported value is true
-            type: str
-            required: false
           object_type:
-            description: >
-              - This is for specifying the policy criteria
-              - Supported values: APP, APP_GROUP, SAML, IDP, CLIENT_TYPE, POSTURE, TRUSTED_NETWORK, MACHINE_GRP, SCIM, SCIM_GROUP.
-              - POSTURE and TRUSTED_NETWORK values are only supported for the CLIENT_TYPE.
+            description:
+              - The type of object to match.
             type: str
+            choices:
+              - CLIENT_TYPE
+              - COUNTRY_CODE
+              - SAML
+              - SCIM
             required: false
+
+          values:
+            description:
+              - A list of string values to match for the operand.
+            type: list
+            elements: str
+            required: false
+
+          entry_values:
+            description:
+              - A dictionary of left-hand side (lhs) and right-hand side (rhs) values used for advanced condition matching.
+            type: dict
+            required: false
+            suboptions:
+              lhs:
+                description:
+                  - Left-hand-side value used in operand evaluation.
+                type: str
+                required: false
+              rhs:
+                description:
+                  - Right-hand-side value used in operand evaluation.
+                type: str
+                required: false
 """
 
 EXAMPLES = """
@@ -187,7 +231,7 @@ def core(module):
 
     existing_rule = None
     if rule_id:
-        result, _, error = client.policies.get_rule(
+        result, _unused, error = client.policies.get_rule(
             policy_type="redirection", rule_id=rule_id, query_params=query_params
         )
         if error:
@@ -253,7 +297,7 @@ def core(module):
         desired_order = str(rule["rule_order"])
         if desired_order != current_order:
             try:
-                _, _, error = client.policies.reorder_rule(
+                _unused, _unused, error = client.policies.reorder_rule(
                     policy_type="redirection",
                     rule_id=existing_rule["id"],
                     rule_order=desired_order,
@@ -270,7 +314,7 @@ def core(module):
         elif state == "absent" and existing_rule:
             module.exit_json(changed=True)
         else:
-            module.exit_json(changed=False)
+            module.exit_json(changed=False, data=existing_rule or {})
 
     # Update or create
     if state == "present":
@@ -288,7 +332,9 @@ def core(module):
                 }
             )
             module.warn(f"Update payload to SDK: {update_data}")
-            result, _, error = client.policies.update_redirection_rule_v2(**update_data)
+            result, _unused, error = client.policies.update_redirection_rule_v2(
+                **update_data
+            )
             if error:
                 module.fail_json(msg=f"Error updating rule: {to_native(error)}")
             module.exit_json(changed=True, data=result.as_dict())
@@ -306,7 +352,9 @@ def core(module):
                 }
             )
             module.warn(f"Create payload to SDK: {create_data}")
-            result, _, error = client.policies.add_redirection_rule_v2(**create_data)
+            result, _unused, error = client.policies.add_redirection_rule_v2(
+                **create_data
+            )
             if error:
                 module.fail_json(msg=f"Error creating rule: {to_native(error)}")
             module.exit_json(changed=True, data=result.as_dict())
@@ -315,14 +363,14 @@ def core(module):
             module.exit_json(changed=False, data=existing_rule)
 
     elif state == "absent" and existing_rule:
-        _, _, error = client.policies.delete_rule(
+        _unused, _unused, error = client.policies.delete_rule(
             policy_type="redirection", rule_id=existing_rule["id"]
         )
         if error:
             module.fail_json(msg=f"Error deleting rule: {to_native(error)}")
         module.exit_json(changed=True, data=existing_rule)
 
-    module.exit_json(changed=False)
+    module.exit_json(changed=False, data=existing_rule or {})
 
 
 def main():

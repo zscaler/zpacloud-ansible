@@ -166,6 +166,11 @@ options:
     required: false
     type: bool
     default: false
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = """
@@ -290,7 +295,7 @@ def core(module):
 
     existing_group = None
     if group_id is not None:
-        result, _, error = client.app_connector_groups.get_connector_group(
+        result, _unused, error = client.app_connector_groups.get_connector_group(
             group_id, query_params={"microtenant_id": microtenant_id}
         )
         if error:
@@ -324,7 +329,6 @@ def core(module):
             )
 
     if module.check_mode:
-        # If in check mode, report changes and exit
         if state == "present" and (existing_group is None or differences_detected):
             module.exit_json(changed=True)
         elif state == "absent" and existing_group is not None:
@@ -466,7 +470,7 @@ def core(module):
                 }
             )
             module.warn("Payload Update for SDK: {}".format(create_group))
-            created, _, error = client.app_connector_groups.add_connector_group(
+            created, _unused, error = client.app_connector_groups.add_connector_group(
                 **create_group
             )
             if error:
@@ -477,9 +481,11 @@ def core(module):
 
     elif state == "absent":
         if existing_group:
-            _, _, error = client.app_connector_groups.delete_connector_group(
-                group_id=existing_group.get("id"),
-                microtenant_id=microtenant_id,
+            _unused, _unused, error = (
+                client.app_connector_groups.delete_connector_group(
+                    group_id=existing_group.get("id"),
+                    microtenant_id=microtenant_id,
+                )
             )
         if error:
             module.fail_json(

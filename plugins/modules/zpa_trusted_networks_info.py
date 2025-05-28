@@ -45,16 +45,21 @@ extends_documentation_fragment:
   - zscaler.zpacloud.fragments.documentation
 
 options:
-    id:
-        description:
-            - ID of the trusted network.
-        required: false
-        type: str
-    name:
-        description:
-            - Name of the trusted network.
-        required: false
-        type: str
+  id:
+      description:
+          - ID of the trusted network.
+      required: false
+      type: str
+  name:
+      description:
+          - Name of the trusted network.
+      required: false
+      type: str
+  microtenant_id:
+      description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+      required: false
+      type: str
 """
 
 EXAMPLES = """
@@ -146,7 +151,7 @@ def core(module):
         result = [
             network_box.as_dict() if hasattr(network_box, "as_dict") else network_box
         ]
-        module.exit_json(changed=False, data=result)
+        module.exit_json(changed=False, networks=result)
 
     # Fetch all with pagination
     module.warn("[Trusted Network] Fetching all networks with pagination")
@@ -175,7 +180,7 @@ def core(module):
         networks = [match]
 
     result = [n.as_dict() if hasattr(n, "as_dict") else n for n in networks]
-    module.exit_json(changed=False, data=result)
+    module.exit_json(changed=False, networks=result)
 
 
 def main():

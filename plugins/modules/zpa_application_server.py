@@ -42,6 +42,7 @@ notes:
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
   - zscaler.zpacloud.fragments.documentation
+  - zscaler.zpacloud.fragments.state
 
 options:
     id:
@@ -74,12 +75,11 @@ options:
         required: false
         type: list
         elements: str
-    state:
+    microtenant_id:
         description:
-            - The state of the module, which determines if the settings are to be applied.
+        - The unique identifier of the Microtenant for the ZPA tenant
+        required: false
         type: str
-        choices: ['absent', 'present', gathered]
-        default: 'present'
 """
 
 EXAMPLES = """
@@ -133,7 +133,7 @@ def core(module):
 
     # Fetch by ID
     if server_id:
-        result, _, error = client.servers.get_server(
+        result, _unused, error = client.servers.get_server(
             server_id, query_params={"microtenant_id": microtenant_id}
         )
         if error:
@@ -144,7 +144,7 @@ def core(module):
     # Fetch by Name
     elif server_name:
         query_params = {"microtenant_id": microtenant_id} if microtenant_id else {}
-        server_list, _, error = client.servers.list_servers(query_params)
+        server_list, _unused, error = client.servers.list_servers(query_params)
         if error:
             module.fail_json(msg=f"Error listing servers: {to_native(error)}")
         for item in server_list or []:
@@ -199,7 +199,7 @@ def core(module):
                         "microtenant_id": desired.get("microtenant_id"),
                     }
                 )
-                updated, _, error = client.servers.update_server(**payload)
+                updated, _unused, error = client.servers.update_server(**payload)
                 if error:
                     module.fail_json(msg=f"Error updating server: {to_native(error)}")
                 module.exit_json(changed=True, data=updated.as_dict())
@@ -216,13 +216,13 @@ def core(module):
                     "microtenant_id": desired.get("microtenant_id"),
                 }
             )
-            created, _, error = client.servers.add_server(**payload)
+            created, _unused, error = client.servers.add_server(**payload)
             if error:
                 module.fail_json(msg=f"Error creating server: {to_native(error)}")
             module.exit_json(changed=True, data=created.as_dict())
 
     elif state == "absent" and existing_server:
-        _, _, error = client.servers.delete_server(
+        _unused, _unused, error = client.servers.delete_server(
             server_id=existing_server.get("id"), microtenant_id=microtenant_id
         )
         if error:
@@ -241,9 +241,7 @@ def main():
         address=dict(type="str", required=False),
         enabled=dict(type="bool", default=True, required=False),
         app_server_group_ids=dict(type="list", elements="str", required=False),
-        state=dict(
-            type="str", choices=["present", "absent", "gathered"], default="present"
-        ),
+        state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:

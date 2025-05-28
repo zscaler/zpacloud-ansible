@@ -54,6 +54,11 @@ options:
      - ID of the server group.
     required: false
     type: str
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = r"""
@@ -154,12 +159,12 @@ def core(module):
         query_params["microtenant_id"] = microtenant_id
 
     if server_id:
-        result, _, error = client.servers.get_server(server_id, query_params)
+        result, _unused, error = client.servers.get_server(server_id, query_params)
         if error or result is None:
             module.fail_json(
                 msg=f"Failed to retrieve Application Server ID '{server_id}': {to_native(error)}"
             )
-        module.exit_json(changed=False, groups=[result.as_dict()])
+        module.exit_json(changed=False, servers=[result.as_dict()])
 
     # If no ID, we fetch all
     server_list, err = collect_all_items(client.servers.list_servers, query_params)
@@ -177,7 +182,7 @@ def core(module):
             )
         result_list = [matched]
 
-    module.exit_json(changed=False, groups=result_list)
+    module.exit_json(changed=False, servers=result_list)
 
 
 def main():

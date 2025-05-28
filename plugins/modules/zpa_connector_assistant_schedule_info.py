@@ -44,16 +44,21 @@ extends_documentation_fragment:
   - zscaler.zpacloud.fragments.documentation
 
 options:
-    id:
-        description:
-            - The unique identifier for the App Connector auto deletion configuration for a customer.
-            - This field is only required for the PUT request to update the frequency of the App Connector Settings.
-        type: str
-    customer_id:
-        description:
-            - The unique identifier of the ZPA tenant
-        type: str
-        required: false
+  id:
+      description:
+          - The unique identifier for the App Connector auto deletion configuration for a customer.
+          - This field is only required for the PUT request to update the frequency of the App Connector Settings.
+      type: str
+  customer_id:
+      description:
+          - The unique identifier of the ZPA tenant
+      type: str
+      required: false
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = r"""
@@ -137,7 +142,7 @@ def core(module):
         query_params["microtenantId"] = microtenant_id
 
     # Always fetch the schedule (only one is returned by the API)
-    result, _, error = client.app_connector_schedule.get_connector_schedule(
+    result, _unused, error = client.app_connector_schedule.get_connector_schedule(
         customer_id=customer_id
     )
     if error or result is None:

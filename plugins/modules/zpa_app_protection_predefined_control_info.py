@@ -57,9 +57,33 @@ options:
   version:
     description:
       - The predefined control version.
+    required: true
+    type: str
+    choices:
+      - OWASP_CRS/4.8.0
+      - OWASP_CRS/3.3.5
+      - OWASP_CRS/3.3.0
+  control_group:
+    description:
+      - The predefined control version.
     required: false
     type: str
-    default: OWASP_CRS/3.3.0
+    choices:
+      - Anomalies
+      - IIS Information Leakage
+      - Deserialization Issues
+      - Session Fixation
+      - SQL Injection
+      - XSS
+      - PHP Injection
+      - Remote Code Execution
+      - Remote file inclusion
+      - Local File Inclusion
+      - Request smuggling or Response split or Header injection
+      - Environment and port scanners
+      - Preprocessors
+      - Internal Error
+      - Protocol Issues
 """
 
 EXAMPLES = """
@@ -169,58 +193,53 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
-    collect_all_items,
-)
 
 
 def core(module):
     control_id = module.params.get("id")
     control_name = module.params.get("name")
     control_group = module.params.get("control_group")
+    version = module.params.get("version")
     client = ZPAClientHelper(module)
 
-    # Lookup by ID
     if control_id:
-        result, _, error = client.app_protection.get_predef_control(
+        result, _unused, error = client.app_protection.get_predef_control(
             control_id=control_id
         )
-        if error or not result:
+        if error:
             module.fail_json(
-                msg=f"Failed to retrieve App Protection Predefined Control ID: '{control_id}'"
+                msg=f"Error fetching control by ID '{control_id}': {to_native(error)}"
             )
-        module.exit_json(
-            changed=False,
-            data=[result.as_dict() if hasattr(result, "as_dict") else result],
+        if not result:
+            module.fail_json(msg=f"Predefined Control with ID '{control_id}' not found")
+        module.exit_json(changed=False, controls=[result.as_dict()])
+
+    query_params = {"version": version}
+
+    if control_name:
+        query_params.update(
+            {
+                "search": "name",
+                "search_field": control_name,
+            }
+        )
+    elif control_group:
+        query_params.update(
+            {
+                "search": "controlGroup",
+                "search_field": control_group,
+            }
         )
 
-    # Build query parameters for SDK
-    query_params = {}
-    if control_group:
-        query_params = {"search": "controlGroup", "search_field": control_group}
-
-    # Fetch all predefined controls (filtered via SDK if control_group used)
-    controls, _, err = client.app_protection.list_predef_controls(
+    controls, _unused, error = client.app_protection.list_predef_controls(
         query_params=query_params
     )
-    if err:
-        module.fail_json(msg=f"Error retrieving predefined controls: {to_native(err)}")
-
-    # Optional local filtering by name (exact match)
-    if control_name:
-        match = next(
-            (c for c in controls if getattr(c, "name", None) == control_name), None
-        )
-        if not match:
-            available = [getattr(c, "name", "") for c in controls]
-            module.fail_json(
-                msg=f"Predefined control '{control_name}' not found. Available: {available}"
-            )
-        controls = [match]
+    if error:
+        module.fail_json(msg=f"Error listing predefined controls: {to_native(error)}")
 
     module.exit_json(
         changed=False,
-        data=[c.as_dict() if hasattr(c, "as_dict") else c for c in controls],
+        controls=[c.as_dict() for c in controls],
     )
 
 
@@ -229,9 +248,46 @@ def main():
     argument_spec.update(
         name=dict(type="str", required=False),
         id=dict(type="str", required=False),
-        control_group=dict(type="str", required=False),
+        version=dict(
+            type="str",
+            required=True,
+            choices=[
+                "OWASP_CRS/4.8.0",
+                "OWASP_CRS/3.3.5",
+                "OWASP_CRS/3.3.0",
+            ],
+        ),
+        control_group=dict(
+            type="str",
+            required=False,
+            choices=[
+                "Anomalies",
+                "IIS Information Leakage",
+                "Deserialization Issues",
+                "Session Fixation",
+                "SQL Injection",
+                "XSS",
+                "PHP Injection",
+                "Remote Code Execution",
+                "Remote file inclusion",
+                "Local File Inclusion",
+                "Request smuggling or Response split or Header injection",
+                "Environment and port scanners",
+                "Preprocessors",
+                "Internal Error",
+                "Protocol Issues",
+            ],
+        ),
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+
+    module = AnsibleModule(
+        argument_spec=argument_spec,
+        supports_check_mode=True,
+        mutually_exclusive=[
+            ["id", "name"],
+            ["id", "control_group"],
+        ],
+    )
     try:
         core(module)
     except Exception as e:

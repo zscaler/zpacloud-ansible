@@ -46,18 +46,28 @@ extends_documentation_fragment:
 options:
   name:
     description:
-      - Name of the Application Segment type.
+      - Name of the Application Segment type
     required: false
     type: str
   application_type:
     description:
-      - The type of application segment.
+      - The type of application segment
     required: true
     type: str
     choices:
         - BROWSER_ACCESS
         - INSPECT
         - SECURE_REMOTE_ACCESS
+  expand_all:
+    description:
+      - If set to true, includes additional information related to the applications
+    required: false
+    type: bool
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = """

@@ -65,20 +65,10 @@ options:
     required: false
     choices:
       - RE_AUTH
-  policy_type:
-    description: "Indicates the policy type. The following value is supported: client_forwarding"
-    type: str
-    required: false
   rule_order:
     description: "The policy evaluation order number of the rule."
     type: str
     required: false
-  operator:
-    description:
-      - This denotes the operation type.
-    type: str
-    required: false
-    choices: ["AND", "OR"]
   custom_msg:
     description:
       - This is for providing a customer message for the user.
@@ -100,6 +90,11 @@ options:
       - Use minute, minutes, hour, hours, day, days, or never.
       - Timeout interval must be at least 10 minutes or 'never.
       - i.e 10 minutes, 1 hour, 2 hours, or never
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
   conditions:
     type: list
     elements: dict
@@ -312,7 +307,7 @@ def core(module):
 
     existing_rule = None
     if rule_id:
-        result, _, error = client.policies.get_rule(
+        result, _unused, error = client.policies.get_rule(
             policy_type="timeout", rule_id=rule_id, query_params=query_params
         )
         if error:
@@ -379,7 +374,7 @@ def core(module):
         desired_order = str(rule["rule_order"])
         if desired_order != current_order:
             try:
-                _, _, error = client.policies.reorder_rule(
+                _unused, _unused, error = client.policies.reorder_rule(
                     policy_type="timeout",
                     rule_id=existing_rule["id"],
                     rule_order=desired_order,
@@ -396,7 +391,7 @@ def core(module):
         elif state == "absent" and existing_rule:
             module.exit_json(changed=True)
         else:
-            module.exit_json(changed=False)
+            module.exit_json(changed=False, data=existing_rule or {})
 
     # Update or create
     if state == "present":
@@ -416,7 +411,7 @@ def core(module):
                 }
             )
             module.warn(f"Update payload to SDK: {update_data}")
-            result, _, error = client.policies.update_timeout_rule(**update_data)
+            result, _unused, error = client.policies.update_timeout_rule(**update_data)
             if error:
                 module.fail_json(msg=f"Error updating rule: {to_native(error)}")
             module.exit_json(changed=True, data=result.as_dict())
@@ -436,7 +431,7 @@ def core(module):
                 }
             )
             module.warn(f"Create payload to SDK: {create_data}")
-            result, _, error = client.policies.add_timeout_rule(**create_data)
+            result, _unused, error = client.policies.add_timeout_rule(**create_data)
             if error:
                 module.fail_json(msg=f"Error creating rule: {to_native(error)}")
             module.exit_json(changed=True, data=result.as_dict())
@@ -445,14 +440,14 @@ def core(module):
             module.exit_json(changed=False, data=existing_rule)
 
     elif state == "absent" and existing_rule:
-        _, _, error = client.policies.delete_rule(
+        _unused, _unused, error = client.policies.delete_rule(
             policy_type="timeout", rule_id=existing_rule["id"]
         )
         if error:
             module.fail_json(msg=f"Error deleting rule: {to_native(error)}")
         module.exit_json(changed=True, data=existing_rule)
 
-    module.exit_json(changed=False)
+    module.exit_json(changed=False, data=existing_rule or {})
 
 
 def main():

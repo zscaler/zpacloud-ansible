@@ -52,6 +52,11 @@ options:
     type: str
     description: "The name of the privileged credential"
     required: false
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = """
@@ -161,7 +166,7 @@ def core(module):
 
     # Lookup by ID
     if credential_id:
-        result, _, error = client.pra_credential.get_credential(
+        result, _unused, error = client.pra_credential.get_credential(
             credential_id, query_params
         )
         if error or result is None:
@@ -192,7 +197,7 @@ def core(module):
             )
         result_list = [matched]
 
-    module.exit_json(changed=False, data=result_list)
+    module.exit_json(changed=False, creds=result_list)
 
 
 def main():

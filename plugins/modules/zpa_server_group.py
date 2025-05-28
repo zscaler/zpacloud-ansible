@@ -84,6 +84,11 @@ options:
     required: false
     description:
       - List of server_group-connector ID objects.
+  microtenant_id:
+      description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+      required: false
+      type: str
 """
 
 EXAMPLES = r"""
@@ -158,7 +163,7 @@ def core(module):
 
     existing_group = None
     if group_id is not None:
-        result, _, error = client.server_groups.get_group(
+        result, _unused, error = client.server_groups.get_group(
             group_id, query_params={"microtenant_id": microtenant_id}
         )
         if error:
@@ -258,7 +263,7 @@ def core(module):
                     }
                 )
                 module.warn(f"Payload Update for SDK: {update_group}")
-                updated_group, _, error = client.server_groups.update_group(
+                updated_group, _unused, error = client.server_groups.update_group(
                     group_id=update_group.pop("group_id"), **update_group
                 )
                 if error:
@@ -282,14 +287,14 @@ def core(module):
                 }
             )
             module.warn("Payload Update for SDK: {}".format(create_group))
-            created, _, error = client.server_groups.add_group(**create_group)
+            created, _unused, error = client.server_groups.add_group(**create_group)
             if error:
                 module.fail_json(msg=f"Error creating group: {to_native(error)}")
             module.exit_json(changed=True, data=created.as_dict())
 
     elif state == "absent":
         if existing_group:
-            _, _, error = client.server_groups.delete_group(
+            _unused, _unused, error = client.server_groups.delete_group(
                 group_id=existing_group.get("id"),
                 microtenant_id=microtenant_id,
             )

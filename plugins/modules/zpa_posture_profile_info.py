@@ -155,7 +155,9 @@ def core(module):
 
     # Get profile by ID
     if profile_id:
-        result, _, error = client.posture_profiles.get_profile(profile_id, query_params)
+        result, _unused, error = client.posture_profiles.get_profile(
+            profile_id, query_params
+        )
         if error or result is None:
             module.fail_json(
                 msg=f"Failed to retrieve Posture Profile ID '{profile_id}': {to_native(error)}"
@@ -191,7 +193,7 @@ def core(module):
             )
         result_list = [matched]
 
-    module.exit_json(changed=False, data=result_list)
+    module.exit_json(changed=False, profiles=result_list)
 
 
 def main():

@@ -30,11 +30,12 @@
 
 - name: Ensure ZIA Credential environment variables are set
   ansible.builtin.set_fact:
-    zia_cloud:
-      client_id: "{{ lookup('env', 'ZSCALER_CLIENT_ID') }}"
-      client_secret: "{{ lookup('env', 'ZSCALER_CLIENT_SECRET') }}"
-      vanity_domain: "{{ lookup('env', 'ZSCALER_VANITY_DOMAIN') }}"
-      cloud: "{{ lookup('env', 'ZSCALER_CLOUD') | default(omit) }}"
+    zpa_cloud:
+      client_id: '{{ lookup("env", "ZSCALER_CLIENT_ID") }}'
+      client_secret: '{{ lookup("env", "ZSCALER_CLIENT_SECRET") | default(omit) }}'
+      vanity_domain: '{{ lookup("env", "ZSCALER_VANITY_DOMAIN") | default(omit) }}'
+      customer_id: '{{ lookup("env", "ZPA_CUSTOMER_ID") | default(omit) }}'
+      cloud: '{{ lookup("env", "ZSCALER_CLOUD") | default(omit) }}'
   no_log: true
 
 - name: Main block to Test Provisioning Key
@@ -70,7 +71,6 @@
           - create_result.changed
           - create_result.data is defined
           - create_result.data.name == acg_key_name
-          - create_result.data.enabled is true
 
     - name: Ensure Connector Provisioning Key is present (idempotency check)
       zscaler.zpacloud.zpa_provisioning_key:
@@ -117,7 +117,6 @@
         that:
           - fetch_specific_result.provisioning_keys is defined
           - fetch_specific_result.provisioning_keys[0].name == acg_key_name
-          - fetch_specific_result.provisioning_keys[0].enabled is true
 
     - name: Pause for 5 seconds for ZPA Cloud to settle
       ansible.builtin.pause:

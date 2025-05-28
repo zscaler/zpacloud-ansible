@@ -13,11 +13,12 @@
 
 - name: Ensure ZIA Credential environment variables are set
   ansible.builtin.set_fact:
-    zia_cloud:
-      client_id: "{{ lookup('env', 'ZSCALER_CLIENT_ID') }}"
-      client_secret: "{{ lookup('env', 'ZSCALER_CLIENT_SECRET') }}"
-      vanity_domain: "{{ lookup('env', 'ZSCALER_VANITY_DOMAIN') }}"
-      cloud: "{{ lookup('env', 'ZSCALER_CLOUD') | default(omit) }}"
+    zpa_cloud:
+      client_id: '{{ lookup("env", "ZSCALER_CLIENT_ID") }}'
+      client_secret: '{{ lookup("env", "ZSCALER_CLIENT_SECRET") | default(omit) }}'
+      vanity_domain: '{{ lookup("env", "ZSCALER_VANITY_DOMAIN") | default(omit) }}'
+      customer_id: '{{ lookup("env", "ZPA_CUSTOMER_ID") | default(omit) }}'
+      cloud: '{{ lookup("env", "ZSCALER_CLOUD") | default(omit) }}'
   no_log: true
 
 - name: Main block to Test Fetch the Trusted Network ID
@@ -25,7 +26,7 @@
     - name: Fetch the Trusted Network ID
       zscaler.zpacloud.zpa_trusted_networks_info:
         provider: "{{ zpa_cloud }}"
-        name: BDTrustedNetwork01
+        name: BD-TrustedNetwork02
       register: bd_trusted_network01
 
     - name: Set Trusted Network ID as fact

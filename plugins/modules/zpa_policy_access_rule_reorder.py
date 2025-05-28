@@ -42,7 +42,7 @@ notes:
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
   - zscaler.zpacloud.fragments.documentation
-  - zscaler.zpacloud.fragments.state
+  - zscaler.zpacloud.fragments.modified_state
 
 options:
   policy_type:
@@ -73,12 +73,11 @@ options:
         description: "The order number of a new or existing rule to be reorder."
         type: str
         required: true
-  state:
-      description:
-          - The state of the module, which determines if the settings are to be applied.
-      type: str
-      choices: ['present']
-      default: 'present'
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = """
@@ -172,7 +171,7 @@ def core(module):
         rule_ids_ordered = [rule["id"] for rule in desired_rules]
 
         # Call SDK with microtenant_id
-        _, _, error = client.policies.bulk_reorder_rules(
+        _unused, _unused, error = client.policies.bulk_reorder_rules(
             policy_type=policy_type,
             rules_orders=rule_ids_ordered,
             microtenant_id=microtenant_id,

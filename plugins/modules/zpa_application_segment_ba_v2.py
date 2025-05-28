@@ -28,13 +28,13 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: zpa_application_segment_inspection
-short_description: Create an AppProtection application segment in the ZPA Cloud.
+module: zpa_application_segment_ba_v2
+short_description: Create an BA application segment in the ZPA Cloud.
 description:
-    - This module will create/update/delete an AppProtection application segment
+    - This module will create/update/delete an BA application segment
 author:
   - William Guilherme (@willguibr)
-version_added: "1.0.0"
+version_added: "2.0.0"
 requirements:
     - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
 notes:
@@ -47,27 +47,32 @@ extends_documentation_fragment:
 options:
   id:
     description:
-      - The unique identifier of the application resource.
+      - ID of the application.
     required: false
     type: str
   name:
     description:
-      - The name of the application resource.
+      - Name of the application.
     required: true
     type: str
   description:
     description:
-      - The description of the application resource.
+      - Description of the application.
     required: false
     type: str
   enabled:
     description:
-      - Whether this application resource is enabled or not.
+      - Whether this application is enabled or not.
     type: bool
     required: false
   ip_anchored:
     description:
       - Whether Source IP Anchoring for use with ZIA, is enabled or disabled for the app.
+    type: bool
+    required: false
+  fqdn_dns_check:
+    description:
+      - If set to true, performs a DNS check to find an A or AAAA record for this application.
     type: bool
     required: false
   tcp_port_range:
@@ -116,6 +121,52 @@ options:
     type: list
     elements: str
     required: false
+  common_apps_dto:
+    type: dict
+    required: true
+    description: "Configuration of common applications, e.g., inspection or Browser Access."
+    suboptions:
+      apps_config:
+        type: list
+        elements: dict
+        required: true
+        description: "Detailed configuration for each application."
+        suboptions:
+          name:
+            description: "The name of the application."
+            type: str
+            required: false
+          description:
+            description: "The description of the application."
+            type: str
+            required: false
+          enabled:
+            description: "Whether the application is enabled."
+            type: bool
+            required: false
+          app_types:
+            description: "This denotes the operation type."
+            type: list
+            elements: str
+            required: false
+            choices: ["BROWSER_ACCESS"]
+          application_port:
+            description: "Port for the application."
+            type: str
+            required: true
+          application_protocol:
+            description: "Protocol for the application."
+            type: str
+            required: true
+            choices: ["HTTP", "HTTPS"]
+          certificate_id:
+            description: The unique identifier of the certificate.
+            type: str
+            required: false
+          domain:
+            description: "The domain of the application."
+            type: str
+            required: true
   double_encrypt:
     description:
       - Whether Double Encryption is enabled or disabled for the app.
@@ -138,7 +189,7 @@ options:
     required: false
   passive_health_enabled:
     description:
-      - Indicates if passive health checks are enabled on the application..
+      - passive health enabled.
     type: bool
     required: false
   use_in_dr_mode:
@@ -154,18 +205,6 @@ options:
       - Indicates if Inspect Traffic with ZIA is enabled for the application
       - When enabled, this leverages a single posture for securing internet/SaaS and private applications
       - and applies Data Loss Prevention policies to the application segment you are creating
-    type: bool
-    required: false
-  fqdn_dns_check:
-    description:
-      - If set to true, performs a DNS check to find an A or AAAA record for this application.
-    type: bool
-    required: false
-  adp_enabled:
-    description:
-      - Indicates if Active Directory Inspection is enabled or not for the application.
-      - This allows the application segment's traffic to be inspected by Active Directory (AD) Protection.
-      - By default, this field is set to false.
     type: bool
     required: false
   bypass_type:
@@ -198,7 +237,7 @@ options:
       - ID of the server group.
     type: list
     elements: str
-    required: true
+    required: false
   segment_group_id:
     description:
       - ID of the segment group.
@@ -211,94 +250,63 @@ options:
     required: false
   domain_names:
     description:
-      - The list of domains and IPs. The maximum limit for domains or IPs is 2,000 applications per application segment
-      - The maximum limit for domains or IPs for the whole customer is 6,000 applications.
+      - List of domains and IPs.
     type: list
     elements: str
-    required: true
+    required: false
   microtenant_id:
     description:
       - The unique identifier of the Microtenant for the ZPA tenant
     required: false
     type: str
-  common_apps_dto:
-    type: dict
-    required: true
-    description: "List of applications e.g., inspection or Browser Access"
-    suboptions:
-      apps_config:
-        type: list
-        elements: dict
-        required: true
-        description: "List of applications to be configured"
-        suboptions:
-          name:
-            description: "The name of the application"
-            type: str
-            required: true
-          description:
-            description: "The description of the application"
-            type: str
-            required: false
-          enabled:
-            description: "Whether the application is enabled"
-            type: bool
-            required: false
-          trust_untrusted_cert:
-            description: "Whether the use of untrusted certificates is enabled or disabled for the Browser Access application"
-            type: bool
-            required: false
-          allow_options:
-            description: "Whether the options are enabled for the Browser Access application or not"
-            type: bool
-            required: false
-          app_types:
-            description: "This denotes the operation type"
-            type: list
-            elements: str
-            required: true
-            choices: ["INSPECT"]
-          application_port:
-            description: "Port for the inspection application"
-            type: str
-            required: true
-          application_protocol:
-            description: "Protocol for the inspection application"
-            type: str
-            required: true
-            choices: ["HTTP", "HTTPS"]
-          certificate_id:
-            description: "The unique identifier of the Browser Access certificate."
-            type: str
-            required: false
-          domain:
-            description: "The domain of the application"
-            type: str
-            required: true
 """
 
 EXAMPLES = """
-- name: Create/Update/Delete an application segment.
-  zscaler.zpacloud.zpa_application_segment_inspection:
+- name: Create an Application Segment Browser Access
+  zscaler.zpacloud.zpa_application_segment_ba_v2:
     provider: "{{ zpa_cloud }}"
-    name: Example Application Segment
-    description: Example Application Segment
+    name: Ansible_Application_Segment_BA
+    description: Ansible_Application_Segment_BA
     enabled: true
-    health_reporting: ON_ACCESS
-    bypass_type: NEVER
     is_cname_enabled: true
+    tcp_keep_alive: true
+    passive_health_enabled: true
+    select_connector_close_to_app: false
+    health_check_type: "DEFAULT"
+    health_reporting: "ON_ACCESS"
+    bypass_type: "NEVER"
+    icmp_access_type: false
     tcp_port_range:
-      - from: "80"
-        to: "80"
+      - from: "443"
+        to: "443"
+      - from: "4443"
+        to: "4443"
     domain_names:
-      - crm.example.com
-    segment_group_id: "216196257331291896"
+      - ba_access01.example.com
+      - ba_access02.example.com
+    segment_group_id: "216196257331368720"
     server_group_ids:
-      - "216196257331291969"
+      - "216196257331368722"
+    common_apps_dto:
+      apps_config:
+        - name: "ba_access01"
+          description: "Description for common app"
+          enabled: true
+          domain: ba_access01.example.com
+          application_port: "443"
+          application_protocol: "HTTPS"
+          certificate_id: 72058304855021564
+        - name: "ba_access02"
+          description: "Description for common app"
+          enabled: true
+          domain: ba_access02.example.com
+          application_port: "4443"
+          application_protocol: "HTTPS"
+          certificate_id: "72058304855021564"
 """
 
 RETURN = """
-# The newly created application segment resource record.
+# The newly created Browser Access application segment resource record.
 """
 
 from traceback import format_exc
@@ -380,21 +388,21 @@ def core(module):
     existing_app = None
     # -- Lookup existing resource
     if segment_id:
-        result, _unused, error = client.app_segments_inspection.get_segment_inspection(
+        result, _unused, error = client.app_segments_ba_v2.get_segment_ba(
             segment_id, query_params={"microtenant_id": microtenant_id}
         )
         if error:
             module.fail_json(
-                msg=f"Error fetching application segment with id {segment_id}: {to_native(error)}"
+                msg=f"Error fetching ba application segment with id {segment_id}: {to_native(error)}"
             )
         existing_app = result.as_dict()
     else:
         result, error = collect_all_items(
-            client.app_segments_inspection.list_segment_inspection, query_params
+            client.app_segments_ba_v2.list_segments_ba, query_params
         )
         if error:
             module.fail_json(
-                msg=f"Error listing application segments: {to_native(error)}"
+                msg=f"Error listing ba application segments: {to_native(error)}"
             )
         if result:
             for segment_ in result:
@@ -421,7 +429,7 @@ def core(module):
     fields_to_exclude = ["id", "common_apps_dto"]
     # Special comparison for common_apps_dto
     if "common_apps_dto" in desired_app:
-        current_inspect_apps = current_app.get("inspection_apps", [])
+        current_inspect_apps = current_app.get("clientless_apps", [])
         desired_apps_config = desired_app["common_apps_dto"].get("apps_config", [])
 
         # Convert current inspectionApps to the same format as desired apps_config
@@ -488,27 +496,24 @@ def core(module):
         existing_app.update(app)
         existing_app["id"] = id
 
-    # Enrich common_apps_dto with app_id/inspect_app_id and detect deletions
-    # ------------------------------------------------------------------
-    # Enrich common_apps_dto with app_id / inspect_app_id and detect deletions
-    # ------------------------------------------------------------------
     if "common_apps_dto" in desired_app:
         desired_configs = desired_app["common_apps_dto"].get("apps_config", [])
 
         segments_list, err = collect_all_items(
             lambda qp: client.app_segment_by_type.get_segments_by_type(
-                application_type="INSPECT",
+                application_type="BROWSER_ACCESS",
                 expand_all=False,
-                # only filter by appId when we are updating
                 query_params={"appId": existing_app["id"]} if existing_app else {},
             ),
             query_params={},
         )
         if err:
-            module.fail_json(msg=f"Failed to fetch inspection apps: {to_native(err)}")
+            module.fail_json(
+                msg=f"Failed to fetch Browser Access apps: {to_native(err)}"
+            )
 
         # ------ extra debug so we know what came back ------
-        module.warn(f"[DEBUG] fetched {len(segments_list)} inspection segment(s)")
+        module.warn(f"[DEBUG] fetched {len(segments_list)} Browser Access segment(s)")
 
         if existing_app:
             target_app_id = existing_app.get("id")
@@ -530,23 +535,22 @@ def core(module):
             domain = config.get("domain")
             pra_app = pra_by_domain.get(domain)
 
-            # on create we do not have an app_id yet
             config["app_id"] = existing_app["id"] if existing_app else ""
             if pra_app:
-                config["inspect_app_id"] = pra_app.id
+                config["ba_app_id"] = pra_app.id
                 found_domains.add(domain)
             else:
-                config["inspect_app_id"] = ""
+                config["ba_app_id"] = ""
 
             updated_configs.append(config)
 
-        for domain, pra in pra_by_domain.items():
+        for domain, ba in pra_by_domain.items():
             if domain not in found_domains:
-                deleted_ids.append(pra.id)
+                deleted_ids.append(ba.id)
 
         desired_app["common_apps_dto"]["apps_config"] = updated_configs
         if deleted_ids:
-            desired_app["common_apps_dto"]["deleted_pra_apps"] = deleted_ids
+            desired_app["common_apps_dto"]["deleted_ba_apps"] = deleted_ids
 
         desired_app["domain_names"] = [
             a["domain"] for a in updated_configs if a.get("domain")
@@ -604,16 +608,16 @@ def core(module):
 
                 # module.warn(f"Payload Update for SDK: {update_segment}")
                 updated_segment, _unused, error = (
-                    client.app_segments_pra.update_segment_pra(
+                    client.app_segments_ba_v2.update_segment_ba(
                         segment_id=update_segment.pop("segment_id"), **update_segment
                     )
                 )
                 if error:
                     module.fail_json(
-                        msg=f"Error updating application segment: {to_native(error)}"
+                        msg=f"Error updating ba application segment: {to_native(error)}"
                     )
 
-                refreshed, _unused, err = client.app_segments_pra.get_segment_pra(
+                refreshed, _unused, err = client.app_segments_ba_v2.get_segment_ba(
                     updated_segment.id,
                     query_params={"microtenant_id": desired_app.get("microtenant_id")},
                 )
@@ -668,22 +672,18 @@ def core(module):
                 )
             )
             module.warn(f"Payload for SDK: {create_inspect_segment}")
-            new_segment, _unused, error = (
-                client.app_segments_inspection.add_segment_inspection(
-                    **create_inspect_segment
-                )
+            new_segment, _unused, error = client.app_segments_ba_v2.add_segment_ba(
+                **create_inspect_segment
             )
             if error:
                 module.fail_json(
-                    msg=f"Error creating application segment: {to_native(error)}"
+                    msg=f"Error creating ba application segment: {to_native(error)}"
                 )
 
             # -- After creation, fetch the newly-created resource for drift check
-            refreshed, _unused, err = (
-                client.app_segments_inspection.get_segment_inspection(
-                    new_segment.id,
-                    query_params={"microtenant_id": desired_app.get("microtenant_id")},
-                )
+            refreshed, _unused, err = client.app_segments_ba_v2.get_segment_ba(
+                new_segment.id,
+                query_params={"microtenant_id": desired_app.get("microtenant_id")},
             )
             if err:
                 module.warn(
@@ -697,15 +697,13 @@ def core(module):
 
     elif state == "absent":
         if existing_app:
-            _unused, _unused, error = (
-                client.app_segments_inspection.delete_segment_inspection(
-                    segment_id=existing_app.get("id"),
-                    microtenant_id=microtenant_id,
-                )
+            _unused, _unused, error = client.app_segments_ba_v2.delete_segment_ba(
+                segment_id=existing_app.get("id"),
+                microtenant_id=microtenant_id,
             )
             if error:
                 module.fail_json(
-                    msg=f"Error deleting inspection application segment: {to_native(error)}"
+                    msg=f"Error deleting ba application segment: {to_native(error)}"
                 )
             module.exit_json(changed=True, data=existing_app)
         module.exit_json(changed=False, data={})
@@ -720,22 +718,28 @@ def main():
     id_name_spec = dict(
         type="list",
         elements="str",
-        required=True,
+        required=False,
     )
     apps_config_spec = dict(
-        name=dict(type="str", required=True),
+        name=dict(type="str", required=False),
         description=dict(type="str", required=False),
         enabled=dict(type="bool", required=False),
-        app_types=dict(type="list", elements="str", choices=["INSPECT"], required=True),
-        application_port=dict(type="str", required=True),
-        application_protocol=dict(type="str", choices=["HTTP", "HTTPS"], required=True),
+        app_types=dict(
+            type="list",
+            elements="str",
+            choices=["BROWSER_ACCESS"],
+            required=False,
+        ),
         certificate_id=dict(type="str", required=False),
-        trust_untrusted_cert=dict(type="bool", required=False),
-        allow_options=dict(type="bool", required=False),
+        application_port=dict(type="str", required=True),
+        application_protocol=dict(
+            type="str",
+            choices=["HTTP", "HTTPS"],
+            required=True,
+        ),
         domain=dict(type="str", required=True),
     )
     argument_spec.update(
-        id=dict(type="str", required=False),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
         enabled=dict(type="bool", required=False),
@@ -743,7 +747,7 @@ def main():
         use_in_dr_mode=dict(type="bool", required=False),
         is_incomplete_dr_config=dict(type="bool", required=False),
         inspect_traffic_with_zia=dict(type="bool", required=False),
-        adp_enabled=dict(type="bool", required=False),
+        fqdn_dns_check=dict(type="bool", required=False),
         bypass_type=dict(
             type="str",
             required=False,
@@ -764,8 +768,9 @@ def main():
         passive_health_enabled=dict(type="bool", required=False),
         ip_anchored=dict(type="bool", required=False),
         icmp_access_type=dict(type="bool", required=False),
-        fqdn_dns_check=dict(type="bool", required=False),
-        domain_names=dict(type="list", elements="str", required=True),
+        id=dict(type="str", required=False),
+        server_group_ids=id_name_spec,
+        domain_names=dict(type="list", elements="str", required=False),
         common_apps_dto=dict(
             type="dict",
             options={
@@ -786,7 +791,6 @@ def main():
         udp_port_range=dict(
             type="list", elements="dict", options=port_spec, required=False
         ),
-        server_group_ids=id_name_spec,
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

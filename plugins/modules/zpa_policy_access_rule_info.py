@@ -54,6 +54,25 @@ options:
       - ID of the policy rule.
     required: false
     type: str
+  policy_type:
+    description:
+      - policy set for the specified policy type.
+    required: true
+    type: str
+    choices:
+      - access
+      - timeout
+      - client_forwarding
+      - isolation
+      - inspection
+      - redirection
+      - credential
+      - capabilities
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = """
@@ -102,7 +121,7 @@ def core(module):
 
     # Retrieve rule by ID
     if policy_rule_id:
-        result, _, error = client.policies.get_rule(
+        result, _unused, error = client.policies.get_rule(
             policy_type=policy_type, rule_id=policy_rule_id, query_params=query_params
         )
         if error or not result:
@@ -111,7 +130,7 @@ def core(module):
             )
         module.exit_json(
             changed=False,
-            data=[result.as_dict() if hasattr(result, "as_dict") else result],
+            policy_rules=[result.as_dict() if hasattr(result, "as_dict") else result],
         )
 
     # Retrieve all rules using pagination
@@ -137,7 +156,8 @@ def core(module):
         rules = [match]
 
     module.exit_json(
-        changed=False, data=[r.as_dict() if hasattr(r, "as_dict") else r for r in rules]
+        changed=False,
+        policy_rules=[r.as_dict() if hasattr(r, "as_dict") else r for r in rules],
     )
 
 
@@ -159,9 +179,6 @@ def main():
                 "redirection",
                 "credential",
                 "capabilities",
-                "siem",
-                "portal_policy",
-                "vpn_policy",
             ],
         ),
     )

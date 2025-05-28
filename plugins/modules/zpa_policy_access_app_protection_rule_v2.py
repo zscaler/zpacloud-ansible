@@ -26,19 +26,20 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-DOCUMENTATION = """
+DOCUMENTATION = r"""
 ---
 module: zpa_policy_access_app_protection_rule_v2
-short_description: Create a Policy App Protection Rule V2
+short_description: Manage ZPA Access App Protection Rules (v2)
 description:
-  - This module create/update/delete Create a Policy App Protection Rule V2
+  - Create, update, or delete a ZPA Access App Protection Rule using the v2 policy engine.
+  - These rules enforce inspection or bypass logic on selected traffic based on identity, posture, or other conditions.
+version_added: "2.0.0"
 author:
   - William Guilherme (@willguibr)
-version_added: "2.0.0"
 requirements:
-    - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+  - Zscaler SDK Python (https://pypi.org/project/zscaler-sdk-python/)
 notes:
-    - Check mode is supported.
+  - Check mode is supported.
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
   - zscaler.zpacloud.fragments.documentation
@@ -46,91 +47,179 @@ extends_documentation_fragment:
 
 options:
   id:
-    description: "The unique identifier of the policy rule."
+    description:
+      - The unique identifier of the policy rule.
     type: str
     required: false
+
   name:
+    description:
+      - The name of the app protection rule.
     type: str
     required: true
-    description:
-      - The name of the app protection rule
+
   description:
     description:
-      - This is the description of the app protection rule
+      - A description of the app protection rule.
     type: str
     required: false
+
   rule_order:
-    description: "The policy evaluation order number of the rule."
+    description:
+      - The evaluation order of the rule within the policy set.
     type: str
     required: false
+
+  zpn_inspection_profile_id:
+    description:
+      - The ID of the inspection profile to associate with the rule.
+    type: str
+    required: false
+
+  action:
+    description:
+      - The action to apply when the rule conditions match.
+    type: str
+    required: false
+    choices:
+      - INSPECT
+      - inspect
+      - BYPASS_INSPECT
+      - bypass_inspect
+
   conditions:
+    description:
+      - Defines the match conditions under which the rule is applied.
     type: list
     elements: dict
     required: false
-    description: "This is for providing the set of conditions for the policy"
     suboptions:
       operator:
-        description: "The operation type. Supported values: AND, OR"
+        description:
+          - Logical operator used to combine multiple operands.
         type: str
-        required: false
         choices: ["AND", "OR"]
+        required: false
+
       operands:
-        description: "The various policy criteria. Array of attributes (e.g., objectType, lhs, rhs, name)"
+        description:
+          - List of operand objects used to evaluate the condition.
         type: list
         elements: dict
         required: false
         suboptions:
-          idp_id:
-            description: "The ID information for the Identity Provider (IdP)"
-            type: str
-            required: false
-          lhs:
-            description: "The key for the object type. String ID example: id"
-            type: str
-            required: false
-          rhs:
-            description: >
-                - The value for the given object type. Its value depends upon the key
-                - For APP, APP_GROUP, and IDP, the supported value is entity id
-                - For CLIENT_TYPE, the supported values are: zpn_client_type_zapp (for Zscaler Client Connector), zpn_client_type_exporter (for Clientless)
-                - For POSTURE, the supported values are: true (verified), false (verification failed)
-                - For TRUSTED_NETWORK, the supported value is true
-            type: str
-            required: false
           object_type:
-            description: >
-              - This is for specifying the policy criteria
-              - Supported values: APP, APP_GROUP, SAML, IDP, CLIENT_TYPE, POSTURE, TRUSTED_NETWORK, MACHINE_GRP, SCIM, SCIM_GROUP.
-              - POSTURE and TRUSTED_NETWORK values are only supported for the CLIENT_TYPE.
+            description:
+              - The type of object to evaluate.
             type: str
+            choices:
+              - APP
+              - APP_GROUP
+              - CLIENT_TYPE
+              - EDGE_CONNECTOR_GROUP
+              - IDP
+              - POSTURE
+              - SAML
+              - SCIM
+              - SCIM_GROUP
+              - TRUSTED_NETWORK
+              - PLATFORM
+              - MACHINE_GRP
             required: false
+
+          values:
+            description:
+              - A list of string values to compare for the operand.
+            type: list
+            elements: str
+            required: false
+
+          entry_values:
+            description:
+              - Dictionary of LHS and RHS entries for advanced operands.
+            type: dict
+            required: false
+            suboptions:
+              lhs:
+                description:
+                  - Left-hand-side value used in operand evaluation.
+                type: str
+                required: false
+              rhs:
+                description:
+                  - Right-hand-side value used in operand evaluation.
+                type: str
+                required: false
 """
 
 EXAMPLES = """
-- name: "Policy Isolation Rule - Example"
-  zscaler.zpacloud.zpa_policy_access_isolation_rule:
+- name: "Policy App Protection Rule - Example"
+  zscaler.zpacloud.zpa_policy_access_app_protection_rule_v2:
     provider: "{{ zpa_cloud }}"
-    name: "Policy Isolation Rule - Example"
-    description: "Policy Isolation Rule - Example"
-    action: "ISOLATE"
-    rule_order: 1
-    operator: "AND"
-    zpn_isolation_profile_id: "216196257331286656"
+    name: "Ansible_App_Protection_Rule_V2"
+    description: "Ansible_App_Protection_Rule_V2"
+    rule_order: "1"
+    action: "INSPECT"
+    zpn_inspection_profile_id: "{{ profile.profiles[0].id }}"
     conditions:
       - operator: "OR"
         operands:
           - object_type: "APP"
-            lhs: "id"
-            rhs: "216196257331292105"
+            values:
+              - "72058304855116918"
           - object_type: "APP_GROUP"
-            lhs: "id"
-            rhs: "216196257331292103"
+            values:
+                - "72058304855114308"
+      - operator: "AND"
+        operands:
+          - object_type: "SCIM_GROUP"
+            entry_values:
+              lhs: "72058304855015574"
+              rhs: "490880"
+      - operator: "AND"
+        operands:
+          - object_type: "SCIM_GROUP"
+            entry_values:
+              lhs: "72058304855015574"
+              rhs: "490877"
+      - operator: "AND"
+        operands:
+          - object_type: "SCIM"
+            entry_values:
+              lhs: "72058304855015576"
+              rhs: "Smith"
       - operator: "OR"
         operands:
-          - name:
-            object_type: "CLIENT_TYPE"
-            lhs: "id"
-            rhs: "zpn_client_type_zapp"
+          - object_type: "SAML"
+            entry_values:
+              lhs: "72058304855021553"
+              rhs: "janedoe@acme.com"
+      - operator: "OR"
+        operands:
+          - object_type: "SAML"
+            entry_values:
+              lhs: "72058304855021553"
+              rhs: "jdoe@securitygeek.io"
+      - operands:
+          - object_type: "PLATFORM"
+            entry_values:
+              lhs: "linux"
+              rhs: "true"
+          - object_type: "PLATFORM"
+            entry_values:
+              lhs: "ios"
+              rhs: "true"
+          - object_type: "PLATFORM"
+            entry_values:
+              lhs: "windows"
+              rhs: "true"
+      - operands:
+          - object_type: "CLIENT_TYPE"
+            values:
+              - zpn_client_type_browser_isolation
+              - zpn_client_type_zapp_partner
+              - zpn_client_type_exporter
+              - zpn_client_type_zapp
 """
 
 RETURN = """
@@ -191,7 +280,7 @@ def core(module):
 
     existing_rule = None
     if rule_id:
-        result, _, error = client.policies.get_rule(
+        result, _unused, error = client.policies.get_rule(
             policy_type="inspection", rule_id=rule_id, query_params=query_params
         )
         if error:
@@ -259,7 +348,7 @@ def core(module):
         desired_order = str(rule["rule_order"])
         if desired_order != current_order:
             try:
-                _, _, error = client.policies.reorder_rule(
+                _unused, _unused, error = client.policies.reorder_rule(
                     policy_type="inspection",
                     rule_id=existing_rule["id"],
                     rule_order=desired_order,
@@ -276,7 +365,7 @@ def core(module):
         elif state == "absent" and existing_rule:
             module.exit_json(changed=True)
         else:
-            module.exit_json(changed=False)
+            module.exit_json(changed=False, data=existing_rule or {})
 
     # Update or create
     if state == "present":
@@ -293,7 +382,7 @@ def core(module):
                 }
             )
             module.warn(f"Update payload to SDK: {update_data}")
-            result, _, error = client.policies.update_app_protection_rule_v2(
+            result, _unused, error = client.policies.update_app_protection_rule_v2(
                 **update_data
             )
             if error:
@@ -312,7 +401,9 @@ def core(module):
                 }
             )
             module.warn(f"Create payload to SDK: {create_data}")
-            result, _, error = client.policies.add_app_protection_rule_v2(**create_data)
+            result, _unused, error = client.policies.add_app_protection_rule_v2(
+                **create_data
+            )
             if error:
                 module.fail_json(msg=f"Error creating rule: {to_native(error)}")
             module.exit_json(changed=True, data=result.as_dict())
@@ -321,14 +412,14 @@ def core(module):
             module.exit_json(changed=False, data=existing_rule)
 
     elif state == "absent" and existing_rule:
-        _, _, error = client.policies.delete_rule(
+        _unused, _unused, error = client.policies.delete_rule(
             policy_type="inspection", rule_id=existing_rule["id"]
         )
         if error:
             module.fail_json(msg=f"Error deleting rule: {to_native(error)}")
         module.exit_json(changed=True, data=existing_rule)
 
-    module.exit_json(changed=False)
+    module.exit_json(changed=False, data=existing_rule or {})
 
 
 def main():

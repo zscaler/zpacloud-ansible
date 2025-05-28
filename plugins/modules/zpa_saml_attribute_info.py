@@ -152,7 +152,7 @@ def core(module):
 
     # Lookup by ID
     if saml_attr_id:
-        result, _, err = client.saml_attributes.get_saml_attribute(
+        result, _unused, err = client.saml_attributes.get_saml_attribute(
             attribute_id=saml_attr_id
         )
         if err or not result:
@@ -161,7 +161,7 @@ def core(module):
             )
         module.exit_json(
             changed=False,
-            data=[result if isinstance(result, dict) else result.as_dict()],
+            saml_attributes=[result if isinstance(result, dict) else result.as_dict()],
         )
 
     # Lookup by name
@@ -188,12 +188,14 @@ def core(module):
             )
         module.exit_json(
             changed=False,
-            data=[matched.as_dict() if hasattr(matched, "as_dict") else matched],
+            saml_attributes=[
+                matched.as_dict() if hasattr(matched, "as_dict") else matched
+            ],
         )
 
     # List by IDP name (optional)
     if idp_name:
-        idps, _, err = client.idp.list_idps(query_params={"search": idp_name})
+        idps, _unused, err = client.idp.list_idps(query_params={"search": idp_name})
         if err:
             module.fail_json(
                 msg=f"Error searching for IdP '{idp_name}': {to_native(err)}"
@@ -215,7 +217,9 @@ def core(module):
 
         module.exit_json(
             changed=False,
-            data=[a.as_dict() if hasattr(a, "as_dict") else a for a in attributes],
+            saml_attributes=[
+                a.as_dict() if hasattr(a, "as_dict") else a for a in attributes
+            ],
         )
 
     # Fallback: list all attributes
@@ -227,7 +231,9 @@ def core(module):
 
     module.exit_json(
         changed=False,
-        data=[a.as_dict() if hasattr(a, "as_dict") else a for a in attributes],
+        saml_attributes=[
+            a.as_dict() if hasattr(a, "as_dict") else a for a in attributes
+        ],
     )
 
 

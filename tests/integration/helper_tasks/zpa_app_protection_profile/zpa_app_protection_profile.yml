@@ -13,11 +13,12 @@
 
 - name: Ensure ZIA Credential environment variables are set
   ansible.builtin.set_fact:
-    zia_cloud:
-      client_id: "{{ lookup('env', 'ZSCALER_CLIENT_ID') }}"
-      client_secret: "{{ lookup('env', 'ZSCALER_CLIENT_SECRET') }}"
-      vanity_domain: "{{ lookup('env', 'ZSCALER_VANITY_DOMAIN') }}"
-      cloud: "{{ lookup('env', 'ZSCALER_CLOUD') | default(omit) }}"
+    zpa_cloud:
+      client_id: '{{ lookup("env", "ZSCALER_CLIENT_ID") }}'
+      client_secret: '{{ lookup("env", "ZSCALER_CLIENT_SECRET") | default(omit) }}'
+      vanity_domain: '{{ lookup("env", "ZSCALER_VANITY_DOMAIN") | default(omit) }}'
+      customer_id: '{{ lookup("env", "ZPA_CUSTOMER_ID") | default(omit) }}'
+      cloud: '{{ lookup("env", "ZSCALER_CLOUD") | default(omit) }}'
   no_log: true
 
 - name: Main block to Test App Protection Profile
@@ -25,7 +26,7 @@
     - name: Fetch the App Protection Profile
       zscaler.zpacloud.zpa_app_protection_security_profile_info:
         provider: "{{ zpa_cloud }}"
-        name: BD_SA_Profile1
+        name: BD_AppProtection_Profile1
       register: profile_id
 
     - name: Set App Protection Profile ID as fact

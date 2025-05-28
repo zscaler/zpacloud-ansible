@@ -68,6 +68,11 @@ options:
     type: list
     elements: str
     required: false
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
   working_hours:
     description: "Privileged Approval WorkHours configuration."
     type: dict
@@ -186,7 +191,6 @@ def core(module):
         "end_time",
         "application_ids",
         "working_hours",
-        "status",
     ]
     for param_name in params:
         approval[param_name] = module.params.get(param_name, None)
@@ -205,7 +209,7 @@ def core(module):
 
     if approval_id:
         # If user provided an ID, fetch directly by ID
-        result, _, error = client.pra_approval.get_approval(
+        result, _unused, error = client.pra_approval.get_approval(
             approval_id, query_params={"microtenant_id": microtenant_id}
         )
         if error:
@@ -287,13 +291,12 @@ def core(module):
                         "email_ids": desired_approval.get("email_ids"),
                         "start_time": desired_approval.get("start_time"),
                         "end_time": desired_approval.get("end_time"),
-                        "status": desired_approval.get("status"),
                         "application_ids": desired_approval.get("application_ids"),
                         "working_hours": desired_approval.get("working_hours"),
                     }
                 )
                 module.warn("Payload Update for SDK: {}".format(update_approval))
-                updated_approval, _, error = client.pra_approval.update_approval(
+                updated_approval, _unused, error = client.pra_approval.update_approval(
                     approval_id=update_approval.get("approval_id"), **existing_approval
                 )
                 if error:
@@ -310,20 +313,21 @@ def core(module):
                     "email_ids": desired_approval.get("email_ids"),
                     "start_time": desired_approval.get("start_time"),
                     "end_time": desired_approval.get("end_time"),
-                    "status": desired_approval.get("status"),
                     "application_ids": desired_approval.get("application_ids"),
                     "working_hours": desired_approval.get("working_hours"),
                 }
             )
             module.warn(f"Payload for SDK: {create_approval}")
-            new_approval, _, error = client.pra_approval.add_approval(**create_approval)
+            new_approval, _unused, error = client.pra_approval.add_approval(
+                **create_approval
+            )
             if error:
                 module.fail_json(msg=f"Error creating approval: {to_native(error)}")
             module.exit_json(changed=True, data=new_approval.as_dict())
 
     elif state == "absent":
         if existing_approval:
-            _, _, error = client.pra_approval.delete_approval(
+            _unused, _unused, error = client.pra_approval.delete_approval(
                 approval_id=existing_approval.get("id"),
                 microtenant_id=microtenant_id,
             )
@@ -342,7 +346,6 @@ def main():
         email_ids=dict(type="list", elements="str", required=False),
         start_time=dict(type="str", required=False),
         end_time=dict(type="str", required=False),
-        status=dict(type="str", required=False),
         application_ids=dict(type="list", elements="str", required=False),
         working_hours=dict(
             type="dict",

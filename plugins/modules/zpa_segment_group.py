@@ -62,6 +62,11 @@ options:
     type: bool
     required: false
     default: true
+  microtenant_id:
+      description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+      required: false
+      type: str
 """
 
 EXAMPLES = """
@@ -105,7 +110,7 @@ def core(module):
     # Step 1: Fetch existing group if possible
     existing_group = None
     if group_id:
-        result, _, error = client.segment_groups.get_group(
+        result, _unused, error = client.segment_groups.get_group(
             group_id, query_params={"microtenant_id": microtenant_id}
         )
         if error:
@@ -131,6 +136,7 @@ def core(module):
     # Step 2: Normalize and compare
     desired_group = normalize_app(group)
     current_group = normalize_app(existing_group) if existing_group else {}
+
     fields_to_ignore = ["id"]
 
     drift = any(
@@ -158,7 +164,7 @@ def core(module):
                         "enabled": desired_group.get("enabled"),
                     }
                 )
-                updated, _, error = client.segment_groups.update_group_v2(
+                updated, _unused, error = client.segment_groups.update_group_v2(
                     group_id=update_group.pop("group_id"), **update_group
                 )
                 if error:
@@ -177,7 +183,7 @@ def core(module):
                     "enabled": desired_group.get("enabled"),
                 }
             )
-            created, _, error = client.segment_groups.add_group(**payload)
+            created, _unused, error = client.segment_groups.add_group(**payload)
             if error:
                 module.fail_json(
                     msg=f"Error creating segment group: {to_native(error)}"
@@ -186,7 +192,7 @@ def core(module):
 
     # Step 4: Delete
     elif state == "absent" and existing_group and existing_group.get("id"):
-        _, _, error = client.segment_groups.delete_group(
+        _unused, _unused, error = client.segment_groups.delete_group(
             group_id=existing_group.get("id"),
             microtenant_id=microtenant_id,
         )

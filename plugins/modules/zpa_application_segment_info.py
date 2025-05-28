@@ -52,6 +52,11 @@ options:
     description: "ID of the application segment."
     required: False
     type: str
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = """
@@ -299,7 +304,7 @@ def core(module):
         query_params["microtenant_id"] = microtenant_id
 
     if segment_id:
-        result, _, error = client.application_segment.get_segment(
+        result, _unused, error = client.application_segment.get_segment(
             segment_id, query_params
         )
         if error or result is None:
@@ -326,7 +331,7 @@ def core(module):
             )
         result_list = [matched]
 
-    module.exit_json(changed=False, groups=result_list)
+    module.exit_json(changed=False, app_segments=result_list)
 
 
 def main():

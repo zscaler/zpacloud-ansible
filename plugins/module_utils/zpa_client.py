@@ -42,7 +42,7 @@ except ImportError as e:
     ZSCALER_IMPORT_ERROR = missing_required_lib("zscaler")
 
 try:
-    from ansible_collections.zscaler.ziacloud.plugins.module_utils.version import (
+    from ansible_collections.zscaler.zpacloud.plugins.module_utils.version import (
         __version__ as ansible_collection_version,
     )
 
@@ -220,7 +220,6 @@ class ZPAClientHelper:
             "logging": {"enabled": True, "verbose": False},
         }
 
-        # 🔒 Insert only one of the secret options
         if client_secret:
             config["clientSecret"] = client_secret
         elif private_key:
@@ -233,6 +232,7 @@ class ZPAClientHelper:
 
     @staticmethod
     def zpa_argument_spec():
+        """Return the argument specification for both legacy and OneAPI authentication"""
         return dict(
             provider=dict(
                 type="dict",
@@ -240,43 +240,98 @@ class ZPAClientHelper:
                     zpa_client_id=dict(
                         type="str",
                         no_log=True,
+                        required=False,
                         fallback=(env_fallback, ["ZPA_CLIENT_ID"]),
                     ),
                     zpa_client_secret=dict(
                         type="str",
                         no_log=True,
+                        required=False,
                         fallback=(env_fallback, ["ZPA_CLIENT_SECRET"]),
                     ),
                     zpa_customer_id=dict(
                         type="str",
                         no_log=True,
+                        required=False,
                         fallback=(env_fallback, ["ZPA_CUSTOMER_ID"]),
                     ),
                     zpa_microtenant_id=dict(
                         type="str",
                         no_log=True,
+                        required=False,
                         fallback=(env_fallback, ["ZPA_MICROTENANT_ID"]),
                     ),
-                    zpa_cloud=dict(type="str", fallback=(env_fallback, ["ZPA_CLOUD"])),
+                    zpa_cloud=dict(
+                        no_log=False,
+                        required=False,
+                        fallback=(env_fallback, ["ZPA_CLOUD", "ZSCALER_CLOUD"]),
+                        type="str",
+                        choices=[
+                            "BETA",
+                            "GOV",
+                            "GOVUS",
+                            "PRODUCTION",
+                            "QA",
+                            "QA2",
+                            "PREVIEW",
+                            "beta",
+                            "production",
+                        ],
+                    ),
+                    # OneAPI authentication parameters
                     client_id=dict(
-                        type="str", fallback=(env_fallback, ["ZSCALER_CLIENT_ID"])
+                        no_log=True,
+                        required=False,
+                        fallback=(env_fallback, ["ZSCALER_CLIENT_ID"]),
+                        type="str",
                     ),
                     client_secret=dict(
-                        type="str", fallback=(env_fallback, ["ZSCALER_CLIENT_SECRET"])
+                        no_log=True,
+                        required=False,
+                        fallback=(env_fallback, ["ZSCALER_CLIENT_SECRET"]),
+                        type="str",
                     ),
                     private_key=dict(
-                        type="str", fallback=(env_fallback, ["ZSCALER_PRIVATE_KEY"])
+                        no_log=True,
+                        required=False,
+                        fallback=(env_fallback, ["ZSCALER_PRIVATE_KEY"]),
+                        type="str",
                     ),
                     vanity_domain=dict(
-                        type="str", fallback=(env_fallback, ["ZSCALER_VANITY_DOMAIN"])
+                        no_log=False,
+                        required=False,
+                        fallback=(env_fallback, ["ZSCALER_VANITY_DOMAIN"]),
+                        type="str",
                     ),
                     customer_id=dict(
-                        type="str", fallback=(env_fallback, ["ZPA_CUSTOMER_ID"])
+                        no_log=False,
+                        required=False,
+                        fallback=(env_fallback, ["ZPA_CUSTOMER_ID"]),
+                        type="str",
                     ),
                     microtenant_id=dict(
-                        type="str", fallback=(env_fallback, ["ZPA_MICROTENANT_ID"])
+                        no_log=False,
+                        required=False,
+                        fallback=(env_fallback, ["ZPA_MICROTENANT_ID"]),
+                        type="str",
                     ),
-                    cloud=dict(type="str", fallback=(env_fallback, ["ZSCALER_CLOUD"])),
+                    cloud=dict(
+                        no_log=False,
+                        required=False,
+                        fallback=(env_fallback, ["ZPA_CLOUD", "ZSCALER_CLOUD"]),
+                        type="str",
+                        choices=[
+                            "BETA",
+                            "GOV",
+                            "GOVUS",
+                            "PRODUCTION",
+                            "QA",
+                            "QA2",
+                            "PREVIEW",
+                            "beta",
+                            "production",
+                        ],
+                    ),
                     use_legacy_client=dict(
                         type="bool",
                         default=False,
@@ -285,31 +340,104 @@ class ZPAClientHelper:
                 ),
             ),
             zpa_client_id=dict(
-                type="str", no_log=True, fallback=(env_fallback, ["ZPA_CLIENT_ID"])
+                no_log=True,
+                required=False,
+                fallback=(env_fallback, ["ZPA_CLIENT_ID"]),
+                type="str",
             ),
             zpa_client_secret=dict(
-                type="str", no_log=True, fallback=(env_fallback, ["ZPA_CLIENT_SECRET"])
+                no_log=True,
+                required=False,
+                fallback=(env_fallback, ["ZPA_CLIENT_SECRET"]),
+                type="str",
             ),
             zpa_customer_id=dict(
-                type="str", no_log=True, fallback=(env_fallback, ["ZPA_CUSTOMER_ID"])
+                no_log=True,
+                required=False,
+                fallback=(env_fallback, ["ZPA_CUSTOMER_ID"]),
+                type="str",
             ),
             zpa_microtenant_id=dict(
-                type="str", no_log=True, fallback=(env_fallback, ["ZPA_MICROTENANT_ID"])
+                no_log=True,
+                required=False,
+                fallback=(env_fallback, ["ZPA_MICROTENANT_ID"]),
+                type="str",
             ),
-            zpa_cloud=dict(type="str", fallback=(env_fallback, ["ZPA_CLOUD"])),
-            client_id=dict(type="str", fallback=(env_fallback, ["ZSCALER_CLIENT_ID"])),
+            zpa_cloud=dict(
+                no_log=False,
+                required=False,
+                fallback=(env_fallback, ["ZPA_CLOUD", "ZSCALER_CLOUD"]),
+                type="str",
+                choices=[
+                    "BETA",
+                    "GOV",
+                    "GOVUS",
+                    "PRODUCTION",
+                    "QA",
+                    "QA2",
+                    "PREVIEW",
+                    "beta",
+                    "production",
+                ],
+            ),
+            # OneAPI authentication parameters
+            client_id=dict(
+                no_log=True,
+                required=False,
+                fallback=(env_fallback, ["ZSCALER_CLIENT_ID"]),
+                type="str",
+            ),
             client_secret=dict(
-                type="str", fallback=(env_fallback, ["ZSCALER_CLIENT_SECRET"])
+                no_log=True,
+                required=False,
+                fallback=(env_fallback, ["ZSCALER_CLIENT_SECRET"]),
+                type="str",
             ),
             private_key=dict(
-                type="str", fallback=(env_fallback, ["ZSCALER_PRIVATE_KEY"])
+                no_log=True,
+                required=False,
+                fallback=(env_fallback, ["ZSCALER_PRIVATE_KEY"]),
+                type="str",
             ),
             vanity_domain=dict(
-                type="str", fallback=(env_fallback, ["ZSCALER_VANITY_DOMAIN"])
+                no_log=False,
+                required=False,
+                fallback=(env_fallback, ["ZSCALER_VANITY_DOMAIN"]),
+                type="str",
             ),
-            customer_id=dict(type="str", fallback=(env_fallback, ["ZPA_CUSTOMER_ID"])),
+            customer_id=dict(
+                no_log=False,
+                required=False,
+                fallback=(env_fallback, ["ZPA_CUSTOMER_ID"]),
+                type="str",
+            ),
             microtenant_id=dict(
-                type="str", fallback=(env_fallback, ["ZPA_MICROTENANT_ID"])
+                no_log=False,
+                required=False,
+                fallback=(env_fallback, ["ZPA_MICROTENANT_ID"]),
+                type="str",
             ),
-            cloud=dict(type="str", fallback=(env_fallback, ["ZSCALER_CLOUD"])),
+            cloud=dict(
+                no_log=False,
+                required=False,
+                fallback=(env_fallback, ["ZPA_CLOUD", "ZSCALER_CLOUD"]),
+                type="str",
+                choices=[
+                    "BETA",
+                    "GOV",
+                    "GOVUS",
+                    "PRODUCTION",
+                    "QA",
+                    "QA2",
+                    "PREVIEW",
+                    "beta",
+                    "production",
+                ],
+            ),
+            use_legacy_client=dict(
+                type="bool",
+                required=False,
+                default=False,
+                fallback=(env_fallback, ["ZSCALER_USE_LEGACY_CLIENT"]),
+            ),
         )

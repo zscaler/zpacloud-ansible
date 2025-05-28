@@ -28,17 +28,18 @@ __metaclass__ = type
 
 DOCUMENTATION = r"""
 ---
-module: zpa_policy_access_timeout_rule
-short_description: Create a Policy Timeout Rule
+module: zpa_policy_access_timeout_rule_v2
+short_description: Manage ZPA Access Timeout Policy Rules (v2)
 description:
-  - This module create/update/delete a Policy Timeout Rule in the ZPA Cloud.
+  - Create, update, or delete a ZPA Access Timeout Policy Rule using the v2 policy engine.
+  - This rule defines reauthentication behavior based on user or application context.
+version_added: "2.0.0"
 author:
   - William Guilherme (@willguibr)
-version_added: "1.0.0"
 requirements:
-    - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+  - Zscaler SDK Python (https://pypi.org/project/zscaler-sdk-python/)
 notes:
-    - Check mode is supported.
+  - Check mode is supported.
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
   - zscaler.zpacloud.fragments.documentation
@@ -46,101 +47,119 @@ extends_documentation_fragment:
 
 options:
   id:
-    description: "The unique identifier of the policy set"
-    type: str
-  name:
-    type: str
-    required: True
     description:
-      - This is the name of the timeout policy.
+      - The unique identifier of the policy rule.
+    type: str
+    required: false
+
+  name:
+    description:
+      - The name of the timeout policy rule.
+    type: str
+    required: true
+
   description:
     description:
-      - This is the description of the access policy.
+      - A detailed description of the timeout policy rule.
     type: str
     required: false
-  action:
-    description:
-      - This is for providing the rule action.
-    type: str
-    required: false
-    choices:
-      - RE_AUTH
-  rule_order:
-    description: "The policy evaluation order number of the rule."
-    type: str
-    required: false
-  operator:
-    description:
-      - This denotes the operation type.
-    type: str
-    required: false
-    choices: ["AND", "OR"]
+
   custom_msg:
     description:
-      - This is for providing a customer message for the user.
+      - Custom message shown to users upon session timeout or reauthentication.
     type: str
     required: false
+
   reauth_idle_timeout:
+    description:
+      - The idle timeout interval before requiring reauthentication.
+      - Accepts values like C(10 minutes), C(1 hour), or C(never).
+      - Minimum value is 10 minutes or 'never'.
     type: str
     required: false
-    description:
-      - The reauthentication idle timeout
-      - Use minute, minutes, hour, hours, day, days, or never.
-      - Timeout interval must be at least 10 minutes or 'never.
-      - i.e 10 minutes, 1 hour, 2 hours, or never
+
   reauth_timeout:
+    description:
+      - The absolute timeout interval before requiring reauthentication.
+      - Accepts values like C(10 minutes), C(1 hour), or C(never).
+      - Minimum value is 10 minutes or 'never'.
     type: str
     required: false
+
+  rule_order:
     description:
-      - The reauthentication timeout.
-      - Use minute, minutes, hour, hours, day, days, or never.
-      - Timeout interval must be at least 10 minutes or 'never.
-      - i.e 10 minutes, 1 hour, 2 hours, or never
+      - The evaluation order of the rule within the policy set.
+    type: str
+    required: false
+
+  microtenant_id:
+    description:
+      - The identifier of the microtenant associated with the policy rule.
+    type: str
+    required: false
+
   conditions:
+    description:
+      - Defines the match conditions under which the rule is applied.
     type: list
     elements: dict
-    required: False
-    description: "Specifies the set of conditions for the policy rule"
+    required: false
     suboptions:
       operator:
-        description: "The operator of the condition set"
+        description:
+          - Logical operator to join multiple operands.
         type: str
-        required: false
         choices: ["AND", "OR"]
+        required: false
+
       operands:
-        description: "The operands of the condition set"
+        description:
+          - List of operand objects used to evaluate the condition.
         type: list
         elements: dict
         required: false
         suboptions:
-          idp_id:
-            description: "The unique identifier of the IdP"
-            type: str
-            required: false
-          lhs:
-            description: "The key for the object type"
-            type: str
-            required: false
-          rhs:
-            description: "The value for the given object type. Its value depends upon the key"
-            type: str
-            required: false
           object_type:
-            description: "The object type of the operand"
+            description:
+              - The type of the object to match.
             type: str
-            required: false
             choices:
               - APP
               - APP_GROUP
               - CLIENT_TYPE
-              - SAML
               - IDP
-              - SCIM
-              - SCIM_GROUP
               - POSTURE
               - PLATFORM
+              - SAML
+              - SCIM
+              - SCIM_GROUP
+            required: false
 
+          values:
+            description:
+              - List of string values for the operand.
+            type: list
+            elements: str
+            required: false
+
+          entry_values:
+            description:
+              - Dictionary of LHS and RHS entries for advanced operands.
+            type: dict
+            required: false
+            suboptions:
+              lhs:
+                description:
+                  - Left-hand-side operand for comparison.
+                type: str
+                required: false
+              rhs:
+                description:
+                  - Right-hand-side operand for comparison.
+                type: str
+                required: false
 """
+
 
 EXAMPLES = r"""
 - name: "Policy Timeout Rule - Example"
@@ -261,7 +280,7 @@ def core(module):
 
     existing_rule = None
     if rule_id:
-        result, _, error = client.policies.get_rule(
+        result, _unused, error = client.policies.get_rule(
             policy_type="timeout", rule_id=rule_id, query_params=query_params
         )
         if error:
@@ -330,7 +349,7 @@ def core(module):
         desired_order = str(rule["rule_order"])
         if desired_order != current_order:
             try:
-                _, _, error = client.policies.reorder_rule(
+                _unused, _unused, error = client.policies.reorder_rule(
                     policy_type="timeout",
                     rule_id=existing_rule["id"],
                     rule_order=desired_order,
@@ -347,7 +366,7 @@ def core(module):
         elif state == "absent" and existing_rule:
             module.exit_json(changed=True)
         else:
-            module.exit_json(changed=False)
+            module.exit_json(changed=False, data=existing_rule or {})
 
     # Update or create
     if state == "present":
@@ -366,7 +385,9 @@ def core(module):
                 }
             )
             module.warn(f"Update payload to SDK: {update_data}")
-            result, _, error = client.policies.update_timeout_rule_v2(**update_data)
+            result, _unused, error = client.policies.update_timeout_rule_v2(
+                **update_data
+            )
             if error:
                 module.fail_json(msg=f"Error updating rule: {to_native(error)}")
             module.exit_json(changed=True, data=result.as_dict())
@@ -385,7 +406,7 @@ def core(module):
                 }
             )
             module.warn(f"Create payload to SDK: {create_data}")
-            result, _, error = client.policies.add_timeout_rule_v2(**create_data)
+            result, _unused, error = client.policies.add_timeout_rule_v2(**create_data)
             if error:
                 module.fail_json(msg=f"Error creating rule: {to_native(error)}")
             module.exit_json(changed=True, data=result.as_dict())
@@ -394,14 +415,14 @@ def core(module):
             module.exit_json(changed=False, data=existing_rule)
 
     elif state == "absent" and existing_rule:
-        _, _, error = client.policies.delete_rule(
+        _unused, _unused, error = client.policies.delete_rule(
             policy_type="timeout", rule_id=existing_rule["id"]
         )
         if error:
             module.fail_json(msg=f"Error deleting rule: {to_native(error)}")
         module.exit_json(changed=True, data=existing_rule)
 
-    module.exit_json(changed=False)
+    module.exit_json(changed=False, data=existing_rule or {})
 
 
 def main():

@@ -26,7 +26,6 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import re
-import json
 
 
 def deleteNone(_dict):
@@ -81,6 +80,7 @@ def collect_all_items(list_fn, query_params=None):
 
     return None, f"Unexpected return structure from {list_fn.__name__}"
 
+
 def normalize_port_processing(app):
     """Normalize application segment data, handling port ranges specially"""
     if not app:
@@ -110,6 +110,7 @@ def normalize_port_processing(app):
 
     return normalized
 
+
 # Function to handle application segment port conversion list
 def convert_ports_list(obj_list):
     if obj_list is None:
@@ -120,6 +121,7 @@ def convert_ports_list(obj_list):
             r.append("" + o.get("from"))
             r.append("" + o.get("to"))
     return r
+
 
 def convert_ports(obj_list):
     """Convert port range formats between API and SDK representations."""
@@ -141,6 +143,7 @@ def convert_ports(obj_list):
             r.append((o, o))
     return r
 
+
 def convert_ranges_to_port_range(port_ranges):
     if not port_ranges:
         return []
@@ -150,6 +153,7 @@ def convert_ranges_to_port_range(port_ranges):
         if isinstance(port, str):
             port_range.append({"from": port, "to": port})
     return port_range
+
 
 def convert_bool_to_str(value, true_value="1", false_value="0"):
     """
@@ -186,38 +190,6 @@ def convert_str_to_bool(value, true_value="1", false_value="0"):
         return False
     return value  # if the value isn't recognized, return it as-is
 
-# Working function v1
-# def warn_drift(module, desired, actual):
-#     """
-#     Compare desired vs. actual, warn about any differences.
-#     This helps track down which attributes are the culprit for drift.
-#     """
-#     for key, desired_val in desired.items():
-#         actual_val = actual.get(key)
-
-#         if isinstance(desired_val, list) and all(isinstance(i, dict) for i in desired_val):
-#             # Lists of dicts — compare without sorting
-#             if desired_val != actual_val:
-#                 module.warn(
-#                     f"[POST-UPDATE DRIFT] Key='{key}' => Desired={desired_val}, Actual={actual_val}"
-#                 )
-#         elif isinstance(actual_val, list) and all(isinstance(i, dict) for i in actual_val):
-#             # Just in case actual_val is list of dicts but desired_val is None or incompatible
-#             if desired_val != actual_val:
-#                 module.warn(
-#                     f"[POST-UPDATE DRIFT] Key='{key}' => Desired={desired_val}, Actual={actual_val}"
-#                 )
-#         elif isinstance(desired_val, list) or isinstance(actual_val, list):
-#             # Safe to sort: assume flat lists
-#             if sorted(desired_val or []) != sorted(actual_val or []):
-#                 module.warn(
-#                     f"[POST-UPDATE DRIFT] Key='{key}' => Desired={desired_val}, Actual={actual_val}"
-#                 )
-#         else:
-#             if desired_val != actual_val:
-#                 module.warn(
-#                     f"[POST-UPDATE DRIFT] Key='{key}' => Desired={desired_val}, Actual={actual_val}"
-#                 )
 
 def warn_drift(module, desired, actual):
     """
@@ -240,13 +212,17 @@ def warn_drift(module, desired, actual):
     for key, desired_val in desired.items():
         actual_val = actual.get(key)
 
-        if isinstance(desired_val, list) and all(isinstance(i, dict) for i in desired_val):
+        if isinstance(desired_val, list) and all(
+            isinstance(i, dict) for i in desired_val
+        ):
             # Lists of dicts — compare without sorting
             if desired_val != actual_val:
                 module.warn(
                     f"[POST-UPDATE DRIFT] Key='{key}' => Desired={desired_val}, Actual={actual_val}"
                 )
-        elif isinstance(actual_val, list) and all(isinstance(i, dict) for i in actual_val):
+        elif isinstance(actual_val, list) and all(
+            isinstance(i, dict) for i in actual_val
+        ):
             # Just in case actual_val is list of dicts but desired_val is None or incompatible
             if desired_val != actual_val:
                 module.warn(
@@ -264,162 +240,6 @@ def warn_drift(module, desired, actual):
                     f"[POST-UPDATE DRIFT] Key='{key}' => Desired={desired_val}, Actual={actual_val}"
                 )
 
-def normalize_common_apps(common_apps):
-    normalized = common_apps.copy()
-    if "appsConfig" in normalized:
-        # You can add more normalization logic for each appConfig object here
-        for app_config in normalized["appsConfig"]:
-            # For now, I'm just normalizing the 'domain' field
-            app_config["domain"] = (
-                app_config["domain"].lower() if app_config["domain"] else None
-            )
-    return normalized
-
-# ORIGINAL FUNCTION
-# def normalize_app(app):
-#     normalized = app.copy()
-
-#     # -------------------------------------------------------
-#     # 1.  Canonicalise server_group_ids ASAP
-#     # -------------------------------------------------------
-#     if "server_groups" in normalized and isinstance(normalized["server_groups"], list):
-#         normalized["server_group_ids"] = sorted(
-#             str(g["id"]) for g in normalized["server_groups"] if g.get("id")
-#         )
-
-#     elif "server_group_dtos" in normalized and isinstance(
-#         normalized["server_group_dtos"], list
-#     ):
-#         normalized["server_group_ids"] = sorted(
-#             str(g["id"]) for g in normalized["server_group_dtos"] if g.get("id")
-#         )
-
-#     # Desired-state path (already uses server_group_ids)
-#     if "server_group_ids" in normalized and isinstance(
-#         normalized["server_group_ids"], list
-#     ):
-#         normalized["server_group_ids"] = sorted(str(i) for i in normalized["server_group_ids"])
-
-#     computed_values = [
-#         "creation_time",
-#         "modified_by",
-#         "modified_time",
-#         "id",
-#         "config_space",
-#         "microtenant_name",
-#         "segment_group_name",
-#         "server_groups",
-#         "credentials"
-#         # "use_in_dr_mode",
-#         "is_incomplete_dr_config",
-#         "inspect_traffic_with_zia",
-#         "adp_enabled",
-#         "app_id",
-#         "ip_anchored",
-#         "action",
-#         "control_number",
-#         "control_rule_json",
-#         "protocol_type",
-#         "rules",
-#         "version",
-#         "threatlabz_controls",
-#         "websocket_controls",
-#         "zs_defined_control_choice",
-#         "predef_controls_version",
-#         "incarnation_number",
-#         "control_type",
-#         "check_control_deployment_status",
-#         "controls_facts",
-#         "lss_app_connector_group",
-#         "clientless_app_ids",
-#         "tcp_protocols",
-#         "udp_protocols",
-#         "passive_health_enabled"
-#     ]
-#     for attr in computed_values:
-#         normalized.pop(attr, None)
-
-#     if "domain_names" in normalized and isinstance(normalized["domain_names"], list):
-#         normalized["domain_names"].sort()
-
-#     # Normalize app_connector_group_ids for proper comparison
-#     if "app_connector_group_ids" in normalized:
-#         normalized["app_connector_group_ids"] = sorted(
-#             normalized["app_connector_group_ids"]
-#         )
-
-#     if "tcp_keep_alive" in normalized:
-#         value = normalized["tcp_keep_alive"]
-#         if isinstance(value, bool):
-#             normalized["tcp_keep_alive"] = "1" if value else "0"
-
-#     if "icmp_access_type" in normalized:
-#         value = normalized["icmp_access_type"]
-#         if isinstance(value, bool):
-#             normalized["icmp_access_type"] = "PING" if value else "NONE"
-
-#     # Handle server groups - only if it's in the current state (API response)
-#     if "server_groups" in normalized:
-#         normalized["server_group_ids"] = sorted(
-#             [str(group["id"]) for group in normalized["server_groups"] if group.get("id")]
-#         )
-#         del normalized["server_groups"]  # Remove the original field
-
-#     # If server_group_ids was in the input (desired state), leave it as-is
-#     elif "server_group_ids" in normalized:
-#         normalized["server_group_ids"] = sorted(normalized["server_group_ids"])
-
-#     if "credentials" in app:
-#         normalized["credential_ids"] = sorted(
-#             str(c["id"]) for c in app["credentials"] if c.get("id")
-#         )
-
-#     if "common_apps_dto" in normalized and normalized["common_apps_dto"]:
-#         normalized["common_apps_dto"] = normalize_common_apps(
-#             normalized["common_apps_dto"]
-#         )
-
-#     # Normalizing clientless_app_ids attributes
-#     if "clientless_app_ids" in normalized:
-#         for clientless_app in normalized["clientless_app_ids"]:
-#             for field in [
-#                 "app_id",
-#                 "id",
-#                 "hidden",
-#                 "portal",
-#                 "path",
-#                 "certificate_name",
-#                 "cname",
-#                 "local_domain",
-#             ]:
-#                 clientless_app.pop(field, None)
-#     # Normalize port ranges - handle both formats
-#     for port_type in ['tcp', 'udp']:
-#         range_key = f"{port_type}_port_range"
-#         ranges_key = f"{port_type}_port_ranges"
-
-#         # If we have the new format, standardize it
-#         if range_key in normalized:
-#             if isinstance(normalized[range_key], list):
-#                 normalized[range_key] = [
-#                     {"from": str(p["from"]), "to": str(p["to"])}
-#                     for p in normalized[range_key]
-#                     if isinstance(p, dict)
-#                 ]
-
-#         # If we have the old format, convert to new format for consistency
-#         elif ranges_key in normalized and isinstance(normalized[ranges_key], list):
-#             # Convert ["8080", "8080"] to [{"from": "8080", "to": "8080"}]
-#             ranges = normalized[ranges_key]
-#             if ranges and len(ranges) >= 2 and isinstance(ranges[0], str):
-#                 normalized[range_key] = []
-#                 for i in range(0, len(ranges), 2):
-#                     if i+1 < len(ranges):
-#                         normalized[range_key].append({
-#                             "from": ranges[i],
-#                             "to": ranges[i+1]
-#                         })
-#     return normalized
 
 def normalize_app(app):
     normalized = app.copy()
@@ -443,19 +263,45 @@ def normalize_app(app):
     if "server_group_ids" in normalized and isinstance(
         normalized["server_group_ids"], list
     ):
-        normalized["server_group_ids"] = sorted(str(i) for i in normalized["server_group_ids"])
+        normalized["server_group_ids"] = sorted(
+            str(i) for i in normalized["server_group_ids"]
+        )
 
     # Remove computed values
     computed_values = [
-        "creation_time", "modified_by", "modified_time", "id", "config_space",
-        "microtenant_name", "segment_group_name", "server_groups", "credentials",
-        "is_incomplete_dr_config", "inspect_traffic_with_zia", "adp_enabled",
-        "app_id", "ip_anchored", "action", "control_number", "control_rule_json",
-        "protocol_type", "rules", "version", "threatlabz_controls",
-        "websocket_controls", "zs_defined_control_choice", "predef_controls_version",
-        "incarnation_number", "control_type", "check_control_deployment_status",
-        "controls_facts", "lss_app_connector_group", "clientless_app_ids",
-        "tcp_protocols", "udp_protocols", "passive_health_enabled"
+        "creation_time",
+        "modified_by",
+        "modified_time",
+        "id",
+        "config_space",
+        "microtenant_name",
+        "segment_group_name",
+        "server_groups",
+        "credentials",
+        "is_incomplete_dr_config",
+        "inspect_traffic_with_zia",
+        "adp_enabled",
+        "app_id",
+        "ip_anchored",
+        "action",
+        "control_number",
+        "control_rule_json",
+        "protocol_type",
+        "rules",
+        "version",
+        "threatlabz_controls",
+        "websocket_controls",
+        "zs_defined_control_choice",
+        "predef_controls_version",
+        "incarnation_number",
+        "control_type",
+        "check_control_deployment_status",
+        "controls_facts",
+        "lss_app_connector_group",
+        "cname",
+        "tcp_protocols",
+        "udp_protocols",
+        "passive_health_enabled",
     ]
     for attr in computed_values:
         normalized.pop(attr, None)
@@ -477,7 +323,7 @@ def normalize_app(app):
             normalized["icmp_access_type"] = "PING" if value else "NONE"
 
     # Handle port ranges
-    for port_type in ['tcp', 'udp']:
+    for port_type in ["tcp", "udp"]:
         range_key = f"{port_type}_port_range"
         ranges_key = f"{port_type}_port_ranges"
 
@@ -492,55 +338,94 @@ def normalize_app(app):
             if ranges and len(ranges) >= 2 and isinstance(ranges[0], str):
                 normalized[range_key] = []
                 for i in range(0, len(ranges), 2):
-                    if i+1 < len(ranges):
-                        normalized[range_key].append({
-                            "from": ranges[i],
-                            "to": ranges[i+1]
-                        })
+                    if i + 1 < len(ranges):
+                        normalized[range_key].append(
+                            {"from": ranges[i], "to": ranges[i + 1]}
+                        )
 
     # Enhanced handling of pra_apps -> common_apps_dto conversion
     if "common_apps_dto" not in normalized and "pra_apps" in normalized:
-        normalized["common_apps_dto"] = map_pra_apps_to_common_apps(normalized["pra_apps"])
+        normalized["common_apps_dto"] = map_pra_apps_to_common_apps(
+            normalized["pra_apps"], app_type="SECURE_REMOTE_ACCESS"
+        )
 
-    # Ensure apps_config is sorted consistently for comparison
+    # Handle inspection_apps -> common_apps_dto conversion
+    if "common_apps_dto" not in normalized and "inspection_apps" in normalized:
+        normalized["common_apps_dto"] = map_pra_apps_to_common_apps(
+            normalized["inspection_apps"], app_type="INSPECT"
+        )
+
+    # Strip SDK-managed fields from apps_config
     if "common_apps_dto" in normalized and normalized["common_apps_dto"]:
         if "apps_config" in normalized["common_apps_dto"]:
+            for app_config in normalized["common_apps_dto"]["apps_config"]:
+                for field in ["id", "app_id", "pra_app_id"]:
+                    app_config.pop(field, None)
+
             normalized["common_apps_dto"]["apps_config"] = sorted(
                 normalized["common_apps_dto"]["apps_config"],
-                key=lambda x: (x.get("domain", ""), x.get("application_port", ""))
+                key=lambda x: (x.get("domain", ""), x.get("application_port", "")),
             )
 
     return normalized
 
-def map_pra_apps_to_common_apps(pra_apps):
+
+def map_pra_apps_to_common_apps(pra_apps, app_type="SECURE_REMOTE_ACCESS"):
     """
-    Converts a list of PRA app objects from the `pra_apps` SDK response
+    Converts a list of PRA or Inspection app objects from the SDK response
     into the expected `common_apps_dto.apps_config` structure.
+
+    Args:
+        pra_apps: List of app objects from API response
+        app_type: Either "SECURE_REMOTE_ACCESS" or "INSPECT" to determine mapping format
     """
     if not isinstance(pra_apps, list):
         return {}
 
     apps_config = []
 
-    for pra_app in pra_apps:
-        app = {
-            "name": pra_app.get("name"),
-            "description": pra_app.get("description"),
-            "domain": pra_app.get("domain"),
-            "application_port": pra_app.get("application_port"),
-            "application_protocol": pra_app.get("application_protocol"),
-            "enabled": pra_app.get("enabled", True),
-            "app_types": ["SECURE_REMOTE_ACCESS"],
-            "connection_security": pra_app.get("connection_security"),  # always include
-        }
+    for app in pra_apps:
+        if app_type == "SECURE_REMOTE_ACCESS":
+            # PRA Application mapping
+            mapped_app = {
+                "id": app.get("id"),
+                "app_id": app.get("app_id"),
+                "name": app.get("name"),
+                "description": app.get("description"),
+                "domain": app.get("domain"),
+                "application_port": app.get("application_port"),
+                "application_protocol": app.get("application_protocol"),
+                "enabled": app.get("enabled", True),
+                "app_types": ["SECURE_REMOTE_ACCESS"],
+                "connection_security": app.get("connection_security"),
+            }
+        elif app_type == "INSPECT":
+            # Inspection Application mapping
+            mapped_app = {
+                "id": app.get("id"),
+                "app_id": app.get("app_id"),
+                "name": app.get("name"),
+                "description": app.get("description"),
+                "enabled": app.get("enabled", True),
+                "domain": app.get("domain"),
+                "application_port": app.get("application_port"),
+                "application_protocol": app.get("application_protocol"),
+                "certificate_id": app.get("certificate_id"),
+                "trust_untrusted_cert": app.get("trust_untrusted_cert"),
+                "app_types": ["INSPECT"],
+            }
+        else:
+            continue  # Skip unknown app types
 
-        apps_config.append(app)
+        # Remove None values to avoid drift in comparisons
+        mapped_app = {k: v for k, v in mapped_app.items() if v is not None}
+        apps_config.append(mapped_app)
 
+    # Sort by domain for consistent comparison
     apps_config.sort(key=lambda x: x.get("domain", ""))
 
-    return {
-        "apps_config": apps_config
-    }
+    return {"apps_config": apps_config}
+
 
 def prepare_updated_app(existing_app, app):
     """
@@ -637,61 +522,6 @@ def map_conditions(conditions_obj):
             result.append(mapped_condition)
 
     return result
-
-
-# def normalize_policy(policy):
-#     normalized = policy.copy()
-
-#     # Exclude the computed values from the data
-#     computed_values = [
-#         "modified_time",
-#         "creation_time",
-#         "modified_by",
-#         "rule_order",
-#         "idp_id",
-#     ]
-#     for attr in computed_values:
-#         normalized.pop(attr, None)
-
-#     # Convert server's app_connector_groups to app_connector_group_ids
-#     if "app_connector_groups" in normalized and isinstance(
-#         normalized["app_connector_groups"], list
-#     ):
-#         normalized["app_connector_group_ids"] = [
-#             group["id"] for group in normalized["app_connector_groups"] if "id" in group
-#         ]
-#         del normalized["app_connector_groups"]
-
-#     # Convert server's app_server_groups to app_server_group_ids
-#     if "app_server_groups" in normalized and isinstance(
-#         normalized["app_server_groups"], list
-#     ):
-#         normalized["app_server_group_ids"] = [
-#             group["id"] for group in normalized["app_server_groups"] if "id" in group
-#         ]
-#         del normalized["app_server_groups"]
-
-#     # Normalize action attribute
-#     if "action" in normalized and normalized["action"] is not None:
-#         normalized["action"] = normalized["action"].upper()
-#     elif "action" in normalized and normalized["action"] is None:
-#         normalized.pop("action", None)  # Remove 'action' key if the value is None
-
-#     # Remove IDs from conditions and operands but keep the main policy rule ID
-#     for condition in normalized.get("conditions", []):
-#         condition.pop("id", None)  # remove ID from condition
-#         condition.pop("negated", None)  # remove 'negated' as it is deprecated
-
-#         for operand in condition.get("operands", []):
-#             operand.pop("id", None)  # remove ID from operand
-#             operand.pop("name", None)  # remove name from operand
-#             operand.pop("idp_id", None)  # remove idp_id from operand
-
-#             # Adjust the operand key from "objectType" to "object_type"
-#             if "objectType" in operand:
-#                 operand["object_type"] = operand.pop("objectType")
-
-#     return normalized
 
 
 def normalize_policy(policy):
@@ -901,6 +731,7 @@ def validate_operand(operand, module):
             return idpWarn(object_type, "non-empty string", idp_id)
 
     return None
+
 
 # CURRENT WORKING FUNCTION - DO NOT CHANGE
 def normalize_policy_v2(policy):
@@ -1208,7 +1039,7 @@ def map_conditions_v2(conditions_obj):
 
 def convert_conditions_v1_to_v2(v1_conditions, module=None):
     """
-    Convert the API’s v1-style response into the deterministic v2 shape
+    Convert the APIs v1-style response into the deterministic v2 shape
     Ansible stores – while *preserving* the operator (AND / OR) that came
     from the server.
     """
@@ -1389,7 +1220,8 @@ def validate_operand_v2(operand, module):
         lhs = str(ev["lhs"]).upper()
         rhs = str(ev["rhs"]).lower()
         if not validate_iso3166_alpha2(lhs):
-            return f"Invalid COUNTRY_CODE lhs: '{lhs}' is not a valid ISO3166 Alpha2 country code. Please visit the following site for reference: https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes"
+            return f"Invalid COUNTRY_CODE lhs: '{lhs}' is not a valid ISO3166 Alpha2 country code. \
+                Please visit the following site for reference: https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes"
         if rhs != "true":
             return "For COUNTRY_CODE, rhs must be 'true'."
 

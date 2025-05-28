@@ -97,8 +97,10 @@ def core(module):
     query_params = {}
 
     if group_id:
-        result, _, error = client.cloud_connector_groups.get_cloud_connector_groups(
-            group_id, query_params
+        result, _unused, error = (
+            client.cloud_connector_groups.get_cloud_connector_groups(
+                group_id, query_params
+            )
         )
         if error or result is None:
             module.fail_json(

@@ -149,7 +149,7 @@ def core(module):
         )
 
     result = [p.as_dict() if hasattr(p, "as_dict") else p for p in profiles]
-    module.exit_json(changed=False, data=result)
+    module.exit_json(changed=False, profiles=result)
 
 
 def main():

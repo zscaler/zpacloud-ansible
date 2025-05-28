@@ -70,6 +70,16 @@ options:
       - Whether Source IP Anchoring for use with ZIA is enabled or disabled for the application.
     type: bool
     required: false
+  adp_enabled:
+    description:
+      - Indicates if Active Directory Inspection is enabled or not for the application.
+    type: bool
+    required: false
+  weighted_load_balancing:
+    description:
+      - Indicates if the application load balancing configuration for application segments is enabled (true) or disabled (false)
+    type: bool
+    required: false
   tcp_port_range:
     type: list
     elements: dict
@@ -121,25 +131,21 @@ options:
       - Whether Double Encryption is enabled or disabled for the application..
     type: bool
     required: false
-    default: false
   icmp_access_type:
     description:
       - Indicates the ICMP access type.
     type: bool
     required: false
-    default: false
   tcp_keep_alive:
     description:
       - Indicates whether TCP communication sockets are enabled or disabled.
     type: bool
     required: false
-    default: false
   select_connector_close_to_app:
     description:
       - Whether the App Connector is closest to the application (True) or closest to the user (False).
     type: bool
     required: false
-    default: false
   passive_health_enabled:
     description:
       - Indicates if passive health checks are enabled on the application..
@@ -167,7 +173,6 @@ options:
       - This feature is only applicable for Zscaler Client Connector-specific applications.
     type: bool
     required: false
-    default: false
   bypass_type:
     description:
       - Indicates whether users can bypass ZPA to access applications.
@@ -235,6 +240,29 @@ options:
       - EXCLUSIVE
       - INCLUSIVE
     default: EXCLUSIVE
+  tcp_protocols:
+    description: Indicates the AD Protection protocols to be inspected on the specified TCP port ranges
+    type: list
+    elements: str
+    required: false
+    choices:
+      - KERBEROS
+      - LDAP
+      - SMB
+  udp_protocols:
+    description: Indicates the AD Protection protocols to be inspected on the specified UDP port ranges.
+    type: list
+    elements: str
+    required: false
+    choices:
+      - KERBEROS
+      - LDAP
+      - SMB
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = """
@@ -359,7 +387,7 @@ def core(module):
     existing_app = None
     # -- Lookup existing resource
     if segment_id:
-        result, _, error = client.application_segment.get_segment(
+        result, _unused, error = client.application_segment.get_segment(
             segment_id, query_params={"microtenant_id": microtenant_id}
         )
         if error:
@@ -477,8 +505,12 @@ def core(module):
                         ),
                         "segment_group_id": desired_app.get("segment_group_id"),
                         "server_group_ids": desired_app.get("server_group_ids"),
-                        "tcp_port_ranges": convert_ports_list(existing_app.get("tcp_port_range", None)),
-                        "udp_port_ranges": convert_ports_list(existing_app.get("udp_port_range", None)),
+                        "tcp_port_ranges": convert_ports_list(
+                            existing_app.get("tcp_port_range", None)
+                        ),
+                        "udp_port_ranges": convert_ports_list(
+                            existing_app.get("udp_port_range", None)
+                        ),
                         "tcp_protocols": desired_app.get("tcp_protocols"),
                         "udp_protocols": desired_app.get("udp_protocols"),
                     }
@@ -486,8 +518,10 @@ def core(module):
                 module.warn(f"Payload Update for SDK: {update_segment}")
 
                 # Update
-                updated_segment, _, error = client.application_segment.update_segment(
-                    segment_id=update_segment.pop("segment_id"), **update_segment
+                updated_segment, _unused, error = (
+                    client.application_segment.update_segment(
+                        segment_id=update_segment.pop("segment_id"), **update_segment
+                    )
                 )
                 if error:
                     module.fail_json(
@@ -496,7 +530,7 @@ def core(module):
 
                 # -- After update, fetch the newly-updated resource and compare
                 #    to desired_app for final drift detection.
-                refreshed, _, err = client.application_segment.get_segment(
+                refreshed, _unused, err = client.application_segment.get_segment(
                     updated_segment.id,
                     query_params={"microtenant_id": desired_app.get("microtenant_id")},
                 )
@@ -561,7 +595,7 @@ def core(module):
                 }
             )
             module.warn(f"Payload for SDK: {create_segment}")
-            new_segment, _, error = client.application_segment.add_segment(
+            new_segment, _unused, error = client.application_segment.add_segment(
                 **create_segment
             )
             if error:
@@ -570,7 +604,7 @@ def core(module):
                 )
 
             # -- After creation, fetch the newly-created resource for drift check
-            refreshed, _, err = client.application_segment.get_segment(
+            refreshed, _unused, err = client.application_segment.get_segment(
                 new_segment.id,
                 query_params={"microtenant_id": desired_app.get("microtenant_id")},
             )
@@ -587,7 +621,7 @@ def core(module):
     # ----------------- STATE: ABSENT -----------------
     elif state == "absent":
         if existing_app:
-            _, _, error = client.application_segment.delete_segment(
+            _unused, _unused, error = client.application_segment.delete_segment(
                 segment_id=existing_app.get("id"),
                 microtenant_id=microtenant_id,
             )
@@ -613,19 +647,19 @@ def main():
         description=dict(type="str", required=False),
         enabled=dict(type="bool", required=False),
         adp_enabled=dict(type="bool", required=False),
-        select_connector_close_to_app=dict(type="bool", default=False, required=False),
-        use_in_dr_mode=dict(type="bool", required=False, default=False),
+        select_connector_close_to_app=dict(type="bool", required=False),
+        use_in_dr_mode=dict(type="bool", required=False),
         is_incomplete_dr_config=dict(type="bool", required=False),
-        fqdn_dns_check=dict(type="bool", required=False, default=False),
+        fqdn_dns_check=dict(type="bool", required=False),
         inspect_traffic_with_zia=dict(type="bool", required=False),
-        weighted_load_balancing=dict(type="bool", required=False, default=False),
+        weighted_load_balancing=dict(type="bool", required=False),
         bypass_type=dict(
             type="str",
             required=False,
             default="NEVER",
             choices=["ALWAYS", "NEVER", "ON_NET"],
         ),
-        bypass_on_reauth=dict(type="bool", required=False, default=False),
+        bypass_on_reauth=dict(type="bool", required=False),
         health_reporting=dict(
             type="str",
             required=False,
@@ -634,7 +668,7 @@ def main():
         ),
         tcp_keep_alive=dict(type="bool", required=False),
         segment_group_id=dict(type="str", required=False),
-        double_encrypt=dict(type="bool", default=False, required=False),
+        double_encrypt=dict(type="bool", required=False),
         health_check_type=dict(type="str", default="DEFAULT", required=False),
         is_cname_enabled=dict(type="bool", required=False),
         passive_health_enabled=dict(type="bool", default=True, required=False),
@@ -648,8 +682,18 @@ def main():
         icmp_access_type=dict(type="bool", required=False),
         server_group_ids=id_name_spec,
         domain_names=dict(type="list", elements="str", required=False),
-        tcp_protocols=dict(type="list", elements="str", required=False),
-        udp_protocols=dict(type="list", elements="str", required=False),
+        tcp_protocols=dict(
+            type="list",
+            elements="str",
+            required=False,
+            choices=["KERBEROS", "LDAP", "SMB"],
+        ),
+        udp_protocols=dict(
+            type="list",
+            elements="str",
+            required=False,
+            choices=["KERBEROS", "LDAP", "SMB"],
+        ),
         tcp_port_ranges=dict(type="list", elements="str", required=False),
         udp_port_ranges=dict(type="list", elements="str", required=False),
         tcp_port_range=dict(

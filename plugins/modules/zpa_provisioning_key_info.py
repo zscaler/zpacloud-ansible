@@ -187,7 +187,7 @@ def core(module):
 
     # Get provisioning key by ID
     if provisioning_key_id:
-        result, _, error = client.provisioning.get_provisioning_key(
+        result, _unused, error = client.provisioning.get_provisioning_key(
             key_id=provisioning_key_id, key_type=key_type
         )
         if error or not result:
@@ -232,7 +232,7 @@ def core(module):
         keys = filtered
 
     result = [k.as_dict() if hasattr(k, "as_dict") else k for k in keys]
-    module.exit_json(changed=False, data=result)
+    module.exit_json(changed=False, provisioning_keys=result)
 
 
 def main():

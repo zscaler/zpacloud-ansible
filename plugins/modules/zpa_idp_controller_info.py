@@ -51,12 +51,16 @@ options:
       - ID of the Identity Provider.
     required: false
     type: str
-  state:
-      description:
-          - The state of the module, which determines if the settings are to be applied.
-      type: str
-      choices: ['gathered']
-      default: 'gathered'
+  scim_enabled:
+    description:
+      - Returns all SCIM IdPs if set to true. Returns all non SCIM IdPs if set to false
+    required: false
+    type: bool
+  user_attributes:
+    description:
+      - Returns all SCIM user attributes if set to true.
+    required: false
+    type: bool
 """
 
 EXAMPLES = """
@@ -239,7 +243,7 @@ def core(module):
 
     # If ID is specified, get a single IdP
     if idp_id:
-        result, _, error = client.idp.get_idp(idp_id, query_params)
+        result, _unused, error = client.idp.get_idp(idp_id, query_params)
         if error or result is None:
             module.fail_json(
                 msg=f"Failed to retrieve Identity Provider ID '{idp_id}': {to_native(error)}"
@@ -268,7 +272,7 @@ def core(module):
             )
         result_list = [matched]
 
-    module.exit_json(changed=False, data=result_list)
+    module.exit_json(changed=False, idps=result_list)
 
 
 def main():

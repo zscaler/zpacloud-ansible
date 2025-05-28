@@ -59,29 +59,76 @@ options:
       - ID of the scim group.
     required: false
     type: str
+  all_entries:
+    description:
+      - Return all SCIM groups (including the deleted ones) if set to true.
+    required: false
+    type: bool
+  end_time:
+    description:
+      - The end of a time range for requesting last updated data (modified_time) for the SCIM group.
+      - This requires setting the startTime parameter as well.
+    required: false
+    type: str
+  start_time:
+    description:
+      - The start of a time range for requesting last updated data (modified_time) for the SCIM group.
+      - This requires setting the endTime parameter as well.
+    required: false
+    type: str
+  sort_by:
+    description:
+      - Specifies the field name to sort the results.
+      - The supported Sort fields are id, name, creation_time, and modified_time.
+      - If not provided, the results are sorted by the modifiedTime field.
+    required: false
+    type: str
+  sort_order:
+    description:
+      - Sort the last updated time (modified_time) by ascending (ASC) or descending (DSC) order
+    required: false
+    type: str
+    choices:
+      - ASC
+      - DSC
+  scim_user_name:
+    description:
+      - The name of the SCIM user.
+    required: false
+    type: str
+  scim_user_id:
+    description:
+      - The unique identifier for the SCIM user.
+    required: false
+    type: str
+  idp_group_id:
+    description:
+      - The unique identifier of the SCIM group.
+    required: false
+    type: str
 """
 
 EXAMPLES = """
 - name: Get Information About All SCIM Groups from an IdP
-  zscaler.zpacloud.zpa_scim_attribute_header_facts:
+  zscaler.zpacloud.zpa_scim_group_info:
     provider: "{{ zpa_cloud }}"
     idp_name: "IdP_Name"
 
 - name: Get Information About a SCIM Group by ID
-  zscaler.zpacloud.zpa_scim_attribute_header_facts:
+  zscaler.zpacloud.zpa_scim_group_info:
     provider: "{{ zpa_cloud }}"
     id: 216196257331285827
     idp_name: "IdP_Name"
 
 - name: Get Information About a SCIM Group by Name
-  zscaler.zpacloud.zpa_scim_attribute_header_facts:
+  zscaler.zpacloud.zpa_scim_group_info:
     provider: "{{ zpa_cloud }}"
     name: "Finance"
     idp_name: "IdP_Name"
 """
 
 RETURN = r"""
-data:
+groups:
   description: >-
     Details of the SCIM groups retrieved from the specified Identity Provider (IdP).
   returned: always
@@ -150,7 +197,6 @@ def core(module):
         "idp_group_id",
         "scim_user_id",
         "scim_user_name",
-        "search",
         "sort_order",
         "sort_by",
         "all_entries",
@@ -162,7 +208,7 @@ def core(module):
             query_params[param] = val
 
     # Lookup IdP ID from provided idp_name
-    idps, _, err = client.idp.list_idps(query_params={"search": idp_name})
+    idps, _unused, err = client.idp.list_idps(query_params={"search": idp_name})
     if err:
         module.fail_json(msg=f"Error searching for IdP '{idp_name}': {to_native(err)}")
     idp_id = next((idp.id for idp in idps if idp.name == idp_name), None)
@@ -171,12 +217,12 @@ def core(module):
 
     # Get SCIM group by ID
     if scim_group_id:
-        result, _, err = client.scim_groups.get_scim_group(scim_group_id)
+        result, _unused, err = client.scim_groups.get_scim_group(scim_group_id)
         if err or not result:
             module.fail_json(
                 msg=f"SCIM group with ID '{scim_group_id}' not found: {to_native(err)}"
             )
-        module.exit_json(changed=False, data=[result.as_dict()])
+        module.exit_json(changed=False, groups=[result.as_dict()])
 
     # Warn log before pagination call
     # module.warn(f"[SCIM Groups] Fetching all portals with query_params: {query_params}")
@@ -204,7 +250,7 @@ def core(module):
             module.fail_json(msg=f"SCIM group with name '{scim_group_name}' not found")
         module.exit_json(
             changed=False,
-            data=[matched.as_dict() if hasattr(matched, "as_dict") else matched],
+            groups=[matched.as_dict() if hasattr(matched, "as_dict") else matched],
         )
 
     # List all SCIM groups for the given IdP
@@ -215,12 +261,9 @@ def core(module):
     if err:
         module.fail_json(msg=f"Error listing SCIM groups: {to_native(err)}")
 
-    # module.warn(f"[SCIM Groups] Total groups retrieved: {len(groups)}")
-
-    # ✅ Safely serialize model instances or dicts
     module.exit_json(
         changed=False,
-        data=[g.as_dict() if hasattr(g, "as_dict") else g for g in groups],
+        groups=[g.as_dict() if hasattr(g, "as_dict") else g for g in groups],
     )
 
 
@@ -235,10 +278,9 @@ def main():
         idp_group_id=dict(type="str", required=False),
         scim_user_id=dict(type="str", required=False),
         scim_user_name=dict(type="str", required=False),
-        search=dict(type="str", required=False),
         sort_order=dict(type="str", required=False, choices=["ASC", "DSC"]),
         sort_by=dict(type="str", required=False),
-        all_entries=dict(type="bool", required=False, default=False),
+        all_entries=dict(type="bool", required=False),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:

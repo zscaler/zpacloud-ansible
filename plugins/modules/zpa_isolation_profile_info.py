@@ -163,7 +163,7 @@ def core(module):
             module.fail_json(msg=f"CBI Profile with ID '{profile_id}' not found")
         module.exit_json(
             changed=False,
-            data=[matched.as_dict() if hasattr(matched, "as_dict") else matched],
+            profiles=[matched.as_dict() if hasattr(matched, "as_dict") else matched],
         )
 
     # Lookup by Name
@@ -173,13 +173,15 @@ def core(module):
             module.fail_json(msg=f"CBI Profile with name '{profile_name}' not found")
         module.exit_json(
             changed=False,
-            data=[matched.as_dict() if hasattr(matched, "as_dict") else matched],
+            profiles=[matched.as_dict() if hasattr(matched, "as_dict") else matched],
         )
 
     # Return all profiles
     module.exit_json(
         changed=False,
-        data=[p.as_dict() if hasattr(p, "as_dict") else p for p in profiles],
+        profiles=[
+            p.as_dict() if hasattr(p, "as_dict") else p for p in profiles
+        ],  # Changed this line
     )
 
 

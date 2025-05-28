@@ -26,19 +26,20 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-DOCUMENTATION = """
+DOCUMENTATION = r"""
 ---
 module: zpa_policy_credential_access_rule
-short_description: Create Privileged Credential Rule
+short_description: Manage ZPA Privileged Credential Access Rules
 description:
-  - This module create/update/delete Create Privileged Credential Rule
+  - Create, update, or delete a ZPA Privileged Credential Access Policy Rule.
+  - These rules define how credentials are injected or managed for console and identity-based access using specific conditions.
+version_added: "2.0.0"
 author:
   - William Guilherme (@willguibr)
-version_added: "2.0.0"
 requirements:
-    - Zscaler SDK Python can be obtained from PyPI U(https://pypi.org/project/zscaler-sdk-python/)
+  - Zscaler SDK Python (https://pypi.org/project/zscaler-sdk-python/)
 notes:
-    - Check mode is supported.
+  - Check mode is supported.
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
   - zscaler.zpacloud.fragments.documentation
@@ -46,102 +47,174 @@ extends_documentation_fragment:
 
 options:
   id:
-    description: "The unique identifier of the policy rule."
+    description:
+      - The unique identifier of the credential policy rule.
     type: str
     required: false
+
   name:
+    description:
+      - The name of the privileged credential rule.
     type: str
     required: true
-    description:
-      - The name of the Privileged Credential Rule
+
   description:
     description:
-      - This is the description of the Privileged Credential Rule
+      - A description of the credential policy rule.
     type: str
     required: false
+
   policy_type:
-    description: "The value for differentiating policy types."
-    type: str
-    required: false
-  rule_order:
-    description: "The policy evaluation order number of the rule."
-    type: str
-    required: false
-  operator:
     description:
-      - This denotes the operation type.
+      - The policy type that determines the rule context.
     type: str
     required: false
-    choices:
-      - AND
-      - OR
+
+  rule_order:
+    description:
+      - The evaluation order of the rule within the policy set.
+    type: str
+    required: false
+
+  action:
+    description:
+      - The action to apply when the rule matches.
+    type: str
+    required: false
+    default: INJECT_CREDENTIALS
+
+  microtenant_id:
+    description:
+      - The identifier of the microtenant associated with the rule.
+    type: str
+    required: false
+
+  credential:
+    description:
+      - Specifies the individual credential object to use.
+    type: dict
+    required: false
+    suboptions:
+      id:
+        description:
+          - The ID of the credential.
+        type: str
+        required: false
+
+  credential_pool:
+    description:
+      - Specifies the credential pool object to use.
+    type: dict
+    required: false
+    suboptions:
+      id:
+        description:
+          - The ID of the credential pool.
+        type: str
+        required: false
+
   conditions:
+    description:
+      - Defines the match conditions under which the rule is applied.
     type: list
     elements: dict
     required: false
-    description: "This is for providing the set of conditions for the policy"
     suboptions:
       operator:
-        description: "The operation type. Supported values: AND, OR"
+        description:
+          - Logical operator used to combine multiple operands.
         type: str
-        required: false
         choices: ["AND", "OR"]
+        required: false
+
       operands:
-        description: "The various policy criteria. Array of attributes (e.g., object_type, lhs, rhs, name)"
+        description:
+          - List of operand objects used to evaluate the condition.
         type: list
         elements: dict
         required: false
         suboptions:
-          idp_id:
-            description: "The ID information for the Identity Provider (IdP)"
-            type: str
-            required: false
-          lhs:
-            description: "The key for the object type. String ID example: id"
-            type: str
-            required: false
-          rhs:
-            description: >
-                - The value for the given object type. Its value depends upon the key
-                - For APP, APP_GROUP, and IDP, the supported value is entity id
-                - For CLIENT_TYPE, the supported values are: zpn_client_type_zapp (for Zscaler Client Connector), zpn_client_type_exporter (for Clientless)
-                - For POSTURE, the supported values are: true (verified), false (verification failed)
-                - For TRUSTED_NETWORK, the supported value is true
-            type: str
-            required: false
           object_type:
-            description: >
-              - This is for specifying the policy criteria
-              - Supported values: APP, APP_GROUP, SAML, IDP, CLIENT_TYPE, POSTURE, TRUSTED_NETWORK, MACHINE_GRP, SCIM, SCIM_GROUP.
-              - POSTURE and TRUSTED_NETWORK values are only supported for the CLIENT_TYPE.
+            description:
+              - The type of object to match in the condition.
             type: str
+            choices:
+              - CONSOLE
+              - SAML
+              - SCIM
+              - SCIM_GROUP
             required: false
+
+          values:
+            description:
+              - A list of values for the given object type.
+            type: list
+            elements: str
+            required: false
+
+          entry_values:
+            description:
+              - A dictionary of left-hand side (lhs) and right-hand side (rhs) values used for complex operand matching.
+            type: dict
+            required: false
+            suboptions:
+              lhs:
+                description:
+                  - Left-hand-side value used in the operand.
+                type: str
+                required: false
+              rhs:
+                description:
+                  - Right-hand-side value used in the operand.
+                type: str
+                required: false
 """
 
 EXAMPLES = """
-- name: "Policy Isolation Rule - Example"
-  zscaler.zpacloud.zpa_policy_access_isolation_rule:
-    provider: "{{ zpa_cloud }}"
-    name: "Policy Isolation Rule - Example"
-    description: "Policy Isolation Rule - Example"
-    rule_order: 1
-    operator: "AND"
-    zpn_isolation_profile_id: "216196257331286656"
+- name: Ansible_Creddential_Access_Rule
+  zscaler.zpacloud.zpa_policy_credential_access_rule:
+    name: "Ansible_Creddential_Access_Rule"
+    description: "Access Credential Rule Ansible"
+    rule_order: "1"
+    credential:
+      id: "6014"
     conditions:
+      - operator: "AND"
+        operands:
+          - object_type: "CONSOLE"
+            values:
+              - "72058304855117245"
+              - "72058304855117244"
+      - operator: "AND"
+        operands:
+          - object_type: "SCIM_GROUP"
+            entry_values:
+              lhs: "72058304855015574"
+              rhs: "490880"
+      - operator: "AND"
+        operands:
+          - object_type: "SCIM_GROUP"
+            entry_values:
+              lhs: "72058304855015574"
+              rhs: "490877"
+      - operator: "AND"
+        operands:
+          - object_type: "SCIM"
+            entry_values:
+              lhs: "72058304855015576"
+              rhs: "Smith"
       - operator: "OR"
         operands:
-          - object_type: "APP"
-            lhs: "id"
-            rhs: "216196257331292105"
-          - object_type: "APP_GROUP"
-            lhs: "id"
-            rhs: "216196257331292103"
+          - object_type: "SAML"
+            entry_values:
+              lhs: "72058304855021553"
+              rhs: "jdoe@acme.com"
       - operator: "OR"
         operands:
-          - name:
-            object_type: "CLIENT_TYPE"
-            lhs: "id"
-            rhs: "zpn_client_type_zapp"
+          - object_type: "SAML"
+            entry_values:
+              lhs: "72058304855021553"
+              rhs: "janedoe@acme.com"
 """
 
 RETURN = """
@@ -200,7 +273,7 @@ def core(module):
 
     existing_rule = None
     if rule_id:
-        result, _, error = client.policies.get_rule(
+        result, _unused, error = client.policies.get_rule(
             policy_type="credential", rule_id=rule_id, query_params=query_params
         )
         if error:
@@ -269,7 +342,7 @@ def core(module):
         desired_order = str(rule["rule_order"])
         if desired_order != current_order:
             try:
-                _, _, error = client.policies.reorder_rule(
+                _unused, _unused, error = client.policies.reorder_rule(
                     policy_type="credential",
                     rule_id=existing_rule["id"],
                     rule_order=desired_order,
@@ -286,7 +359,7 @@ def core(module):
         elif state == "absent" and existing_rule:
             module.exit_json(changed=True)
         else:
-            module.exit_json(changed=False)
+            module.exit_json(changed=False, data=existing_rule or {})
 
     if state == "present":
         if existing_rule and differences_detected:
@@ -335,10 +408,12 @@ def core(module):
             module.warn(
                 f"[core] Invoking update SDK with: {json.dumps(update_data, indent=2)}"
             )
-            result, _, error = client.policies.update_privileged_credential_rule_v2(
-                rule_id=update_data.pop("rule_id"),
-                name=name,
-                **update_data,
+            result, _unused, error = (
+                client.policies.update_privileged_credential_rule_v2(
+                    rule_id=update_data.pop("rule_id"),
+                    name=name,
+                    **update_data,
+                )
             )
 
             if error:
@@ -395,7 +470,7 @@ def core(module):
             )
             module.warn(f"[core] Create body: {json.dumps(create_data, indent=2)}")
 
-            result, _, error = client.policies.add_privileged_credential_rule_v2(
+            result, _unused, error = client.policies.add_privileged_credential_rule_v2(
                 name=name,
                 conditions=conditions,
                 **create_data,
@@ -409,14 +484,14 @@ def core(module):
             module.exit_json(changed=False, data=existing_rule)
 
     elif state == "absent" and existing_rule:
-        _, _, error = client.policies.delete_rule(
+        _unused, _unused, error = client.policies.delete_rule(
             policy_type="credential", rule_id=existing_rule["id"]
         )
         if error:
             module.fail_json(msg=f"Error deleting rule: {to_native(error)}")
         module.exit_json(changed=True, data=existing_rule)
 
-    module.exit_json(changed=False)
+    module.exit_json(changed=False, data=existing_rule or {})
 
 
 def main():
@@ -428,7 +503,6 @@ def main():
         action=dict(type="str", required=False, default="INJECT_CREDENTIALS"),
         description=dict(type="str", required=False),
         policy_type=dict(type="str", required=False),
-        # operator=dict(type="str", required=False, choices=["AND", "OR"]),
         rule_order=dict(type="str", required=False),
         credential=dict(
             type="dict",

@@ -54,6 +54,11 @@ options:
       - ID of the browser certificate.
     required: false
     type: str
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = """
@@ -196,7 +201,7 @@ def core(module):
         query_params["microtenant_id"] = microtenant_id
 
     if certificate_id:
-        result, _, error = client.certificates.get_certificate(
+        result, _unused, error = client.certificates.get_certificate(
             certificate_id, query_params
         )
         if error or result is None:
@@ -225,7 +230,7 @@ def core(module):
             )
         result_list = [matched]
 
-    module.exit_json(changed=False, groups=result_list)
+    module.exit_json(changed=False, certificates=result_list)
 
 
 def main():

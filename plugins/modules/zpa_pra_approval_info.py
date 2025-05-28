@@ -28,10 +28,10 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: zpa_pra_portal_controller_info
-short_description: Retrieves information about a PRA Portal.
+module: zpa_pra_approval_info
+short_description: Retrieves information about a PRA Approval.
 description:
-    - This module will allow the retrieval of information about a PRA Portal.
+    - This module will allow the retrieval of information about a PRA Approval.
 author:
   - William Guilherme (@willguibr)
 version_added: "1.1.0"
@@ -48,10 +48,26 @@ options:
     type: str
     description: "The unique identifier of the privileged portal"
     required: false
-  name:
+  email_id:
+    description: The email address of the user that you are assigning the privileged approval to.
     type: str
-    description: "The name of the privileged portal"
     required: false
+  sort_dir:
+    type: str
+    description: Specifies the sort direction (i.e., ascending or descending order).
+    required: false
+    choices:
+      - ASC
+      - DESC
+  sort_by:
+    type: str
+    description: The sort string used to support sorting on the given field for the API.
+    required: false
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = """
@@ -183,7 +199,9 @@ def core(module):
 
     # Lookup by ID
     if approval_id:
-        result, _, error = client.pra_approval.get_approval(approval_id, query_params)
+        result, _unused, error = client.pra_approval.get_approval(
+            approval_id, query_params
+        )
         if error or result is None:
             module.fail_json(
                 msg=f"Failed to retrieve PRA Approval ID '{approval_id}': {to_native(error)}"

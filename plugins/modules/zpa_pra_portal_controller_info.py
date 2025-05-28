@@ -52,6 +52,11 @@ options:
     type: str
     description: "The name of the privileged portal"
     required: false
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = """
@@ -171,12 +176,12 @@ def core(module):
         query_params["microtenant_id"] = microtenant_id
 
     if portal_id:
-        result, _, error = client.pra_portal.get_portal(portal_id, query_params)
+        result, _unused, error = client.pra_portal.get_portal(portal_id, query_params)
         if error or result is None:
             module.fail_json(
                 msg=f"Failed to retrieve PRA Portal ID '{portal_id}': {to_native(error)}"
             )
-        module.exit_json(changed=False, groups=[result.as_dict()])
+        module.exit_json(changed=False, portals=[result.as_dict()])
 
     # Warn log before pagination call
     module.warn(f"[PRA Portal] Fetching all portals with query_params: {query_params}")
@@ -199,7 +204,7 @@ def core(module):
             )
         result_list = [matched]
 
-    module.exit_json(changed=False, groups=result_list)
+    module.exit_json(changed=False, portals=result_list)
 
 
 def main():

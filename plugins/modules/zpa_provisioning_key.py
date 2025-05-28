@@ -52,7 +52,7 @@ options:
   name:
     description: "The name of the provisioning key"
     type: str
-    required: true
+    required: false
   enabled:
     description: "Whether or not this provisioning key is enabled"
     type: bool
@@ -60,18 +60,18 @@ options:
   max_usage:
     description: "The maximum usage of the provisioning key"
     type: str
-    required: true
+    required: false
   component_id:
     description: "The unique identifier of the App Connector or Service Edge"
     type: str
-    required: true
+    required: false
   key_type:
     description:
       - Specifies the provisioning key type for App Connectors or ZPA Private Service Edges.
       - The supported values are CONNECTOR_GRP (App Connector group) and SERVICE_EDGE_GRP (ZPA Private Service Edge group).
     type: str
     choices: ['connector', 'service_edge']
-    required: true
+    required: false
 """
 
 EXAMPLES = """
@@ -218,7 +218,7 @@ def core(module):
 
     if key_id is not None:
         # Fetch by ID if provided
-        result, _, error = client.provisioning.get_provisioning_key(
+        result, _unused, error = client.provisioning.get_provisioning_key(
             key_id,
             key_type,
             query_params={"microtenant_id": microtenant_id},
@@ -291,8 +291,8 @@ def core(module):
                 }
             )
             module.warn(f"Payload Update for SDK: {update_key}")
-            updated_key, _, error = client.provisioning.update_provisioning_key(
-                group_id=update_key.pop("key_id"), key_type=key_type, **update_key
+            updated_key, _unused, error = client.provisioning.update_provisioning_key(
+                key_id=update_key.pop("key_id"), key_type=key_type, **update_key
             )
             if error:
                 module.fail_json(
@@ -314,7 +314,7 @@ def core(module):
                 }
             )
             module.warn("Payload Update for SDK: {}".format(create_key))
-            created, _, error = client.provisioning.add_provisioning_key(
+            created, _unused, error = client.provisioning.add_provisioning_key(
                 key_type, **create_key
             )
             if error:
@@ -328,8 +328,8 @@ def core(module):
 
     elif state == "absent":
         if existing_key:
-            _, _, error = client.provisioning.delete_provisioning_key(
-                group_id=existing_key.get("id"),
+            _unused, _unused, error = client.provisioning.delete_provisioning_key(
+                key_id=existing_key.get("id"),
                 key_type=key_type,
                 microtenant_id=microtenant_id,
             )
@@ -343,15 +343,17 @@ def core(module):
 
 
 def main():
-    argument_spec = dict(
-        key_type=dict(type="str", required=True, choices=["connector", "service_edge"]),
+    argument_spec = ZPAClientHelper.zpa_argument_spec()
+    argument_spec.update(
+        key_type=dict(
+            type="str", required=False, choices=["connector", "service_edge"]
+        ),
         id=dict(type="str", required=False),
         microtenant_id=dict(type="str", required=False),
-        name=dict(type="str", required=True),
-        enabled=dict(type="bool", required=False, default=True),
-        max_usage=dict(type="int", required=True),
-        enrollment_cert_id=dict(type="str", required=False),
-        component_id=dict(type="str", required=True),
+        name=dict(type="str", required=False),
+        enabled=dict(type="bool", required=False),
+        max_usage=dict(type="str", required=False),
+        component_id=dict(type="str", required=False),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

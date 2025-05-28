@@ -79,6 +79,11 @@ options:
       - The unique identifier of the Privileged Remote Access-enabled application.
     type: str
     required: false
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = r"""
@@ -176,7 +181,7 @@ def core(module):
 
     existing_console = None
     if console_id is not None:
-        result, _, error = client.pra_console.get_console(
+        result, _unused, error = client.pra_console.get_console(
             console_id, query_params={"microtenant_id": microtenant_id}
         )
         if error:
@@ -259,7 +264,7 @@ def core(module):
                     }
                 )
                 module.warn("Payload Update for SDK: {}".format(update_console))
-                updated_console, _, error = client.pra_console.update_console(
+                updated_console, _unused, error = client.pra_console.update_console(
                     console_id=update_console.pop("console_id"), **existing_console
                 )
                 if error:
@@ -283,14 +288,16 @@ def core(module):
                 }
             )
             module.warn(f"Payload for SDK: {create_console}")
-            new_console, _, error = client.pra_console.add_console(**create_console)
+            new_console, _unused, error = client.pra_console.add_console(
+                **create_console
+            )
             if error:
                 module.fail_json(msg=f"Error creating console: {to_native(error)}")
             module.exit_json(changed=True, data=new_console.as_dict())
 
     elif state == "absent":
         if existing_console:
-            _, _, error = client.pra_console.delete_console(
+            _unused, _unused, error = client.pra_console.delete_console(
                 console_id=existing_console.get("id"),
                 microtenant_id=microtenant_id,
             )

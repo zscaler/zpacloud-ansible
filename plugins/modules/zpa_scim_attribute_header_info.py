@@ -179,7 +179,7 @@ def core(module):
     client = ZPAClientHelper(module)
 
     # Lookup IDP by name
-    idps, _, err = client.idp.list_idps(query_params={"search": idp_name})
+    idps, _unused, err = client.idp.list_idps(query_params={"search": idp_name})
     if err:
         module.fail_json(msg=f"Error retrieving IdP '{idp_name}': {to_native(err)}")
     idp_id = next((idp.id for idp in idps if idp.name == idp_name), None)
@@ -188,14 +188,14 @@ def core(module):
 
     # Retrieve SCIM Attribute by ID
     if scim_attr_id:
-        result, _, err = client.scim_attributes.get_scim_attribute(
+        result, _unused, err = client.scim_attributes.get_scim_attribute(
             idp_id=idp_id, attribute_id=scim_attr_id
         )
         if err or not result:
             module.fail_json(
                 msg=f"SCIM Attribute with ID '{scim_attr_id}' not found: {to_native(err)}"
             )
-        module.exit_json(changed=False, data=[result.as_dict()])
+        module.exit_json(changed=False, attributes=[result.as_dict()])
 
     # Search SCIM Attribute by name
     if scim_attr_name:
@@ -223,7 +223,7 @@ def core(module):
             )
         module.exit_json(
             changed=False,
-            data=[matched.as_dict() if hasattr(matched, "as_dict") else matched],
+            attributes=[matched.as_dict() if hasattr(matched, "as_dict") else matched],
         )
 
     # List all SCIM attributes
@@ -238,7 +238,7 @@ def core(module):
 
     module.exit_json(
         changed=False,
-        data=[a.as_dict() if hasattr(a, "as_dict") else a for a in attributes],
+        attributes=[a.as_dict() if hasattr(a, "as_dict") else a for a in attributes],
     )
 
 

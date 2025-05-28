@@ -95,7 +95,7 @@ def core(module):
 
     # Lookup by ID
     if lss_config_id:
-        result, _, error = client.lss.get_config(lss_config_id=lss_config_id)
+        result, _unused, error = client.lss.get_config(lss_config_id=lss_config_id)
         if error or not result:
             module.fail_json(msg=f"Failed to retrieve LSS Config ID '{lss_config_id}'")
         module.exit_json(

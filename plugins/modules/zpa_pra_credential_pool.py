@@ -69,6 +69,11 @@ options:
     type: list
     elements: str
     required: false
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = """
@@ -132,7 +137,7 @@ def core(module):
     # Step 2: Fetch full existing object by ID (includes credentials)
     existing_cred = None
     if pool_id:
-        result, _, error = client.pra_credential_pool.get_credential_pool(
+        result, _unused, error = client.pra_credential_pool.get_credential_pool(
             pool_id, query_params=query_params
         )
         if error:
@@ -210,7 +215,7 @@ def core(module):
                 )
 
                 module.warn(f"[UPDATE] Payload: {update_payload}")
-                updated_cred, _, error = (
+                updated_cred, _unused, error = (
                     client.pra_credential_pool.update_credential_pool(
                         pool_id=update_payload.pop("pool_id"), **update_payload
                     )
@@ -233,7 +238,7 @@ def core(module):
             )
 
             module.warn(f"[CREATE] Payload: {create_payload}")
-            new_cred, _, error = client.pra_credential_pool.add_credential_pool(
+            new_cred, _unused, error = client.pra_credential_pool.add_credential_pool(
                 **create_payload
             )
             if error:
@@ -241,7 +246,7 @@ def core(module):
             module.exit_json(changed=True, data=new_cred.as_dict())
 
     elif state == "absent" and existing_cred:
-        _, _, error = client.pra_credential_pool.delete_credential_pool(
+        _unused, _unused, error = client.pra_credential_pool.delete_credential_pool(
             pool_id=existing_cred["id"],
             microtenant_id=microtenant_id,
         )

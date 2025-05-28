@@ -84,6 +84,11 @@ options:
         - Indicates if the Notification Banner is enabled (true) or disabled (false)
     required: false
     default: true
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = """
@@ -164,7 +169,7 @@ def core(module):
 
     existing_portal = None
     if portal_id is not None:
-        result, _, error = client.pra_portal.get_portal(
+        result, _unused, error = client.pra_portal.get_portal(
             portal_id, query_params={"microtenant_id": microtenant_id}
         )
         if error:
@@ -229,7 +234,7 @@ def core(module):
                     }
                 )
                 module.warn("Payload Update for SDK: {}".format(update_portal))
-                updated_portal, _, error = client.pra_portal.update_portal(
+                updated_portal, _unused, error = client.pra_portal.update_portal(
                     portal_id=update_portal.pop("portal_id"), **existing_portal
                 )
                 if error:
@@ -255,22 +260,21 @@ def core(module):
                 }
             )
             module.warn(f"Payload for SDK: {create_portal}")
-            new_portal, _, error = client.pra_portal.add_portal(**create_portal)
+            new_portal, _unused, error = client.pra_portal.add_portal(**create_portal)
             if error:
                 module.fail_json(msg=f"Error creating portal: {to_native(error)}")
             module.exit_json(changed=True, data=new_portal.as_dict())
 
     elif state == "absent":
         if existing_portal:
-            _, _, error = client.pra_portal.delete_portal(
+            _unused, _unused, error = client.pra_portal.delete_portal(
                 portal_id=existing_portal.get("id"),
                 microtenant_id=microtenant_id,
             )
-        if error:
-            module.fail_json(msg=f"Error deleting portal: {to_native(error)}")
-        module.exit_json(changed=True, data=existing_portal)
-
-    module.exit_json(changed=False, data={})
+            if error:
+                module.fail_json(msg=f"Error deleting portal: {to_native(error)}")
+            module.exit_json(changed=True, data=existing_portal)
+        module.exit_json(changed=False, data=None)
 
 
 def main():

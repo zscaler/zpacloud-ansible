@@ -54,6 +54,11 @@ options:
       - ID of the Service Edge Controller.
     required: false
     type: str
+  microtenant_id:
+      description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+      required: false
+      type: str
 """
 
 EXAMPLES = """
@@ -100,7 +105,7 @@ def core(module):
         query_params["microtenant_id"] = microtenant_id
 
     if service_edge_id:
-        result, _, error = client.service_edges.get_service_edge(
+        result, _unused, error = client.service_edges.get_service_edge(
             service_edge_id, query_params
         )
         if error or result is None:

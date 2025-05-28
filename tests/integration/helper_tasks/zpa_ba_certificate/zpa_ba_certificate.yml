@@ -13,11 +13,12 @@
 
 - name: Ensure ZIA Credential environment variables are set
   ansible.builtin.set_fact:
-    zia_cloud:
-      client_id: "{{ lookup('env', 'ZSCALER_CLIENT_ID') }}"
-      client_secret: "{{ lookup('env', 'ZSCALER_CLIENT_SECRET') }}"
-      vanity_domain: "{{ lookup('env', 'ZSCALER_VANITY_DOMAIN') }}"
-      cloud: "{{ lookup('env', 'ZSCALER_CLOUD') | default(omit) }}"
+    zpa_cloud:
+      client_id: '{{ lookup("env", "ZSCALER_CLIENT_ID") }}'
+      client_secret: '{{ lookup("env", "ZSCALER_CLIENT_SECRET") | default(omit) }}'
+      vanity_domain: '{{ lookup("env", "ZSCALER_VANITY_DOMAIN") | default(omit) }}'
+      customer_id: '{{ lookup("env", "ZPA_CUSTOMER_ID") | default(omit) }}'
+      cloud: '{{ lookup("env", "ZSCALER_CLOUD") | default(omit) }}'
   no_log: true
 
 - name: Main block to Test browser access certificate
@@ -25,13 +26,13 @@
     - name: Fetch the browser access certificate
       zscaler.zpacloud.zpa_ba_certificate_info:
         provider: "{{ zpa_cloud }}"
-        name: sales.bd-redhat.com
+        name: sales.bd-hashicorp.com
       register: ba_certificate
 
     - name: Fetch the pra portal certificate
       zscaler.zpacloud.zpa_ba_certificate_info:
         provider: "{{ zpa_cloud }}"
-        name: pra01.bd-redhat.com
+        name: pra01.bd-hashicorp.com
       register: pra_certificate
 
     - name: Set Certificate ID as fact

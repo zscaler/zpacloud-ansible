@@ -64,6 +64,11 @@ options:
             - The cert_blob field must be in string format and must include the certificate and the private key (in PEM format).
         required: true
         type: str
+    microtenant_id:
+        description:
+        - The unique identifier of the Microtenant for the ZPA tenant
+        required: false
+        type: str
 """
 
 EXAMPLES = """

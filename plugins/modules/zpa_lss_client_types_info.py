@@ -61,6 +61,9 @@ options:
       - zpn_client_type_zapp_partner
       - zpn_client_type_branch_connector
       - zpn_client_type_zia_inspection
+      - client_connector_for_vdi
+      - zsdk_pre_login_tunnel
+      - zsdk_zero_trust_tunnel
 """
 
 EXAMPLES = """

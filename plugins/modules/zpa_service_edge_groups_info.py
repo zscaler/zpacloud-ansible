@@ -54,7 +54,11 @@ options:
       - ID of the Service Edge Group.
     required: false
     type: str
-
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = """
@@ -199,7 +203,9 @@ def core(module):
         query_params["microtenant_id"] = microtenant_id
 
     if group_id:
-        result, _, error = client.service_edge_group.get_service_edge_group(group_id, query_params)
+        result, _unused, error = client.service_edge_group.get_service_edge_group(
+            group_id, query_params
+        )
         if error or result is None:
             module.fail_json(
                 msg=f"Failed to retrieve Service Edge Group ID '{group_id}': {to_native(error)}"

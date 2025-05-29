@@ -1,43 +1,3 @@
-# ---
-# - name: Ensure required environment variables are set
-#   ansible.builtin.fail:
-#     msg: "{{ env_var }} is not defined as environment variable"
-#   when: lookup('env', env_var) is none
-#   loop:
-#     - ZSCALER_CLIENT_ID
-#     - ZSCALER_CLIENT_SECRET
-#     - ZSCALER_VANITY_DOMAIN
-#     - ZSCALER_CLOUD
-#   loop_control:
-#     loop_var: env_var
-
-# - name: Ensure ZIA Credential environment variables are set
-#   ansible.builtin.set_fact:
-#     zia_cloud:
-#       client_id: "{{ lookup('env', 'ZSCALER_CLIENT_ID') }}"
-#       client_secret: "{{ lookup('env', 'ZSCALER_CLIENT_SECRET') }}"
-#       vanity_domain: "{{ lookup('env', 'ZSCALER_VANITY_DOMAIN') }}"
-#       cloud: "{{ lookup('env', 'ZSCALER_CLOUD') | default(omit) }}"
-#   no_log: true
-
-# - name: Main block to Test List all App Connector Groups
-#   block:
-#     - name: List all App Connector Groups
-#       zscaler.zpacloud.zpa_app_connector_group_info:
-#         provider: "{{ zpa_cloud }}"
-#       register: all_app_connector_groups
-
-#     - name: Delete all test App Connector Groups 💥
-#       zscaler.zpacloud.zpa_app_connector_groups:
-#         provider: "{{ zpa_cloud }}"
-#         state: absent
-#         name: "{{ appconnector.name }}"
-#       loop: "{{ all_app_connector_groups.groups }}"
-#       when:
-#         - all_app_connector_groups.groups is defined
-#         - "'test_' in appconnector.name"
-#       loop_control:
-#         loop_var: appconnector
 - name: Main block to Test List all App Connector Groups
   block:
     - name: List all App Connector Groups
@@ -56,11 +16,11 @@
         - "'test_' in (appconnector.name | default(''))"
       loop_control:
         loop_var: appconnector
-      ignore_errors: yes
+      ignore_errors: true
       register: delete_results
 
     - name: Show cleanup errors (if any)
-      debug:
+      ansible.builtin.debug:
         msg: "Could not delete {{ item.item.name }}: {{ item.msg | default('Unknown error') }}"
       loop: "{{ delete_results.results | default([]) }}"
       when:

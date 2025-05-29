@@ -189,10 +189,10 @@ EXAMPLES = """
     action: "ALLOW"
     rule_order: "1"
     app_connector_group_ids:
-        - "72058304855047746"
+      - "72058304855047746"
     app_server_group_ids:
-        - "72058304855090128"
-        - "72058304855047747"
+      - "72058304855090128"
+      - "72058304855047747"
     conditions:
       - operands:
           - object_type: "CHROME_ENTERPRISE"

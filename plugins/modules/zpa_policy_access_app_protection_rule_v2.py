@@ -169,7 +169,7 @@ EXAMPLES = """
               - "72058304855116918"
           - object_type: "APP_GROUP"
             values:
-                - "72058304855114308"
+              - "72058304855114308"
       - operator: "AND"
         operands:
           - object_type: "SCIM_GROUP"

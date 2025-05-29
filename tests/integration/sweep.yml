@@ -1,179 +1,3 @@
-# ---
-# - name: List all Application Segments
-#   zscaler.zpacloud.zpa_application_segment_info:
-#     provider: "{{ zpa_cloud }}"
-#   register: all_application_segments
-
-# - name: Delete all Application Segments 💥
-#   zscaler.zpacloud.zpa_application_segment:
-#     provider: "{{ zpa_cloud }}"
-#     state: absent
-#     name: "{{ item.name }}"
-#   loop: "{{ all_application_segments.app_segments }}"
-#   when: all_application_segments.app_segments is defined
-
-# - name: List all Browser Access Application Segments
-#   zscaler.zpacloud.zpa_application_segment_browser_access_info:
-#     provider: "{{ zpa_cloud }}"
-#   register: all_application_segment_ba
-
-# - name: Delete all Browser Access Application Segments 💥
-#   zscaler.zpacloud.zpa_application_segment_browser_access:
-#     provider: "{{ zpa_cloud }}"
-#     state: absent
-#     name: "{{ item.name }}"
-#   loop: "{{ all_application_segment_ba.ba_app_segments }}"
-#   when: all_application_segment_ba.ba_app_segments is defined
-
-# - name: List all Segment Groups
-#   zscaler.zpacloud.zpa_segment_group_info:
-#     provider: "{{ zpa_cloud }}"
-#   register: all_segment_groups
-
-# - name: Delete all Segment Groups 💥
-#   zscaler.zpacloud.zpa_segment_group:
-#     provider: "{{ zpa_cloud }}"
-#     state: absent
-#     name: "{{ item.name }}"
-#   loop: "{{ all_segment_groups.groups }}"
-#   when: all_segment_groups.groups is defined
-
-# - name: List all Server Groups
-#   zscaler.zpacloud.zpa_server_group_info:
-#     provider: "{{ zpa_cloud }}"
-#   register: all_server_groups
-
-# - name: Delete all Server Groups 💥
-#   zscaler.zpacloud.zpa_server_group:
-#     provider: "{{ zpa_cloud }}"
-#     state: absent
-#     name: "{{ item.name }}"
-#   loop: "{{ all_server_groups.groups }}"
-#   when: all_server_groups.groups is defined
-
-# - name: List all App Connector Groups
-#   zscaler.zpacloud.zpa_app_connector_group_info:
-#     provider: "{{ zpa_cloud }}"
-#   register: all_app_connector_groups
-
-# - name: Delete all App Connector Groups 💥
-#   zscaler.zpacloud.zpa_app_connector_groups:
-#     provider: "{{ zpa_cloud }}"
-#     state: absent
-#     name: "{{ item.name }}"
-#   loop: "{{ all_app_connector_groups.groups }}"
-#   when: all_app_connector_groups.groups is defined
-
-# - name: List all Provisioning Keys
-#   zscaler.zpacloud.zpa_provisioning_key_info:
-#     provider: "{{ zpa_cloud }}"
-#     key_type: "{{ key_type }}"
-#   register: all_ac_provisioning_keys
-
-# - name: Delete all Provisioning Keys 💥
-#   zscaler.zpacloud.zpa_provisioning_key:
-#     provider: "{{ zpa_cloud }}"
-#     state: absent
-#     name: "{{ item.name }}"
-#     key_type: "{{ item.key_type }}"
-#   loop: "{{ all_ac_provisioning_keys.provisioning_keys }}"
-#   when: all_ac_provisioning_keys.provisioning_keys is defined
-
-# - name: List all Service Edge Groups
-#   zscaler.zpacloud.zpa_service_edge_groups_info:
-#     provider: "{{ zpa_cloud }}"
-#   register: all_service_edge_groups
-
-# - name: Delete all Service Edge Groups 💥
-#   zscaler.zpacloud.zpa_service_edge_groups:
-#     provider: "{{ zpa_cloud }}"
-#     state: absent
-#     name: "{{ item.name }}"
-#   loop: "{{ all_service_edge_groups.groups }}"
-#   when: all_service_edge_groups.groups is defined
-
-# - name: List all Application Servers
-#   zscaler.zpacloud.zpa_application_server_info:
-#     provider: "{{ zpa_cloud }}"
-#   register: all_application_servers
-
-# - name: Delete all Application servers 💥
-#   zscaler.zpacloud.zpa_application_server:
-#     provider: "{{ zpa_cloud }}"
-#     state: absent
-#     name: "{{ item.name }}"
-#   loop: "{{ all_application_servers.servers }}"
-#   when: all_application_servers.servers is defined
-
-# - name: List all App Protection Custom Controls
-#   zscaler.zpacloud.zpa_app_protection_custom_control_info:
-#     provider: "{{ zpa_cloud }}"
-#   register: all_app_protection_custom_controls
-
-# - name: Delete all App Protection Custom Controls 💥
-#   zscaler.zpacloud.zpa_app_protection_custom_control:
-#     provider: "{{ zpa_cloud }}"
-#     state: absent
-#     name: "{{ item.name }}"
-#   loop: "{{ all_app_protection_custom_controls.controls }}"
-#   when: all_app_protection_custom_controls.controls is defined
-
-# - name: List all Policy Access Timeout Rules
-#   zscaler.zpacloud.zpa_policy_access_timeout_rule_info:
-#     provider: "{{ zpa_cloud }}"
-#   register: all_app_protection_custom_controls
-
-# - name: Delete all Policy Access Timeout Rules 💥
-#   zscaler.zpacloud.zpa_policy_access_timeout_rule:
-#     provider: "{{ zpa_cloud }}"
-#     state: absent
-#     name: "{{ item.name }}"
-#   loop: "{{ all_policy_access_timeout.policy_rules }}"
-#   when: all_policy_access_timeout.policy_rules is defined
-
-# - name: Set fact for each task status
-#   ansible.builtin.set_fact:
-#     application_segments_failed: "{{ all_application_segments.failed | default(false) }}"
-#     application_segments_ba_failed: "{{ all_application_segment_ba.failed | default(false) }}"
-#     application_servers_failed: "{{ all_application_servers.failed | default(false) }}"
-#     server_groups_failed: "{{ all_server_groups.failed | default(false) }}"
-#     app_connector_groups_failed: "{{ all_app_connector_groups.failed | default(false) }}"
-#     service_edge_group_failed: "{{ all_service_edge_groups.failed | default(false) }}"
-#     segment_groups_failed: "{{ all_segment_groups.failed | default(false) }}"
-#     ac_provisioning_key_failed: "{{ all_ac_provisioning_keys.failed | default(false) }}"
-#     app_protection_profiles_failed: "{{ all_app_protection_profiles.failed | default(false) }}"
-#     app_protection_custom_controls_failed: "{{ all_app_protection_custom_controls.failed | default(false) }}"
-#     policy_access_timeout_failed: "{{ all_policy_access_timeout.failed | default(false) }}"
-
-# - name: Set fact for overall status
-#   ansible.builtin.set_fact:
-#     sweep_successful: >-
-#       {{
-#         not (
-#           application_segments_failed or
-#           server_groups_failed or
-#           app_connector_groups_failed or
-#           segment_groups_failed or
-#           application_servers_failed or
-#           application_segments_ba_failed or
-#           ac_provisioning_key_failed or
-#           service_edge_group_failed or
-#           app_protection_profiles_failed or
-#           app_protection_custom_controls_failed or
-#           policy_access_timeout_failed
-#         )
-#       }}
-
-# - name: Print success message ✅
-#   ansible.builtin.debug:
-#     msg: Tenant sweep successfully completed!
-#   when: sweep_successful
-
-# - name: Print failure message ❌
-#   ansible.builtin.debug:
-#     msg: Tenant sweep incomplete. Please check the above logs for errors.
-#   when: not sweep_successful
-
 ---
 - name: List all Application Segments
   zscaler.zpacloud.zpa_application_segment_info:
@@ -189,25 +13,8 @@
   when:
     - all_application_segments.app_segments is defined
     - "'test_' in (item.name | default(''))"
-  ignore_errors: yes
+  ignore_errors: true
   register: delete_app_segments
-
-# - name: List all Browser Access Application Segments
-#   zscaler.zpacloud.zpa_application_segment_browser_access_info:
-#     provider: "{{ zpa_cloud }}"
-#   register: all_application_segment_ba
-
-# - name: Delete all test Browser Access Application Segments
-#   zscaler.zpacloud.zpa_application_segment_browser_access:
-#     provider: "{{ zpa_cloud }}"
-#     state: absent
-#     name: "{{ item.name }}"
-#   loop: "{{ all_application_segment_ba.ba_app_segments | default([]) }}"
-#   when:
-#     - all_application_segment_ba.ba_app_segments is defined
-#     - "'test_' in (item.name | default(''))"
-#   ignore_errors: yes
-#   register: delete_ba_segments
 
 - name: List all Segment Groups
   zscaler.zpacloud.zpa_segment_group_info:
@@ -223,7 +30,7 @@
   when:
     - all_segment_groups.groups is defined
     - "'test_' in (item.name | default(''))"
-  ignore_errors: yes
+  ignore_errors: true
   register: delete_segment_groups
 
 - name: List all Server Groups
@@ -240,7 +47,7 @@
   when:
     - all_server_groups.groups is defined
     - "'test_' in (item.name | default(''))"
-  ignore_errors: yes
+  ignore_errors: true
   register: delete_server_groups
 
 - name: List all App Connector Groups
@@ -257,7 +64,7 @@
   when:
     - all_app_connector_groups.groups is defined
     - "'test_' in (item.name | default(''))"
-  ignore_errors: yes
+  ignore_errors: true
   register: delete_app_connector_groups
 
 - name: List all Provisioning Keys
@@ -276,7 +83,7 @@
   when:
     - all_ac_provisioning_keys.provisioning_keys is defined
     - "'test_' in (item.name | default(''))"
-  ignore_errors: yes
+  ignore_errors: true
   register: delete_provisioning_keys
 
 - name: List all Service Edge Groups
@@ -293,7 +100,7 @@
   when:
     - all_service_edge_groups.groups is defined
     - "'test_' in (item.name | default(''))"
-  ignore_errors: yes
+  ignore_errors: true
   register: delete_service_edge_groups
 
 - name: List all Application Servers
@@ -310,25 +117,8 @@
   when:
     - all_application_servers.servers is defined
     - "'test_' in (item.name | default(''))"
-  ignore_errors: yes
+  ignore_errors: true
   register: delete_application_servers
-
-# - name: List all App Protection Custom Controls
-#   zscaler.zpacloud.zpa_app_protection_custom_control_info:
-#     provider: "{{ zpa_cloud }}"
-#   register: all_app_protection_custom_controls
-
-# - name: Delete all test App Protection Custom Controls
-#   zscaler.zpacloud.zpa_app_protection_custom_control:
-#     provider: "{{ zpa_cloud }}"
-#     state: absent
-#     name: "{{ item.name }}"
-#   loop: "{{ all_app_protection_custom_controls.controls | default([]) }}"
-#   when:
-#     - all_app_protection_custom_controls.controls is defined
-#     - "'test_' in (item.name | default(''))"
-#   ignore_errors: yes
-#   register: delete_custom_controls
 
 - name: List all Policy Access Timeout Rules
   zscaler.zpacloud.zpa_policy_access_rule_info:
@@ -345,7 +135,7 @@
   when:
     - all_policy_access_timeout.policy_rules is defined
     - "'test_' in (item.name | default(''))"
-  ignore_errors: yes
+  ignore_errors: true
   register: delete_timeout_rules
 
 - name: Show cleanup errors for any failed deletions

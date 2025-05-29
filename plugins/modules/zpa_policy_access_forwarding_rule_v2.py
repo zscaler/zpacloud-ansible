@@ -172,10 +172,10 @@ EXAMPLES = """
               - "72058304855114308"
           - operator: "OR"
             operands:
-            - object_type: "SCIM_GROUP"
-            entry_values:
-                lhs: "72058304855015574"
-                rhs: "490880"
+              - object_type: "SCIM_GROUP"
+                entry_values:
+                  lhs: "72058304855015574"
+                  rhs: "490880"
       - operator: "OR"
         operands:
           - object_type: "SCIM_GROUP"

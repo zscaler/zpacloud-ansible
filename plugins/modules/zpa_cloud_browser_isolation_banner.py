@@ -86,8 +86,8 @@ EXAMPLES = """
     provider: "{{ zpa_cloud }}"
     name: Example CBI Banner
     logo: data:image/png;base64,iVBORw0KGgoAAAANS
-    primary_color: #0076BE
-    text_color: #FFFFFF
+    primary_color: "#0076BE"
+    text_color: "#FFFFFF"
     banner: true
     notification_title: Heads up, you've been redirected to Browser Isolation!
     notification_text: The website you were trying to access

@@ -100,106 +100,103 @@ RETURN = """
 from traceback import format_exc
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
 
 
 def core(module):
-    state = module.params.get("state", None)
+    state = module.params.get("state")
     client = ZPAClientHelper(module)
-    connector = dict()
-    params = [
-        "id",
-        "ids",  # Added ids param for bulk delete
-        "name",
-        "description",
-        "enabled",
-    ]
-    for param_name in params:
-        connector[param_name] = module.params.get(param_name, None)
 
-    connector_id = connector.get("id", None)
-    connector_name = connector.get("name", None)
-    connector_ids = connector.get("ids", None)  # Get ids for bulk delete
+    # Extract parameters
+    params = ["id", "ids", "name", "description", "enabled", "microtenant_id"]
+    connector = {p: module.params.get(p) for p in params}
+    connector_id = connector.get("id")
+    connector_ids = connector.get("ids") or []
+    connector_name = connector.get("name")
+    microtenant_id = connector.get("microtenant_id")
 
+    # Step 1: Handle bulk delete (skips state)
+    if connector_ids:
+        _unused, _unused, error = client.app_connectors.bulk_delete_connectors(
+            connector_ids=connector_ids, microtenant_id=microtenant_id
+        )
+        if error:
+            module.fail_json(msg=f"Error during bulk delete: {to_native(error)}")
+        module.exit_json(changed=True, data={"deleted_connectors": connector_ids})
+
+    # Step 2: Lookup existing connector by ID or name
     existing_connector = None
-
-    # Handle single GET operation for retrieving an individual App Connector
-    if connector_id is not None:
-        connector_box = client.connectors.get_connector(connector_id=connector_id)
-        if connector_box is not None:
-            existing_connector = connector_box.to_dict()
-    elif connector_name is not None:
-        connectors = client.connectors.list_connectors().to_list()
-        for connector_ in connectors:
-            if connector_.get("name") == connector_name:
-                existing_connector = connector_
+    if connector_id:
+        result, _unused, error = client.app_connectors.get_connector(
+            connector_id=connector_id,
+            query_params={"microtenant_id": microtenant_id} if microtenant_id else {},
+        )
+        if error:
+            module.fail_json(
+                msg=f"Error retrieving connector by ID: {to_native(error)}"
+            )
+        if result:
+            existing_connector = result.as_dict()
+    elif connector_name:
+        query_params = {"microtenant_id": microtenant_id} if microtenant_id else {}
+        connectors, error = collect_all_items(
+            client.app_connectors.list_connectors, query_params
+        )
+        if error:
+            module.fail_json(msg=f"Error listing connectors: {to_native(error)}")
+        for conn in connectors or []:
+            conn_dict = conn.as_dict()
+            if conn_dict.get("name") == connector_name:
+                existing_connector = conn_dict
                 break
 
+    # Step 3: Check mode support
     if module.check_mode:
-        if state == "present" and (existing_connector is None):
-            module.exit_json(changed=True)
-        elif state == "absent" and existing_connector is not None:
-            module.exit_json(changed=True)
-        else:
-            module.exit_json(changed=False)
-
-    # Handle bulk delete operation independently from state
-    if connector_ids:
-        response = client.connectors.bulk_delete_connectors(connector_ids=connector_ids)
         module.exit_json(
-            changed=True,
-            data={"deleted_connectors": connector_ids, "response": response},
+            changed=(state == "present" and not existing_connector)
+            or (state == "absent" and existing_connector is not None)
         )
 
-    # Handle single delete operation when state is absent
-    if state == "absent":
-        if existing_connector and existing_connector.get("id"):
-            code = client.connectors.delete_connector(
-                connector_id=existing_connector.get("id")
+    # Step 4: Delete
+    if state == "absent" and existing_connector:
+        _unused, _unused, error = client.app_connectors.delete_connector(
+            connector_id=existing_connector.get("id"),
+            microtenant_id=microtenant_id,
+        )
+        if error:
+            module.fail_json(msg=f"Error deleting connector: {to_native(error)}")
+        module.exit_json(changed=True, data=existing_connector)
+
+    # Step 5: Update (no creation support per spec)
+    if state == "present" and existing_connector:
+        payload = {}
+        update_required = False
+
+        for key in ["name", "description", "enabled"]:
+            if connector.get(key) is not None and connector.get(
+                key
+            ) != existing_connector.get(key):
+                payload[key] = connector[key]
+                update_required = True
+
+        if update_required:
+            payload["microtenant_id"] = microtenant_id
+            updated, _unused, error = client.app_connectors.update_connector(
+                connector_id=existing_connector.get("id"), **payload
             )
-            if code > 299:
-                module.fail_json(msg="Single delete failed", data=code)
-            module.exit_json(changed=True, data=existing_connector)
+            if error:
+                module.fail_json(msg=f"Error updating connector: {to_native(error)}")
+            module.exit_json(changed=True, data=updated.as_dict())
 
-    # Handle update if state is present (no creation logic)
-    if state == "present":
-        if existing_connector is not None:
-            # Update existing connector
-            update_required = False
-            payload = {}
+        # No update needed
+        module.exit_json(changed=False, data=existing_connector)
 
-            # Check for differences and update only if necessary
-            if module.params.get("description") is not None and module.params.get(
-                "description"
-            ) != existing_connector.get("description"):
-                payload["description"] = module.params.get("description")
-                update_required = True
-
-            if module.params.get("enabled") is not None and module.params.get(
-                "enabled"
-            ) != existing_connector.get("enabled"):
-                payload["enabled"] = module.params.get("enabled")
-                update_required = True
-
-            if module.params.get("name") is not None and module.params.get(
-                "name"
-            ) != existing_connector.get("name"):
-                payload["name"] = module.params.get("name")
-                update_required = True
-
-            # Only send the update request if changes are detected
-            if update_required:
-                response = client.connectors.update_connector(
-                    connector_id=existing_connector.get("id"), **payload
-                )
-                module.exit_json(changed=True, data=response.to_dict())
-            else:
-                # No update necessary, return existing data
-                module.exit_json(changed=False, data=existing_connector)
-
-    # Default exit
+    # Final fallback
     module.exit_json(changed=False, data={})
 
 
@@ -211,8 +208,10 @@ def main():
         name=dict(type="str", required=False),
         description=dict(type="str", required=False),
         enabled=dict(type="bool", required=False),
+        microtenant_id=dict(type="str", required=False),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
+
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:
         core(module)

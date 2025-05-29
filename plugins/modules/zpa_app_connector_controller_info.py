@@ -107,7 +107,7 @@ def core(module):
             module.fail_json(
                 msg=f"Failed to retrieve App Connector ID '{connector_id}': {to_native(error)}"
             )
-        module.exit_json(changed=False, groups=[result.as_dict()])
+        module.exit_json(changed=False, connectors=[result.as_dict()])
 
     # If no ID, we fetch all
     connector_list, err = collect_all_items(
@@ -129,7 +129,7 @@ def core(module):
             )
         result_list = [matched]
 
-    module.exit_json(changed=False, groups=result_list)
+    module.exit_json(changed=False, connectors=result_list)
 
 
 def main():

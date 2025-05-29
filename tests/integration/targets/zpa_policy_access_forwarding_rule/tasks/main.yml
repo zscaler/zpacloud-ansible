@@ -25,6 +25,7 @@
     - ZSCALER_CLIENT_ID
     - ZSCALER_CLIENT_SECRET
     - ZSCALER_VANITY_DOMAIN
+    - ZPA_CUSTOMER_ID
     - ZSCALER_CLOUD
   loop_control:
     loop_var: env_var

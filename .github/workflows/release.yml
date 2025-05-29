@@ -14,85 +14,54 @@ jobs:
   ## Sanity is required:
   #
   # https://docs.ansible.com/ansible/latest/dev_guide/testing_sanity.html
-  # sanity:
-  #   name: Sanity (Ⓐ${{ matrix.ansible }})
-  #   strategy:
-  #     matrix:
-  #       include:
-  #         - ansible: "2.14"
-  #           python_ver: "3.11"
-  #         - ansible: "2.15"
-  #           python_ver: "3.11"
-  #         - ansible: "2.16"
-  #           python_ver: "3.11"
-  #         - ansible: "2.17"
-  #           python_ver: "3.11"
-    # runs-on: ubuntu-latest
-    # defaults:
-    #   run:
-    #     working-directory: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
-    # steps:
-    #   - uses: actions/checkout@v4
-    #     with:
-    #       path: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
+  sanity:
+    name: Sanity (Ⓐ${{ matrix.ansible }})
+    strategy:
+      matrix:
+        include:
+          - ansible: "2.15"
+            python_ver: "3.11"
+          - ansible: "2.16"
+            python_ver: "3.11"
+          - ansible: "2.17"
+            python_ver: "3.11"
+          - ansible: "2.18"
+            python_ver: "3.11"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
 
-    #   - name: Setup Python
-    #     uses: actions/setup-python@v5
-    #     with:
-    #       python-version: ${{ matrix.python_ver }}
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python_ver }}
 
-    #   - name: Install Poetry
-    #     uses: Gr1N/setup-poetry@v9
+      - name: Install Poetry
+        uses: Gr1N/setup-poetry@v9
 
-    #   # Install the head of the given branch (devel, stable-2.10)
-    #   - name: Install ansible-base (${{ matrix.ansible }})
-    #     run: poetry run pip install https://github.com/ansible/ansible/archive/stable-${{ matrix.ansible }}.tar.gz --disable-pip-version-check
+      # Install the head of the given branch (devel, stable-2.10)
+      - name: Install ansible-base (${{ matrix.ansible }})
+        run: poetry run pip install https://github.com/ansible/ansible/archive/stable-${{ matrix.ansible }}.tar.gz --disable-pip-version-check
 
-    #   - name: Create lock file
-    #     run: poetry lock
+      - name: Create lock file
+        run: poetry lock
 
-    #   - name: Install dependencies
-    #     run: poetry install
+      - name: Install dependencies
+        run: poetry install
 
-      # - name: Run sanity tests
-      #   timeout-minutes: 10
-      #   run: poetry run make new-sanity
-
-
-  # format:
-  #   name: Code Format Check
-  #   runs-on: ubuntu-latest
-  #   defaults:
-  #     run:
-  #       working-directory: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #       with:
-  #         path: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
-
-  #     - name: Setup Python
-  #       uses: actions/setup-python@v5
-  #       with:
-  #         python-version: ${{ env.PYTHON_VERSION }}
-
-  #     - name: Install Poetry
-  #       uses: Gr1N/setup-poetry@v9
-  #       with:
-  #         poetry-version: "2.1.1"
-
-  #     - name: Install dependencies
-  #       run: poetry install
-
-  #     - name: Do black code format
-  #       run: poetry run make format
-
-  #     - name: Do black code check-format
-  #       run: poetry run make check-format
+      - name: Run sanity tests
+        timeout-minutes: 10
+        run: poetry run make new-sanity
 
   release:
     name: release
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    # needs: [sanity]
+    needs: [sanity]
     runs-on: ubuntu-latest
 
     steps:
@@ -201,7 +170,7 @@ jobs:
           mkdir -p zpacloud-ansible/ansible_collections/zscaler/zpacloud
 
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4.7.3
+        uses: JamesIves/github-pages-deploy-action@v4.6.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages

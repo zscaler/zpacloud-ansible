@@ -53,10 +53,6 @@ options:
     description: "The name of the provisioning key"
     type: str
     required: false
-  enabled:
-    description: "Whether or not this provisioning key is enabled"
-    type: bool
-    required: false
   max_usage:
     description: "The maximum usage of the provisioning key"
     type: str
@@ -193,7 +189,7 @@ def core(module):
         "id",
         "microtenant_id",
         "name",
-        "enabled",
+        # "enabled",
         "max_usage",
         "enrollment_cert_id",
         "component_id",
@@ -283,7 +279,7 @@ def core(module):
                     "key_id": existing_key.get("id"),
                     "microtenant_id": desired_key.get("microtenant_id", None),
                     "name": desired_key["name"],
-                    "enabled": desired_key.get("enabled"),
+                    # "enabled": desired_key.get("enabled"),
                     "max_usage": desired_key.get("max_usage"),
                     "enrollment_cert_id": desired_key.get("enrollment_cert_id"),
                     "component_id": desired_key.get("component_id"),
@@ -306,7 +302,7 @@ def core(module):
                 {
                     "microtenant_id": desired_key.get("microtenant_id", None),
                     "name": desired_key["name"],
-                    "enabled": desired_key.get("enabled"),
+                    # "enabled": desired_key.get("enabled"),
                     "max_usage": desired_key.get("max_usage"),
                     "enrollment_cert_id": desired_key.get("enrollment_cert_id"),
                     "component_id": desired_key.get("component_id"),
@@ -351,7 +347,7 @@ def main():
         id=dict(type="str", required=False),
         microtenant_id=dict(type="str", required=False),
         name=dict(type="str", required=False),
-        enabled=dict(type="bool", required=False),
+        # enabled=dict(type="bool", required=False),
         max_usage=dict(type="str", required=False),
         component_id=dict(type="str", required=False),
         state=dict(type="str", choices=["present", "absent"], default="present"),

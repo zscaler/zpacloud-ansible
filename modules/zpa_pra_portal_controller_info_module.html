@@ -1,30 +1,30 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta content="2.10.0" name="antsibull-docs" />
+<meta content="2.11.0" name="antsibull-docs" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>zscaler.zpacloud.zpa_pra_portal_controller_info module – Retrieves information about a PRA Portal. &mdash; Ansible Collections Documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=c5b67dd2" />
       <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
 
   
     <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
-      <script src="../_static/jquery.js"></script>
-      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-      <script src="../_static/doctools.js"></script>
-      <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=6d0302ba"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="zscaler.zpacloud.zpa_pra_portal_controller module – Create a PRA Portal Controller." href="zpa_pra_portal_controller_module.html" />
-    <link rel="prev" title="zscaler.zpacloud.zpa_pra_credential_controller module – Create a PRA Credential." href="zpa_pra_credential_controller_module.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+    <link rel="prev" title="zscaler.zpacloud.zpa_pra_credential_pool module – Create a PRA Credential Pool." href="zpa_pra_credential_pool_module.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
 
 
 
@@ -79,20 +79,18 @@
 <li class="toctree-l1"><a class="reference internal" href="../requirements.html">Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../authentication.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authentication.html#zscaler-oneapi-new-framework">Zscaler OneAPI New Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authentication.html#legacy-api-authentication">Legacy API Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../modules.html">Module reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="zpa_app_connector_controller_info_module.html">zscaler.zpacloud.zpa_app_connector_controller_info module – Retrieves an app connector controller information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_app_connector_controller_module.html">zscaler.zpacloud.zpa_app_connector_controller module – Manages App Connector Controllers in the ZPA Cloud.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_app_connector_group_info_module.html">zscaler.zpacloud.zpa_app_connector_group_info module – Retrieves an app connector group information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_app_connector_groups_module.html">zscaler.zpacloud.zpa_app_connector_groups module – Create an App Connector Group in the ZPA Cloud.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zpa_app_protection_all_predefined_controls_info_module.html">zscaler.zpacloud.zpa_app_protection_all_predefined_controls_info module – Retrieves App Protection All Predefined Controls information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_app_protection_custom_control_info_module.html">zscaler.zpacloud.zpa_app_protection_custom_control_info module – Retrieves App Protection Custom Control information.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zpa_app_protection_custom_control_module.html">zscaler.zpacloud.zpa_app_protection_custom_control module – Create, update, or delete Zscaler Private Access (ZPA) app protection custom controls.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_app_protection_predefined_control_info_module.html">zscaler.zpacloud.zpa_app_protection_predefined_control_info module – Retrieves App Protection Predefined Control information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_app_protection_security_profile_info_module.html">zscaler.zpacloud.zpa_app_protection_security_profile_info module – Retrieves App Protection Security Profile information.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zpa_app_protection_security_profile_module.html">zscaler.zpacloud.zpa_app_protection_security_profile module – Create, update, or delete Zscaler Private Access (ZPA) app protection security profile.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zpa_application_segment_browser_access_info_module.html">zscaler.zpacloud.zpa_application_segment_browser_access_info module – Retrieves browser access application segment information.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zpa_application_segment_browser_access_module.html">zscaler.zpacloud.zpa_application_segment_browser_access module – Create a Browser Access Application Segment.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_application_segment_ba_v2_module.html">zscaler.zpacloud.zpa_application_segment_ba_v2 module – Create an BA application segment in the ZPA Cloud.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_application_segment_by_type_info_module.html">zscaler.zpacloud.zpa_application_segment_by_type_info module – Retrieves Application Segments Application Segments by Access Type.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_application_segment_info_module.html">zscaler.zpacloud.zpa_application_segment_info module – Retrieve an application segment information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_application_segment_inspection_module.html">zscaler.zpacloud.zpa_application_segment_inspection module – Create an AppProtection application segment in the ZPA Cloud.</a></li>
@@ -102,6 +100,11 @@
 <li class="toctree-l2"><a class="reference internal" href="zpa_application_server_module.html">zscaler.zpacloud.zpa_application_server module – Create an application server in the ZPA Cloud.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_ba_certificate_info_module.html">zscaler.zpacloud.zpa_ba_certificate_info module – Retrieves browser access certificate information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_ba_certificate_module.html">zscaler.zpacloud.zpa_ba_certificate module – Create certificate in the ZPA Cloud.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_cloud_browser_isolation_banner_info_module.html">zscaler.zpacloud.zpa_cloud_browser_isolation_banner_info module – Retrieve CBI Banners.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_cloud_browser_isolation_banner_module.html">zscaler.zpacloud.zpa_cloud_browser_isolation_banner module – Create a Cloud Browser Isolation Banner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_cloud_browser_isolation_certificate_info_module.html">zscaler.zpacloud.zpa_cloud_browser_isolation_certificate_info module – Retrieve CBI Certificates.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_cloud_browser_isolation_certificate_module.html">zscaler.zpacloud.zpa_cloud_browser_isolation_certificate module – Create a CBI Certificate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_cloud_browser_isolation_profile_info_module.html">zscaler.zpacloud.zpa_cloud_browser_isolation_profile_info module – Retrieve CBI Profile.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_cloud_connector_group_info_module.html">zscaler.zpacloud.zpa_cloud_connector_group_info module – Retrieves cloud connector group information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_connector_assistant_schedule_info_module.html">zscaler.zpacloud.zpa_connector_assistant_schedule_info module – Gets the Auto Delete frequency of the App Connector.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_connector_assistant_schedule_module.html">zscaler.zpacloud.zpa_connector_assistant_schedule module – Configures Auto Delete for the specified disconnected App Connector</a></li>
@@ -114,23 +117,29 @@
 <li class="toctree-l2"><a class="reference internal" href="zpa_lss_config_controller_module.html">zscaler.zpacloud.zpa_lss_config_controller module – Create a LSS CONFIG.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_lss_config_log_types_formats_info_module.html">zscaler.zpacloud.zpa_lss_config_log_types_formats_info module – Retrieves LSS Log formats Information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_machine_group_info_module.html">zscaler.zpacloud.zpa_machine_group_info module – Retrieves machine group information.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_app_protection_rule_info_module.html">zscaler.zpacloud.zpa_policy_access_app_protection_rule_info module – Retrieves App Protection Access Rule information.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_app_protection_rule_module.html">zscaler.zpacloud.zpa_policy_access_app_protection_rule module – Create a Policy App Protection Rule in the ZPA Cloud.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_forwarding_rule_info_module.html">zscaler.zpacloud.zpa_policy_access_forwarding_rule_info module – Retrieves policy forwarding rule information.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_app_protection_rule_module.html">zscaler.zpacloud.zpa_policy_access_app_protection_rule module – Manage ZPA Access App Protection Policy Rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_app_protection_rule_v2_module.html">zscaler.zpacloud.zpa_policy_access_app_protection_rule_v2 module – Manage ZPA Access App Protection Rules (v2)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_forwarding_rule_module.html">zscaler.zpacloud.zpa_policy_access_forwarding_rule module – Create a Policy Forwarding Rule.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_isolation_rule_info_module.html">zscaler.zpacloud.zpa_policy_access_isolation_rule_info module – Retrieves Isolation Policy Access Rule information.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_isolation_rule_module.html">zscaler.zpacloud.zpa_policy_access_isolation_rule module – Create a Policy Isolation Rule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_forwarding_rule_v2_module.html">zscaler.zpacloud.zpa_policy_access_forwarding_rule_v2 module – Manage ZPA Access Forwarding Rules (v2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_isolation_rule_module.html">zscaler.zpacloud.zpa_policy_access_isolation_rule module – Manage ZPA Access Isolation Policy Rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_isolation_rule_v2_module.html">zscaler.zpacloud.zpa_policy_access_isolation_rule_v2 module – Manage ZPA Access Isolation Rules (v2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_redirection_rule_v2_module.html">zscaler.zpacloud.zpa_policy_access_redirection_rule_v2 module – Manage ZPA Access Redirection Policy Rules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_rule_info_module.html">zscaler.zpacloud.zpa_policy_access_rule_info module – Retrieves policy access rule information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_rule_module.html">zscaler.zpacloud.zpa_policy_access_rule module – Create a Policy Access Rule</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_rule_reorder_module.html">zscaler.zpacloud.zpa_policy_access_rule_reorder module – Triggers the reorder of all policy types.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_timeout_rule_info_module.html">zscaler.zpacloud.zpa_policy_access_timeout_rule_info module – Retrieves policy timeout rule information.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_rule_v2_module.html">zscaler.zpacloud.zpa_policy_access_rule_v2 module – Manage ZPA Access Policy Rules (v2)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_timeout_rule_module.html">zscaler.zpacloud.zpa_policy_access_timeout_rule module – Create a Policy Timeout Rule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_timeout_rule_v2_module.html">zscaler.zpacloud.zpa_policy_access_timeout_rule_v2 module – Manage ZPA Access Timeout Policy Rules (v2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_policy_capabilities_access_rule_v2_module.html">zscaler.zpacloud.zpa_policy_capabilities_access_rule_v2 module – Manage ZPA Access Capabilities Policy Rules (v2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_policy_credential_access_rule_module.html">zscaler.zpacloud.zpa_policy_credential_access_rule module – Manage ZPA Privileged Credential Access Rules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_posture_profile_info_module.html">zscaler.zpacloud.zpa_posture_profile_info module – Retrieves details of a posture profile resource.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_pra_approval_info_module.html">zscaler.zpacloud.zpa_pra_approval_info module – Retrieves information about a PRA Approval.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_pra_approval_module.html">zscaler.zpacloud.zpa_pra_approval module – Create a PRA Approval Controller.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_pra_console_controller_info_module.html">zscaler.zpacloud.zpa_pra_console_controller_info module – Retrieves information about a PRA Console.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_pra_console_controller_module.html">zscaler.zpacloud.zpa_pra_console_controller module – Create a PRA Console Controller.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_pra_credential_controller_info_module.html">zscaler.zpacloud.zpa_pra_credential_controller_info module – Retrieves information about a PRA Credential.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_pra_credential_controller_module.html">zscaler.zpacloud.zpa_pra_credential_controller module – Create a PRA Credential.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_pra_credential_pool_module.html">zscaler.zpacloud.zpa_pra_credential_pool module – Create a PRA Credential Pool.</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">zscaler.zpacloud.zpa_pra_portal_controller_info module – Retrieves information about a PRA Portal.</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#synopsis">Synopsis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a></li>
@@ -154,6 +163,7 @@
 <li class="toctree-l2"><a class="reference internal" href="zpa_segment_group_module.html">zscaler.zpacloud.zpa_segment_group module – Create a Segment Group</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_server_group_info_module.html">zscaler.zpacloud.zpa_server_group_info module – Retrieves information about an server group</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_server_group_module.html">zscaler.zpacloud.zpa_server_group module – Create a Server Group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_service_edge_assistant_schedule_info_module.html">zscaler.zpacloud.zpa_service_edge_assistant_schedule_info module – Gets the Auto Delete frequency of the PSE.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_service_edge_controller_info_module.html">zscaler.zpacloud.zpa_service_edge_controller_info module – Retrieves a service edge controller information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_service_edge_controller_module.html">zscaler.zpacloud.zpa_service_edge_controller module – Manages Service Edge Controllers in the ZPA Cloud.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_service_edge_groups_info_module.html">zscaler.zpacloud.zpa_service_edge_groups_info module – Retrieves information about a Service Edge Group.</a></li>
@@ -207,10 +217,10 @@
            <div itemprop="articleBody">
              
   <span class="target" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module"></span><section id="zscaler-zpacloud-zpa-pra-portal-controller-info-module-retrieves-information-about-a-pra-portal">
-<h1>zscaler.zpacloud.zpa_pra_portal_controller_info module – Retrieves information about a PRA Portal.<a class="headerlink" href="#zscaler-zpacloud-zpa-pra-portal-controller-info-module-retrieves-information-about-a-pra-portal" title="Permalink to this heading"></a></h1>
+<h1>zscaler.zpacloud.zpa_pra_portal_controller_info module – Retrieves information about a PRA Portal.<a class="headerlink" href="#zscaler-zpacloud-zpa-pra-portal-controller-info-module-retrieves-information-about-a-pra-portal" title="Link to this heading"></a></h1>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/">zscaler.zpacloud collection</a> (version 1.4.5).</p>
+<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/">zscaler.zpacloud collection</a> (version 2.0.0).</p>
 <p>It is not included in <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code>.
 To check whether it is installed, run <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span></code>.</p>
 <p>To install it, use: <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">install</span> <span class="pre">zscaler.zpacloud</span></code>.
@@ -230,20 +240,20 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </ul>
 </nav>
 <section id="synopsis">
-<h2><a class="toc-backref" href="#id1" role="doc-backlink">Synopsis</a><a class="headerlink" href="#synopsis" title="Permalink to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Synopsis</a><a class="headerlink" href="#synopsis" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>This module will allow the retrieval of information about a PRA Portal.</p></li>
 </ul>
 </section>
 <section id="requirements">
-<span id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-requirements"></span><h2><a class="toc-backref" href="#id2" role="doc-backlink">Requirements</a><a class="headerlink" href="#requirements" title="Permalink to this heading"></a></h2>
+<span id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-requirements"></span><h2><a class="toc-backref" href="#id2" role="doc-backlink">Requirements</a><a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
 <p>The below requirements are needed on the host that executes this module.</p>
 <ul class="simple">
 <li><p>Zscaler SDK Python can be obtained from PyPI <a class="reference external" href="https://pypi.org/project/zscaler-sdk-python/">https://pypi.org/project/zscaler-sdk-python/</a></p></li>
 </ul>
 </section>
 <section id="parameters">
-<h2><a class="toc-backref" href="#id3" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
 <table class="longtable ansible-option-table docutils align-default" style="width: 100%">
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -255,14 +265,16 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <div class="ansibleOptionAnchor" id="parameter-client_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-client-id"><strong>client_id</strong></p>
 <a class="ansibleOptionLink" href="#parameter-client_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-cell"><p>The ZPA API client ID generated from the ZPA console.</p>
+<td><div class="ansible-option-cell"><p>The client ID for OAuth2 authentication.</p>
+<p>Required for OneAPI client authentication when use_legacy_client=false.</p>
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-client_secret"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-client-secret"><strong>client_secret</strong></p>
 <a class="ansibleOptionLink" href="#parameter-client_secret" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-cell"><p>The ZPA API client secret generated from the ZPA console.</p>
+<td><div class="ansible-option-cell"><p>The client secret for OAuth2 authentication.</p>
+<p>Used for OneAPI client authentication when use_legacy_client=false and not using private_key.</p>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-cell">
@@ -270,16 +282,18 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <a class="ansibleOptionLink" href="#parameter-cloud" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>The ZPA cloud provisioned for your organization.</p>
+<p>Used for OneAPI client authentication when use_legacy_client=false.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PRODUCTION&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;BETA&quot;</span></code></p></li>
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;QA&quot;</span></code></p></li>
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;QA2&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOV&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOVUS&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PRODUCTION&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;QA&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;QA2&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code></p></li>
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;ZPATWO&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;beta&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;production&quot;</span></code></p></li>
 </ul>
 </div></td>
 </tr>
@@ -288,6 +302,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <a class="ansibleOptionLink" href="#parameter-customer_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>The ZPA tenant ID found in the Administration Company menu in the ZPA console.</p>
+<p>Used for OneAPI client authentication when use_legacy_client=false.</p>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-cell">
@@ -298,31 +313,48 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-microtenant_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-microtenant-id"><strong>microtenant_id</strong></p>
+<a class="ansibleOptionLink" href="#parameter-microtenant_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The unique identifier of the Microtenant for the ZPA tenant</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-name"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-name"><strong>name</strong></p>
 <a class="ansibleOptionLink" href="#parameter-name" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>The name of the privileged portal</p>
 </div></td>
 </tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-private_key"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-private-key"><strong>private_key</strong></p>
+<a class="ansibleOptionLink" href="#parameter-private_key" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The private key for JWT-based OAuth2 authentication.</p>
+<p>Used for OneAPI client authentication when use_legacy_client=false and not using client_secret.</p>
+</div></td>
+</tr>
 <tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-provider"><strong>provider</strong></p>
 <a class="ansibleOptionLink" href="#parameter-provider" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
 </div></td>
-<td><div class="ansible-option-cell"><p>A dict object containing authentication details.</p>
+<td><div class="ansible-option-cell"><p>A dict containing authentication credentials.</p>
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/client_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-provider-client-id"><strong>client_id</strong></p>
 <a class="ansibleOptionLink" href="#parameter-provider/client_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA API client ID generated from the ZPA console.</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The client ID for OAuth2 authentication.</p>
+<p>Required for OneAPI client authentication when use_legacy_client=false.</p>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/client_secret"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-provider-client-secret"><strong>client_secret</strong></p>
 <a class="ansibleOptionLink" href="#parameter-provider/client_secret" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA API client secret generated from the ZPA console.</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The client secret for OAuth2 authentication.</p>
+<p>Used for OneAPI client authentication when use_legacy_client=false and not using private_key.</p>
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
@@ -330,16 +362,18 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <a class="ansibleOptionLink" href="#parameter-provider/cloud" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA cloud provisioned for your organization.</p>
+<p>Used for OneAPI client authentication when use_legacy_client=false.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PRODUCTION&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;BETA&quot;</span></code></p></li>
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;QA&quot;</span></code></p></li>
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;QA2&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOV&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOVUS&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PRODUCTION&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;QA&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;QA2&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code></p></li>
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;ZPATWO&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;beta&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;production&quot;</span></code></p></li>
 </ul>
 </div></td>
 </tr>
@@ -348,13 +382,178 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <a class="ansibleOptionLink" href="#parameter-provider/customer_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA tenant ID found in the Administration Company menu in the ZPA console.</p>
+<p>Used for OneAPI client authentication when use_legacy_client=false.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-provider/microtenant_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-provider-microtenant-id"><strong>microtenant_id</strong></p>
+<a class="ansibleOptionLink" href="#parameter-provider/microtenant_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA Microtenant ID found in the Administration Company menu in the ZPA console.</p>
+<p>Used for OneAPI client authentication when use_legacy_client=false.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-provider/private_key"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-provider-private-key"><strong>private_key</strong></p>
+<a class="ansibleOptionLink" href="#parameter-provider/private_key" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The private key for JWT-based OAuth2 authentication.</p>
+<p>Used for OneAPI client authentication when use_legacy_client=false and not using client_secret.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-provider/use_legacy_client"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-provider-use-legacy-client"><strong>use_legacy_client</strong></p>
+<a class="ansibleOptionLink" href="#parameter-provider/use_legacy_client" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether to use the legacy Zscaler API client.</p>
+<p>When true, uses zpa_client_id/zpa_client_secret/zpa_customer_id/zpa_cloud for authentication.</p>
+<p>When false (default), uses client_id/client_secret/private_key with vanity_domain for OAuth2 authentication.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-provider/vanity_domain"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-provider-vanity-domain"><strong>vanity_domain</strong></p>
+<a class="ansibleOptionLink" href="#parameter-provider/vanity_domain" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The vanity domain provisioned by Zscaler for OAuth2 flows.</p>
+<p>Required for OneAPI client authentication when use_legacy_client=false.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-provider/zpa_client_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-provider-zpa-client-id"><strong>zpa_client_id</strong></p>
+<a class="ansibleOptionLink" href="#parameter-provider/zpa_client_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA API client ID generated from the ZPA console.</p>
+<p>Required for legacy client authentication when use_legacy_client=true.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-provider/zpa_client_secret"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-provider-zpa-client-secret"><strong>zpa_client_secret</strong></p>
+<a class="ansibleOptionLink" href="#parameter-provider/zpa_client_secret" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA API client secret generated from the ZPA console.</p>
+<p>Required for legacy client authentication when use_legacy_client=true.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-provider/zpa_cloud"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-provider-zpa-cloud"><strong>zpa_cloud</strong></p>
+<a class="ansibleOptionLink" href="#parameter-provider/zpa_cloud" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA cloud provisioned for your organization.</p>
+<p>Required for legacy client authentication when use_legacy_client=true.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;BETA&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOV&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOVUS&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PRODUCTION&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;QA&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;QA2&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;beta&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;production&quot;</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-provider/zpa_customer_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-provider-zpa-customer-id"><strong>zpa_customer_id</strong></p>
+<a class="ansibleOptionLink" href="#parameter-provider/zpa_customer_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA tenant ID found in the Administration Company menu in the ZPA console.</p>
+<p>Required for legacy client authentication when use_legacy_client=true.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-provider/zpa_microtenant_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-provider-zpa-microtenant-id"><strong>zpa_microtenant_id</strong></p>
+<a class="ansibleOptionLink" href="#parameter-provider/zpa_microtenant_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The ZPA Microtenant ID found in the Administration Company menu in the ZPA console.</p>
+<p>Used for legacy client authentication when use_legacy_client=true.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-use_legacy_client"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-use-legacy-client"><strong>use_legacy_client</strong></p>
+<a class="ansibleOptionLink" href="#parameter-use_legacy_client" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Whether to use the legacy Zscaler API client.</p>
+<p>When true, uses zpa_client_id/zpa_client_secret/zpa_customer_id/zpa_cloud for authentication.</p>
+<p>When false (default), uses client_id/client_secret/private_key with vanity_domain for OAuth2 authentication.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-vanity_domain"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-vanity-domain"><strong>vanity_domain</strong></p>
+<a class="ansibleOptionLink" href="#parameter-vanity_domain" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The vanity domain provisioned by Zscaler for OAuth2 flows.</p>
+<p>Required for OneAPI client authentication when use_legacy_client=false.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-zpa_client_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-zpa-client-id"><strong>zpa_client_id</strong></p>
+<a class="ansibleOptionLink" href="#parameter-zpa_client_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The ZPA API client ID generated from the ZPA console.</p>
+<p>Required for legacy client authentication when use_legacy_client=true.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-zpa_client_secret"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-zpa-client-secret"><strong>zpa_client_secret</strong></p>
+<a class="ansibleOptionLink" href="#parameter-zpa_client_secret" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The ZPA API client secret generated from the ZPA console.</p>
+<p>Required for legacy client authentication when use_legacy_client=true.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-zpa_cloud"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-zpa-cloud"><strong>zpa_cloud</strong></p>
+<a class="ansibleOptionLink" href="#parameter-zpa_cloud" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The ZPA cloud provisioned for your organization.</p>
+<p>Required for legacy client authentication when use_legacy_client=true.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;BETA&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOV&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOVUS&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PRODUCTION&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;QA&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;QA2&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;beta&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;production&quot;</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-zpa_customer_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-zpa-customer-id"><strong>zpa_customer_id</strong></p>
+<a class="ansibleOptionLink" href="#parameter-zpa_customer_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The ZPA tenant ID found in the Administration Company menu in the ZPA console.</p>
+<p>Required for legacy client authentication when use_legacy_client=true.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-zpa_microtenant_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-pra-portal-controller-info-module-parameter-zpa-microtenant-id"><strong>zpa_microtenant_id</strong></p>
+<a class="ansibleOptionLink" href="#parameter-zpa_microtenant_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The ZPA Microtenant ID found in the Administration Company menu in the ZPA console.</p>
+<p>Used for legacy client authentication when use_legacy_client=true.</p>
 </div></td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="notes">
-<h2><a class="toc-backref" href="#id4" role="doc-backlink">Notes</a><a class="headerlink" href="#notes" title="Permalink to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Notes</a><a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <ul class="simple">
@@ -363,7 +562,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </div>
 </section>
 <section id="examples">
-<h2><a class="toc-backref" href="#id5" role="doc-backlink">Examples</a><a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Examples</a><a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
 <div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Get Detail Information of All PRA Portal</span>
 <span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_pra_portal_controller_info</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;</span><span class="cp">{{</span> <span class="nv">zpa_cloud</span> <span class="cp">}}</span><span class="s">&#39;</span>
@@ -381,7 +580,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </div>
 </section>
 <section id="return-values">
-<h2><a class="toc-backref" href="#id6" role="doc-backlink">Return Values</a><a class="headerlink" href="#return-values" title="Permalink to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Return Values</a><a class="headerlink" href="#return-values" title="Link to this heading"></a></h2>
 <p>Common return values are documented <a class="reference internal" href="../common_return_values.html#common-return-values"><span class="std std-ref">here</span></a>, the following are the fields unique to this module:</p>
 <table class="longtable ansible-option-table docutils align-default" style="width: 100%">
 <thead>
@@ -545,13 +744,13 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </tbody>
 </table>
 <section id="authors">
-<h3>Authors<a class="headerlink" href="#authors" title="Permalink to this heading"></a></h3>
+<h3>Authors<a class="headerlink" href="#authors" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>William Guilherme (&#64;willguibr)</p></li>
 </ul>
 </section>
 <section id="collection-links">
-<h3>Collection links<a class="headerlink" href="#collection-links" title="Permalink to this heading"></a></h3>
+<h3>Collection links<a class="headerlink" href="#collection-links" title="Link to this heading"></a></h3>
 <ul class="ansible-links">
 <li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/zscaler/zpacloud-ansible/issues" rel="noopener external" target="_blank">Issue Tracker</a></span></li>
 <li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/zscaler/zpacloud-ansible" rel="noopener external" target="_blank">Repository (Sources)</a></span></li>
@@ -566,7 +765,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
           
 
 <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="zpa_pra_credential_controller_module.html" class="btn btn-neutral float-left" title="zscaler.zpacloud.zpa_pra_credential_controller module – Create a PRA Credential." accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="zpa_pra_credential_pool_module.html" class="btn btn-neutral float-left" title="zscaler.zpacloud.zpa_pra_credential_pool module – Create a PRA Credential Pool." accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="zpa_pra_portal_controller_module.html" class="btn btn-neutral float-right" title="zscaler.zpacloud.zpa_pra_portal_controller module – Create a PRA Portal Controller." accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

@@ -1,24 +1,24 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Examples &mdash; Ansible Collections Documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="_static/css/ansible.css" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="_static/css/ansible.css?v=c5b67dd2" />
       <link rel="stylesheet" type="text/css" href="_static/antsibull-minimal.css" />
-      <link rel="stylesheet" type="text/css" href="_static/css/rtd-ethical-ads.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/rtd-ethical-ads.css?v=289b023e" />
 
   
     <link rel="shortcut icon" href="_static/images/Ansible-Mark-RGB_Black.png"/>
-      <script src="_static/jquery.js"></script>
-      <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-      <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-      <script src="_static/doctools.js"></script>
-      <script src="_static/sphinx_highlight.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=6d0302ba"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -78,6 +78,8 @@
 <li class="toctree-l1"><a class="reference internal" href="requirements.html">Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html#zscaler-oneapi-new-framework">Zscaler OneAPI New Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html#legacy-api-authentication">Legacy API Authentication</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#what-is-zscaler-private-access">What is Zscaler Private Access</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#app-connector-group">App Connector Group</a></li>
@@ -153,14 +155,14 @@
            <div itemprop="articleBody">
              
   <section id="examples">
-<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h1>
+<h1>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h1>
 <section id="what-is-zscaler-private-access">
-<h2>What is Zscaler Private Access<a class="headerlink" href="#what-is-zscaler-private-access" title="Permalink to this heading"></a></h2>
+<h2>What is Zscaler Private Access<a class="headerlink" href="#what-is-zscaler-private-access" title="Link to this heading"></a></h2>
 <p>The Zscaler Private Access (ZPA) service enables organizations to provide access to internal applications and services while ensuring the security of their networks.
 ZPA is an easier to deploy, more cost-effective, and more secure alternative to VPNs. Unlike VPNs, which require users to connect to your network to access your enterprise applications,
 ZPA allows you to give users policy-based secure access only to the internal apps they need to get their work done. With ZPA, application access does not require network access.</p>
 <section id="app-connector-group">
-<h3>App Connector Group<a class="headerlink" href="#app-connector-group" title="Permalink to this heading"></a></h3>
+<h3>App Connector Group<a class="headerlink" href="#app-connector-group" title="Link to this heading"></a></h3>
 <p>The following module allows for interaction with the ZPA App Connector Group API endpoints.
 This module creates an app connector group, which in turn must be associated with a provisioning key resource.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create First App Connector Group</span>
@@ -185,7 +187,7 @@ This module creates an app connector group, which in turn must be associated wit
 </div>
 </section>
 <section id="service-edge-group">
-<h3>Service Edge Group<a class="headerlink" href="#service-edge-group" title="Permalink to this heading"></a></h3>
+<h3>Service Edge Group<a class="headerlink" href="#service-edge-group" title="Link to this heading"></a></h3>
 <p>The following module allows for interaction with the ZPA Service Edge Group API endpoints.
 This module creates an service edge group, which in turn must be associated with a provisioning key resource.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create/Update/Delete Service Edge Group</span>
@@ -207,7 +209,7 @@ This module creates an service edge group, which in turn must be associated with
 </div>
 </section>
 <section id="provisioning-key-app-connector-group">
-<h3>Provisioning Key - App Connector Group<a class="headerlink" href="#provisioning-key-app-connector-group" title="Permalink to this heading"></a></h3>
+<h3>Provisioning Key - App Connector Group<a class="headerlink" href="#provisioning-key-app-connector-group" title="Link to this heading"></a></h3>
 <p>The following module allows for interaction with the ZPA Provisioning Key API endpoints.
 This module creates a provisioning key resource, which is a text string that is generated when a new App Connector
 is added.</p>
@@ -223,7 +225,7 @@ is added.</p>
 </div>
 </section>
 <section id="provisioning-key-service-edge-group">
-<h3>Provisioning Key - Service Edge Group<a class="headerlink" href="#provisioning-key-service-edge-group" title="Permalink to this heading"></a></h3>
+<h3>Provisioning Key - Service Edge Group<a class="headerlink" href="#provisioning-key-service-edge-group" title="Link to this heading"></a></h3>
 <p>The following module allows for interaction with the ZPA Provisioning Key API endpoints.
 This module creates a provisioning key resource, which is a text string that is generated when a new Private Service Edge is added.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create/Update/Delete Service Edge Connector Group Provisioning Key</span>
@@ -238,7 +240,7 @@ This module creates a provisioning key resource, which is a text string that is 
 </div>
 </section>
 <section id="application-segment">
-<h3>Application Segment<a class="headerlink" href="#application-segment" title="Permalink to this heading"></a></h3>
+<h3>Application Segment<a class="headerlink" href="#application-segment" title="Link to this heading"></a></h3>
 <p>The following module allows for interaction with the ZPA Application Segments endpoints.
 The module creates an application segment resource, which is a grouping of defined applications.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create a Application Segment</span>
@@ -263,7 +265,7 @@ The module creates an application segment resource, which is a grouping of defin
 </div>
 </section>
 <section id="browser-access-application-segment">
-<h3>Browser Access Application Segment<a class="headerlink" href="#browser-access-application-segment" title="Permalink to this heading"></a></h3>
+<h3>Browser Access Application Segment<a class="headerlink" href="#browser-access-application-segment" title="Link to this heading"></a></h3>
 <p>The following module allows for interaction with the ZPA Application Segments endpoints.
 The module creates a Browser Access Application Segment resource, which allows you to leverage
 a web browser for user authentication and application access over ZPA, without requiring users
@@ -297,7 +299,7 @@ to install the Zscaler Client Connector (formerly Zscaler App or Z App) on their
 </div>
 </section>
 <section id="application-segment-privileged-remote-access">
-<h3>Application Segment - Privileged Remote Access<a class="headerlink" href="#application-segment-privileged-remote-access" title="Permalink to this heading"></a></h3>
+<h3>Application Segment - Privileged Remote Access<a class="headerlink" href="#application-segment-privileged-remote-access" title="Link to this heading"></a></h3>
 <p>The following module allows for interaction with the ZPA Application Segments endpoints.
 The module creates a Privileged Remote Access application segment resource.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create PRA Application Segment</span>
@@ -346,7 +348,7 @@ The module creates a Privileged Remote Access application segment resource.</p>
 </div>
 </section>
 <section id="application-segment-app-protection">
-<h3>Application Segment - App Protection<a class="headerlink" href="#application-segment-app-protection" title="Permalink to this heading"></a></h3>
+<h3>Application Segment - App Protection<a class="headerlink" href="#application-segment-app-protection" title="Link to this heading"></a></h3>
 <p>The following module allows for interaction with the ZPA Application Segments endpoints.
 The module creates a App Protection application segment resource.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create App Protection Application Segment</span>
@@ -387,7 +389,7 @@ The module creates a App Protection application segment resource.</p>
 </div>
 </section>
 <section id="application-server">
-<h3>Application Server<a class="headerlink" href="#application-server" title="Permalink to this heading"></a></h3>
+<h3>Application Server<a class="headerlink" href="#application-server" title="Link to this heading"></a></h3>
 <p>The following module allows for interaction with the ZPA Application Server endpoints.
 The module creates a Application Server resource, which can then be associated with a Server Group, where the <cite>dynamic_discovery</cite> is disabled.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create/Update/Delete an Application Server</span>
@@ -401,7 +403,7 @@ The module creates a Application Server resource, which can then be associated w
 </div>
 </section>
 <section id="server-group-dynamic-discovery-on">
-<h3>Server Group - Dynamic Discovery On<a class="headerlink" href="#server-group-dynamic-discovery-on" title="Permalink to this heading"></a></h3>
+<h3>Server Group - Dynamic Discovery On<a class="headerlink" href="#server-group-dynamic-discovery-on" title="Link to this heading"></a></h3>
 <p>The following module allows for interaction with the ZPA Server Groups endpoints.
 The module creates a Server Group resource, which can be created to manually define servers,
 or it can be created with the option of <cite>dynamic_discovery</cite> enabled so that ZPA discovers the appropriate servers,
@@ -419,7 +421,7 @@ for each application as users request them.</p>
 </div>
 </section>
 <section id="server-group-dynamic-discovery-off">
-<h3>Server Group - Dynamic Discovery Off<a class="headerlink" href="#server-group-dynamic-discovery-off" title="Permalink to this heading"></a></h3>
+<h3>Server Group - Dynamic Discovery Off<a class="headerlink" href="#server-group-dynamic-discovery-off" title="Link to this heading"></a></h3>
 <p>The following module allows for interaction with the ZPA Server Groups endpoints.
 The module creates a Server Group resource, which can be created to manually define servers,
 when <cite>dynamic_discovery</cite> is disabled.</p>
@@ -438,7 +440,7 @@ when <cite>dynamic_discovery</cite> is disabled.</p>
 </div>
 </section>
 <section id="segment-group">
-<h3>Segment Group<a class="headerlink" href="#segment-group" title="Permalink to this heading"></a></h3>
+<h3>Segment Group<a class="headerlink" href="#segment-group" title="Link to this heading"></a></h3>
 <p>The following module allows for interaction with the ZPA Segment Groups endpoints.
 This resource can then be referenced within Application Segment (s), and Access Policies.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create/Update/Delete a Segment Groups</span>
@@ -451,7 +453,7 @@ This resource can then be referenced within Application Segment (s), and Access 
 </div>
 </section>
 <section id="policy-access-rule">
-<h3>Policy Access Rule<a class="headerlink" href="#policy-access-rule" title="Permalink to this heading"></a></h3>
+<h3>Policy Access Rule<a class="headerlink" href="#policy-access-rule" title="Link to this heading"></a></h3>
 <p>The following module allows for interaction with the the ZPA Policy Controller endpoints.
 This resource creates and manages policy access rules in the Zscaler Private Access cloud.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Application Segment - Example</span>
@@ -496,7 +498,7 @@ This resource creates and manages policy access rules in the Zscaler Private Acc
 </div>
 </section>
 <section id="policy-access-timeout-rule">
-<h3>Policy Access Timeout Rule<a class="headerlink" href="#policy-access-timeout-rule" title="Permalink to this heading"></a></h3>
+<h3>Policy Access Timeout Rule<a class="headerlink" href="#policy-access-timeout-rule" title="Link to this heading"></a></h3>
 <p>The following module allows for interaction with the the ZPA Policy Controller endpoints.
 This resource creates a policy timeout rule in the Zscaler Private Access cloud.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Application Segment - Example</span>
@@ -543,7 +545,7 @@ This resource creates a policy timeout rule in the Zscaler Private Access cloud.
 </div>
 </section>
 <section id="policy-access-forwarding-rule">
-<h3>Policy Access Forwarding Rule<a class="headerlink" href="#policy-access-forwarding-rule" title="Permalink to this heading"></a></h3>
+<h3>Policy Access Forwarding Rule<a class="headerlink" href="#policy-access-forwarding-rule" title="Link to this heading"></a></h3>
 <p>The following module allows for interaction with the the ZPA Policy Controller endpoints.
 This resource creates a policy forwarding access rule in the Zscaler Private Access cloud.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Gather Applicaton Segment Info</span>
@@ -596,7 +598,7 @@ This resource creates a policy forwarding access rule in the Zscaler Private Acc
 </div>
 </section>
 <section id="policy-access-app-protection-rule">
-<h3>Policy Access App Protection Rule<a class="headerlink" href="#policy-access-app-protection-rule" title="Permalink to this heading"></a></h3>
+<h3>Policy Access App Protection Rule<a class="headerlink" href="#policy-access-app-protection-rule" title="Link to this heading"></a></h3>
 <p>The following module allows for interaction with the the ZPA Policy Controller endpoints.
 This resource creates an App Protection access rule in the Zscaler Private Access cloud.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather information about a app protection profile</span>
@@ -640,7 +642,7 @@ This resource creates an App Protection access rule in the Zscaler Private Acces
 </div>
 </section>
 <section id="policy-access-isolation-rule">
-<h3>Policy Access Isolation Rule<a class="headerlink" href="#policy-access-isolation-rule" title="Permalink to this heading"></a></h3>
+<h3>Policy Access Isolation Rule<a class="headerlink" href="#policy-access-isolation-rule" title="Link to this heading"></a></h3>
 <p>The following module allows for interaction with the the ZPA Policy Controller endpoints.
 This resource creates an Isolation access rule in the Zscaler Private Access cloud.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather information about all CBI Profile</span>
@@ -674,7 +676,7 @@ This resource creates an Isolation access rule in the Zscaler Private Access clo
 </div>
 </section>
 <section id="policy-access-reorder">
-<h3>Policy Access Reorder<a class="headerlink" href="#policy-access-reorder" title="Permalink to this heading"></a></h3>
+<h3>Policy Access Reorder<a class="headerlink" href="#policy-access-reorder" title="Link to this heading"></a></h3>
 <p>The following module allows for interaction with the the ZPA Policy Controller endpoints.
 This is a dedicated resource to manage and update rule_orders in any of the supported ZPA Policy Access types Zscaler Private Access cloud.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">Reorder Policy Access Rules</span>
@@ -691,7 +693,7 @@ This is a dedicated resource to manage and update rule_orders in any of the supp
 </div>
 </section>
 <section id="browser-access-certificate">
-<h3>Browser Access Certificate<a class="headerlink" href="#browser-access-certificate" title="Permalink to this heading"></a></h3>
+<h3>Browser Access Certificate<a class="headerlink" href="#browser-access-certificate" title="Link to this heading"></a></h3>
 <p>The following module allows for interaction with the the ZPA Certificate endpoint and creates a browser access certificate with a private key in the Zscaler Private Access cloud.
 This resource is required when creating a browser access application segment resource.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Onboard ZPA Browser Access Certificate</span>
@@ -704,7 +706,7 @@ This resource is required when creating a browser access application segment res
 </div>
 </section>
 <section id="enrollment-certificates">
-<h3>Enrollment Certificates<a class="headerlink" href="#enrollment-certificates" title="Permalink to this heading"></a></h3>
+<h3>Enrollment Certificates<a class="headerlink" href="#enrollment-certificates" title="Link to this heading"></a></h3>
 <p>Use the <cite>zpa_enrollement_certificate_info</cite> to gather facts about built-in configured enrollment certificate details created in the Zscaler Private Access cloud.
 This resource is required when creating provisioning key resources or type <cite>Connector</cite> or <cite>Service Edge</cite></p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Information Details of All Enrollment Certificates</span>
@@ -769,7 +771,7 @@ This resource is required when creating provisioning key resources or type <cite
 </div>
 </section>
 <section id="identity-provider">
-<h3>Identity Provider<a class="headerlink" href="#identity-provider" title="Permalink to this heading"></a></h3>
+<h3>Identity Provider<a class="headerlink" href="#identity-provider" title="Link to this heading"></a></h3>
 <p>Use the <cite>zpa_idp_controller_facts</cite> resource to gather information about an Identity Provider created in the Zscaler Private Access cloud.
 This resource can then be referenced when configuring the following resources.</p>
 <ol class="arabic simple">
@@ -812,7 +814,7 @@ This resource can then be referenced when configuring the following resources.</
 </div>
 </section>
 <section id="machine-group">
-<h3>Machine Group<a class="headerlink" href="#machine-group" title="Permalink to this heading"></a></h3>
+<h3>Machine Group<a class="headerlink" href="#machine-group" title="Link to this heading"></a></h3>
 <p>Use the <cite>zpa_machine_group_facts</cite> resource to gather information about a machine group created in the Zscaler Private Access cloud.
 This resource can then be referenced in an Access Policy, Timeout policy, Forwarding Policy, Inspection Policy or Isolation Policy.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Details of All Machine Groups</span>
@@ -847,7 +849,7 @@ This resource can then be referenced in an Access Policy, Timeout policy, Forwar
 </div>
 </section>
 <section id="trusted-networks">
-<h3>Trusted Networks<a class="headerlink" href="#trusted-networks" title="Permalink to this heading"></a></h3>
+<h3>Trusted Networks<a class="headerlink" href="#trusted-networks" title="Link to this heading"></a></h3>
 <p>Use the <cite>zpa_trusted_networks_facts</cite> resource to gather information about a machine group created in the Zscaler Private Access cloud.
 This resource can then be referenced in an Access Policy, Timeout policy, Forwarding Policy, Inspection Policy or Isolation Policy.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather Details of All Trusted Networks</span>

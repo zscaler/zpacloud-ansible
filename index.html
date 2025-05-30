@@ -1,24 +1,24 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Zscaler Private Access Ansible Collection &mdash; Ansible Collections Documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="_static/css/ansible.css" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="_static/css/ansible.css?v=c5b67dd2" />
       <link rel="stylesheet" type="text/css" href="_static/antsibull-minimal.css" />
-      <link rel="stylesheet" type="text/css" href="_static/css/rtd-ethical-ads.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/rtd-ethical-ads.css?v=289b023e" />
 
   
     <link rel="shortcut icon" href="_static/images/Ansible-Mark-RGB_Black.png"/>
-      <script src="_static/jquery.js"></script>
-      <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-      <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-      <script src="_static/doctools.js"></script>
-      <script src="_static/sphinx_highlight.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=6d0302ba"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -77,6 +77,8 @@
 <li class="toctree-l1"><a class="reference internal" href="requirements.html">Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html#zscaler-oneapi-new-framework">Zscaler OneAPI New Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html#legacy-api-authentication">Legacy API Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">Module reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="common_return_values.html">Common Return Values</a></li>
@@ -124,14 +126,14 @@
            <div itemprop="articleBody">
              
   <section id="zscaler-private-access-ansible-collection">
-<h1>Zscaler Private Access Ansible Collection<a class="headerlink" href="#zscaler-private-access-ansible-collection" title="Permalink to this heading"></a></h1>
+<h1>Zscaler Private Access Ansible Collection<a class="headerlink" href="#zscaler-private-access-ansible-collection" title="Link to this heading"></a></h1>
 <p>The <strong>Zscaler Private Access Ansible collection</strong>, also represented as <strong>zpacloud</strong> in this document,
 is a collection of modules that automate configuration and operational tasks on Zscaler Private Access Cloud.
 This collection is part of the broader initiative to bring Ansible Automation to Zscaler Zero Trust Platform through the offering
 <strong>Red Hat® Ansible Certified Content</strong>.</p>
-<p>Version: 1.4.5</p>
+<p>Version: 1.4.6</p>
 <section id="red-hat-ansible-certified-content-for-zscaler">
-<h2>Red Hat Ansible Certified Content for Zscaler<a class="headerlink" href="#red-hat-ansible-certified-content-for-zscaler" title="Permalink to this heading"></a></h2>
+<h2>Red Hat Ansible Certified Content for Zscaler<a class="headerlink" href="#red-hat-ansible-certified-content-for-zscaler" title="Link to this heading"></a></h2>
 <p><strong>Red Hat® Ansible Certified Content for Zscaler Private Access</strong> provides the ability to
 connect Zscaler’s platform’ wider enterprise automation strategy through the
 Ansible Automation Platform ecosystem. This enables development and operations
@@ -151,7 +153,7 @@ as <strong>certified</strong> and <strong>Zscaler supported</strong> for
 <p>For guides and reference, please review the <a class="reference external" href="https://zscaler.github.io/zpacloud-ansible/index.html">documentation</a>.</p>
 </section>
 <section id="features">
-<h2>Features<a class="headerlink" href="#features" title="Permalink to this heading"></a></h2>
+<h2>Features<a class="headerlink" href="#features" title="Link to this heading"></a></h2>
 <p>The <strong>Zscaler Private Access Collection</strong>, includes
 <a class="reference external" href="https://zscaler.github.io/zpacloud-ansible/modules.html">modules</a> and ansible-doc to automate tasks on the Zscaler platform.</p>
 <p>Sample playbooks are available in our <a class="reference external" href="https://github.com/zscaler/zpacloud-playbooks/blob/master/README.md">samples repository</a>
@@ -180,23 +182,23 @@ contributed by the <strong>Zscaler’s Technology Alliances</strong> team.</p>
 </div>
 </section>
 <section id="author-information">
-<h2>Author Information<a class="headerlink" href="#author-information" title="Permalink to this heading"></a></h2>
+<h2>Author Information<a class="headerlink" href="#author-information" title="Link to this heading"></a></h2>
 <p><strong>Zscaler Private Access Collection</strong> is maintained by the Zscaler’s Technology Alliances team.</p>
 <section id="development-leads">
-<h3>Development Leads<a class="headerlink" href="#development-leads" title="Permalink to this heading"></a></h3>
+<h3>Development Leads<a class="headerlink" href="#development-leads" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>William Guilherme (&#64;willguibr)</p></li>
 </ul>
 </section>
 <section id="contributors">
-<h3>Contributors<a class="headerlink" href="#contributors" title="Permalink to this heading"></a></h3>
+<h3>Contributors<a class="headerlink" href="#contributors" title="Link to this heading"></a></h3>
 </section>
 <section id="credits">
-<h3>Credits<a class="headerlink" href="#credits" title="Permalink to this heading"></a></h3>
+<h3>Credits<a class="headerlink" href="#credits" title="Link to this heading"></a></h3>
 </section>
 </section>
 <section id="support">
-<h2>Support<a class="headerlink" href="#support" title="Permalink to this heading"></a></h2>
+<h2>Support<a class="headerlink" href="#support" title="Link to this heading"></a></h2>
 <p>As of version 1.0.0, this Collection of Ansible Modules for Zscaler Internet Access is
 <a class="reference external" href="https://console.redhat.com/ansible/automation-hub/repo/published/zscaler/zpacloud">certified on Ansible Automation Hub</a>,
 and officially supported for Ansible subscribers. Ansible subscribers can engage
@@ -219,7 +221,7 @@ script itself.</p>
 are provided under the best effort policy.</p>
 </section>
 <section id="indices-and-tables">
-<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h2>
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>

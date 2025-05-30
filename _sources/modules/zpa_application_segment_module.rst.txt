@@ -7,7 +7,7 @@
     :trim:
 
 .. meta::
-  :antsibull-docs: 2.10.0
+  :antsibull-docs: 2.11.0
 
 .. Anchors
 
@@ -23,7 +23,7 @@ zscaler.zpacloud.zpa_application_segment module -- Create an application segment
 .. Collection note
 
 .. note::
-    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 1.4.5).
+    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 2.0.0).
 
     It is not included in ``ansible-core``.
     To check whether it is installed, run :code:`ansible-galaxy collection list`.
@@ -92,6 +92,48 @@ Parameters
   * - .. raw:: html
 
         <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-adp_enabled"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-adp_enabled:
+
+      .. rst-class:: ansible-option-title
+
+      **adp_enabled**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-adp_enabled" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`boolean`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      Indicates if Active Directory Inspection is enabled or not for the application.
+
+
+      .. rst-class:: ansible-option-line
+
+      :ansible-option-choices:`Choices:`
+
+      - :ansible-option-choices-entry:`false`
+      - :ansible-option-choices-entry:`true`
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
         <div class="ansibleOptionAnchor" id="parameter-bypass_on_reauth"></div>
 
       .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-bypass_on_reauth:
@@ -125,7 +167,7 @@ Parameters
 
       :ansible-option-choices:`Choices:`
 
-      - :ansible-option-choices-entry-default:`false` :ansible-option-choices-default-mark:`← (default)`
+      - :ansible-option-choices-entry:`false`
       - :ansible-option-choices-entry:`true`
 
 
@@ -203,7 +245,9 @@ Parameters
 
         <div class="ansible-option-cell">
 
-      The ZPA API client ID generated from the ZPA console.
+      The client ID for OAuth2 authentication.
+
+      Required for OneAPI client authentication when use\_legacy\_client=false.
 
 
       .. raw:: html
@@ -237,7 +281,9 @@ Parameters
 
         <div class="ansible-option-cell">
 
-      The ZPA API client secret generated from the ZPA console.
+      The client secret for OAuth2 authentication.
+
+      Used for OneAPI client authentication when use\_legacy\_client=false and not using private\_key.
 
 
       .. raw:: html
@@ -273,19 +319,22 @@ Parameters
 
       The ZPA cloud provisioned for your organization.
 
+      Used for OneAPI client authentication when use\_legacy\_client=false.
+
 
       .. rst-class:: ansible-option-line
 
       :ansible-option-choices:`Choices:`
 
-      - :ansible-option-choices-entry:`"PRODUCTION"`
       - :ansible-option-choices-entry:`"BETA"`
-      - :ansible-option-choices-entry:`"QA"`
-      - :ansible-option-choices-entry:`"QA2"`
       - :ansible-option-choices-entry:`"GOV"`
       - :ansible-option-choices-entry:`"GOVUS"`
+      - :ansible-option-choices-entry:`"PRODUCTION"`
+      - :ansible-option-choices-entry:`"QA"`
+      - :ansible-option-choices-entry:`"QA2"`
       - :ansible-option-choices-entry:`"PREVIEW"`
-      - :ansible-option-choices-entry:`"ZPATWO"`
+      - :ansible-option-choices-entry:`"beta"`
+      - :ansible-option-choices-entry:`"production"`
 
 
       .. raw:: html
@@ -320,6 +369,8 @@ Parameters
         <div class="ansible-option-cell">
 
       The ZPA tenant ID found in the Administration Company menu in the ZPA console.
+
+      Used for OneAPI client authentication when use\_legacy\_client=false.
 
 
       .. raw:: html
@@ -430,7 +481,7 @@ Parameters
 
       :ansible-option-choices:`Choices:`
 
-      - :ansible-option-choices-entry-default:`false` :ansible-option-choices-default-mark:`← (default)`
+      - :ansible-option-choices-entry:`false`
       - :ansible-option-choices-entry:`true`
 
 
@@ -466,6 +517,48 @@ Parameters
         <div class="ansible-option-cell">
 
       Whether this application resource is enabled or not.
+
+
+      .. rst-class:: ansible-option-line
+
+      :ansible-option-choices:`Choices:`
+
+      - :ansible-option-choices-entry:`false`
+      - :ansible-option-choices-entry:`true`
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-fqdn_dns_check"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-fqdn_dns_check:
+
+      .. rst-class:: ansible-option-title
+
+      **fqdn_dns_check**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-fqdn_dns_check" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`boolean`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      If set to true, performs a DNS check to find an A or AAAA record for this application.
 
 
       .. rst-class:: ansible-option-line
@@ -595,7 +688,7 @@ Parameters
 
       :ansible-option-choices:`Choices:`
 
-      - :ansible-option-choices-entry-default:`false` :ansible-option-choices-default-mark:`← (default)`
+      - :ansible-option-choices-entry:`false`
       - :ansible-option-choices-entry:`true`
 
 
@@ -862,6 +955,40 @@ Parameters
   * - .. raw:: html
 
         <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-microtenant_id"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-microtenant_id:
+
+      .. rst-class:: ansible-option-title
+
+      **microtenant_id**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-microtenant_id" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The unique identifier of the Microtenant for the ZPA tenant
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
         <div class="ansibleOptionAnchor" id="parameter-name"></div>
 
       .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-name:
@@ -938,6 +1065,42 @@ Parameters
   * - .. raw:: html
 
         <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-private_key"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-private_key:
+
+      .. rst-class:: ansible-option-title
+
+      **private_key**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-private_key" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The private key for JWT-based OAuth2 authentication.
+
+      Used for OneAPI client authentication when use\_legacy\_client=false and not using client\_secret.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
         <div class="ansibleOptionAnchor" id="parameter-provider"></div>
 
       .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-provider:
@@ -962,7 +1125,7 @@ Parameters
 
         <div class="ansible-option-cell">
 
-      A dict object containing authentication details.
+      A dict containing authentication credentials.
 
 
       .. raw:: html
@@ -1004,7 +1167,9 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      The ZPA API client ID generated from the ZPA console.
+      The client ID for OAuth2 authentication.
+
+      Required for OneAPI client authentication when use\_legacy\_client=false.
 
 
       .. raw:: html
@@ -1046,7 +1211,9 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      The ZPA API client secret generated from the ZPA console.
+      The client secret for OAuth2 authentication.
+
+      Used for OneAPI client authentication when use\_legacy\_client=false and not using private\_key.
 
 
       .. raw:: html
@@ -1090,19 +1257,22 @@ Parameters
 
       The ZPA cloud provisioned for your organization.
 
+      Used for OneAPI client authentication when use\_legacy\_client=false.
+
 
       .. rst-class:: ansible-option-line
 
       :ansible-option-choices:`Choices:`
 
-      - :ansible-option-choices-entry:`"PRODUCTION"`
       - :ansible-option-choices-entry:`"BETA"`
-      - :ansible-option-choices-entry:`"QA"`
-      - :ansible-option-choices-entry:`"QA2"`
       - :ansible-option-choices-entry:`"GOV"`
       - :ansible-option-choices-entry:`"GOVUS"`
+      - :ansible-option-choices-entry:`"PRODUCTION"`
+      - :ansible-option-choices-entry:`"QA"`
+      - :ansible-option-choices-entry:`"QA2"`
       - :ansible-option-choices-entry:`"PREVIEW"`
-      - :ansible-option-choices-entry:`"ZPATWO"`
+      - :ansible-option-choices-entry:`"beta"`
+      - :ansible-option-choices-entry:`"production"`
 
 
       .. raw:: html
@@ -1145,6 +1315,429 @@ Parameters
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
       The ZPA tenant ID found in the Administration Company menu in the ZPA console.
+
+      Used for OneAPI client authentication when use\_legacy\_client=false.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-indent"></div><div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-provider/microtenant_id"></div>
+
+      .. raw:: latex
+
+        \hspace{0.02\textwidth}\begin{minipage}[t]{0.3\textwidth}
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-provider/microtenant_id:
+
+      .. rst-class:: ansible-option-title
+
+      **microtenant_id**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-provider/microtenant_id" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string`
+
+      .. raw:: html
+
+        </div>
+
+      .. raw:: latex
+
+        \end{minipage}
+
+    - .. raw:: html
+
+        <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
+
+      The ZPA Microtenant ID found in the Administration Company menu in the ZPA console.
+
+      Used for OneAPI client authentication when use\_legacy\_client=false.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-indent"></div><div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-provider/private_key"></div>
+
+      .. raw:: latex
+
+        \hspace{0.02\textwidth}\begin{minipage}[t]{0.3\textwidth}
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-provider/private_key:
+
+      .. rst-class:: ansible-option-title
+
+      **private_key**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-provider/private_key" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string`
+
+      .. raw:: html
+
+        </div>
+
+      .. raw:: latex
+
+        \end{minipage}
+
+    - .. raw:: html
+
+        <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
+
+      The private key for JWT-based OAuth2 authentication.
+
+      Used for OneAPI client authentication when use\_legacy\_client=false and not using client\_secret.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-indent"></div><div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-provider/use_legacy_client"></div>
+
+      .. raw:: latex
+
+        \hspace{0.02\textwidth}\begin{minipage}[t]{0.3\textwidth}
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-provider/use_legacy_client:
+
+      .. rst-class:: ansible-option-title
+
+      **use_legacy_client**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-provider/use_legacy_client" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`boolean`
+
+      .. raw:: html
+
+        </div>
+
+      .. raw:: latex
+
+        \end{minipage}
+
+    - .. raw:: html
+
+        <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
+
+      Whether to use the legacy Zscaler API client.
+
+      When true, uses zpa\_client\_id/zpa\_client\_secret/zpa\_customer\_id/zpa\_cloud for authentication.
+
+      When false (default), uses client\_id/client\_secret/private\_key with vanity\_domain for OAuth2 authentication.
+
+
+      .. rst-class:: ansible-option-line
+
+      :ansible-option-choices:`Choices:`
+
+      - :ansible-option-choices-entry-default:`false` :ansible-option-choices-default-mark:`← (default)`
+      - :ansible-option-choices-entry:`true`
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-indent"></div><div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-provider/vanity_domain"></div>
+
+      .. raw:: latex
+
+        \hspace{0.02\textwidth}\begin{minipage}[t]{0.3\textwidth}
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-provider/vanity_domain:
+
+      .. rst-class:: ansible-option-title
+
+      **vanity_domain**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-provider/vanity_domain" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string`
+
+      .. raw:: html
+
+        </div>
+
+      .. raw:: latex
+
+        \end{minipage}
+
+    - .. raw:: html
+
+        <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
+
+      The vanity domain provisioned by Zscaler for OAuth2 flows.
+
+      Required for OneAPI client authentication when use\_legacy\_client=false.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-indent"></div><div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-provider/zpa_client_id"></div>
+
+      .. raw:: latex
+
+        \hspace{0.02\textwidth}\begin{minipage}[t]{0.3\textwidth}
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-provider/zpa_client_id:
+
+      .. rst-class:: ansible-option-title
+
+      **zpa_client_id**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-provider/zpa_client_id" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string`
+
+      .. raw:: html
+
+        </div>
+
+      .. raw:: latex
+
+        \end{minipage}
+
+    - .. raw:: html
+
+        <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
+
+      The ZPA API client ID generated from the ZPA console.
+
+      Required for legacy client authentication when use\_legacy\_client=true.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-indent"></div><div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-provider/zpa_client_secret"></div>
+
+      .. raw:: latex
+
+        \hspace{0.02\textwidth}\begin{minipage}[t]{0.3\textwidth}
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-provider/zpa_client_secret:
+
+      .. rst-class:: ansible-option-title
+
+      **zpa_client_secret**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-provider/zpa_client_secret" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string`
+
+      .. raw:: html
+
+        </div>
+
+      .. raw:: latex
+
+        \end{minipage}
+
+    - .. raw:: html
+
+        <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
+
+      The ZPA API client secret generated from the ZPA console.
+
+      Required for legacy client authentication when use\_legacy\_client=true.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-indent"></div><div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-provider/zpa_cloud"></div>
+
+      .. raw:: latex
+
+        \hspace{0.02\textwidth}\begin{minipage}[t]{0.3\textwidth}
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-provider/zpa_cloud:
+
+      .. rst-class:: ansible-option-title
+
+      **zpa_cloud**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-provider/zpa_cloud" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string`
+
+      .. raw:: html
+
+        </div>
+
+      .. raw:: latex
+
+        \end{minipage}
+
+    - .. raw:: html
+
+        <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
+
+      The ZPA cloud provisioned for your organization.
+
+      Required for legacy client authentication when use\_legacy\_client=true.
+
+
+      .. rst-class:: ansible-option-line
+
+      :ansible-option-choices:`Choices:`
+
+      - :ansible-option-choices-entry:`"BETA"`
+      - :ansible-option-choices-entry:`"GOV"`
+      - :ansible-option-choices-entry:`"GOVUS"`
+      - :ansible-option-choices-entry:`"PRODUCTION"`
+      - :ansible-option-choices-entry:`"QA"`
+      - :ansible-option-choices-entry:`"QA2"`
+      - :ansible-option-choices-entry:`"PREVIEW"`
+      - :ansible-option-choices-entry:`"beta"`
+      - :ansible-option-choices-entry:`"production"`
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-indent"></div><div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-provider/zpa_customer_id"></div>
+
+      .. raw:: latex
+
+        \hspace{0.02\textwidth}\begin{minipage}[t]{0.3\textwidth}
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-provider/zpa_customer_id:
+
+      .. rst-class:: ansible-option-title
+
+      **zpa_customer_id**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-provider/zpa_customer_id" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string`
+
+      .. raw:: html
+
+        </div>
+
+      .. raw:: latex
+
+        \end{minipage}
+
+    - .. raw:: html
+
+        <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
+
+      The ZPA tenant ID found in the Administration Company menu in the ZPA console.
+
+      Required for legacy client authentication when use\_legacy\_client=true.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-indent"></div><div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-provider/zpa_microtenant_id"></div>
+
+      .. raw:: latex
+
+        \hspace{0.02\textwidth}\begin{minipage}[t]{0.3\textwidth}
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-provider/zpa_microtenant_id:
+
+      .. rst-class:: ansible-option-title
+
+      **zpa_microtenant_id**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-provider/zpa_microtenant_id" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string`
+
+      .. raw:: html
+
+        </div>
+
+      .. raw:: latex
+
+        \end{minipage}
+
+    - .. raw:: html
+
+        <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
+
+      The ZPA Microtenant ID found in the Administration Company menu in the ZPA console.
+
+      Used for legacy client authentication when use\_legacy\_client=true.
 
 
       .. raw:: html
@@ -1220,7 +1813,7 @@ Parameters
 
       :ansible-option-choices:`Choices:`
 
-      - :ansible-option-choices-entry-default:`false` :ansible-option-choices-default-mark:`← (default)`
+      - :ansible-option-choices-entry:`false`
       - :ansible-option-choices-entry:`true`
 
 
@@ -1289,7 +1882,7 @@ Parameters
 
         <div class="ansible-option-cell">
 
-      The state.
+      Specifies the desired state of the resource.
 
 
       .. rst-class:: ansible-option-line
@@ -1338,7 +1931,7 @@ Parameters
 
       :ansible-option-choices:`Choices:`
 
-      - :ansible-option-choices-entry-default:`false` :ansible-option-choices-default-mark:`← (default)`
+      - :ansible-option-choices-entry:`false`
       - :ansible-option-choices-entry:`true`
 
 
@@ -1502,6 +2095,49 @@ Parameters
   * - .. raw:: html
 
         <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-tcp_protocols"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-tcp_protocols:
+
+      .. rst-class:: ansible-option-title
+
+      **tcp_protocols**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-tcp_protocols" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`list` / :ansible-option-elements:`elements=string`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      Indicates the AD Protection protocols to be inspected on the specified TCP port ranges
+
+
+      .. rst-class:: ansible-option-line
+
+      :ansible-option-choices:`Choices:`
+
+      - :ansible-option-choices-entry:`"KERBEROS"`
+      - :ansible-option-choices-entry:`"LDAP"`
+      - :ansible-option-choices-entry:`"SMB"`
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
         <div class="ansibleOptionAnchor" id="parameter-udp_port_range"></div>
 
       .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-udp_port_range:
@@ -1655,6 +2291,49 @@ Parameters
   * - .. raw:: html
 
         <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-udp_protocols"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-udp_protocols:
+
+      .. rst-class:: ansible-option-title
+
+      **udp_protocols**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-udp_protocols" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`list` / :ansible-option-elements:`elements=string`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      Indicates the AD Protection protocols to be inspected on the specified UDP port ranges.
+
+
+      .. rst-class:: ansible-option-line
+
+      :ansible-option-choices:`Choices:`
+
+      - :ansible-option-choices-entry:`"KERBEROS"`
+      - :ansible-option-choices-entry:`"LDAP"`
+      - :ansible-option-choices-entry:`"SMB"`
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
         <div class="ansibleOptionAnchor" id="parameter-use_in_dr_mode"></div>
 
       .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-use_in_dr_mode:
@@ -1688,6 +2367,325 @@ Parameters
 
       - :ansible-option-choices-entry:`false`
       - :ansible-option-choices-entry:`true`
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-use_legacy_client"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-use_legacy_client:
+
+      .. rst-class:: ansible-option-title
+
+      **use_legacy_client**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-use_legacy_client" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`boolean`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      Whether to use the legacy Zscaler API client.
+
+      When true, uses zpa\_client\_id/zpa\_client\_secret/zpa\_customer\_id/zpa\_cloud for authentication.
+
+      When false (default), uses client\_id/client\_secret/private\_key with vanity\_domain for OAuth2 authentication.
+
+
+      .. rst-class:: ansible-option-line
+
+      :ansible-option-choices:`Choices:`
+
+      - :ansible-option-choices-entry-default:`false` :ansible-option-choices-default-mark:`← (default)`
+      - :ansible-option-choices-entry:`true`
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-vanity_domain"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-vanity_domain:
+
+      .. rst-class:: ansible-option-title
+
+      **vanity_domain**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-vanity_domain" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The vanity domain provisioned by Zscaler for OAuth2 flows.
+
+      Required for OneAPI client authentication when use\_legacy\_client=false.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-weighted_load_balancing"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-weighted_load_balancing:
+
+      .. rst-class:: ansible-option-title
+
+      **weighted_load_balancing**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-weighted_load_balancing" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`boolean`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      Indicates if the application load balancing configuration for application segments is enabled (true) or disabled (false)
+
+
+      .. rst-class:: ansible-option-line
+
+      :ansible-option-choices:`Choices:`
+
+      - :ansible-option-choices-entry:`false`
+      - :ansible-option-choices-entry:`true`
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-zpa_client_id"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-zpa_client_id:
+
+      .. rst-class:: ansible-option-title
+
+      **zpa_client_id**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-zpa_client_id" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The ZPA API client ID generated from the ZPA console.
+
+      Required for legacy client authentication when use\_legacy\_client=true.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-zpa_client_secret"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-zpa_client_secret:
+
+      .. rst-class:: ansible-option-title
+
+      **zpa_client_secret**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-zpa_client_secret" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The ZPA API client secret generated from the ZPA console.
+
+      Required for legacy client authentication when use\_legacy\_client=true.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-zpa_cloud"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-zpa_cloud:
+
+      .. rst-class:: ansible-option-title
+
+      **zpa_cloud**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-zpa_cloud" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The ZPA cloud provisioned for your organization.
+
+      Required for legacy client authentication when use\_legacy\_client=true.
+
+
+      .. rst-class:: ansible-option-line
+
+      :ansible-option-choices:`Choices:`
+
+      - :ansible-option-choices-entry:`"BETA"`
+      - :ansible-option-choices-entry:`"GOV"`
+      - :ansible-option-choices-entry:`"GOVUS"`
+      - :ansible-option-choices-entry:`"PRODUCTION"`
+      - :ansible-option-choices-entry:`"QA"`
+      - :ansible-option-choices-entry:`"QA2"`
+      - :ansible-option-choices-entry:`"PREVIEW"`
+      - :ansible-option-choices-entry:`"beta"`
+      - :ansible-option-choices-entry:`"production"`
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-zpa_customer_id"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-zpa_customer_id:
+
+      .. rst-class:: ansible-option-title
+
+      **zpa_customer_id**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-zpa_customer_id" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The ZPA tenant ID found in the Administration Company menu in the ZPA console.
+
+      Required for legacy client authentication when use\_legacy\_client=true.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-zpa_microtenant_id"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-zpa_microtenant_id:
+
+      .. rst-class:: ansible-option-title
+
+      **zpa_microtenant_id**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-zpa_microtenant_id" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      The ZPA Microtenant ID found in the Administration Company menu in the ZPA console.
+
+      Used for legacy client authentication when use\_legacy\_client=true.
 
 
       .. raw:: html

@@ -57,9 +57,33 @@ options:
   version:
     description:
       - The predefined control version.
+    required: true
+    type: str
+    choices:
+      - OWASP_CRS/4.8.0
+      - OWASP_CRS/3.3.5
+      - OWASP_CRS/3.3.0
+  control_group:
+    description:
+      - The predefined control version.
     required: false
     type: str
-    default: OWASP_CRS/3.3.0
+    choices:
+      - Anomalies
+      - IIS Information Leakage
+      - Deserialization Issues
+      - Session Fixation
+      - SQL Injection
+      - XSS
+      - PHP Injection
+      - Remote Code Execution
+      - Remote file inclusion
+      - Local File Inclusion
+      - Request smuggling or Response split or Header injection
+      - Environment and port scanners
+      - Preprocessors
+      - Internal Error
+      - Protocol Issues
 """
 
 EXAMPLES = """
@@ -171,53 +195,99 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 )
 
 
-from traceback import format_exc
-
-from ansible.module_utils._text import to_native
-from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
-    ZPAClientHelper,
-)
-
-
 def core(module):
     control_id = module.params.get("id")
     control_name = module.params.get("name")
+    control_group = module.params.get("control_group")
     version = module.params.get("version")
     client = ZPAClientHelper(module)
-    controls = []
 
     if control_id:
-        control_box = client.inspection.get_predef_control(control_id=control_id)
-        if not control_box:
+        result, _unused, error = client.app_protection.get_predef_control(
+            control_id=control_id
+        )
+        if error:
             module.fail_json(
-                msg="Failed to retrieve App Protection Predefined Control ID: '{control_id}'"
+                msg=f"Error fetching control by ID '{control_id}': {to_native(error)}"
             )
-        controls = [control_box.to_dict()]
+        if not result:
+            module.fail_json(msg=f"Predefined Control with ID '{control_id}' not found")
+        module.exit_json(changed=False, controls=[result.as_dict()])
 
-    elif control_name:
-        try:
-            control = client.inspection.get_predef_control_by_name(
-                control_name, version
-            )
-            controls = [control.to_dict()]
-        except ValueError as ve:
-            module.fail_json(msg=to_native(ve))
+    query_params = {"version": version}
 
-    else:
-        controls = client.inspection.list_predef_controls(version=version).to_list()
+    if control_name:
+        query_params.update(
+            {
+                "search": "name",
+                "search_field": control_name,
+            }
+        )
+    elif control_group:
+        query_params.update(
+            {
+                "search": "controlGroup",
+                "search_field": control_group,
+            }
+        )
 
-    module.exit_json(changed=False, controls=controls)
+    controls, _unused, error = client.app_protection.list_predef_controls(
+        query_params=query_params
+    )
+    if error:
+        module.fail_json(msg=f"Error listing predefined controls: {to_native(error)}")
+
+    module.exit_json(
+        changed=False,
+        controls=[c.as_dict() for c in controls],
+    )
 
 
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
         name=dict(type="str", required=False),
-        version=dict(type="str", default="OWASP_CRS/3.3.0"),
         id=dict(type="str", required=False),
+        version=dict(
+            type="str",
+            required=True,
+            choices=[
+                "OWASP_CRS/4.8.0",
+                "OWASP_CRS/3.3.5",
+                "OWASP_CRS/3.3.0",
+            ],
+        ),
+        control_group=dict(
+            type="str",
+            required=False,
+            choices=[
+                "Anomalies",
+                "IIS Information Leakage",
+                "Deserialization Issues",
+                "Session Fixation",
+                "SQL Injection",
+                "XSS",
+                "PHP Injection",
+                "Remote Code Execution",
+                "Remote file inclusion",
+                "Local File Inclusion",
+                "Request smuggling or Response split or Header injection",
+                "Environment and port scanners",
+                "Preprocessors",
+                "Internal Error",
+                "Protocol Issues",
+            ],
+        ),
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+
+    module = AnsibleModule(
+        argument_spec=argument_spec,
+        supports_check_mode=True,
+        mutually_exclusive=[
+            ["id", "name"],
+            ["id", "control_group"],
+        ],
+    )
     try:
         core(module)
     except Exception as e:

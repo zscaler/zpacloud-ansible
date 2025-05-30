@@ -61,6 +61,9 @@ options:
       - zpn_client_type_zapp_partner
       - zpn_client_type_branch_connector
       - zpn_client_type_zia_inspection
+      - client_connector_for_vdi
+      - zsdk_pre_login_tunnel
+      - zsdk_zero_trust_tunnel
 """
 
 EXAMPLES = """
@@ -139,21 +142,13 @@ def core(module):
     client = ZPAClientHelper(module)
     client_type = module.params.get("client_type")
 
-    # Fetch all client types from the SDK
-    all_client_types = client.lss.get_client_types()
+    # Directly pass client_type to the SDK — it handles filtering internally
+    result = client.lss.get_client_types(client_type)
 
-    # If a specific client type is provided, filter it manually
-    if client_type and client_type in all_client_types:
-        filtered_types = {client_type: all_client_types[client_type]}
-    else:
-        filtered_types = all_client_types
+    if result is None:
+        module.fail_json(msg="Failed to retrieve LSS client types.")
 
-    if hasattr(filtered_types, "to_dict"):
-        data = filtered_types.to_dict()
-    else:
-        data = filtered_types
-
-    module.exit_json(changed=False, data=data)
+    module.exit_json(changed=False, data=result)
 
 
 def main():
@@ -172,6 +167,9 @@ def main():
                 "zpn_client_type_zapp_partner",
                 "zpn_client_type_branch_connector",
                 "zpn_client_type_zia_inspection",
+                "client_connector_for_vdi",
+                "zsdk_pre_login_tunnel",
+                "zsdk_zero_trust_tunnel",
             ],
         ),
     )

@@ -54,6 +54,25 @@ options:
       - ID of the policy rule.
     required: false
     type: str
+  policy_type:
+    description:
+      - policy set for the specified policy type.
+    required: true
+    type: str
+    choices:
+      - access
+      - timeout
+      - client_forwarding
+      - isolation
+      - inspection
+      - redirection
+      - credential
+      - capabilities
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = """
@@ -83,35 +102,63 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
-    policy_rule_name = module.params.get("name", None)
-    policy_rule_id = module.params.get("id", None)
+    policy_rule_id = module.params.get("id")
+    policy_rule_name = module.params.get("name")
+    policy_type = module.params.get("policy_type")
+    microtenant_id = module.params.get("microtenant_id")
+
     client = ZPAClientHelper(module)
-    policy_rules = []
-    if policy_rule_id is not None:
-        policy_rule = client.policies.get_rule(
-            policy_type="access", rule_id=policy_rule_id
+
+    query_params = {}
+    if microtenant_id:
+        query_params["microtenant_id"] = microtenant_id
+
+    # Retrieve rule by ID
+    if policy_rule_id:
+        result, _unused, error = client.policies.get_rule(
+            policy_type=policy_type, rule_id=policy_rule_id, query_params=query_params
         )
-        if policy_rule is None:
-            module.fail_json(msg="Failed to retrieve policy rule ID: '%s'" % (id))
-        policy_rules = [policy_rule]
-    elif policy_rule_name is not None:
-        rules = client.policies.list_rules(policy_type="access").to_list()
-        found = False
-        for rule in rules:
-            if rule.get("name") == policy_rule_name:
-                policy_rules = [rule]
-                found = True
-                break
-        if not found:
+        if error or not result:
             module.fail_json(
-                msg="Failed to retrieve policy rule Name: '%s'" % (policy_rule_name)
+                msg=f"Failed to retrieve policy rule ID '{policy_rule_id}' for type '{policy_type}'"
             )
-    else:
-        policy_rules = client.policies.list_rules(policy_type="access").to_list()
-    module.exit_json(changed=False, policy_rules=policy_rules)
+        module.exit_json(
+            changed=False,
+            policy_rules=[result.as_dict() if hasattr(result, "as_dict") else result],
+        )
+
+    # Retrieve all rules using pagination
+    rules, err = collect_all_items(
+        lambda qp: client.policies.list_rules(policy_type=policy_type, query_params=qp),
+        query_params,
+    )
+    if err:
+        module.fail_json(
+            msg=f"Error retrieving policy rules for type '{policy_type}': {to_native(err)}"
+        )
+
+    # Optionally filter by name using getattr()
+    if policy_rule_name:
+        match = next(
+            (r for r in rules if getattr(r, "name", None) == policy_rule_name), None
+        )
+        if not match:
+            available = [getattr(r, "name", "") for r in rules]
+            module.fail_json(
+                msg=f"Policy rule '{policy_rule_name}' not found. Available: {available}"
+            )
+        rules = [match]
+
+    module.exit_json(
+        changed=False,
+        policy_rules=[r.as_dict() if hasattr(r, "as_dict") else r for r in rules],
+    )
 
 
 def main():
@@ -119,8 +166,25 @@ def main():
     argument_spec.update(
         name=dict(type="str", required=False),
         id=dict(type="str", required=False),
+        microtenant_id=dict(type="str", required=False),
+        policy_type=dict(
+            type="str",
+            required=True,
+            choices=[
+                "access",
+                "timeout",
+                "client_forwarding",
+                "isolation",
+                "inspection",
+                "redirection",
+                "credential",
+                "capabilities",
+            ],
+        ),
     )
+
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+
     try:
         core(module)
     except Exception as e:

@@ -58,16 +58,16 @@ options:
 
 EXAMPLES = """
 - name: Get Details of All App Protection profiles
-  zscaler.zpacloud.zpa_app_protection_security_profile_facts:
+  zscaler.zpacloud.zpa_app_protection_security_profile_info:
     provider: "{{ zpa_cloud }}"
 
 - name: Get Details of a Specific App Protection profiles by Name
-  zscaler.zpacloud.zpa_app_protection_security_profile_facts:
+  zscaler.zpacloud.zpa_app_protection_security_profile_info:
     provider: "{{ zpa_cloud }}"
     name: Example
 
 - name: Get Details of a specific App Protection profiles by ID
-  zscaler.zpacloud.zpa_app_protection_security_profile_facts:
+  zscaler.zpacloud.zpa_app_protection_security_profile_info:
     provider: "{{ zpa_cloud }}"
     id: "216196257331282583"
 """
@@ -145,35 +145,50 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
-    profile_id = module.params.get("id", None)
-    profile_name = module.params.get("name", None)
     client = ZPAClientHelper(module)
-    profiles = []
-    if profile_id is not None:
-        profile_box = client.inspection.get_profile(profile_id=profile_id)
-        if profile_box is None:
+
+    profile_id = module.params.get("id")
+    profile_name = module.params.get("name")
+
+    query_params = {}
+
+    if profile_id:
+        result, _unused, error = client.app_protection.get_profile(
+            profile_id, query_params
+        )
+        if error or result is None:
             module.fail_json(
-                msg="Failed to retrieve App Protection Security Profile ID: '%s'"
-                % (profile_id)
+                msg=f"Failed to retrieve app protection profile ID '{profile_id}': {to_native(error)}"
             )
-        profiles = [profile_box.to_dict()]
-    else:
-        profiles = client.inspection.list_profiles().to_list()
-        if profile_name is not None:
-            profile_found = False
-            for profile in profiles:
-                if profile.get("name") == profile_name:
-                    profile_found = True
-                    profiles = [profile]
-            if not profile_found:
-                module.fail_json(
-                    msg="Failed to retrieve App Protection Security Profile Name: '%s'"
-                    % (profile_name)
-                )
-    module.exit_json(changed=False, profiles=profiles)
+        module.exit_json(changed=False, profiles=[result.as_dict()])
+
+    # If no ID, we fetch all
+    cert_list, err = collect_all_items(
+        client.app_protection.list_profiles, query_params
+    )
+    if err:
+        module.fail_json(
+            msg=f"Error retrieving app protection profile: {to_native(err)}"
+        )
+
+    result_list = [g.as_dict() for g in cert_list]
+
+    if profile_name:
+        matched = next((g for g in result_list if g.get("name") == profile_name), None)
+        if not matched:
+            available = [g.get("name") for g in result_list]
+            module.fail_json(
+                msg=f"app protection profile '{profile_name}' not found. Available: {available}"
+            )
+        result_list = [matched]
+
+    module.exit_json(changed=False, profiles=result_list)
 
 
 def main():

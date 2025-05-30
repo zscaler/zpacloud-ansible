@@ -1,9 +1,0 @@
----
-custom_name: test_app_protection_custom_control
-description: test_app_protection_custom_control
-custom_action: PASS
-default_action: PASS
-paranoia_level: "1"
-severity: CRITICAL
-type: REQUEST
-protocol_type: HTTP

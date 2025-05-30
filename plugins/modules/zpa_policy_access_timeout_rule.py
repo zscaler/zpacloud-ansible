@@ -65,20 +65,10 @@ options:
     required: false
     choices:
       - RE_AUTH
-  policy_type:
-    description: "Indicates the policy type. The following value is supported: client_forwarding"
-    type: str
-    required: false
   rule_order:
     description: "The policy evaluation order number of the rule."
     type: str
     required: false
-  operator:
-    description:
-      - This denotes the operation type.
-    type: str
-    required: false
-    choices: ["AND", "OR"]
   custom_msg:
     description:
       - This is for providing a customer message for the user.
@@ -100,6 +90,11 @@ options:
       - Use minute, minutes, hour, hours, day, days, or never.
       - Timeout interval must be at least 10 minutes or 'never.
       - i.e 10 minutes, 1 hour, 2 hours, or never
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
   conditions:
     type: list
     elements: dict
@@ -168,6 +163,39 @@ EXAMPLES = r"""
           - object_type: "APP_GROUP"
             lhs: "id"
             rhs: "216196257331292103"
+      - operator: "AND"
+        operands:
+          - object_type: "PLATFORM"
+            lhs: ios
+            rhs: "true"
+          - object_type: "PLATFORM"
+            lhs: linux
+            rhs: "true"
+          - object_type: "PLATFORM"
+            lhs: windows
+            rhs: "true"
+      - operator: "OR"
+        operands:
+          - object_type: "SCIM_GROUP"
+            lhs: "72058304855015574"
+            rhs: "490880"
+            idp_id: "72058304855015574"
+          - object_type: "SCIM_GROUP"
+            lhs: "72058304855015574"
+            rhs: "490877"
+            idp_id: "72058304855015574"
+      - operator: "AND"
+        operands:
+          - object_type: "SCIM"
+            lhs: "72058304855015576"
+            rhs: "Smith"
+            idp_id: "72058304855015574"
+      - operator: "AND"
+        operands:
+          - object_type: "SAML"
+            lhs: "72058304855021553"
+            rhs: "jdoe@acme.com"
+            idp_id: "72058304855015574"
       - operator: "OR"
         operands:
           - object_type: "CLIENT_TYPE"
@@ -184,6 +212,20 @@ EXAMPLES = r"""
           - object_type: "POSTURE"
             lhs: "13ba3d97-aefb-4acc-9e54-6cc230dee4a5"
             rhs: "true"
+      - operator: "AND"
+        operands:
+          - object_type: "CLIENT_TYPE"
+            lhs: "id"
+            rhs: "zpn_client_type_exporter"
+          - object_type: "CLIENT_TYPE"
+            lhs: "id"
+            rhs: "zpn_client_type_zapp_partner"
+          - object_type: "CLIENT_TYPE"
+            lhs: "id"
+            rhs: "zpn_client_type_browser_isolation"
+          - object_type: "CLIENT_TYPE"
+            lhs: "id"
+            rhs: "zpn_client_type_zapp"
 """
 
 RETURN = r"""
@@ -194,14 +236,15 @@ from traceback import format_exc
 
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
+import json
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     map_conditions,
     normalize_policy,
     validate_operand,
     validate_timeout_intervals,
+    collect_all_items,
     deleteNone,
 )
-
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
@@ -210,6 +253,14 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 def core(module):
     state = module.params.get("state", "present")
     client = ZPAClientHelper(module)
+
+    rule_id = module.params.get("id")
+    rule_name = module.params.get("name")
+    microtenant_id = module.params.get("microtenant_id")
+
+    query_params = {}
+    if microtenant_id:
+        query_params["microtenant_id"] = microtenant_id
 
     # Fetch parameters conditionally based on state
     if state != "absent":  # Only process reauth times if not deleting the policy
@@ -234,151 +285,182 @@ def core(module):
         module.params["reauth_idle_timeout"] = None
         module.params["reauth_timeout"] = None
 
-    policy_rule_id = module.params.get("id", None)
-    policy_rule_name = module.params.get("name", None)
-    policy = dict()
-    params = [
-        "id",
-        "name",
-        "description",
-        "custom_msg",
-        "policy_type",
-        "action",
-        "operator",
-        "rule_order",
-        "conditions",
-    ]
+    rule = {
+        "id": module.params.get("id"),
+        "microtenant_id": module.params.get("microtenant_id"),
+        "name": module.params.get("name"),
+        "description": module.params.get("description"),
+        "custom_msg": module.params.get("custom_msg"),
+        "action": module.params.get("action"),
+        "rule_order": module.params.get("rule_order"),
+        "reauth_timeout": module.params.get("reauth_timeout"),
+        "reauth_idle_timeout": module.params.get("reauth_idle_timeout"),
+        "conditions": module.params.get("conditions"),
+    }
 
-    for param_name in params:
-        policy[param_name] = module.params.get(param_name, None)
-
-    conditions = module.params.get("conditions") or []
-
-    # Validate each operand in the conditions
-    for condition in conditions:
-        operands = condition.get("operands", [])
-        for operand in operands:
+    # Validate operands
+    for condition in rule.get("conditions") or []:
+        for operand in condition.get("operands", []):
             validation_result = validate_operand(operand, module)
             if validation_result:
-                module.fail_json(
-                    msg=validation_result
-                )  # Fail if validation returns a warning or error message
+                module.fail_json(msg=validation_result)
 
-    existing_policy = None
-    if policy_rule_id is not None:
-        existing_policy = client.policies.get_rule(
-            policy_type="timeout", rule_id=policy_rule_id
+    existing_rule = None
+    if rule_id:
+        result, _unused, error = client.policies.get_rule(
+            policy_type="timeout", rule_id=rule_id, query_params=query_params
         )
-    elif policy_rule_name is not None:
-        rules = client.policies.list_rules(policy_type="timeout").to_list()
-        for rule in rules:
-            if rule.get("name") == policy_rule_name:
-                existing_policy = rule
+        if error:
+            module.fail_json(
+                msg=f"Error retrieving rule with id {rule_id}: {to_native(error)}"
+            )
+        existing_rule = result.as_dict()
+        module.warn(f"Fetched existing rule: {existing_rule}")
+    else:
+        rules_list, error = collect_all_items(
+            lambda qp: client.policies.list_rules("timeout", query_params=qp),
+            query_params,
+        )
+        if error:
+            module.fail_json(msg=f"Error listing timeout rules: {to_native(error)}")
+        if error:
+            module.fail_json(msg=f"Error listing timeout rules: {to_native(error)}")
+        for r in rules_list:
+            if r.name == rule_name:
+                existing_rule = r.as_dict()
                 break
 
-    if existing_policy is not None:
-        # Normalize both policies' conditions
-        policy["conditions"] = map_conditions(policy.get("conditions", []))
-        existing_policy["conditions"] = map_conditions(
-            existing_policy.get("conditions", [])
+    desired = normalize_policy(
+        {**rule, "conditions": map_conditions(rule.get("conditions", []))}
+    )
+
+    if existing_rule:
+        existing_rule["conditions"] = map_conditions(
+            existing_rule.get("conditions", [])
         )
+        current = normalize_policy(existing_rule)
+        current["rule_order"] = str(existing_rule.get("order", ""))
+    else:
+        current = {}
 
-        desired_policy = normalize_policy(policy)
-        current_policy = normalize_policy(existing_policy)
+    differences_detected = False
+    for key in desired:
+        if key in ["id", "policy_type"]:
+            continue
 
-        fields_to_exclude = ["id", "policy_type"]
-        differences_detected = False
-        for key, value in desired_policy.items():
-            if key not in fields_to_exclude and current_policy.get(key) != value:
-                differences_detected = True
-                # module.warn(
-                #     f"Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}"
-                # )
+        desired_value = desired.get(key)
+        current_value = current.get(key)
 
-    if existing_policy:
-        desired_order = policy.get("rule_order")
-        current_order = str(existing_policy.get("order", ""))
-        if desired_order and desired_order != current_order:
+        # Normalize None vs empty list
+        if isinstance(desired_value, list) and not desired_value:
+            desired_value = []
+        if isinstance(current_value, list) and not current_value:
+            current_value = []
+
+        if str(desired_value) != str(current_value):
+            differences_detected = True
+            # module.warn(
+            #     f"Drift detected in '{key}': desired=({type(desired_value).__name__}) "
+            #     f"{desired_value} | current=({type(current_value).__name__}) {current_value}"
+            # )
+
+        if key == "conditions":
+            module.warn(f"→ Desired: {json.dumps(desired_value, indent=2)}")
+            module.warn(f"→ Current: {json.dumps(current_value, indent=2)}")
+
+    # Reorder if specified
+    if existing_rule and rule.get("rule_order"):
+        current_order = str(existing_rule.get("order", ""))
+        desired_order = str(rule["rule_order"])
+        if desired_order != current_order:
             try:
-                reordered_policy = client.policies.reorder_rule(
-                    policy_type="client_forwarding",
-                    rule_id=existing_policy["id"],
+                _unused, _unused, error = client.policies.reorder_rule(
+                    policy_type="timeout",
+                    rule_id=existing_rule["id"],
                     rule_order=desired_order,
                 )
-                if reordered_policy:
-                    module.warn("Reordered rule to new order: {}".format(desired_order))
-                else:
-                    module.fail_json(msg="Failed to reorder rule, no policy returned.")
+                if error:
+                    module.fail_json(msg=f"Error reordering rule: {to_native(error)}")
+                module.warn(f"Reordered rule to order {desired_order}")
             except Exception as e:
-                module.fail_json(msg="Failed to reorder rule: {}".format(str(e)))
+                module.fail_json(msg=f"Failed to reorder rule: {to_native(e)}")
 
     if module.check_mode:
-        # If in check mode, report changes and exit
-        if state == "present" and (existing_policy is None or differences_detected):
+        if state == "present" and (not existing_rule or differences_detected):
             module.exit_json(changed=True)
-        elif state == "absent" and existing_policy is not None:
+        elif state == "absent" and existing_rule:
             module.exit_json(changed=True)
         else:
-            module.exit_json(changed=False)
+            module.exit_json(changed=False, data=existing_rule or {})
 
-    if existing_policy is not None:
-        id = existing_policy.get("id")
-        existing_policy.update(policy)
-        existing_policy["id"] = id
-
+    # Update or create
     if state == "present":
-        if existing_policy is not None and differences_detected:
-            """Update"""
-            updated_policy = {
-                "policy_type": "timeout",
-                "rule_id": existing_policy.get("id", None),
-                "name": existing_policy.get("name", None),
-                "description": existing_policy.get("description", None),
-                "action": existing_policy.get("action").upper(),
-                "custom_msg": existing_policy.get("custom_msg", None),
-                "conditions": map_conditions(existing_policy.get("conditions", [])),
-                "rule_order": existing_policy.get("rule_order", None),
-            }
-            cleaned_policy = deleteNone(updated_policy)
-            updated_policy = client.policies.update_rule(**cleaned_policy)
-            module.exit_json(changed=True, data=updated_policy)
-        elif existing_policy is None:
-            """Create"""
-            new_policy = {
-                "name": policy.get("name", None),
-                "description": policy.get("description", None),
-                "action": policy.get("action", None),
-                "custom_msg": policy.get("custom_msg", None),
-                "rule_order": policy.get("rule_order", None),
-                "conditions": map_conditions(policy.get("conditions", [])),
-            }
-            cleaned_policy = deleteNone(new_policy)
-            created_policy = client.policies.add_timeout_rule(**cleaned_policy)
-            module.exit_json(changed=True, data=created_policy)
+        if existing_rule and differences_detected:
+            update_data = deleteNone(
+                {
+                    "rule_id": existing_rule["id"],
+                    "microtenant_id": rule["microtenant_id"],
+                    "name": rule["name"],
+                    "description": rule["description"],
+                    "action": rule["action"],
+                    "custom_msg": rule["custom_msg"],
+                    "rule_order": rule["rule_order"],
+                    "reauth_timeout": rule["reauth_timeout"],
+                    "reauth_idle_timeout": rule["reauth_idle_timeout"],
+                    "conditions": map_conditions(rule["conditions"]),
+                }
+            )
+            module.warn(f"Update payload to SDK: {update_data}")
+            result, _unused, error = client.policies.update_timeout_rule(**update_data)
+            if error:
+                module.fail_json(msg=f"Error updating rule: {to_native(error)}")
+            module.exit_json(changed=True, data=result.as_dict())
+
+        elif not existing_rule:
+            create_data = deleteNone(
+                {
+                    "microtenant_id": rule["microtenant_id"],
+                    "name": rule["name"],
+                    "description": rule["description"],
+                    "action": rule["action"],
+                    "custom_msg": rule["custom_msg"],
+                    "rule_order": rule["rule_order"],
+                    "reauth_timeout": rule["reauth_timeout"],
+                    "reauth_idle_timeout": rule["reauth_idle_timeout"],
+                    "conditions": map_conditions(rule["conditions"]),
+                }
+            )
+            module.warn(f"Create payload to SDK: {create_data}")
+            result, _unused, error = client.policies.add_timeout_rule(**create_data)
+            if error:
+                module.fail_json(msg=f"Error creating rule: {to_native(error)}")
+            module.exit_json(changed=True, data=result.as_dict())
+
         else:
-            module.exit_json(changed=False, data=existing_policy)
-    elif state == "absent" and existing_policy:
-        code = client.policies.delete_rule(
-            policy_type="timeout", rule_id=existing_policy.get("id")
+            module.exit_json(changed=False, data=existing_rule)
+
+    elif state == "absent" and existing_rule:
+        _unused, _unused, error = client.policies.delete_rule(
+            policy_type="timeout", rule_id=existing_rule["id"]
         )
-        if code > 299:
-            module.exit_json(changed=False, data=None)
-        module.exit_json(changed=True, data=existing_policy)
-    module.exit_json(changed=False, data={})
+        if error:
+            module.fail_json(msg=f"Error deleting rule: {to_native(error)}")
+        module.exit_json(changed=True, data=existing_rule)
+
+    module.exit_json(changed=False, data=existing_rule or {})
 
 
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
-        id=dict(type="str"),
+        id=dict(type="str", required=False),
+        microtenant_id=dict(type="str", required=False),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
         custom_msg=dict(type="str", required=False),
-        policy_type=dict(type="str", required=False),
         action=dict(type="str", required=False, choices=["RE_AUTH"]),
         reauth_idle_timeout=dict(type="str", required=False),
         reauth_timeout=dict(type="str", required=False),
-        operator=dict(type="str", required=False, choices=["AND", "OR"]),
         rule_order=dict(type="str", required=False),
         conditions=dict(
             type="list",

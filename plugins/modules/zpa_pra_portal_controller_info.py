@@ -52,6 +52,11 @@ options:
     type: str
     description: "The name of the privileged portal"
     required: false
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = """
@@ -154,31 +159,52 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
-    portal_id = module.params.get("id", None)
-    portal_name = module.params.get("name", None)
     client = ZPAClientHelper(module)
-    portals = []
-    if portal_id is not None:
-        portal_box = client.privileged_remote_access.get_portal(portal_id=portal_id)
-        if portal_box is None:
-            module.fail_json(msg="Failed to retrieve PRA Portal ID: '%s'" % (portal_id))
-        portals = [portal_box.to_dict()]
-    else:
-        portals = client.privileged_remote_access.list_portals(pagesize=500).to_list()
-        if portal_name is not None:
-            portal_found = False
-            for portal in portals:
-                if portal.get("name") == portal_name:
-                    portal_found = True
-                    portals = [portal]
-            if not portal_found:
-                module.fail_json(
-                    msg="Failed to retrieve PRA Portal Name: '%s'" % (portal_name)
-                )
-    module.exit_json(changed=False, portals=portals)
+
+    portal_id = module.params.get("id")
+    portal_name = module.params.get("name")
+    microtenant_id = module.params.get("microtenant_id")
+
+    query_params = {}
+    if microtenant_id:
+        query_params["microtenant_id"] = microtenant_id
+
+    if portal_id:
+        result, _unused, error = client.pra_portal.get_portal(portal_id, query_params)
+        if error or result is None:
+            module.fail_json(
+                msg=f"Failed to retrieve PRA Portal ID '{portal_id}': {to_native(error)}"
+            )
+        module.exit_json(changed=False, portals=[result.as_dict()])
+
+    # Warn log before pagination call
+    module.warn(f"[PRA Portal] Fetching all portals with query_params: {query_params}")
+
+    # If no ID, we fetch all
+    portal_list, err = collect_all_items(client.pra_portal.list_portals, query_params)
+    if err:
+        module.fail_json(msg=f"Error retrieving PRA Portals: {to_native(err)}")
+
+    module.warn(f"[PRA Portal] Total portals retrieved: {len(portal_list)}")
+
+    result_list = [g.as_dict() for g in portal_list]
+
+    if portal_name:
+        matched = next((g for g in result_list if g.get("name") == portal_name), None)
+        if not matched:
+            available = [g.get("name") for g in result_list]
+            module.fail_json(
+                msg=f"PRA Portal '{portal_name}' not found. Available: {available}"
+            )
+        result_list = [matched]
+
+    module.exit_json(changed=False, portals=result_list)
 
 
 def main():
@@ -186,6 +212,7 @@ def main():
     argument_spec.update(
         name=dict(type="str", required=False),
         id=dict(type="str", required=False),
+        microtenant_id=dict(type="str", required=False),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:

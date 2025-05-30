@@ -44,16 +44,21 @@ extends_documentation_fragment:
   - zscaler.zpacloud.fragments.documentation
 
 options:
-    id:
-        description:
-            - The unique identifier for the App Connector auto deletion configuration for a customer.
-            - This field is only required for the PUT request to update the frequency of the App Connector Settings.
-        type: str
-    customer_id:
-        description:
-            - The unique identifier of the ZPA tenant
-        type: str
-        required: false
+  id:
+      description:
+          - The unique identifier for the App Connector auto deletion configuration for a customer.
+          - This field is only required for the PUT request to update the frequency of the App Connector Settings.
+      type: str
+  customer_id:
+      description:
+          - The unique identifier of the ZPA tenant
+      type: str
+      required: false
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = r"""
@@ -129,25 +134,35 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 def core(module):
     schedule_id = module.params.get("id")
     customer_id = module.params.get("customer_id")
+    microtenant_id = module.params.get("microtenant_id")
     client = ZPAClientHelper(module)
 
-    # Query by schedule_id if provided, else query by customer_id
+    query_params = {}
+    if microtenant_id:
+        query_params["microtenantId"] = microtenant_id
+
+    # Always fetch the schedule (only one is returned by the API)
+    result, _unused, error = client.app_connector_schedule.get_connector_schedule(
+        customer_id=customer_id
+    )
+    if error or result is None:
+        module.fail_json(
+            msg=f"Failed to retrieve App Connector Schedule for customer ID: '{customer_id}'"
+        )
+
+    # If ID is provided, manually validate
     if schedule_id:
-        schedule = client.connectors.get_connector_schedule(schedule_id=schedule_id)
-        if schedule is None:
+        schedule_data = result.as_dict() if hasattr(result, "as_dict") else result
+        if str(schedule_data.get("id")) != str(schedule_id):
             module.fail_json(
-                msg=f"Failed to retrieve schedule assistant by ID: '{schedule_id}'"
+                msg=f"No App Connector Schedule found with ID '{schedule_id}'"
             )
-        module.exit_json(changed=False, schedule=schedule)
-    elif customer_id:
-        schedule = client.connectors.get_connector_schedule(customer_id=customer_id)
-        if schedule is None:
-            module.fail_json(
-                msg=f"Failed to retrieve schedule assistant by customer ID: '{customer_id}'"
-            )
-        module.exit_json(changed=False, schedule=schedule)
-    else:
-        module.fail_json(msg="Either 'id' or 'customer_id' must be provided.")
+        module.exit_json(changed=False, data=[schedule_data])
+
+    # Otherwise, return the schedule as-is
+    module.exit_json(
+        changed=False, data=[result.as_dict() if hasattr(result, "as_dict") else result]
+    )
 
 
 def main():
@@ -157,6 +172,7 @@ def main():
     argument_spec.update(
         id=dict(type="str", required=False),
         customer_id=dict(type="str", required=False, default=env_customer_id),
+        microtenant_id=dict(type="str", required=False),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 

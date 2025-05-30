@@ -1,4 +1,4 @@
 ---
-wildcard_certificate: bd-redhat.com
-sales_certificate: sales.bd-redhat.com
+wildcard_certificate: bd-hashicorp.com
+sales_certificate: sales.bd-hashicorp.com
 jenkins_certificate: jenkins.bd-hashicorp.com

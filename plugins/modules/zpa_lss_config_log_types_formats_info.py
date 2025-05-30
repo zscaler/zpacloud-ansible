@@ -100,9 +100,15 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 
 def core(module):
     client = ZPAClientHelper(module)
-    log_type = module.params.get("log_type", None)
-    lss_log_formats = client.lss.get_log_formats()
-    log_format = lss_log_formats.get(log_type, None)
+    log_type = module.params.get("log_type")
+
+    log_format = client.lss.get_all_log_formats(log_type=log_type)
+
+    if log_format is None:
+        module.fail_json(
+            msg=f"Failed to retrieve LSS log format{' for ' + log_type if log_type else ''}."
+        )
+
     module.exit_json(changed=False, data=log_format)
 
 

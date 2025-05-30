@@ -42,7 +42,7 @@ notes:
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
   - zscaler.zpacloud.fragments.documentation
-  - zscaler.zpacloud.fragments.state
+  - zscaler.zpacloud.fragments.modified_state
 
 options:
   policy_type:
@@ -73,12 +73,11 @@ options:
         description: "The order number of a new or existing rule to be reorder."
         type: str
         required: true
-  state:
-      description:
-          - The state of the module, which determines if the settings are to be applied.
-      type: str
-      choices: ['present']
-      default: 'present'
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = """
@@ -105,75 +104,80 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
     client = ZPAClientHelper(module)
     policy_type = module.params["policy_type"]
     desired_rules = module.params["rules"]
-    state = module.params["state"]  # Capturing the state parameter
+    microtenant_id = module.params.get("microtenant_id")
+    state = module.params["state"]
 
-    # Currently, state can only be 'present', which is for checking/reordering rules
     if state != "present":
         module.fail_json(
             msg="Invalid state. Only 'present' is supported for this module."
         )
 
     try:
-        # Fetch the current rules and their order
-        current_rules = client.policies.list_rules(policy_type)
+        query_params = {"microtenant_id": microtenant_id} if microtenant_id else {}
+
+        rules_list, error = collect_all_items(
+            lambda qp: client.policies.list_rules(policy_type, query_params=qp),
+            query_params,
+        )
+        if error:
+            module.fail_json(
+                msg=f"Error listing {policy_type} rules: {to_native(error)}"
+            )
+
         current_rules_order = {
-            rule["id"]: idx + 1 for idx, rule in enumerate(current_rules)
+            rule["id"]: idx + 1 for idx, rule in enumerate(rules_list)
         }
 
-        # Check if the current order matches the desired order
+        # Check if current order matches desired
         is_order_correct = all(
-            current_rules_order.get(rule["id"]) == rule["order"]
+            current_rules_order.get(rule["id"]) == int(rule["order"])
             for rule in desired_rules
         )
-
-        # If the current order is already as desired, exit without changes
         if is_order_correct:
             module.exit_json(
                 changed=False, msg="Rules are already in the desired order"
             )
 
-        # Sort rules by order
-        desired_rules.sort(key=lambda x: x["order"])
+        # Sort rules and validate
+        desired_rules.sort(key=lambda x: int(x["order"]))
+        orders = [int(rule["order"]) for rule in desired_rules]
 
-        # Validate rules (e.g., check for duplicates, order > 0, etc.)
-        orders = [rule["order"] for rule in desired_rules]
         if min(orders) <= 0:
-            module.fail_json(msg="New order of rule should be greater than 0")
+            module.fail_json(msg="Rule order must be greater than 0")
 
-        order_count = {}
-        for order in orders:
-            order_count[order] = order_count.get(order, 0) + 1
-        duplicate_orders = [order for order, count in order_count.items() if count > 1]
-        if duplicate_orders:
-            duplicate_rules = [
-                str(rule["id"])
-                for rule in desired_rules
-                if rule["order"] in duplicate_orders
-            ]
+        duplicates = set(o for o in orders if orders.count(o) > 1)
+        if duplicates:
+            dup_ids = [r["id"] for r in desired_rules if int(r["order"]) in duplicates]
             module.fail_json(
-                msg=f"Duplicate order '{duplicate_orders[0]}' used by rules with IDs: {', '.join(duplicate_rules)}"
+                msg=f"Duplicate order(s) {', '.join(map(str, duplicates))} found in rule IDs: {', '.join(dup_ids)}"
             )
 
-        # Check for gaps in rule orders
-        expected_orders = set(range(min(orders), max(orders) + 1))
-        actual_orders = set(orders)
-        missing_orders = expected_orders - actual_orders
-        if missing_orders:
+        missing = set(range(min(orders), max(orders) + 1)) - set(orders)
+        if missing:
             module.fail_json(
-                msg=f"Missing rule order numbers: {', '.join(map(str, sorted(missing_orders)))}"
+                msg=f"Missing rule order numbers: {', '.join(map(str, sorted(missing)))}"
             )
 
-        # Prepare the rules orders for bulk reorder
-        rules_orders = {rule["id"]: rule["order"] for rule in desired_rules}
+        # Extract ordered rule ID list
+        rule_ids_ordered = [rule["id"] for rule in desired_rules]
 
-        # Call reorder method from SDK
-        client.policies.bulk_reorder_rules(policy_type, rules_orders)
+        # Call SDK with microtenant_id
+        _unused, _unused, error = client.policies.bulk_reorder_rules(
+            policy_type=policy_type,
+            rules_orders=rule_ids_ordered,
+            microtenant_id=microtenant_id,
+        )
+        if error:
+            module.fail_json(msg=f"Error reordering rules: {to_native(error)}")
 
         module.exit_json(changed=True, msg="Reordered successfully")
 

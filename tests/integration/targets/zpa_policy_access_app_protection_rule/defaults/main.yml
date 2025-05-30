@@ -2,4 +2,4 @@
 rule_name: test_zpa_policy_access_app_protection_rule
 description: test_zpa_policy_access_app_protection_rule
 rule_action: inspect
-operator: AND
+policy_type: inspection

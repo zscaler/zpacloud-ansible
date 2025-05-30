@@ -42,6 +42,7 @@ notes:
 extends_documentation_fragment:
   - zscaler.zpacloud.fragments.provider
   - zscaler.zpacloud.fragments.documentation
+  - zscaler.zpacloud.fragments.modified_state
 
 options:
     id:
@@ -73,12 +74,11 @@ options:
         type: str
         default: '5'
         choices: ['5', '7', '14', '30', '60', '90']
-    state:
+    microtenant_id:
         description:
-            - The state of the module, which determines if the settings are to be applied.
+        - The unique identifier of the Microtenant for the ZPA tenant
+        required: false
         type: str
-        choices: ['present']
-        default: 'present'
 """
 
 EXAMPLES = r"""

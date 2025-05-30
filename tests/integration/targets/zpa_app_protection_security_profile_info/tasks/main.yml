@@ -1,0 +1,64 @@
+---
+- name: Include default variables
+  ansible.builtin.include_vars:
+    file: ../defaults/main.yml
+
+- name: Ensure required environment variables are set
+  ansible.builtin.fail:
+    msg: "{{ env_var }} is not defined as environment variable"
+  when: lookup('env', env_var) is none
+  loop:
+    - ZSCALER_CLIENT_ID
+    - ZSCALER_CLIENT_SECRET
+    - ZSCALER_VANITY_DOMAIN
+    - ZPA_CUSTOMER_ID
+    - ZSCALER_CLOUD
+  loop_control:
+    loop_var: env_var
+
+- name: Ensure ZIA Credential environment variables are set
+  ansible.builtin.set_fact:
+    zpa_cloud:
+      client_id: '{{ lookup("env", "ZSCALER_CLIENT_ID") }}'
+      client_secret: '{{ lookup("env", "ZSCALER_CLIENT_SECRET") | default(omit) }}'
+      vanity_domain: '{{ lookup("env", "ZSCALER_VANITY_DOMAIN") | default(omit) }}'
+      customer_id: '{{ lookup("env", "ZPA_CUSTOMER_ID") | default(omit) }}'
+      cloud: '{{ lookup("env", "ZSCALER_CLOUD") | default(omit) }}'
+  no_log: true
+
+- name: Main block to Test App Protection Profile
+  block:
+    - name: Fetch All App Protection Profile
+      zscaler.zpacloud.zpa_app_protection_security_profile_info:
+        provider: "{{ zpa_cloud }}"
+      register: result
+
+    - name: Ensure All App Protection Profile found
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.profiles is defined
+
+    - name: Fetch OWASP Top-10 for Visibility Posture Profile
+      zscaler.zpacloud.zpa_app_protection_security_profile_info:
+        provider: "{{ zpa_cloud }}"
+        name: "{{ profile_1 }}"
+      register: result
+
+    - name: Ensure OWASP Top-10 for Visibility Posture Profile found
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.profiles is defined
+
+    - name: Fetch BD_AppProtection_Profile1 Posture Profile
+      zscaler.zpacloud.zpa_app_protection_security_profile_info:
+        provider: "{{ zpa_cloud }}"
+        name: "{{ profile_2 }}"
+      register: result
+
+    - name: Ensure BD_AppProtection_Profile1 Posture Profile found
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.profiles is defined

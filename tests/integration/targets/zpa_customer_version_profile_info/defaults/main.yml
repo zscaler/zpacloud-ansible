@@ -1,4 +1,5 @@
 ---
 profile_default: Default
-profile_previous_default: Previous Default
-profile_new_release: New Release
+# profile_previous_default: Previous Default
+# profile_new_release: New Release
+# profile_default_el8: Default - el8

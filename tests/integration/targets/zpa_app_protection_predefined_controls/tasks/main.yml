@@ -8,38 +8,31 @@
     msg: "{{ env_var }} is not defined as environment variable"
   when: lookup('env', env_var) is none
   loop:
-    - ZPA_CLIENT_ID
-    - ZPA_CLIENT_SECRET
+    - ZSCALER_CLIENT_ID
+    - ZSCALER_CLIENT_SECRET
+    - ZSCALER_VANITY_DOMAIN
     - ZPA_CUSTOMER_ID
+    - ZSCALER_CLOUD
   loop_control:
     loop_var: env_var
 
-- name: Ensure ZPA Credential environment variables are set
+- name: Ensure ZIA Credential environment variables are set
   ansible.builtin.set_fact:
     zpa_cloud:
-      client_id: "{{ lookup('env', 'ZPA_CLIENT_ID') }}"
-      client_secret: "{{ lookup('env', 'ZPA_CLIENT_SECRET') }}"
-      customer_id: "{{ lookup('env', 'ZPA_CUSTOMER_ID') }}"
-      cloud: "{{ lookup('env', 'ZPA_CLOUD') | default(omit) }}"
+      client_id: '{{ lookup("env", "ZSCALER_CLIENT_ID") }}'
+      client_secret: '{{ lookup("env", "ZSCALER_CLIENT_SECRET") | default(omit) }}'
+      vanity_domain: '{{ lookup("env", "ZSCALER_VANITY_DOMAIN") | default(omit) }}'
+      customer_id: '{{ lookup("env", "ZPA_CUSTOMER_ID") | default(omit) }}'
+      cloud: '{{ lookup("env", "ZSCALER_CLOUD") | default(omit) }}'
   no_log: true
 
 - name: Main block to Test All Predefined Controls
   block:
-    - name: Fetch All Predefined Controls
-      zscaler.zpacloud.zpa_app_protection_all_predefined_controls_info:
-        provider: "{{ zpa_cloud }}"
-      register: result
-
-    - name: Ensure All Predefined Controls found
-      ansible.builtin.assert:
-        that:
-          - not result.changed
-          - result.all_control_groups is defined
-
     - name: Fetch Predefined Control1
       zscaler.zpacloud.zpa_app_protection_predefined_control_info:
         provider: "{{ zpa_cloud }}"
         name: "{{ control1 }}"
+        version: "{{ version330 }}"
       register: result
 
     - name: Ensure Predefined Control1 found
@@ -52,6 +45,7 @@
       zscaler.zpacloud.zpa_app_protection_predefined_control_info:
         provider: "{{ zpa_cloud }}"
         name: "{{ control2 }}"
+        version: "{{ version335 }}"
       register: result
 
     - name: Ensure Predefined Control2 is found
@@ -64,33 +58,10 @@
       zscaler.zpacloud.zpa_app_protection_predefined_control_info:
         provider: "{{ zpa_cloud }}"
         name: "{{ control3 }}"
+        version: "{{ version480 }}"
       register: result
 
     - name: Ensure Predefined Control3 is found
-      ansible.builtin.assert:
-        that:
-          - not result.changed
-          - result.controls is defined
-
-    - name: Fetch Predefined Control4
-      zscaler.zpacloud.zpa_app_protection_predefined_control_info:
-        provider: "{{ zpa_cloud }}"
-        name: "{{ control4 }}"
-      register: result
-
-    - name: Ensure Predefined Control4 is found
-      ansible.builtin.assert:
-        that:
-          - not result.changed
-          - result.controls is defined
-
-    - name: Fetch Predefined Control5
-      zscaler.zpacloud.zpa_app_protection_predefined_control_info:
-        provider: "{{ zpa_cloud }}"
-        name: "{{ control5 }}"
-      register: result
-
-    - name: Ensure Predefined Control5 is found
       ansible.builtin.assert:
         that:
           - not result.changed

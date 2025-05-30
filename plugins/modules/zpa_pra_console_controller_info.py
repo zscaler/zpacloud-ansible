@@ -52,6 +52,11 @@ options:
     type: str
     description: "The name of the privileged Console"
     required: false
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = """
@@ -81,33 +86,51 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
-    console_id = module.params.get("id", None)
-    console_name = module.params.get("name", None)
     client = ZPAClientHelper(module)
-    consoles = []
-    if console_id is not None:
-        console_box = client.privileged_remote_access.get_console(console_id=console_id)
-        if console_box is None:
+
+    console_id = module.params.get("id")
+    console_name = module.params.get("name")
+    microtenant_id = module.params.get("microtenant_id")
+
+    query_params = {}
+    if microtenant_id:
+        query_params["microtenant_id"] = microtenant_id
+
+    if console_id:
+        result, _unused, error = client.pra_console.get_console(
+            console_id, query_params
+        )
+        if error or result is None:
             module.fail_json(
-                msg="Failed to retrieve PRA Console ID: '%s'" % (console_id)
+                msg=f"Failed to retrieve PRA Console ID '{console_id}': {to_native(error)}"
             )
-        consoles = [console_box.to_dict()]
-    else:
-        consoles = client.privileged_remote_access.list_consoles(pagesize=500).to_list()
-        if console_name is not None:
-            console_found = False
-            for console in consoles:
-                if console.get("name") == console_name:
-                    console_found = True
-                    consoles = [console]
-            if not console_found:
-                module.fail_json(
-                    msg="Failed to retrieve PRA Console Name: '%s'" % (console_name)
-                )
-    module.exit_json(changed=False, consoles=consoles)
+        module.exit_json(changed=False, groups=[result.as_dict()])
+
+    # If no ID, we fetch all
+    console_list, err = collect_all_items(
+        client.pra_console.list_consoles, query_params
+    )
+    if err:
+        module.fail_json(msg=f"Error retrieving PRA Consoles: {to_native(err)}")
+
+    result_list = [g.as_dict() for g in console_list]
+
+    if console_name:
+        matched = next((g for g in result_list if g.get("name") == console_name), None)
+        if not matched:
+            available = [g.get("name") for g in result_list]
+            module.fail_json(
+                msg=f"PRA Console '{console_name}' not found. Available: {available}"
+            )
+        result_list = [matched]
+
+    module.exit_json(changed=False, groups=result_list)
 
 
 def main():
@@ -115,6 +138,7 @@ def main():
     argument_spec.update(
         name=dict(type="str", required=False),
         id=dict(type="str", required=False),
+        microtenant_id=dict(type="str", required=False),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:

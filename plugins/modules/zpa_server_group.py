@@ -84,6 +84,11 @@ options:
     required: false
     description:
       - List of server_group-connector ID objects.
+  microtenant_id:
+      description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+      required: false
+      type: str
 """
 
 EXAMPLES = r"""
@@ -121,6 +126,7 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     deleteNone,
     normalize_app,
+    collect_all_items,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
@@ -133,6 +139,7 @@ def core(module):
     server_group = dict()
     params = [
         "id",
+        "microtenant_id",
         "name",
         "description",
         "enabled",
@@ -146,106 +153,155 @@ def core(module):
     # Debugging: Display the desired state
     # module.warn(f"Desired server group: {server_group}")
 
-    group_id = server_group.get("id", None)
-    group_name = server_group.get("name", None)
+    group_id = server_group.get("id")
+    group_name = server_group.get("name")
+    microtenant_id = server_group.get("microtenant_id")
 
-    existing_server_group = None
+    query_params = {}
+    if microtenant_id:
+        query_params["microtenant_id"] = microtenant_id
+
+    existing_group = None
     if group_id is not None:
-        group_box = client.server_groups.get_group(group_id=group_id)
-        if group_box is not None:
-            existing_server_group = group_box.to_dict()
-    elif group_name is not None:
-        groups = client.server_groups.list_groups().to_list()
-        for group_ in groups:
-            if group_.get("name") == group_name:
-                existing_server_group = group_
-                break
+        result, _unused, error = client.server_groups.get_group(
+            group_id, query_params={"microtenant_id": microtenant_id}
+        )
+        if error:
+            module.fail_json(
+                msg=f"Error fetching server group with id {group_id}: {to_native(error)}"
+            )
+        existing_group = result.as_dict()
+    else:
+        result, error = collect_all_items(
+            client.server_groups.list_groups, query_params
+        )
+        if error:
+            module.fail_json(msg=f"Error server groups: {to_native(error)}")
+        if result:
+            for group_ in result:
+                if group_.name == group_name:
+                    existing_group = group_.as_dict()
+                    break
 
     # Debugging: Display the current state (what Ansible sees from the API)
-    # module.warn(f"Current server group from API: {existing_server_group}")
+    module.warn(f"Current server group from API: {existing_group}")
 
-    desired_app = normalize_app(server_group)
-    current_app = normalize_app(existing_server_group) if existing_server_group else {}
+    desired_group = normalize_app(server_group)
+    current_group = normalize_app(existing_group) if existing_group else {}
 
     # Debugging: Show normalized values for comparison
-    # module.warn(f"Normalized Desired: {desired_app}")
-    # module.warn(f"Normalized Current: {current_app}")
+    module.warn(f"Normalized Desired: {desired_group}")
+    module.warn(f"Normalized Current: {current_group}")
+
+    # 🔧 Normalize current_group: convert app_connector_groups to app_connector_group_ids
+    if "app_connector_groups" in current_group:
+        current_group["app_connector_group_ids"] = sorted(
+            [
+                g.get("id")
+                for g in current_group.get("app_connector_groups", [])
+                if g.get("id")
+            ]
+        )
+        del current_group["app_connector_groups"]
+
+    # 🔧 Normalize desired_group: ensure app_connector_group_ids is sorted for accurate comparison
+    if (
+        "app_connector_group_ids" in desired_group
+        and desired_group["app_connector_group_ids"]
+    ):
+        desired_group["app_connector_group_ids"] = sorted(
+            desired_group["app_connector_group_ids"]
+        )
 
     fields_to_exclude = ["id"]
     differences_detected = False
-    for key, value in desired_app.items():
+    for key, value in desired_group.items():
         # Debugging: Track comparisons for each key-value pair
-        # module.warn(f"Comparing key: {key}, Desired: {value}, Current: {current_app.get(key)}")
+        module.warn(
+            f"Comparing key: {key}, Desired: {value}, Current: {current_group.get(key)}"
+        )
 
-        if key not in fields_to_exclude and current_app.get(key) != value:
+        if key not in fields_to_exclude and current_group.get(key) != value:
             differences_detected = True
-            # module.warn(f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {value}")
+            module.warn(
+                f"Difference detected in {key}. Current: {current_group.get(key)}, Desired: {value}"
+            )
 
     if module.check_mode:
         # If in check mode, report changes and exit
-        if state == "present" and (
-            existing_server_group is None or differences_detected
-        ):
+        if state == "present" and (existing_group is None or differences_detected):
             module.exit_json(changed=True)
-        elif state == "absent" and existing_server_group is not None:
+        elif state == "absent" and existing_group is not None:
             module.exit_json(changed=True)
         else:
             module.exit_json(changed=False)
 
-    if existing_server_group is not None:
-        id = existing_server_group.get("id")
-        existing_server_group.update(server_group)
-        existing_server_group["id"] = id
+    if existing_group is not None:
+        id = existing_group.get("id")
+        existing_group.update(server_group)
+        existing_group["id"] = id
 
-    # module.warn(f"Final payload being sent to SDK: {server_group}")
+    module.warn(f"Final payload being sent to SDK: {server_group}")
     if state == "present":
-        if existing_server_group is not None:
+        if existing_group is not None:
             if differences_detected:
                 """Update"""
-                existing_server_group = deleteNone(
-                    dict(
-                        group_id=existing_server_group.get("id"),
-                        name=existing_server_group.get("name", None),
-                        description=existing_server_group.get("description", None),
-                        enabled=existing_server_group.get("enabled", None),
-                        app_connector_group_ids=existing_server_group.get(
+                update_group = deleteNone(
+                    {
+                        "group_id": existing_group.get("id"),
+                        "microtenant_id": desired_group.get("microtenant_id", None),
+                        "name": desired_group.get("name", None),
+                        "description": desired_group.get("description", None),
+                        "enabled": desired_group.get("enabled", None),
+                        "app_connector_group_ids": desired_group.get(
                             "app_connector_group_ids", None
                         ),
-                        dynamic_discovery=existing_server_group.get(
+                        "dynamic_discovery": desired_group.get(
                             "dynamic_discovery", None
                         ),
-                        server_ids=existing_server_group.get("server_ids", None),
-                    )
+                        "server_ids": desired_group.get("server_ids", None),
+                    }
                 )
-                # module.warn(f"Payload Update for SDK: {existing_server_group}")
-                existing_server_group = client.server_groups.update_group(
-                    **existing_server_group
+                module.warn(f"Payload Update for SDK: {update_group}")
+                updated_group, _unused, error = client.server_groups.update_group(
+                    group_id=update_group.pop("group_id"), **update_group
                 )
-                module.exit_json(changed=True, data=existing_server_group)
+                if error:
+                    module.fail_json(msg=f"Error updating group: {to_native(error)}")
+                module.exit_json(changed=True, data=updated_group.as_dict())
             else:
-                """No Changes Needed"""
-                module.exit_json(changed=False, data=existing_server_group)
+                module.exit_json(changed=False, data=existing_group)
         else:
             """Create"""
-            server_group = deleteNone(
-                dict(
-                    name=server_group.get("name", None),
-                    app_connector_group_ids=server_group.get(
+            create_group = deleteNone(
+                {
+                    "microtenant_id": desired_group.get("microtenant_id", None),
+                    "name": desired_group.get("name", None),
+                    "description": desired_group.get("description", None),
+                    "enabled": desired_group.get("enabled", None),
+                    "dynamic_discovery": desired_group.get("dynamic_discovery", None),
+                    "app_connector_group_ids": desired_group.get(
                         "app_connector_group_ids", None
                     ),
-                    description=server_group.get("description", None),
-                    enabled=server_group.get("enabled", None),
-                    dynamic_discovery=server_group.get("dynamic_discovery", None),
-                    server_ids=server_group.get("server_ids", None),
-                )
+                    "server_ids": desired_group.get("server_ids", None),
+                }
             )
-            server_group = client.server_groups.add_group(**server_group).to_dict()
-            module.exit_json(changed=True, data=server_group)
-    elif state == "absent" and existing_server_group is not None:
-        code = client.server_groups.delete_group(existing_server_group.get("id"))
-        if code > 299:
-            module.exit_json(changed=False, data=None)
-        module.exit_json(changed=True, data=existing_server_group)
+            module.warn("Payload Update for SDK: {}".format(create_group))
+            created, _unused, error = client.server_groups.add_group(**create_group)
+            if error:
+                module.fail_json(msg=f"Error creating group: {to_native(error)}")
+            module.exit_json(changed=True, data=created.as_dict())
+
+    elif state == "absent":
+        if existing_group:
+            _unused, _unused, error = client.server_groups.delete_group(
+                group_id=existing_group.get("id"),
+                microtenant_id=microtenant_id,
+            )
+        if error:
+            module.fail_json(msg=f"Error deleting group: {to_native(error)}")
+        module.exit_json(changed=True, data=existing_group)
+
     module.exit_json(changed=False, data={})
 
 
@@ -253,6 +309,7 @@ def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
         id=dict(type="str"),
+        microtenant_id=dict(type="str", required=False),
         name=dict(type="str", required=True),
         enabled=dict(type="bool", default=True, required=False),
         description=dict(type="str", required=False),

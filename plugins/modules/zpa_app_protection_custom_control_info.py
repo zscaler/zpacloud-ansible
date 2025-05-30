@@ -82,35 +82,51 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
-    control_id = module.params.get("id", None)
-    control_name = module.params.get("name", None)
+    control_id = module.params.get("id")
+    control_name = module.params.get("name")
     client = ZPAClientHelper(module)
-    controls = []
-    if control_id is not None:
-        control_box = client.inspection.get_custom_control(control_id=control_id)
-        if control_box is None:
+
+    # Lookup by ID
+    if control_id:
+        result, _unused, error = client.app_protection.get_custom_control(
+            control_id=control_id
+        )
+        if error or not result:
             module.fail_json(
-                msg="Failed to retrieve App Protection Custom Control ID: '%s'"
-                % (control_id)
+                msg=f"Failed to retrieve App Protection Custom Control ID: '{control_id}'"
             )
-        controls = [control_box.to_dict()]
-    else:
-        controls = client.inspection.list_custom_controls().to_list()
-        if control_name is not None:
-            control_found = False
-            for control in controls:
-                if control.get("name") == control_name:
-                    control_found = True
-                    controls = [control]
-            if not control_found:
-                module.fail_json(
-                    msg="Failed to retrieve App Protection Custom Control Name: '%s'"
-                    % (control_name)
-                )
-    module.exit_json(changed=False, controls=controls)
+        module.exit_json(
+            changed=False,
+            data=[result.as_dict() if hasattr(result, "as_dict") else result],
+        )
+
+    # Fetch all controls using pagination
+    controls, err = collect_all_items(client.app_protection.list_custom_controls, {})
+    if err:
+        module.fail_json(msg=f"Error retrieving custom controls: {to_native(err)}")
+
+    # Optional: filter by name
+    if control_name:
+        match = next(
+            (c for c in controls if getattr(c, "name", None) == control_name), None
+        )
+        if not match:
+            available = [getattr(c, "name", "") for c in controls]
+            module.fail_json(
+                msg=f"Custom control '{control_name}' not found. Available: {available}"
+            )
+        controls = [match]
+
+    module.exit_json(
+        changed=False,
+        data=[c.as_dict() if hasattr(c, "as_dict") else c for c in controls],
+    )
 
 
 def main():

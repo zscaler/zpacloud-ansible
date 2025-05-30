@@ -54,6 +54,11 @@ options:
       - ID of the Service Edge Controller.
     required: false
     type: str
+  microtenant_id:
+      description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+      required: false
+      type: str
 """
 
 EXAMPLES = """
@@ -83,34 +88,53 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
-    service_edge_id = module.params.get("id", None)
-    service_edge_name = module.params.get("name", None)
     client = ZPAClientHelper(module)
-    pses = []
-    if service_edge_id is not None:
-        pse_box = client.service_edges.get_service_edge(service_edge_id=service_edge_id)
-        if pse_box is None:
+
+    service_edge_id = module.params.get("id")
+    service_edge_name = module.params.get("name")
+    microtenant_id = module.params.get("microtenant_id")
+
+    query_params = {}
+    if microtenant_id:
+        query_params["microtenant_id"] = microtenant_id
+
+    if service_edge_id:
+        result, _unused, error = client.service_edges.get_service_edge(
+            service_edge_id, query_params
+        )
+        if error or result is None:
             module.fail_json(
-                msg="Failed to retrieve Service Edge ID: '%s'" % (service_edge_id)
+                msg=f"Failed to retrieve Service Edge ID '{service_edge_id}': {to_native(error)}"
             )
-        pses = [pse_box.to_dict()]
-    else:
-        pses = client.service_edges.list_service_edges(pagesize=500).to_list()
-        if service_edge_name is not None:
-            service_edge_found = False
-            for pse in pses:
-                if pse.get("name") == service_edge_name:
-                    service_edge_found = True
-                    pses = [pse]
-            if not service_edge_found:
-                module.fail_json(
-                    msg="Failed to retrieve Service Edge Name: '%s'"
-                    % (service_edge_name)
-                )
-    module.exit_json(changed=False, pses=pses)
+        module.exit_json(changed=False, groups=[result.as_dict()])
+
+    # If no ID, we fetch all
+    svc_edge_list, err = collect_all_items(
+        client.service_edges.list_service_edges, query_params
+    )
+    if err:
+        module.fail_json(msg=f"Error retrieving Service Edge: {to_native(err)}")
+
+    result_list = [g.as_dict() for g in svc_edge_list]
+
+    if service_edge_name:
+        matched = next(
+            (g for g in result_list if g.get("name") == service_edge_name), None
+        )
+        if not matched:
+            available = [g.get("name") for g in result_list]
+            module.fail_json(
+                msg=f"Service Edge '{service_edge_name}' not found. Available: {available}"
+            )
+        result_list = [matched]
+
+    module.exit_json(changed=False, groups=result_list)
 
 
 def main():
@@ -118,6 +142,7 @@ def main():
     argument_spec.update(
         name=dict(type="str", required=False),
         id=dict(type="str", required=False),
+        microtenant_id=dict(type="str", required=False),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:

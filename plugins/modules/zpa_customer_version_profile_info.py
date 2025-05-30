@@ -121,34 +121,35 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
-    profile_id = module.params.get("id", None)
-    profile_name = module.params.get("name", None)
     client = ZPAClientHelper(module)
+    profile_id = module.params.get("id")
+    profile_name = module.params.get("name")
 
-    # If profile_id is provided, search by id
-    if profile_id is not None:
-        profiles = client.connectors.list_version_profiles(
-            search=profile_id, pagesize=500
-        ).to_list()
-        if not profiles:
-            module.fail_json(msg="Failed to retrieve profile by ID: '%s'" % profile_id)
-    # If profile_name is provided, search by name
-    elif profile_name is not None:
-        profiles = client.connectors.list_version_profiles(
-            search=profile_name, pagesize=500
-        ).to_list()
-        if not profiles:
-            module.fail_json(
-                msg="Failed to retrieve profile by Name: '%s'" % profile_name
-            )
-    # If neither profile_id nor profile_name is provided, retrieve all profiles
-    else:
-        profiles = client.connectors.list_version_profiles(pagesize=500).to_list()
+    query_params = {}
+    if profile_id:
+        query_params["search"] = profile_id
+    elif profile_name:
+        query_params["search"] = profile_name
 
-    module.exit_json(changed=False, profiles=profiles)
+    profiles, err = collect_all_items(
+        client.customer_version_profile.list_version_profiles, query_params
+    )
+    if err:
+        module.fail_json(msg=f"Error retrieving version profiles: {to_native(err)}")
+
+    if (profile_id or profile_name) and not profiles:
+        module.fail_json(
+            msg=f"Version Profile '{profile_id or profile_name}' not found."
+        )
+
+    result = [p.as_dict() if hasattr(p, "as_dict") else p for p in profiles]
+    module.exit_json(changed=False, profiles=result)
 
 
 def main():

@@ -42,9 +42,73 @@ def deleteNone(_dict):
 
 
 def remove_cloud_suffix(s: str) -> str:
-    reg = re.compile(r"(.*)[\s]+\([a-zA-Z0-9\-_\.]*\)[\s]*$")
-    res = reg.sub(r"\1", s)
-    return res.strip()
+    """
+    Removes trailing cloud suffix patterns like ' (zscalertwo.net)' from names.
+    """
+    return re.sub(r"\s*\([a-zA-Z0-9\-_\.]+\)\s*$", "", s or "").strip()
+
+
+def collect_all_items(list_fn, query_params=None):
+    """
+    Collects all pages of results from a paginated ZPA SDK list_* method.
+    Handles both paginated and non-paginated SDK methods.
+    """
+    result = list_fn(query_params)
+
+    # Case 1: (items, error) – non-paginated SDK methods
+    if isinstance(result, tuple) and len(result) == 2:
+        items, err = result
+        if err:
+            return None, err
+        return items or [], None
+
+    # Case 2: (items, resp, error) – paginated SDK methods
+    if isinstance(result, tuple) and len(result) == 3:
+        items, resp, err = result
+        if err:
+            return None, err
+
+        all_items = items or []
+        while resp and resp.has_next():
+            page, resp, err = resp.next()  # ✅ unpack all 3
+            if err:
+                return None, err
+            if page:
+                all_items.extend(page)
+
+        return all_items, None
+
+    return None, f"Unexpected return structure from {list_fn.__name__}"
+
+
+def normalize_port_processing(app):
+    """Normalize application segment data, handling port ranges specially"""
+    if not app:
+        return {}
+
+    normalized = {k: v for k, v in app.items() if v is not None}
+
+    # Ensure both port range formats are present and consistent
+    for proto in ["tcp", "udp"]:
+        range_key = f"{proto}_port_range"
+        ranges_key = f"{proto}_port_ranges"
+
+        # If we have one format but not the other, create the missing one
+        if range_key in normalized and ranges_key not in normalized:
+            if normalized[range_key]:
+                normalized[ranges_key] = []
+                for r in normalized[range_key]:
+                    if "from" in r and "to" in r:
+                        normalized[ranges_key].extend([r["from"], r["to"]])
+
+        elif ranges_key in normalized and range_key not in normalized:
+            if normalized[ranges_key]:
+                normalized[range_key] = [
+                    {"from": p[0], "to": p[1]}
+                    for p in convert_ports(normalized[ranges_key])
+                ]
+
+    return normalized
 
 
 # Function to handle application segment port conversion list
@@ -60,14 +124,35 @@ def convert_ports_list(obj_list):
 
 
 def convert_ports(obj_list):
+    """Convert port range formats between API and SDK representations."""
     if obj_list is None:
         return []
+
+    # Handle both formats:
+    # 1. List of dicts: [{"from": "8080", "to": "8080"}]
+    # 2. List of strings: ["8080", "8080"] or tuples [("8080", "8080")]
     r = []
     for o in obj_list:
-        if o.get("from", None) is not None and o.get("to", None) is not None:
-            c = (o.get("from"), o.get("to"))
-            r.append(c)
+        if isinstance(o, dict):
+            if o.get("from") is not None and o.get("to") is not None:
+                r.append((o["from"], o["to"]))
+        elif isinstance(o, (list, tuple)) and len(o) == 2:
+            r.append((str(o[0]), str(o[1])))
+        elif isinstance(o, str):
+            # If it's a single string, use it for both from and to
+            r.append((o, o))
     return r
+
+
+def convert_ranges_to_port_range(port_ranges):
+    if not port_ranges:
+        return []
+
+    port_range = []
+    for port in port_ranges:
+        if isinstance(port, str):
+            port_range.append({"from": port, "to": port})
+    return port_range
 
 
 def convert_bool_to_str(value, true_value="1", false_value="0"):
@@ -106,21 +191,83 @@ def convert_str_to_bool(value, true_value="1", false_value="0"):
     return value  # if the value isn't recognized, return it as-is
 
 
-def normalize_common_apps(common_apps):
-    normalized = common_apps.copy()
-    if "appsConfig" in normalized:
-        # You can add more normalization logic for each appConfig object here
-        for app_config in normalized["appsConfig"]:
-            # For now, I'm just normalizing the 'domain' field
-            app_config["domain"] = (
-                app_config["domain"].lower() if app_config["domain"] else None
-            )
-    return normalized
+def warn_drift(module, desired, actual):
+    """
+    Compare desired vs. actual, warn about any differences.
+    This helps track down which attributes are the culprit for drift.
+    Special handling for common_apps_dto vs pra_apps asymmetry.
+    """
+    # Create a copy of desired to avoid modifying the original
+    desired = desired.copy()
+    actual = actual.copy()
+
+    # Special handling for common_apps_dto vs pra_apps
+    if "common_apps_dto" in desired and "pra_apps" in actual:
+        # Convert pra_apps to common_apps_dto format for comparison
+        converted_pra_apps = map_pra_apps_to_common_apps(actual["pra_apps"])
+        if converted_pra_apps:
+            actual["common_apps_dto"] = converted_pra_apps
+
+    # Original comparison logic remains unchanged below
+    for key, desired_val in desired.items():
+        actual_val = actual.get(key)
+
+        if isinstance(desired_val, list) and all(
+            isinstance(i, dict) for i in desired_val
+        ):
+            # Lists of dicts — compare without sorting
+            if desired_val != actual_val:
+                module.warn(
+                    f"[POST-UPDATE DRIFT] Key='{key}' => Desired={desired_val}, Actual={actual_val}"
+                )
+        elif isinstance(actual_val, list) and all(
+            isinstance(i, dict) for i in actual_val
+        ):
+            # Just in case actual_val is list of dicts but desired_val is None or incompatible
+            if desired_val != actual_val:
+                module.warn(
+                    f"[POST-UPDATE DRIFT] Key='{key}' => Desired={desired_val}, Actual={actual_val}"
+                )
+        elif isinstance(desired_val, list) or isinstance(actual_val, list):
+            # Safe to sort: assume flat lists
+            if sorted(desired_val or []) != sorted(actual_val or []):
+                module.warn(
+                    f"[POST-UPDATE DRIFT] Key='{key}' => Desired={desired_val}, Actual={actual_val}"
+                )
+        else:
+            if desired_val != actual_val:
+                module.warn(
+                    f"[POST-UPDATE DRIFT] Key='{key}' => Desired={desired_val}, Actual={actual_val}"
+                )
 
 
 def normalize_app(app):
     normalized = app.copy()
 
+    # -------------------------------------------------------
+    # 1. Canonicalise server_group_ids ASAP
+    # -------------------------------------------------------
+    if "server_groups" in normalized and isinstance(normalized["server_groups"], list):
+        normalized["server_group_ids"] = sorted(
+            str(g["id"]) for g in normalized["server_groups"] if g.get("id")
+        )
+
+    elif "server_group_dtos" in normalized and isinstance(
+        normalized["server_group_dtos"], list
+    ):
+        normalized["server_group_ids"] = sorted(
+            str(g["id"]) for g in normalized["server_group_dtos"] if g.get("id")
+        )
+
+    # Desired-state path (already uses server_group_ids)
+    if "server_group_ids" in normalized and isinstance(
+        normalized["server_group_ids"], list
+    ):
+        normalized["server_group_ids"] = sorted(
+            str(i) for i in normalized["server_group_ids"]
+        )
+
+    # Remove computed values
     computed_values = [
         "creation_time",
         "modified_by",
@@ -130,7 +277,7 @@ def normalize_app(app):
         "microtenant_name",
         "segment_group_name",
         "server_groups",
-        "use_in_dr_mode",
+        "credentials",
         "is_incomplete_dr_config",
         "inspect_traffic_with_zia",
         "adp_enabled",
@@ -151,51 +298,133 @@ def normalize_app(app):
         "check_control_deployment_status",
         "controls_facts",
         "lss_app_connector_group",
-        "clientless_app_ids",
+        "cname",
+        "tcp_protocols",
+        "udp_protocols",
+        "passive_health_enabled",
     ]
     for attr in computed_values:
         normalized.pop(attr, None)
 
+    # Sort domain names
     if "domain_names" in normalized and isinstance(normalized["domain_names"], list):
-        normalized["domain_names"].sort()
+        normalized["domain_names"] = sorted(normalized["domain_names"])
 
-    # Normalize app_connector_group_ids for proper comparison
-    if "app_connector_group_ids" in normalized:
-        normalized["app_connector_group_ids"] = sorted(normalized["app_connector_group_ids"])
-
+    # Handle tcp_keep_alive conversion
     if "tcp_keep_alive" in normalized:
-        normalized["tcp_keep_alive"] = convert_str_to_bool(normalized["tcp_keep_alive"])
+        value = normalized["tcp_keep_alive"]
+        if isinstance(value, bool):
+            normalized["tcp_keep_alive"] = "1" if value else "0"
 
+    # Handle icmp_access_type conversion
     if "icmp_access_type" in normalized:
-        normalized["icmp_access_type"] = normalized["icmp_access_type"] in [
-            "PING",
-            "PING_TRACEROUTING",
-        ]
+        value = normalized["icmp_access_type"]
+        if isinstance(value, bool):
+            normalized["icmp_access_type"] = "PING" if value else "NONE"
 
-    if "server_groups" in app:
-        normalized["server_group_ids"] = [group["id"] for group in app["server_groups"]]
+    # Handle port ranges
+    for port_type in ["tcp", "udp"]:
+        range_key = f"{port_type}_port_range"
+        ranges_key = f"{port_type}_port_ranges"
 
-    if "common_apps_dto" in normalized and normalized["common_apps_dto"]:
-        normalized["common_apps_dto"] = normalize_common_apps(
-            normalized["common_apps_dto"]
+        if range_key in normalized and isinstance(normalized[range_key], list):
+            normalized[range_key] = [
+                {"from": str(p["from"]), "to": str(p["to"])}
+                for p in normalized[range_key]
+                if isinstance(p, dict)
+            ]
+        elif ranges_key in normalized and isinstance(normalized[ranges_key], list):
+            ranges = normalized[ranges_key]
+            if ranges and len(ranges) >= 2 and isinstance(ranges[0], str):
+                normalized[range_key] = []
+                for i in range(0, len(ranges), 2):
+                    if i + 1 < len(ranges):
+                        normalized[range_key].append(
+                            {"from": ranges[i], "to": ranges[i + 1]}
+                        )
+
+    # Enhanced handling of pra_apps -> common_apps_dto conversion
+    if "common_apps_dto" not in normalized and "pra_apps" in normalized:
+        normalized["common_apps_dto"] = map_pra_apps_to_common_apps(
+            normalized["pra_apps"], app_type="SECURE_REMOTE_ACCESS"
         )
 
-    # Normalizing clientless_app_ids attributes
-    if "clientless_app_ids" in normalized:
-        for clientless_app in normalized["clientless_app_ids"]:
-            for field in [
-                "app_id",
-                "id",
-                "hidden",
-                "portal",
-                "path",
-                "certificate_name",
-                "cname",
-                "local_domain",
-            ]:
-                clientless_app.pop(field, None)
+    # Handle inspection_apps -> common_apps_dto conversion
+    if "common_apps_dto" not in normalized and "inspection_apps" in normalized:
+        normalized["common_apps_dto"] = map_pra_apps_to_common_apps(
+            normalized["inspection_apps"], app_type="INSPECT"
+        )
+
+    # Strip SDK-managed fields from apps_config
+    if "common_apps_dto" in normalized and normalized["common_apps_dto"]:
+        if "apps_config" in normalized["common_apps_dto"]:
+            for app_config in normalized["common_apps_dto"]["apps_config"]:
+                for field in ["id", "app_id", "pra_app_id"]:
+                    app_config.pop(field, None)
+
+            normalized["common_apps_dto"]["apps_config"] = sorted(
+                normalized["common_apps_dto"]["apps_config"],
+                key=lambda x: (x.get("domain", ""), x.get("application_port", "")),
+            )
 
     return normalized
+
+
+def map_pra_apps_to_common_apps(pra_apps, app_type="SECURE_REMOTE_ACCESS"):
+    """
+    Converts a list of PRA or Inspection app objects from the SDK response
+    into the expected `common_apps_dto.apps_config` structure.
+
+    Args:
+        pra_apps: List of app objects from API response
+        app_type: Either "SECURE_REMOTE_ACCESS" or "INSPECT" to determine mapping format
+    """
+    if not isinstance(pra_apps, list):
+        return {}
+
+    apps_config = []
+
+    for app in pra_apps:
+        if app_type == "SECURE_REMOTE_ACCESS":
+            # PRA Application mapping
+            mapped_app = {
+                "id": app.get("id"),
+                "app_id": app.get("app_id"),
+                "name": app.get("name"),
+                "description": app.get("description"),
+                "domain": app.get("domain"),
+                "application_port": app.get("application_port"),
+                "application_protocol": app.get("application_protocol"),
+                "enabled": app.get("enabled", True),
+                "app_types": ["SECURE_REMOTE_ACCESS"],
+                "connection_security": app.get("connection_security"),
+            }
+        elif app_type == "INSPECT":
+            # Inspection Application mapping
+            mapped_app = {
+                "id": app.get("id"),
+                "app_id": app.get("app_id"),
+                "name": app.get("name"),
+                "description": app.get("description"),
+                "enabled": app.get("enabled", True),
+                "domain": app.get("domain"),
+                "application_port": app.get("application_port"),
+                "application_protocol": app.get("application_protocol"),
+                "certificate_id": app.get("certificate_id"),
+                "trust_untrusted_cert": app.get("trust_untrusted_cert"),
+                "app_types": ["INSPECT"],
+            }
+        else:
+            continue  # Skip unknown app types
+
+        # Remove None values to avoid drift in comparisons
+        mapped_app = {k: v for k, v in mapped_app.items() if v is not None}
+        apps_config.append(mapped_app)
+
+    # Sort by domain for consistent comparison
+    apps_config.sort(key=lambda x: x.get("domain", ""))
+
+    return {"apps_config": apps_config}
 
 
 def prepare_updated_app(existing_app, app):
@@ -309,19 +538,17 @@ def normalize_policy(policy):
     for attr in computed_values:
         normalized.pop(attr, None)
 
-    # Convert server's app_connector_groups to app_connector_group_ids
-    if "app_connector_groups" in normalized and isinstance(normalized["app_connector_groups"], list):
+    # ------------------------------------------------ group ids
+    # (keep the object lists around for a moment; we drop them later)
+    if "app_connector_groups" in normalized:
         normalized["app_connector_group_ids"] = [
-            group["id"] for group in normalized["app_connector_groups"] if "id" in group
+            g.get("id") for g in normalized["app_connector_groups"] if g.get("id")
         ]
-        del normalized["app_connector_groups"]
 
-    # Convert server's app_server_groups to app_server_group_ids
-    if "app_server_groups" in normalized and isinstance(normalized["app_server_groups"], list):
+    if "app_server_groups" in normalized:
         normalized["app_server_group_ids"] = [
-            group["id"] for group in normalized["app_server_groups"] if "id" in group
+            g.get("id") for g in normalized["app_server_groups"] if g.get("id")
         ]
-        del normalized["app_server_groups"]
 
     # Normalize action attribute
     if "action" in normalized and normalized["action"] is not None:
@@ -329,15 +556,33 @@ def normalize_policy(policy):
     elif "action" in normalized and normalized["action"] is None:
         normalized.pop("action", None)  # Remove 'action' key if the value is None
 
+    for grp_key, id_key in (
+        ("app_connector_groups", "app_connector_group_ids"),
+        ("app_server_groups", "app_server_group_ids"),
+    ):
+        if id_key not in normalized or normalized[id_key] in (None, []):
+            objs = normalized.get(grp_key, [])
+            if objs:
+                normalized[id_key] = [o["id"] for o in objs if "id" in o]
+
+        # Always store as a sorted list (or empty list)
+        if normalized.get(id_key) is None:
+            normalized[id_key] = []
+        else:
+            normalized[id_key] = sorted(normalized[id_key])
+
+        # The heavy object lists are no longer needed for comparison
+        normalized.pop(grp_key, None)
+
     # Remove IDs from conditions and operands but keep the main policy rule ID
     for condition in normalized.get("conditions", []):
         condition.pop("id", None)  # remove ID from condition
         condition.pop("negated", None)  # remove 'negated' as it is deprecated
 
         for operand in condition.get("operands", []):
-            operand.pop("id", None)       # remove ID from operand
-            operand.pop("name", None)     # remove name from operand
-            operand.pop("idp_id", None)   # remove idp_id from operand
+            operand.pop("id", None)  # remove ID from operand
+            operand.pop("name", None)  # remove name from operand
+            operand.pop("idp_id", None)  # remove idp_id from operand
 
             # Adjust the operand key from "objectType" to "object_type"
             if "objectType" in operand:
@@ -348,19 +593,25 @@ def normalize_policy(policy):
 
 def validate_operand(operand, module):
     def lhsWarn(object_type, expected, got, error=None):
-        error_msg = f"Invalid LHS for '{object_type}'. Expected {expected}, but got '{got}'"
+        error_msg = (
+            f"Invalid LHS for '{object_type}'. Expected {expected}, but got '{got}'"
+        )
         if error:
             error_msg += f". Error details: {error}"
         return error_msg
 
     def rhsWarn(object_type, expected, got, error=None):
-        error_msg = f"Invalid RHS for '{object_type}'. Expected {expected}, but got '{got}'"
+        error_msg = (
+            f"Invalid RHS for '{object_type}'. Expected {expected}, but got '{got}'"
+        )
         if error:
             error_msg += f". Error details: {error}"
         return error_msg
 
     def idpWarn(object_type, expected, got, error=None):
-        error_msg = f"Invalid IDP_ID for '{object_type}'. Expected {expected}, but got '{got}'"
+        error_msg = (
+            f"Invalid IDP_ID for '{object_type}'. Expected {expected}, but got '{got}'"
+        )
         if error:
             error_msg += f". Error details: {error}"
         return error_msg
@@ -390,13 +641,18 @@ def validate_operand(operand, module):
         "SCIM",
         "SAML",
         "RISK_FACTOR_TYPE",
-        "CHROME_ENTERPRISE"
+        "CHROME_ENTERPRISE",
     ]
 
     if object_type not in valid_object_types:
         return f"Invalid object type: {object_type}. Supported types are: {', '.join(valid_object_types)}"
 
-    if object_type in ["APP", "APP_GROUP", "MACHINE_GRP", "EDGE_CONNECTOR_GROUP"]:
+    if object_type in [
+        "APP",
+        "APP_GROUP",
+        "MACHINE_GRP",
+        "EDGE_CONNECTOR_GROUP",
+    ]:
         if not lhs:
             return lhsWarn(object_type, "id", lhs)
         if lhs != "id":
@@ -477,134 +733,516 @@ def validate_operand(operand, module):
     return None
 
 
-# def validate_operand(operand, module):
-#     def lhsWarn(object_type, expected, got, error=None):
-#         error_msg = (
-#             "Invalid LHS for '{object_type}'. Expected {expected}, but got '{got}'"
-#         )
-#         if error:
-#             error_msg += f". Error details: {error}"
-#         return error_msg
+# CURRENT WORKING FUNCTION - DO NOT CHANGE
+def normalize_policy_v2(policy):
+    """
+    Canonical-ise an access-rule dict so that the 'conditions' list is stable
+    (same order, same key order) and—critically—ignores operand ordering
+    inside 'values' lists.  It now also handles raw 3-tuple conditions.
+    """
+    import copy
 
-#     def rhsWarn(object_type, expected, got, error=None):
-#         error_msg = (
-#             f"Invalid RHS for '{object_type}'. Expected {expected}, but got '{got}'"
-#         )
-#         if error:
-#             error_msg += f". Error details: {error}"
-#         return error_msg
+    normalized = copy.deepcopy(policy)
 
-#     def idpWarn(object_type, expected, got, error=None):
-#         error_msg = (
-#             f"Invalid IDP_ID for '{object_type}'. Expected {expected}, but got '{got}'"
-#         )
-#         if error:
-#             error_msg += f". Error details: {error}"
-#         return error_msg
+    # ------------------------------------------------ metadata
+    for k in (
+        "modified_time",
+        "creation_time",
+        "modified_by",
+        "policy_type",
+        "rule_order",
+    ):
+        normalized.pop(k, None)
 
-#     object_type = operand.get("object_type", "").upper()
-#     lhs = operand.get("lhs")
-#     rhs = operand.get("rhs")
-#     idp_id = operand.get("idp_id")
+    # ------------------------------------------------ group ids
+    # (keep the object lists around for a moment; we drop them later)
+    if "app_connector_groups" in normalized:
+        normalized["app_connector_group_ids"] = [
+            g.get("id") for g in normalized["app_connector_groups"] if g.get("id")
+        ]
 
-#     # Validate non-emptiness
-#     if not object_type or not lhs or not rhs:
-#         return "Object type, LHS, and RHS cannot be empty or None"
+    if "app_server_groups" in normalized:
+        normalized["app_server_group_ids"] = [
+            g.get("id") for g in normalized["app_server_groups"] if g.get("id")
+        ]
 
-#     # Ensure lhs and rhs are strings
-#     if not isinstance(lhs, str):
-#         lhs = str(lhs)
-#     if not isinstance(rhs, str):
-#         rhs = str(rhs)
+    if "service_edge_groups" in normalized:
+        normalized["service_edge_group_ids"] = [
+            g.get("id") for g in normalized["service_edge_groups"] if g.get("id")
+        ]
+    # ------------------------------------------------ credential refs
+    if isinstance(normalized.get("credential"), dict):
+        normalized["credential_id"] = normalized["credential"].get("id")
+        normalized.pop("credential", None)
 
-#     valid_object_types = [
-#         "APP",
-#         "APP_GROUP",
-#         "MACHINE_GRP",
-#         "EDGE_CONNECTOR_GROUP",
-#         "POSTURE",
-#         "TRUSTED_NETWORK",
-#         "PLATFORM",
-#         "COUNTRY_CODE",
-#         "CLIENT_TYPE",
-#         "SCIM_GROUP",
-#         "SCIM",
-#         "SAML",
-#     ]
+    if isinstance(normalized.get("credential_pool"), dict):
+        normalized["credential_pool_id"] = normalized["credential_pool"].get("id")
+        normalized.pop("credential_pool", None)
 
-#     if object_type not in valid_object_types:
-#         return f"Invalid object type: {object_type}. Supported types are: {', '.join(valid_object_types)}"
+    if "action" in normalized:
+        normalized["action"] = str(normalized["action"]).upper()
 
-#     if object_type in ["APP", "APP_GROUP", "MACHINE_GRP", "EDGE_CONNECTOR_GROUP"]:
-#         if lhs != "id":
-#             return lhsWarn(object_type, "id", lhs)
-#         if not rhs:
-#             return rhsWarn(object_type, "non-empty string", rhs)
+    # ------------------------------------------------ ensure ID lists exist, sorted, and objects removed
+    for grp_key, id_key in (
+        ("app_connector_groups", "app_connector_group_ids"),
+        ("app_server_groups", "app_server_group_ids"),
+        ("service_edge_groups", "service_edge_group_ids"),
+    ):
+        if id_key not in normalized or normalized[id_key] in (None, []):
+            objs = normalized.get(grp_key, [])
+            if objs:
+                normalized[id_key] = [o["id"] for o in objs if "id" in o]
 
-#     elif object_type in ["POSTURE", "TRUSTED_NETWORK"]:
-#         if rhs not in ["true", "false"]:
-#             return rhsWarn(object_type, "one of ['true', 'false']", rhs)
+        # Always store as a sorted list (or empty list)
+        if normalized.get(id_key) is None:
+            normalized[id_key] = []
+        else:
+            normalized[id_key] = sorted(normalized[id_key])
 
-#     elif object_type == "PLATFORM":
-#         if rhs != "true":
-#             return rhsWarn(object_type, "true", rhs)
-#         if lhs not in ["linux", "android", "windows", "ios", "mac"]:
-#             return lhsWarn(
-#                 object_type, "one of ['linux', 'android', 'windows', 'ios', 'mac']", lhs
-#             )
+        # The heavy object lists are no longer needed for comparison
+        normalized.pop(grp_key, None)
 
-#     elif object_type == "COUNTRY_CODE":
-#         if rhs != "true":
-#             return rhsWarn(object_type, "true", rhs)
-#         if not validate_iso3166_alpha2(lhs):
-#             return lhsWarn(
-#                 object_type,
-#                 "a valid ISO-3166 Alpha-2 country code",
-#                 lhs,
-#                 "Please visit the following site for reference: https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes",
-#             )
+    # ------------------------------------------------ type sets
+    VALUE_TYPES = {
+        "APP",
+        "APP_GROUP",
+        "CLIENT_TYPE",
+        "MACHINE_GRP",
+        "EDGE_CONNECTOR_GROUP",
+        "CONSOLE",
+        "LOCATION",
+        "BRANCH_CONNECTOR_GROUP",
+        "CHROME_POSTURE_PROFILE",
+    }
 
-#     elif object_type == "CLIENT_TYPE":
-#         if lhs != "id":
-#             return lhsWarn(object_type, "id", lhs)
-#         valid_client_types = [
-#             "zpn_client_type_exporter",
-#             "zpn_client_type_exporter_noauth",
-#             "zpn_client_type_browser_isolation",
-#             "zpn_client_type_machine_tunnel",
-#             "zpn_client_type_ip_anchoring",
-#             "zpn_client_type_edge_connector",
-#             "zpn_client_type_zapp",
-#             "zpn_client_type_slogger",
-#             "zpn_client_type_zapp_partner",
-#             "zpn_client_type_branch_connector",
-#         ]
-#         if rhs not in valid_client_types:
-#             return rhsWarn(object_type, f"one of {valid_client_types}", rhs)
+    ENTRY_TYPES = {
+        "PLATFORM",
+        "POSTURE",
+        "TRUSTED_NETWORK",
+        "SAML",
+        "SCIM",
+        "SCIM_GROUP",
+        "COUNTRY_CODE",
+        "RISK_FACTOR_TYPE",
+        "CHROME_ENTERPRISE",
+    }
 
-#     # New validation logic for SCIM_GROUP, SCIM, and SAML
-#     if object_type in ["SCIM_GROUP", "SCIM", "SAML"]:
-#         if not lhs:
-#             return lhsWarn(object_type, "non-empty string", lhs)
-#         if not rhs:
-#             return rhsWarn(object_type, "non-empty string", rhs)
-#         if not idp_id:  # Check if idp_id is empty or None
-#             return idpWarn(object_type, "non-empty string", idp_id)
+    v2_conds = []
 
-#         # Specific validation for each object type
-#         if object_type == "SCIM_GROUP":
-#             # Add proper check for Identity Provider ID and SCIM Group ID if necessary
-#             pass  # Placeholder for any additional validation logic needed for SCIM_GROUP
+    # ------------------------------------------------ iterate user-supplied conditions
+    for cond in normalized.get("conditions", []):
 
-#         elif object_type == "SCIM":
-#             # Add proper check for SCIM Attribute Header ID and SCIM Attribute Value if necessary
-#             pass  # Placeholder for any additional validation logic needed for SCIM
+        # 0) plain triple ── (obj, lhs, rhs) or (obj, val, None)
+        if isinstance(cond, (tuple, list)) and len(cond) == 3:
+            obj, lhs, rhs = cond
+            obj = obj.upper()
 
-#         elif object_type == "SAML":
-#             # Add proper check for SAML Attribute ID and SAML Attribute Value if necessary
-#             pass  # Placeholder for any additional validation logic needed for SAML
+            if obj in ENTRY_TYPES:
+                operands = [
+                    {
+                        "object_type": obj,
+                        "entry_values": [{"lhs": lhs, "rhs": rhs}],
+                    }
+                ]
+            else:
+                operands = [
+                    {
+                        "object_type": obj,
+                        "values": [str(rhs)],
+                    }
+                ]
 
-#     return None
+            v2_conds.append({"operands": operands, "operator": "OR"})
+            continue
+
+        # 1) wrapper ── ("AND"/"OR", inner)
+        if (
+            isinstance(cond, (tuple, list))
+            and len(cond) == 2
+            and str(cond[0]).upper() in ("AND", "OR")
+        ):
+            op = str(cond[0]).upper()
+            inner = cond[1]
+
+            # inner triple
+            if isinstance(inner, (tuple, list)) and len(inner) == 3:
+                obj, lhs, rhs = inner
+                obj = obj.upper()
+                if obj in ENTRY_TYPES:
+                    operands = [
+                        {
+                            "object_type": obj,
+                            "entry_values": [{"lhs": lhs, "rhs": rhs}],
+                        }
+                    ]
+                else:
+                    operands = [
+                        {
+                            "object_type": obj,
+                            "values": [str(rhs)],
+                        }
+                    ]
+
+            # inner pair
+            elif isinstance(inner, (tuple, list)) and len(inner) == 2:
+                obj, vals = inner
+                obj = obj.upper()
+                if (
+                    isinstance(vals, list)
+                    and vals
+                    and all(isinstance(v, (tuple, list)) and len(v) == 2 for v in vals)
+                ):
+                    operands = [
+                        {
+                            "object_type": obj,
+                            "entry_values": [{"lhs": v[0], "rhs": v[1]} for v in vals],
+                        }
+                    ]
+                else:
+                    vals = vals if isinstance(vals, list) else [vals]
+                    operands = [{"object_type": obj, "values": [str(v) for v in vals]}]
+            else:
+                continue
+
+            v2_conds.append({"operands": operands, "operator": op})
+            continue
+
+        # 2) plain pair ── (obj, vals / [ (lhs,rhs)... ])
+        if isinstance(cond, (tuple, list)) and len(cond) == 2:
+            obj, vals = cond
+            obj = obj.upper()
+
+            if (
+                isinstance(vals, list)
+                and vals
+                and all(isinstance(v, (tuple, list)) and len(v) == 2 for v in vals)
+            ):
+                operands = [
+                    {
+                        "object_type": obj,
+                        "entry_values": [{"lhs": v[0], "rhs": v[1]} for v in vals],
+                    }
+                ]
+            else:
+                vals = vals if isinstance(vals, list) else [vals]
+                operands = [{"object_type": obj, "values": [str(v) for v in vals]}]
+
+            v2_conds.append({"operands": operands})
+            continue
+
+        # 3) already a dict
+        if isinstance(cond, dict) and "operands" in cond:
+            op = str(cond.get("operator", "AND")).upper()
+            ops = cond["operands"]
+            v2_conds.append({"operands": ops, **({"operator": op} if op else {})})
+
+    # ------------------------------------------------ canonicalise operator for VALUE_TYPES
+    for c in v2_conds:
+        first_obj = c["operands"][0]["object_type"].upper()
+        if first_obj in VALUE_TYPES:
+            c["operator"] = "OR"  # API always returns OR for value lists
+
+    # ------------------------------------------------ order-insensitive 'values' lists
+    for c in v2_conds:
+        for operand in c["operands"]:
+            if "values" in operand:
+                operand["values"] = sorted(str(v) for v in operand["values"])
+
+    # ------------------------------------------------ stable ordering
+    def _key(c):
+        obj = c["operands"][0]["object_type"]
+        op = c["operator"]
+        return (obj, op)
+
+    normalized["conditions"] = sorted(v2_conds, key=_key)
+
+    # ------------------------------------------------ normalize privileged_capabilities
+    if "privileged_capabilities" in normalized:
+        cap_block = normalized["privileged_capabilities"]
+
+        # If it came from SDK/response (dict with capabilities key)
+        if isinstance(cap_block, dict) and "capabilities" in cap_block:
+            cap_list = cap_block.get("capabilities", [])
+            normalized["privileged_capabilities"] = {
+                "clipboard_copy": "CLIPBOARD_COPY" in cap_list,
+                "clipboard_paste": "CLIPBOARD_PASTE" in cap_list,
+                "file_download": "FILE_DOWNLOAD" in cap_list,
+                "file_upload": "FILE_UPLOAD" in cap_list,
+                "inspect_file_upload": "INSPECT_FILE_UPLOAD" in cap_list,
+                "inspect_file_download": "INSPECT_FILE_DOWNLOAD" in cap_list,
+                "monitor_session": "MONITOR_SESSION" in cap_list,
+                "record_session": "RECORD_SESSION" in cap_list,
+                "share_session": "SHARE_SESSION" in cap_list,
+            }
+
+        # If it's already a flag dict (Ansible input), clean falsy/null
+        elif isinstance(cap_block, dict):
+            normalized["privileged_capabilities"] = {
+                k: True for k, v in cap_block.items() if v is True
+            }
+
+    return normalized
+
+
+def map_conditions_v2(conditions_obj):
+    """
+    Convert Ansible-style condition dicts into the SDK tuple/list syntax.
+    """
+    if not isinstance(conditions_obj, list):
+        return []
+
+    out = []
+
+    for cond in conditions_obj:
+        op = (cond.get("operator") or "").upper() or None
+
+        for operand in cond.get("operands", []):
+            obj = (
+                operand.get("object_type") or operand.get("objectType") or ""
+            ).lower()
+            if not obj:
+                continue
+
+            # ------------------------------------------------ entry_values path
+            entry_vals = operand.get("entry_values") or operand.get("entryValues")
+            if entry_vals:  # <- guards against None
+                pairs = entry_vals if isinstance(entry_vals, list) else [entry_vals]
+                tuples = [(str(p["lhs"]), str(p["rhs"])) for p in pairs]
+
+                payload = (
+                    (obj, tuples[0][0], tuples[0][1])
+                    if len(tuples) == 1
+                    else (obj, tuples)
+                )
+                out.append((op, payload) if op else payload)
+                continue
+
+            # ------------------------------------------------ lhs/rhs shorthand
+            if "lhs" in operand and "rhs" in operand:
+                payload = (obj, str(operand["lhs"]), str(operand["rhs"]))
+                out.append((op, payload) if op else payload)
+                continue
+
+            # ------------------------------------------------ simple values list
+            vals = operand.get("values")
+            if vals is None:
+                continue
+            vals = [vals] if not isinstance(vals, list) else vals
+            payload = (obj, [str(v) for v in vals])
+            out.append((op, payload) if op else payload)
+
+    # strip (None, payload) wrappers (shouldn't occur, but keeps list clean)
+    return [
+        p if not (isinstance(p, tuple) and p[0] in [None, ""]) else p[1] for p in out
+    ]
+
+
+def convert_conditions_v1_to_v2(v1_conditions, module=None):
+    """
+    Convert the APIs v1-style response into the deterministic v2 shape
+    Ansible stores – while *preserving* the operator (AND / OR) that came
+    from the server.
+    """
+    import json
+    from collections import defaultdict
+
+    if not v1_conditions:
+        return []
+
+    VALUE_TYPES = {
+        "APP",
+        "APP_GROUP",
+        "CLIENT_TYPE",
+        "MACHINE_GRP",
+        "EDGE_CONNECTOR_GROUP",
+        "CONSOLE",
+        "LOCATION",
+        "BRANCH_CONNECTOR_GROUP",
+        "CHROME_POSTURE_PROFILE",
+    }
+
+    ENTRY_TYPES = {
+        "PLATFORM",
+        "POSTURE",
+        "TRUSTED_NETWORK",
+        "SAML",
+        "SCIM",
+        "SCIM_GROUP",
+        "COUNTRY_CODE",
+        "RISK_FACTOR_TYPE",
+        "CHROME_ENTERPRISE",
+    }
+
+    module and module.warn(
+        f"[convert_conditions_v1_to_v2] Input (v1-style): {json.dumps(v1_conditions, indent=2)}"
+    )
+
+    # (operator, object_type) → list(ids)   …for value-based object types
+    grouped_values: dict[tuple[str, str], list[str]] = defaultdict(list)
+    v2_conditions = []
+
+    for condition in v1_conditions:
+        cond_op = (condition.get("operator") or "OR").upper()
+
+        for operand in condition.get("operands", []):
+            obj = (
+                operand.get("objectType") or operand.get("object_type") or ""
+            ).upper()
+            if not obj:
+                continue
+
+            # ----------------------------- VALUE-BASED object types
+            if obj in VALUE_TYPES:
+                rhs_id = str(operand.get("rhs"))
+                grouped_values[(cond_op, obj)].append(rhs_id)
+
+            # ----------------------------- ENTRY-VALUE object types
+            elif obj in ENTRY_TYPES:
+                lhs = str(operand.get("lhs"))
+                rhs = str(operand.get("rhs"))
+                v2_conditions.append(
+                    {
+                        "operands": [
+                            {
+                                "object_type": obj,
+                                "entry_values": [{"lhs": lhs, "rhs": rhs}],
+                            }
+                        ],
+                        "operator": cond_op,
+                    }
+                )
+
+    # build one condition per (operator, object_type) for value-based items
+    for (op, obj), ids in grouped_values.items():
+        v2_conditions.append(
+            {
+                "operands": [
+                    {
+                        "object_type": obj,
+                        "values": sorted(ids),
+                    }
+                ],
+                "operator": op,
+            }
+        )
+
+    # stable order → avoids diff shuffle
+    v2_conditions.sort(key=lambda c: (c["operands"][0]["object_type"], c["operator"]))
+
+    module and module.warn(
+        f"[convert_conditions_v1_to_v2] Output (v2-style): {json.dumps(v2_conditions, indent=2)}"
+    )
+    return v2_conditions
+
+
+def validate_operand_v2(operand, module):
+    object_type = str(operand.get("object_type", "")).upper()
+    if not object_type:
+        return "object_type is required in each operand."
+
+    VALUE_OBJECT_TYPES = {
+        "APP",
+        "APP_GROUP",
+        "CONSOLE",
+        "MACHINE_GRP",
+        "EDGE_CONNECTOR_GROUP",
+        "LOCATION",
+        "CLIENT_TYPE",
+        "CHROME_POSTURE_PROFILE",
+    }
+
+    ENTRY_OBJECT_TYPES = {
+        "PLATFORM",
+        "COUNTRY_CODE",
+        "SCIM_GROUP",
+        "SCIM",
+        "SAML",
+        "RISK_FACTOR_TYPE",
+        "CHROME_ENTERPRISE",
+        "POSTURE",
+        "TRUSTED_NETWORK",
+    }
+
+    if object_type not in VALUE_OBJECT_TYPES | ENTRY_OBJECT_TYPES:
+        return (
+            f"Invalid object_type: {object_type}. Supported types: "
+            f"{', '.join(sorted(VALUE_OBJECT_TYPES | ENTRY_OBJECT_TYPES))}"
+        )
+
+    # ---------------------------------------------------------------- values-style
+    if object_type in VALUE_OBJECT_TYPES:
+        values = operand.get("values")
+        if not isinstance(values, list) or not values:
+            return f"'values' must be a non-empty list for {object_type}"
+
+        if object_type == "CLIENT_TYPE":
+            allowed = [
+                "zpn_client_type_exporter",
+                "zpn_client_type_machine_tunnel",
+                "zpn_client_type_edge_connector",
+                "zpn_client_type_vdi",
+                "zpn_client_type_zapp",
+                "zpn_client_type_browser_isolation",
+                "zpn_client_type_ip_anchoring",
+                "zpn_client_type_zapp_partner",
+                "zpn_client_type_branch_connector",
+            ]
+            bad = [v for v in values if v not in allowed]
+            if bad:
+                return (
+                    f"Invalid CLIENT_TYPE value(s): {', '.join(bad)}. "
+                    f"Permitted values: {', '.join(allowed)}"
+                )
+
+        if object_type == "CHROME_POSTURE_PROFILE":
+            if not all(isinstance(v, str) and v.strip() for v in values):
+                return "For CHROME_POSTURE_PROFILE, all values must be non-empty profile ID strings."
+
+        return None  # ✅ nothing more to check for other value-types
+
+    # ----------------------------------------------------------- entry_values-style
+    ev = operand.get("entry_values")
+    if not isinstance(ev, dict):
+        return f"'entry_values' must be a dict for {object_type}"
+    if not ev.get("lhs") or not ev.get("rhs"):
+        return "'entry_values' must contain non-empty 'lhs' and 'rhs'"
+
+    if object_type == "PLATFORM":
+        allowed = ["android", "ios", "linux", "mac", "windows"]
+        lhs = str(ev["lhs"]).lower()
+        rhs = str(ev["rhs"]).lower()
+        if lhs not in allowed:
+            return f"Invalid PLATFORM lhs: {lhs}. Permitted: {', '.join(allowed)}"
+        if rhs != "true":
+            return "For PLATFORM, rhs must be 'true'."
+
+    if object_type == "COUNTRY_CODE":
+        lhs = str(ev["lhs"]).upper()
+        rhs = str(ev["rhs"]).lower()
+        if not validate_iso3166_alpha2(lhs):
+            return f"Invalid COUNTRY_CODE lhs: '{lhs}' is not a valid ISO3166 Alpha2 country code. \
+                Please visit the following site for reference: https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes"
+        if rhs != "true":
+            return "For COUNTRY_CODE, rhs must be 'true'."
+
+    if object_type == "RISK_FACTOR_TYPE":
+        lhs = str(ev["lhs"])
+        rhs = str(ev["rhs"]).upper()
+        allowed = {"UNKNOWN", "LOW", "MEDIUM", "HIGH", "CRITICAL"}
+        if lhs != "ZIA":
+            return "For RISK_FACTOR_TYPE, lhs must be 'ZIA'."
+        if rhs not in allowed:
+            return f"Invalid RISK_FACTOR_TYPE rhs: {rhs}. Permitted values: {', '.join(sorted(allowed))}"
+
+    if object_type == "CHROME_ENTERPRISE":
+        lhs = str(ev["lhs"])
+        rhs = str(ev["rhs"]).lower()
+        if lhs != "managed":
+            return "For CHROME_ENTERPRISE, lhs must be 'managed'."
+        if rhs not in {"true", "false"}:
+            return "For CHROME_ENTERPRISE, rhs must be either 'true' or 'false'."
+
+    return None  # ✓ valid
 
 
 def validate_iso3166_alpha2(country_code):

@@ -103,104 +103,124 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
-    state = module.params.get("state", None)
+    state = module.params.get("state")
     client = ZPAClientHelper(module)
-    pse = dict()
-    params = [
-        "id",
-        "ids",  # Added ids param for bulk delete
-        "name",
-        "description",
-        "enabled",
-    ]
-    for param_name in params:
-        pse[param_name] = module.params.get(param_name, None)
 
-    service_edge_id = pse.get("id", None)
-    service_edge_name = pse.get("name", None)
-    service_edge_ids = pse.get("ids", None)  # Get ids for bulk delete
+    # Extract parameters
+    params = ["id", "ids", "name", "description", "enabled", "microtenant_id"]
+    service_edge = {p: module.params.get(p) for p in params}
+    service_edge_id = service_edge.get("id")
+    service_edge_ids = service_edge.get("ids") or []
+    service_edge_name = service_edge.get("name")
+    microtenant_id = service_edge.get("microtenant_id")
 
-    existing_pse = None
+    # Step 1: Handle bulk delete (skips state)
+    if service_edge_ids:
+        _unused, _unused, error = client.service_edges.bulk_delete_service_edges(
+            service_edge_ids=service_edge_ids, microtenant_id=microtenant_id
+        )
+        if error:
+            module.fail_json(msg=f"Error during bulk delete: {to_native(error)}")
+        module.exit_json(changed=True, data={"deleted_service_edges": service_edge_ids})
 
-    # Handle single GET operation for retrieving an individual Service Edges
-    if service_edge_id is not None:
-        pse_box = client.service_edges.get_service_edge(service_edge_id=service_edge_id)
-        if pse_box is not None:
-            existing_pse = pse_box.to_dict()
-    elif service_edge_name is not None:
-        pses = client.service_edges.list_service_edges().to_list()
-        for pse_ in pses:
-            if pse_.get("name") == service_edge_name:
-                existing_pse = pse_
+    # Step 2: Lookup existing service_edge by ID or name
+    existing_service_edge = None
+    if service_edge_id:
+        result, _unused, error = client.service_edges.get_service_edge(
+            service_edge_id=service_edge_id,
+            query_params={"microtenant_id": microtenant_id} if microtenant_id else {},
+        )
+        if error:
+            module.fail_json(
+                msg=f"Error retrieving service edge by ID: {to_native(error)}"
+            )
+        if result:
+            existing_service_edge = result.as_dict()
+    elif service_edge_name:
+        query_params = {"microtenant_id": microtenant_id} if microtenant_id else {}
+        connectors, error = collect_all_items(
+            client.service_edges.list_service_edges, query_params
+        )
+        if error:
+            module.fail_json(msg=f"Error listing service edges: {to_native(error)}")
+        for pse in connectors or []:
+            pse_dict = pse.as_dict()
+            if pse_dict.get("name") == service_edge_name:
+                existing_service_edge = pse_dict
                 break
 
+    # Step 3: Check mode support
     if module.check_mode:
-        if state == "present" and (existing_pse is None):
-            module.exit_json(changed=True)
-        elif state == "absent" and existing_pse is not None:
-            module.exit_json(changed=True)
-        else:
-            module.exit_json(changed=False)
-
-    # Handle bulk delete operation independently from state
-    if service_edge_ids:
-        response = client.service_edges.bulk_delete_service_edges(
-            service_edge_ids=service_edge_ids
-        )
         module.exit_json(
-            changed=True, data={"deleted_pses": service_edge_ids, "response": response}
+            changed=(state == "present" and not existing_service_edge)
+            or (state == "absent" and existing_service_edge is not None)
         )
 
-    # Handle single delete operation when state is absent
-    if state == "absent":
-        if existing_pse and existing_pse.get("id"):
-            code = client.service_edges.delete_service_edge(
-                service_edge_id=existing_pse.get("id")
+    # Step 4: Delete
+    if state == "absent" and existing_service_edge:
+        _unused, _unused, error = client.service_edges.delete_connector(
+            service_edge_id=existing_service_edge.get("id"),
+            microtenant_id=microtenant_id,
+        )
+        if error:
+            module.fail_json(msg=f"Error deleting service edge: {to_native(error)}")
+        module.exit_json(changed=True, data=existing_service_edge)
+
+    # Step 5: Update (no creation support per spec)
+    if state == "present" and existing_service_edge:
+        payload = {}
+        update_required = False
+
+        for key in ["name", "description", "enabled"]:
+            if pse.get(key) is not None and pse.get(key) != existing_service_edge.get(
+                key
+            ):
+                payload[key] = pse[key]
+                update_required = True
+
+        if update_required:
+            payload["microtenant_id"] = microtenant_id
+            updated, _unused, error = client.service_edges.update_service_edge(
+                service_edge_id=existing_service_edge.get("id"), **payload
             )
-            if code > 299:
-                module.fail_json(msg="Single delete failed", data=code)
-            module.exit_json(changed=True, data=existing_pse)
+            if error:
+                module.fail_json(msg=f"Error updating service edge: {to_native(error)}")
+            module.exit_json(changed=True, data=updated.as_dict())
 
-    # Handle create or update if state is present
-    if state == "present":
-        if existing_pse is not None:
-            # Update existing connector
-            update_required = False
-            payload = {}
+        # No update needed
+        module.exit_json(changed=False, data=existing_service_edge)
 
-            # Check for differences and update only if necessary
-            if module.params.get("description") is not None and module.params.get(
-                "description"
-            ) != existing_pse.get("description"):
-                payload["description"] = module.params.get("description")
-                update_required = True
-
-            if module.params.get("enabled") is not None and module.params.get(
-                "enabled"
-            ) != existing_pse.get("enabled"):
-                payload["enabled"] = module.params.get("enabled")
-                update_required = True
-
-            if module.params.get("name") is not None and module.params.get(
-                "name"
-            ) != existing_pse.get("name"):
-                payload["name"] = module.params.get("name")
-                update_required = True
-
-            # Only send the update request if changes are detected
-            if update_required:
-                response = client.service_edges.update_service_edge(
-                    service_edge_id=existing_pse.get("id"), **payload
-                )
-                module.exit_json(changed=True, data=response.to_dict())
-            else:
-                # No update necessary, return existing data
-                module.exit_json(changed=False, data=existing_pse)
-
+    # Final fallback
     module.exit_json(changed=False, data={})
+
+
+def main():
+    argument_spec = ZPAClientHelper.zpa_argument_spec()
+    argument_spec.update(
+        id=dict(type="str", required=False),
+        ids=dict(type="list", elements="str", required=False),
+        name=dict(type="str", required=False),
+        description=dict(type="str", required=False),
+        enabled=dict(type="bool", required=False),
+        microtenant_id=dict(type="str", required=False),
+        state=dict(type="str", choices=["present", "absent"], default="present"),
+    )
+
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+    try:
+        core(module)
+    except Exception as e:
+        module.fail_json(msg=to_native(e), exception=format_exc())
+
+
+if __name__ == "__main__":
+    main()
 
 
 def main():

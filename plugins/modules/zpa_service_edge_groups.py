@@ -146,12 +146,17 @@ options:
     choices:
       - MILES
       - KMS
-  trusted_networks_ids:
+  trusted_network_ids:
     description:
       - The list of trusted networks in the ZPA Private Service Edge Group.
     type: list
     elements: str
     required: false
+  microtenant_id:
+      description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+      required: false
+      type: str
 """
 
 EXAMPLES = """
@@ -185,8 +190,10 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     validate_latitude,
     validate_longitude,
     diff_suppress_func_coordinate,
+    collect_all_items,
     deleteNone,
     normalize_app,
+    validate_iso3166_alpha2,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
@@ -207,6 +214,7 @@ def core(module):
     group = dict()
     params = [
         "id",
+        "microtenant_id",
         "name",
         "description",
         "enabled",
@@ -224,7 +232,8 @@ def core(module):
         "grace_distance_enabled",
         "grace_distance_value",
         "grace_distance_value_unit",
-        "trusted_networks_ids",
+        # "service_edge_ids",
+        "trusted_network_ids",
     ]
     for param_name in params:
         group[param_name] = module.params.get(param_name, None)
@@ -233,17 +242,55 @@ def core(module):
 
     group_id = group.get("id", None)
     group_name = group.get("name", None)
+    microtenant_id = module.params.get("microtenant_id")
+
+    query_params = {}
+    if microtenant_id:
+        query_params["microtenant_id"] = microtenant_id
+
+    # Validate and format country codes
+    countryCode = group.get("country_code")
+    if countryCode:
+        if isinstance(countryCode, list):
+            validated_country_code = []
+            for country_code in countryCode:
+                if validate_iso3166_alpha2(country_code):
+                    validated_country_code.append(country_code)
+                else:
+                    module.fail_json(
+                        msg=f"Invalid country code '{country_code}'. Must be ISO3166 Alpha2."
+                    )
+            group["country_code"] = validated_country_code
+        else:
+            # Handle single string country code
+            if validate_iso3166_alpha2(countryCode):
+                group["country_code"] = countryCode
+            else:
+                module.fail_json(
+                    msg=f"Invalid country code '{countryCode}'. Must be ISO3166 Alpha2."
+                )
 
     existing_group = None
     if group_id is not None:
-        group_box = client.service_edges.get_service_edge_group(group_id=group_id)
-        if group_box is not None:
-            existing_group = group_box.to_dict()
-    elif group_name is not None:
-        groups = client.service_edges.list_service_edge_groups().to_list()
-        for group_ in groups:
-            if group_.get("name") == group_name:
-                existing_group = group_
+        result, _unused, error = client.service_edge_group.get_service_edge_group(
+            group_id, query_params={"microtenant_id": microtenant_id}
+        )
+        if error:
+            module.fail_json(
+                msg=f"Error fetching service edge group with id {group_id}: {to_native(error)}"
+            )
+        existing_group = result.as_dict()
+    else:
+        result, error = collect_all_items(
+            client.service_edge_group.list_service_edge_groups, query_params
+        )
+        if error:
+            module.fail_json(msg=f"Error service edge group: {to_native(error)}")
+        if result:
+            for group_ in result:
+                if group_.name == group_name:
+                    existing_group = group_.as_dict()
+                    break
 
     # Normalize and compare existing and desired data
     desired_group = normalize_app(group)
@@ -254,9 +301,9 @@ def core(module):
     for key, value in desired_group.items():
         if key not in fields_to_exclude and current_group.get(key) != value:
             differences_detected = True
-            # module.warn(
-            #     f"Difference detected in {key}. Current: {current_group.get(key)}, Desired: {value}"
-            # )
+            module.warn(
+                f"Difference detected in {key}. Current: {current_group.get(key)}, Desired: {value}"
+            )
 
     if module.check_mode:
         # If in check mode, report changes and exit
@@ -311,89 +358,124 @@ def core(module):
                         existing_long  # If new_long is None, keep the existing value
                     )
 
-                existing_group = deleteNone(
-                    dict(
-                        group_id=existing_group.get("id", None),
-                        name=existing_group.get("name", None),
-                        description=existing_group.get("description", None),
-                        enabled=existing_group.get("enabled", None),
-                        city_country=existing_group.get("city_country", None),
-                        country_code=existing_group.get("country_code", None),
-                        latitude=existing_group.get("latitude", None),
-                        longitude=existing_group.get("longitude", None),
-                        location=existing_group.get("location", None),
-                        upgrade_day=existing_group.get("upgrade_day", None),
-                        is_public=existing_group.get("is_public", None),
-                        upgrade_time_in_secs=existing_group.get(
+    if state == "present":
+        if existing_group:
+            if differences_detected:
+                update_group = deleteNone(
+                    {
+                        "group_id": existing_group.get("id", None),
+                        "microtenant_id": desired_group.get("microtenant_id", None),
+                        "name": desired_group.get("name", None),
+                        "description": desired_group.get("description", None),
+                        "enabled": desired_group.get("enabled", None),
+                        "city_country": desired_group.get("city_country", None),
+                        "country_code": desired_group.get("country_code", None),
+                        "latitude": desired_group.get("latitude", None),
+                        "longitude": desired_group.get("longitude", None),
+                        "location": desired_group.get("location", None),
+                        "upgrade_day": desired_group.get("upgrade_day", None),
+                        "is_public": desired_group.get("is_public", None),
+                        "upgrade_time_in_secs": desired_group.get(
                             "upgrade_time_in_secs", None
                         ),
-                        override_version_profile=existing_group.get(
+                        "override_version_profile": desired_group.get(
                             "override_version_profile", None
                         ),
-                        version_profile_id=existing_group.get(
+                        "version_profile_id": desired_group.get(
                             "version_profile_id", None
                         ),
-                        use_in_dr_mode=existing_group.get("use_in_dr_mode", None),
-                        grace_distance_enabled=existing_group.get(
+                        "use_in_dr_mode": desired_group.get("use_in_dr_mode", None),
+                        "grace_distance_enabled": desired_group.get(
                             "grace_distance_enabled", None
                         ),
-                        grace_distance_value=existing_group.get(
+                        "grace_distance_value": desired_group.get(
                             "grace_distance_value", None
                         ),
-                        grace_distance_value_unit=existing_group.get(
+                        "grace_distance_value_unit": desired_group.get(
                             "grace_distance_value_unit", None
                         ),
+                        # "service_edge_ids": desired_group.get("service_edge_ids", None),
+                        "trusted_network_ids": desired_group.get(
+                            "trusted_network_ids", None
+                        ),
+                    }
+                )
+                module.warn("Payload Update for SDK: {}".format(update_group))
+                updated_group, _unused, error = (
+                    client.service_edge_group.update_service_edge_group(
+                        group_id=update_group.pop("group_id"), **update_group
                     )
                 )
-                existing_group = client.service_edges.update_service_edge_group(
-                    **existing_group
-                ).to_dict()
-                module.exit_json(changed=True, data=existing_group)
+                if error:
+                    module.fail_json(msg=f"Error updating group: {to_native(error)}")
+                module.exit_json(changed=True, data=updated_group.as_dict())
             else:
-                """No Changes Needed"""
                 module.exit_json(changed=False, data=existing_group)
         else:
-            """Create"""
-            normalized_group = deleteNone(
-                dict(
-                    name=group.get("name", None),
-                    description=group.get("description", None),
-                    enabled=group.get("enabled", None),
-                    city_country=group.get("city_country", None),
-                    country_code=group.get("country_code", None),
-                    latitude=group.get("latitude", None),
-                    longitude=group.get("longitude", None),
-                    location=group.get("location", None),
-                    upgrade_day=group.get("upgrade_day", None),
-                    is_public=group.get("is_public", None),
-                    upgrade_time_in_secs=group.get("upgrade_time_in_secs", None),
-                    override_version_profile=group.get(
+            create_group = deleteNone(
+                {
+                    "microtenant_id": desired_group.get("microtenant_id", None),
+                    "name": desired_group.get("name", None),
+                    "description": desired_group.get("description", None),
+                    "enabled": desired_group.get("enabled", None),
+                    "city_country": desired_group.get("city_country", None),
+                    "country_code": desired_group.get("country_code", None),
+                    "latitude": desired_group.get("latitude", None),
+                    "longitude": desired_group.get("longitude", None),
+                    "location": desired_group.get("location", None),
+                    "upgrade_day": desired_group.get("upgrade_day", None),
+                    "is_public": desired_group.get("is_public", None),
+                    "upgrade_time_in_secs": desired_group.get(
+                        "upgrade_time_in_secs", None
+                    ),
+                    "override_version_profile": desired_group.get(
                         "override_version_profile", None
                     ),
-                    version_profile_id=group.get("version_profile_id", None),
-                    use_in_dr_mode=group.get("use_in_dr_mode", None),
-                    grace_distance_enabled=group.get("grace_distance_enabled", None),
-                    grace_distance_value=group.get("grace_distance_value", None),
-                    grace_distance_value_unit=group.get(
+                    "version_profile_id": desired_group.get("version_profile_id", None),
+                    "use_in_dr_mode": desired_group.get("use_in_dr_mode", None),
+                    "grace_distance_enabled": desired_group.get(
+                        "grace_distance_enabled", None
+                    ),
+                    "grace_distance_value": desired_group.get(
+                        "grace_distance_value", None
+                    ),
+                    "grace_distance_value_unit": desired_group.get(
                         "grace_distance_value_unit", None
                     ),
+                    # "service_edge_ids": desired_group.get("service_edge_ids", None),
+                    "trusted_network_ids": desired_group.get(
+                        "trusted_network_ids", None
+                    ),
+                }
+            )
+            module.warn("Payload Update for SDK: {}".format(create_group))
+            created, _unused, error = client.service_edge_group.add_service_edge_group(
+                **create_group
+            )
+            if error:
+                module.fail_json(
+                    msg=f"Error creating app connector group: {to_native(error)}"
+                )
+            module.exit_json(changed=True, data=created.as_dict())
+
+            # module.warn("Payload Update for SDK: {}".format(create_group))
+            # new_group = client.service_edge_group.add_service_edge_group(**create_group)
+            # if error:
+            #     module.fail_json(msg=f"Error creating group: {to_native(error)}")
+            # module.exit_json(changed=True, data=new_group.as_dict())
+
+    elif state == "absent":
+        if existing_group:
+            _unused, _unused, error = (
+                client.service_edge_group.delete_service_edge_group(
+                    group_id=existing_group.get("id"),
+                    microtenant_id=microtenant_id,
                 )
             )
-            group = client.service_edges.add_service_edge_group(
-                **normalized_group
-            ).to_dict()
-            module.exit_json(changed=True, data=group)
-    elif (
-        state == "absent"
-        and existing_group is not None
-        and existing_group.get("id") is not None
-    ):
-        code = client.service_edges.delete_service_edge_group(
-            group_id=existing_group.get("id")
-        )
-        if code > 299:
-            module.exit_json(changed=False, data=None)
+        if error:
+            module.fail_json(msg=f"Error deleting group: {to_native(error)}")
         module.exit_json(changed=True, data=existing_group)
+
     module.exit_json(changed=False, data={})
 
 
@@ -401,6 +483,7 @@ def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
         id=dict(type="str", required=False),
+        microtenant_id=dict(type="str", required=False),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
         enabled=dict(type="bool", required=False),
@@ -433,7 +516,8 @@ def main():
         grace_distance_value_unit=dict(
             type="str", required=False, choices=["MILES", "KMS"]
         ),
-        trusted_networks_ids=dict(type="list", elements="str", required=False),
+        trusted_network_ids=dict(type="list", elements="str", required=False),
+        # service_edge_ids=dict(type="list", elements="str", required=False),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

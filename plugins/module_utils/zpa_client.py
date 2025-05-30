@@ -26,15 +26,18 @@ import platform
 from ansible.module_utils.basic import missing_required_lib, env_fallback
 from ansible.module_utils import ansible_release
 
+# Initialize import error variables
 ZSCALER_IMPORT_ERROR = None
 VERSION_IMPORT_ERROR = None
 
 try:
-    from zscaler.zpa import ZPAClientHelper as ZPA
+    from zscaler.oneapi_client import LegacyZPAClient
+    from zscaler import ZscalerClient as OneAPIClient
 
     HAS_ZSCALER = True
 except ImportError as e:
-    ZPA = object  # Use a generic object if the import fails
+    LegacyZPAClient = object  # Default to object if import fails
+    OneAPIClient = object
     HAS_ZSCALER = False
     ZSCALER_IMPORT_ERROR = missing_required_lib("zscaler")
 
@@ -46,10 +49,11 @@ try:
     HAS_VERSION = True
 except ImportError as e:
     HAS_VERSION = False
-    VERSION_IMPORT_ERROR = missing_required_lib("plugins.module_utils.version")
+    VERSION_IMPORT_ERROR = missing_required_lib(
+        "plugins.module_utils.version (version information)"
+    )
 
-
-VALID_ZPA_ENVIRONMENTS = {
+VALID_ZPA_CLOUD = {
     "PRODUCTION",
     "BETA",
     "QA",
@@ -61,25 +65,7 @@ VALID_ZPA_ENVIRONMENTS = {
 }
 
 
-class ConnectionHelper:
-    def __init__(self, min_sdk_version):
-        if not HAS_ZSCALER:
-            raise ImportError(ZSCALER_IMPORT_ERROR)
-
-        self.min_sdk_version = min_sdk_version
-        self.check_sdk_installed()
-
-    def check_sdk_installed(self):
-        import zscaler
-
-        installed_version = tuple(map(int, zscaler.__version__.split(".")))
-        if installed_version < self.min_sdk_version:
-            raise Exception(
-                f"zscaler version should be >= {'.'.join(map(str, self.min_sdk_version))}"
-            )
-
-
-class ZPAClientHelper(ZPA):
+class ZPAClientHelper:
     def __init__(self, module):
         if not HAS_ZSCALER:
             module.fail_json(
@@ -92,102 +78,366 @@ class ZPAClientHelper(ZPA):
                 exception=VERSION_IMPORT_ERROR,
             )
 
-        self.connection_helper = ConnectionHelper(min_sdk_version=(0, 1, 0))
-
         # Initialize provider to an empty dict if None
         provider = module.params.get("provider") or {}
 
-        # Use provider or environment variables
+        # Get use_legacy_client flag from provider, module params, or environment
+        use_legacy_client = (
+            provider.get("use_legacy_client")
+            or module.params.get("use_legacy_client")
+            or os.getenv("ZSCALER_USE_LEGACY_CLIENT", "").lower() == "true"
+        )
+
+        if use_legacy_client:
+            self._client = self._init_legacy_client(module, provider)
+        else:
+            self._client = self._init_oneapi_client(module, provider)
+
+        # Set user agent for both client types
+        ansible_version = ansible_release.__version__
+        self.user_agent = f"zpacloud-ansible/{ansible_version} (collection/{ansible_collection_version}) ({platform.system().lower()} {platform.machine()})"
+
+    def __getattr__(self, name):
+        """Delegate attribute access to the underlying client's zpa service"""
+        try:
+            # First try to get the attribute from the client's zpa service
+            return getattr(self._client.zpa, name)
+        except AttributeError:
+            # If not found in zpa service, try the client directly
+            return getattr(self._client, name)
+
+    def _init_legacy_client(self, module, provider):
+        """Initialize the legacy ZPA client with clientId/clientSecret/customerId authentication"""
+        client_id = (
+            provider.get("zpa_client_id")
+            or module.params.get("zpa_client_id")
+            or os.getenv("ZPA_CLIENT_ID")
+        )
+        client_secret = (
+            provider.get("zpa_client_secret")
+            or module.params.get("zpa_client_secret")
+            or os.getenv("ZPA_CLIENT_SECRET")
+        )
+        customer_id = (
+            provider.get("zpa_customer_id")
+            or module.params.get("zpa_customer_id")
+            or os.getenv("ZPA_CUSTOMER_ID")
+        )
+        microtenant_id = (
+            provider.get("zpa_microtenant_id")
+            or module.params.get("zpa_microtenant_id")
+            or os.getenv("ZPA_MICROTENANT_ID")
+        )
+        cloud_env = (
+            provider.get("zpa_cloud")
+            or module.params.get("zpa_cloud")
+            or os.getenv("ZPA_CLOUD")
+        )
+
+        if not all([client_id, client_secret, customer_id, cloud_env]):
+            module.fail_json(
+                msg="All legacy parameters must be provided: zpa_client_id, zpa_client_secret, zpa_customer_id, zpa_cloud."
+            )
+
+        if cloud_env:
+            cloud_env_normalized = cloud_env.upper()
+            if cloud_env_normalized not in VALID_ZPA_CLOUD:
+                module.fail_json(msg=f"Invalid ZPA Cloud environment '{cloud_env}'.")
+            cloud_env = cloud_env_normalized  # Overwrite with validated uppercase
+
+        config = {
+            "clientId": client_id,
+            "clientSecret": client_secret,
+            "customerId": customer_id,
+            "microtenantId": microtenant_id,
+            "cloud": cloud_env.upper(),
+        }
+
+        return LegacyZPAClient(config)
+
+    def _init_oneapi_client(self, module, provider):
+        """Initialize the OneAPI client with OAuth2 authentication"""
+        # Retrieve credentials from all sources
         client_id = (
             provider.get("client_id")
             or module.params.get("client_id")
-            or os.getenv("ZPA_CLIENT_ID")
+            or os.getenv("ZSCALER_CLIENT_ID")
         )
         client_secret = (
             provider.get("client_secret")
             or module.params.get("client_secret")
-            or os.getenv("ZPA_CLIENT_SECRET")
+            or os.getenv("ZSCALER_CLIENT_SECRET")
+        )
+        private_key = (
+            provider.get("private_key")
+            or module.params.get("private_key")
+            or os.getenv("ZSCALER_PRIVATE_KEY")
+        )
+        vanity_domain = (
+            provider.get("vanity_domain")
+            or module.params.get("vanity_domain")
+            or os.getenv("ZSCALER_VANITY_DOMAIN")
+        )
+        cloud_env = (
+            provider.get("cloud")
+            or module.params.get("cloud")
+            or os.getenv("ZSCALER_CLOUD")
         )
         customer_id = (
             provider.get("customer_id")
             or module.params.get("customer_id")
             or os.getenv("ZPA_CUSTOMER_ID")
         )
-        cloud_env = (
-            provider.get("cloud")
-            or module.params.get("cloud")
-            or os.getenv("ZPA_CLOUD")
+        microtenant_id = (
+            provider.get("microtenant_id")
+            or module.params.get("microtenant_id")
+            or os.getenv("ZPA_MICROTENANT_ID")
         )
 
-        # Check that all parameters are provided
-        if not all([client_id, client_secret, customer_id, cloud_env]):
-            module.fail_json(msg="All authentication parameters must be provided.")
+        # ✅ Required fields
+        if not vanity_domain:
+            module.fail_json(msg="vanity_domain is required for OneAPI authentication")
 
-        super().__init__(
-            client_id=client_id,
-            client_secret=client_secret,
-            customer_id=customer_id,
-            cloud=cloud_env.upper(),
-        )
+        if not client_id:
+            module.fail_json(msg="client_id is required for OneAPI authentication")
 
-        ansible_version = ansible_release.__version__
-        self.user_agent = f"zpacloud-ansible/{ansible_version} (collection/{ansible_collection_version}) ({platform.system().lower()} {platform.machine()})"
+        if not client_secret and not private_key:
+            module.fail_json(
+                msg="Either client_secret or private_key must be provided for OneAPI authentication"
+            )
+
+        if client_secret and private_key:
+            module.fail_json(
+                msg="Only one authentication method can be used at a time: client_secret OR private_key (not both)"
+            )
+
+        # ✅ Construct OneAPI config
+        config = {
+            "clientId": client_id,
+            "vanityDomain": vanity_domain,
+            "customerId": customer_id,
+            "microtenantId": microtenant_id,
+            "logging": {"enabled": True, "verbose": False},
+        }
+
+        if client_secret:
+            config["clientSecret"] = client_secret
+        elif private_key:
+            config["privateKey"] = private_key
+
+        if cloud_env:
+            config["cloud"] = cloud_env.lower()
+
+        return OneAPIClient(config)
 
     @staticmethod
     def zpa_argument_spec():
+        """Return the argument specification for both legacy and OneAPI authentication"""
         return dict(
             provider=dict(
                 type="dict",
-                required=False,
                 options=dict(
-                    client_id=dict(
+                    zpa_client_id=dict(
                         type="str",
                         no_log=True,
                         required=False,
                         fallback=(env_fallback, ["ZPA_CLIENT_ID"]),
                     ),
-                    client_secret=dict(
+                    zpa_client_secret=dict(
                         type="str",
                         no_log=True,
                         required=False,
                         fallback=(env_fallback, ["ZPA_CLIENT_SECRET"]),
                     ),
-                    customer_id=dict(
+                    zpa_customer_id=dict(
                         type="str",
                         no_log=True,
                         required=False,
                         fallback=(env_fallback, ["ZPA_CUSTOMER_ID"]),
                     ),
-                    cloud=dict(
+                    zpa_microtenant_id=dict(
                         type="str",
+                        no_log=True,
                         required=False,
-                        choices=list(VALID_ZPA_ENVIRONMENTS),
-                        fallback=(env_fallback, ["ZPA_CLOUD"]),
+                        fallback=(env_fallback, ["ZPA_MICROTENANT_ID"]),
+                    ),
+                    zpa_cloud=dict(
+                        no_log=False,
+                        required=False,
+                        fallback=(env_fallback, ["ZPA_CLOUD", "ZSCALER_CLOUD"]),
+                        type="str",
+                        choices=[
+                            "BETA",
+                            "GOV",
+                            "GOVUS",
+                            "PRODUCTION",
+                            "QA",
+                            "QA2",
+                            "PREVIEW",
+                            "beta",
+                            "production",
+                        ],
+                    ),
+                    # OneAPI authentication parameters
+                    client_id=dict(
+                        no_log=True,
+                        required=False,
+                        fallback=(env_fallback, ["ZSCALER_CLIENT_ID"]),
+                        type="str",
+                    ),
+                    client_secret=dict(
+                        no_log=True,
+                        required=False,
+                        fallback=(env_fallback, ["ZSCALER_CLIENT_SECRET"]),
+                        type="str",
+                    ),
+                    private_key=dict(
+                        no_log=True,
+                        required=False,
+                        fallback=(env_fallback, ["ZSCALER_PRIVATE_KEY"]),
+                        type="str",
+                    ),
+                    vanity_domain=dict(
+                        no_log=False,
+                        required=False,
+                        fallback=(env_fallback, ["ZSCALER_VANITY_DOMAIN"]),
+                        type="str",
+                    ),
+                    customer_id=dict(
+                        no_log=False,
+                        required=False,
+                        fallback=(env_fallback, ["ZPA_CUSTOMER_ID"]),
+                        type="str",
+                    ),
+                    microtenant_id=dict(
+                        no_log=False,
+                        required=False,
+                        fallback=(env_fallback, ["ZPA_MICROTENANT_ID"]),
+                        type="str",
+                    ),
+                    cloud=dict(
+                        no_log=False,
+                        required=False,
+                        fallback=(env_fallback, ["ZPA_CLOUD", "ZSCALER_CLOUD"]),
+                        type="str",
+                        choices=[
+                            "BETA",
+                            "GOV",
+                            "GOVUS",
+                            "PRODUCTION",
+                            "QA",
+                            "QA2",
+                            "PREVIEW",
+                            "beta",
+                            "production",
+                        ],
+                    ),
+                    use_legacy_client=dict(
+                        type="bool",
+                        default=False,
+                        fallback=(env_fallback, ["ZSCALER_USE_LEGACY_CLIENT"]),
                     ),
                 ),
             ),
-            client_id=dict(
-                type="str",
+            zpa_client_id=dict(
                 no_log=True,
                 required=False,
                 fallback=(env_fallback, ["ZPA_CLIENT_ID"]),
-            ),
-            client_secret=dict(
                 type="str",
+            ),
+            zpa_client_secret=dict(
                 no_log=True,
                 required=False,
                 fallback=(env_fallback, ["ZPA_CLIENT_SECRET"]),
-            ),
-            customer_id=dict(
                 type="str",
+            ),
+            zpa_customer_id=dict(
                 no_log=True,
                 required=False,
                 fallback=(env_fallback, ["ZPA_CUSTOMER_ID"]),
+                type="str",
+            ),
+            zpa_microtenant_id=dict(
+                no_log=True,
+                required=False,
+                fallback=(env_fallback, ["ZPA_MICROTENANT_ID"]),
+                type="str",
+            ),
+            zpa_cloud=dict(
+                no_log=False,
+                required=False,
+                fallback=(env_fallback, ["ZPA_CLOUD", "ZSCALER_CLOUD"]),
+                type="str",
+                choices=[
+                    "BETA",
+                    "GOV",
+                    "GOVUS",
+                    "PRODUCTION",
+                    "QA",
+                    "QA2",
+                    "PREVIEW",
+                    "beta",
+                    "production",
+                ],
+            ),
+            # OneAPI authentication parameters
+            client_id=dict(
+                no_log=True,
+                required=False,
+                fallback=(env_fallback, ["ZSCALER_CLIENT_ID"]),
+                type="str",
+            ),
+            client_secret=dict(
+                no_log=True,
+                required=False,
+                fallback=(env_fallback, ["ZSCALER_CLIENT_SECRET"]),
+                type="str",
+            ),
+            private_key=dict(
+                no_log=True,
+                required=False,
+                fallback=(env_fallback, ["ZSCALER_PRIVATE_KEY"]),
+                type="str",
+            ),
+            vanity_domain=dict(
+                no_log=False,
+                required=False,
+                fallback=(env_fallback, ["ZSCALER_VANITY_DOMAIN"]),
+                type="str",
+            ),
+            customer_id=dict(
+                no_log=False,
+                required=False,
+                fallback=(env_fallback, ["ZPA_CUSTOMER_ID"]),
+                type="str",
+            ),
+            microtenant_id=dict(
+                no_log=False,
+                required=False,
+                fallback=(env_fallback, ["ZPA_MICROTENANT_ID"]),
+                type="str",
             ),
             cloud=dict(
-                type="str",
+                no_log=False,
                 required=False,
-                choices=list(VALID_ZPA_ENVIRONMENTS),
-                fallback=(env_fallback, ["ZPA_CLOUD"]),
+                fallback=(env_fallback, ["ZPA_CLOUD", "ZSCALER_CLOUD"]),
+                type="str",
+                choices=[
+                    "BETA",
+                    "GOV",
+                    "GOVUS",
+                    "PRODUCTION",
+                    "QA",
+                    "QA2",
+                    "PREVIEW",
+                    "beta",
+                    "production",
+                ],
+            ),
+            use_legacy_client=dict(
+                type="bool",
+                required=False,
+                default=False,
+                fallback=(env_fallback, ["ZSCALER_USE_LEGACY_CLIENT"]),
             ),
         )

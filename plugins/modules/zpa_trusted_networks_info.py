@@ -45,16 +45,21 @@ extends_documentation_fragment:
   - zscaler.zpacloud.fragments.documentation
 
 options:
-    id:
-        description:
-            - ID of the trusted network.
-        required: false
-        type: str
-    name:
-        description:
-            - Name of the trusted network.
-        required: false
-        type: str
+  id:
+      description:
+          - ID of the trusted network.
+      required: false
+      type: str
+  name:
+      description:
+          - Name of the trusted network.
+      required: false
+      type: str
+  microtenant_id:
+      description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+      required: false
+      type: str
 """
 
 EXAMPLES = """
@@ -123,6 +128,7 @@ from traceback import format_exc
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
     remove_cloud_suffix,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
@@ -131,32 +137,50 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 
 
 def core(module):
-    network_id = module.params.get("id", None)
-    network_name = module.params.get("name", None)
+    network_id = module.params.get("id")
+    network_name = module.params.get("name")
     client = ZPAClientHelper(module)
-    networks = []
+
+    # Lookup by ID
     if network_id is not None:
         network_box = client.trusted_networks.get_network(network_id=network_id)
         if network_box is None:
             module.fail_json(
-                msg="Failed to retrieve Trusted Network ID: '%s'" % (network_id)
+                msg=f"Failed to retrieve Trusted Network ID: '{network_id}'"
             )
-        networks = [network_box.to_dict()]
-    else:
-        networks = client.trusted_networks.list_networks(pagesize=500).to_list()
-        if network_name is not None:
-            network_found = False
-            for network in networks:
-                if remove_cloud_suffix(network.get("name")) == remove_cloud_suffix(
-                    network_name
-                ):
-                    network_found = True
-                    networks = [network]
-            if not network_found:
-                module.fail_json(
-                    msg="Failed to retrieve Trusted Network Name: '%s'" % (network_name)
-                )
-    module.exit_json(changed=False, networks=networks)
+        result = [
+            network_box.as_dict() if hasattr(network_box, "as_dict") else network_box
+        ]
+        module.exit_json(changed=False, networks=result)
+
+    # Fetch all with pagination
+    module.warn("[Trusted Network] Fetching all networks with pagination")
+    networks, err = collect_all_items(client.trusted_networks.list_trusted_networks, {})
+    if err:
+        module.fail_json(msg=f"Error retrieving Trusted Networks: {to_native(err)}")
+
+    module.warn(f"[Trusted Network] Total networks retrieved: {len(networks)}")
+
+    # Search by name using suffix-stripped comparison
+    if network_name:
+        normalized_input = remove_cloud_suffix(network_name)
+        match = next(
+            (
+                n
+                for n in networks
+                if remove_cloud_suffix(getattr(n, "name", "")) == normalized_input
+            ),
+            None,
+        )
+        if not match:
+            available = [remove_cloud_suffix(getattr(n, "name", "")) for n in networks]
+            module.fail_json(
+                msg=f"Trusted Network '{network_name}' not found. Available: {available}"
+            )
+        networks = [match]
+
+    result = [n.as_dict() if hasattr(n, "as_dict") else n for n in networks]
+    module.exit_json(changed=False, networks=result)
 
 
 def main():

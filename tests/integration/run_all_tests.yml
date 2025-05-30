@@ -7,10 +7,11 @@
     - name: Set up environment variables
       ansible.builtin.set_fact:
         zpa_cloud:
-          client_id: '{{ lookup("env", "ZPA_CLIENT_ID") }}'
-          client_secret: '{{ lookup("env", "ZPA_CLIENT_SECRET") | default(omit) }}'
+          client_id: '{{ lookup("env", "ZSCALER_CLIENT_ID") }}'
+          client_secret: '{{ lookup("env", "ZSCALER_CLIENT_SECRET") | default(omit) }}'
+          vanity_domain: '{{ lookup("env", "ZSCALER_VANITY_DOMAIN") | default(omit) }}'
           customer_id: '{{ lookup("env", "ZPA_CUSTOMER_ID") | default(omit) }}'
-          cloud: '{{ lookup("env", "ZPA_CLOUD") | default(omit) }}'
+          cloud: '{{ lookup("env", "ZSCALER_CLOUD") | default(omit) }}'
         key_type: "connector"
       no_log: true
 
@@ -21,11 +22,9 @@
       ansible.builtin.include_tasks: "{{ item }}"
       loop:
         - targets/zpa_app_connector_groups/tasks/main.yml
-        - targets/zpa_app_protection_custom_control/tasks/main.yml
         - targets/zpa_app_protection_predefined_controls/tasks/main.yml
-        - targets/zpa_app_protection_profile/tasks/main.yml
+        - targets/zpa_app_protection_security_profile_info/tasks/main.yml
         - targets/zpa_application_segment/tasks/main.yml
-        - targets/zpa_application_segment_browser_access/tasks/main.yml
         - targets/zpa_application_server/tasks/main.yml
         - targets/zpa_ba_certificate_info/tasks/main.yml
         - targets/zpa_customer_version_profile_info/tasks/main.yml
@@ -49,7 +48,6 @@
         - targets/zpa_scim_group_info/tasks/main.yml
         - targets/zpa_segment_group/tasks/main.yml
         - targets/zpa_server_group/tasks/main.yml
-        - targets/zpa_app_connector_groups/tasks/main.yml
         - targets/zpa_service_edge_groups/tasks/main.yml
         - targets/zpa_trusted_networks_info/tasks/main.yml
 

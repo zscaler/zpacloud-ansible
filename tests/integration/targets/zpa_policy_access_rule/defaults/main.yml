@@ -2,5 +2,6 @@
 rule_name: test_zpa_policy_access_rule
 description: test_zpa_policy_access_rule
 rule_action: ALLOW
-operator: AND
+policy_type: access
+operator: OR
 custom_msg: test_zpa_policy_access_rule

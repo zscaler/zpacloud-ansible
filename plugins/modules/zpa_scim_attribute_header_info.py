@@ -167,50 +167,79 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
-    scim_attr_name = module.params.get("name", None)
-    idp_name = module.params.get("idp_name", None)
-    scim_attr_id = module.params.get("id", None)
+    scim_attr_name = module.params.get("name")
+    scim_attr_id = module.params.get("id")
+    idp_name = module.params.get("idp_name")
     client = ZPAClientHelper(module)
-    idp_id = ""
-    idps = client.idp.list_idps()
-    for idp in idps:
-        if idp.get("name") == idp_name:
-            idp_id = idp.get("id")
-    if idp_id == "":
-        module.fail_json(msg="Failed to retrieve IDP with name : '%s'" % (idp_name))
-    attributes = []
-    if scim_attr_id is not None:
-        attribute_box = client.scim_attributes.get_attribute(
+
+    # Lookup IDP by name
+    idps, _unused, err = client.idp.list_idps(query_params={"search": idp_name})
+    if err:
+        module.fail_json(msg=f"Error retrieving IdP '{idp_name}': {to_native(err)}")
+    idp_id = next((idp.id for idp in idps if idp.name == idp_name), None)
+    if not idp_id:
+        module.fail_json(msg=f"IdP with name '{idp_name}' not found")
+
+    # Retrieve SCIM Attribute by ID
+    if scim_attr_id:
+        result, _unused, err = client.scim_attributes.get_scim_attribute(
             idp_id=idp_id, attribute_id=scim_attr_id
         )
-        if attribute_box is None:
+        if err or not result:
             module.fail_json(
-                msg="Failed to retrieve scim attribute header ID: '%s'" % (id)
+                msg=f"SCIM Attribute with ID '{scim_attr_id}' not found: {to_native(err)}"
             )
-        attributes = [attribute_box.to_dict()]
-    elif scim_attr_name is not None:
-        scim_attribute_found = False
-        attributes_list = client.scim_attributes.list_attributes_by_idp(
-            idp_id=idp_id
-        ).to_list()
-        for attribute in attributes_list:
-            if attribute.get("name") == scim_attr_name:
-                scim_attribute_found = True
-                attributes = [attribute]
-                break
-        if not scim_attribute_found:
+        module.exit_json(changed=False, attributes=[result.as_dict()])
+
+    # Search SCIM Attribute by name
+    if scim_attr_name:
+        query_params = {"search": scim_attr_name}
+        attributes, err = collect_all_items(
+            lambda qp: client.scim_attributes.list_scim_attributes(
+                idp_id=idp_id, query_params=qp
+            ),
+            query_params,
+        )
+        if err:
+            module.fail_json(msg=f"Error searching SCIM attributes: {to_native(err)}")
+
+        matched = next(
+            (
+                a
+                for a in attributes
+                if a.name == scim_attr_name or a.get("name") == scim_attr_name
+            ),
+            None,
+        )
+        if not matched:
             module.fail_json(
-                msg="Failed to retrieve scim attribute header Name: '%s'"
-                % (scim_attr_name)
+                msg=f"SCIM Attribute with name '{scim_attr_name}' not found"
             )
-    else:
-        attributes = client.scim_attributes.list_attributes_by_idp(
-            idp_id=idp_id
-        ).to_list()
-    module.exit_json(changed=False, attributes=attributes)
+        module.exit_json(
+            changed=False,
+            attributes=[matched.as_dict() if hasattr(matched, "as_dict") else matched],
+        )
+
+    # List all SCIM attributes
+    attributes, err = collect_all_items(
+        lambda qp: client.scim_attributes.list_scim_attributes(
+            idp_id=idp_id, query_params=qp
+        ),
+        {},
+    )
+    if err:
+        module.fail_json(msg=f"Error listing SCIM attributes: {to_native(err)}")
+
+    module.exit_json(
+        changed=False,
+        attributes=[a.as_dict() if hasattr(a, "as_dict") else a for a in attributes],
+    )
 
 
 def main():

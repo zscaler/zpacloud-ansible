@@ -79,6 +79,11 @@ options:
       - The unique identifier of the Privileged Remote Access-enabled application.
     type: str
     required: false
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = r"""
@@ -95,15 +100,15 @@ EXAMPLES = r"""
     name: pra_app_segment01
     register: pra_app_segment01
 
-- name: Create/Update/Delete PRA Portal
+- name: Create/Update/Delete PRA Console
   zscaler.zpacloud.zpa_pra_portal_controller:
     provider: "{{ zpa_cloud }}"
     name: 'portal.acme.com'
-    description: 'PRA Portal'
+    description: 'PRA Console'
     enabled: true
     domain: 'portal.acme.com'
     certificate_id: "{{ cert_name.certificates[0].id }}"
-    user_notification: 'PRA Portal'
+    user_notification: 'PRA Console'
     user_notification_enabled: true
     register: portal
 
@@ -120,7 +125,7 @@ EXAMPLES = r"""
 """
 
 RETURN = """
-# The newly created privileged portal resource record.
+# The newly created privileged console resource record.
 """
 
 
@@ -129,6 +134,7 @@ from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     deleteNone,
+    collect_all_items,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
@@ -137,14 +143,11 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 
 def normalize_console(console):
     """
-    Normalize pra portal data by setting computed values.
+    Normalize PRA Console data by setting computed values.
     """
     normalized = console.copy()
 
-    computed_values = [
-        "pra_application_id",
-        "pra_portal_ids",
-    ]
+    computed_values = []
     for attr in computed_values:
         normalized.pop(attr, None)
 
@@ -157,6 +160,7 @@ def core(module):
     console = dict()
     params = [
         "id",
+        "microtenant_id",
         "name",
         "description",
         "enabled",
@@ -166,23 +170,56 @@ def core(module):
     ]
     for param_name in params:
         console[param_name] = module.params.get(param_name, None)
+
     console_id = console.get("id", None)
     console_name = console.get("name", None)
+    microtenant_id = module.params.get("microtenant_id")
+
+    query_params = {}
+    if microtenant_id:
+        query_params["microtenant_id"] = microtenant_id
 
     existing_console = None
     if console_id is not None:
-        console_box = client.privileged_remote_access.get_console(console_id=console_id)
-        if console_box is not None:
-            existing_console = console_box.to_dict()
-    elif console_name is not None:
-        consoles = client.privileged_remote_access.list_consoles().to_list()
-        for console_ in consoles:
-            if console_.get("name") == console_name:
-                existing_console = console_
-                break
+        result, _unused, error = client.pra_console.get_console(
+            console_id, query_params={"microtenant_id": microtenant_id}
+        )
+        if error:
+            module.fail_json(
+                msg=f"Error fetching pra console with id {console_id}: {to_native(error)}"
+            )
+        existing_console = result.as_dict()
+    else:
+        result, error = collect_all_items(
+            client.pra_console.list_consoles, query_params
+        )
+        if error:
+            module.fail_json(msg=f"Error pra consoles: {to_native(error)}")
+        if result:
+            for console_ in result:
+                if console_.name == console_name:
+                    existing_console = console_.as_dict()
+                    break
 
     desired_console = normalize_console(console)
     current_console = normalize_console(existing_console) if existing_console else {}
+
+    # 🔧 Normalize current_group: convert app_connector_groups to pra_portal_ids
+    if "pra_portals" in current_console:
+        current_console["pra_portal_ids"] = sorted(
+            [g.get("id") for g in current_console.get("pra_portals", []) if g.get("id")]
+        )
+        del current_console["pra_portals"]
+
+    # 🔧 Normalize desired_group: ensure pra_portal_ids is sorted for accurate comparison
+    if "pra_portal_ids" in desired_console and desired_console["pra_portal_ids"]:
+        desired_console["pra_portal_ids"] = sorted(desired_console["pra_portal_ids"])
+
+    if "pra_application" in current_console:
+        current_console["pra_application_id"] = current_console["pra_application"].get(
+            "id"
+        )
+        del current_console["pra_application"]
 
     fields_to_exclude = ["id"]
     differences_detected = False
@@ -212,49 +249,62 @@ def core(module):
         if existing_console is not None:
             if differences_detected:
                 """Update"""
-                update_payload = {
-                    "console_id": existing_console.get("id"),
-                    "name": existing_console.get("name"),
-                    "description": existing_console.get("description"),
-                    "enabled": existing_console.get("enabled"),
-                    "icon_text": existing_console.get("icon_text"),
-                    "pra_application_id": console.get("pra_application_id"),
-                    "pra_portal_ids": list(console.get("pra_portal_ids", [])),
-                }
-                existing_console = client.privileged_remote_access.update_console(
-                    **deleteNone(update_payload)
-                ).to_dict()
-                module.exit_json(changed=True, data=existing_console)
+                update_console = deleteNone(
+                    {
+                        "console_id": existing_console.get("id"),
+                        "microtenant_id": desired_console.get("microtenant_id", None),
+                        "name": desired_console.get("name"),
+                        "description": desired_console.get("description"),
+                        "enabled": desired_console.get("enabled"),
+                        "icon_text": desired_console.get("icon_text"),
+                        "pra_application_id": desired_console.get("pra_application_id"),
+                        "pra_portal_ids": list(
+                            desired_console.get("pra_portal_ids", [])
+                        ),
+                    }
+                )
+                module.warn("Payload Update for SDK: {}".format(update_console))
+                updated_console, _unused, error = client.pra_console.update_console(
+                    console_id=update_console.pop("console_id"), **existing_console
+                )
+                if error:
+                    module.fail_json(msg=f"Error updating console: {to_native(error)}")
+                module.exit_json(changed=True, data=updated_console.as_dict())
             else:
                 """No Changes Needed"""
                 module.exit_json(changed=False, data=existing_console)
         else:
             module.warn("Creating pra console as no existing console was found")
             """Create"""
-            create_payload = {
-                "name": console.get("name"),
-                "description": console.get("description"),
-                "enabled": console.get("enabled"),
-                "icon_text": console.get("icon_text"),
-                "pra_application_id": console.get("pra_application_id"),
-                "pra_portal_ids": list(console.get("pra_portal_ids", [])),
-            }
-            module.warn(f"Payload for SDK: {create_payload}")
-            portal_response = client.privileged_remote_access.add_console(
-                **deleteNone(create_payload)
+            create_console = deleteNone(
+                {
+                    "microtenant_id": desired_console.get("microtenant_id", None),
+                    "name": desired_console.get("name"),
+                    "description": desired_console.get("description"),
+                    "enabled": desired_console.get("enabled"),
+                    "icon_text": desired_console.get("icon_text"),
+                    "pra_application_id": desired_console.get("pra_application_id"),
+                    "pra_portal_ids": list(desired_console.get("pra_portal_ids", [])),
+                }
             )
-            module.exit_json(changed=True, data=portal_response)
-    elif (
-        state == "absent"
-        and existing_console is not None
-        and existing_console.get("id") is not None
-    ):
-        code = client.privileged_remote_access.delete_console(
-            portal_id=existing_console.get("id")
-        )
-        if code > 299:
-            module.exit_json(changed=False, data=None)
+            module.warn(f"Payload for SDK: {create_console}")
+            new_console, _unused, error = client.pra_console.add_console(
+                **create_console
+            )
+            if error:
+                module.fail_json(msg=f"Error creating console: {to_native(error)}")
+            module.exit_json(changed=True, data=new_console.as_dict())
+
+    elif state == "absent":
+        if existing_console:
+            _unused, _unused, error = client.pra_console.delete_console(
+                console_id=existing_console.get("id"),
+                microtenant_id=microtenant_id,
+            )
+        if error:
+            module.fail_json(msg=f"Error deleting console: {to_native(error)}")
         module.exit_json(changed=True, data=existing_console)
+
     module.exit_json(changed=False, data={})
 
 
@@ -262,6 +312,7 @@ def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
         id=dict(type="str", required=False),
+        microtenant_id=dict(type="str", required=False),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
         enabled=dict(type="bool", required=False, default=True),

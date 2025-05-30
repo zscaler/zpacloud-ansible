@@ -52,6 +52,11 @@ options:
     description: "ID of the application segment."
     required: False
     type: str
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = """
@@ -282,34 +287,51 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
-    segment_id = module.params.get("id", None)
-    segment_name = module.params.get("name", None)
     client = ZPAClientHelper(module)
-    app_segments = []
-    if segment_id is not None:
-        segment_box = client.app_segments.get_segment(segment_id=segment_id)
-        if segment_box is None:
+
+    segment_id = module.params.get("id")
+    segment_name = module.params.get("name")
+    microtenant_id = module.params.get("microtenant_id")
+
+    query_params = {}
+    if microtenant_id:
+        query_params["microtenant_id"] = microtenant_id
+
+    if segment_id:
+        result, _unused, error = client.application_segment.get_segment(
+            segment_id, query_params
+        )
+        if error or result is None:
             module.fail_json(
-                msg="Failed to retrieve Application Segment ID: '%s'" % (segment_id)
+                msg=f"Failed to retrieve Application Segment ID '{segment_id}': {to_native(error)}"
             )
-        app_segments = [segment_box.to_dict()]
-    else:
-        app_segments = client.app_segments.list_segments(pagesize=500).to_list()
-        if segment_name is not None:
-            app_segment_found = False
-            for app_segment in app_segments:
-                if app_segment.get("name") == segment_name:
-                    app_segment_found = True
-                    app_segments = [app_segment]
-            if not app_segment_found:
-                module.fail_json(
-                    msg="Failed to retrieve Application Segment Name: '%s'"
-                    % (segment_name)
-                )
-    module.exit_json(changed=False, app_segments=app_segments)
+        module.exit_json(changed=False, groups=[result.as_dict()])
+
+    # If no ID, we fetch all
+    segment_list, err = collect_all_items(
+        client.application_segment.list_segments, query_params
+    )
+    if err:
+        module.fail_json(msg=f"Error retrieving Application Segments: {to_native(err)}")
+
+    result_list = [g.as_dict() for g in segment_list]
+
+    if segment_name:
+        matched = next((g for g in result_list if g.get("name") == segment_name), None)
+        if not matched:
+            available = [g.get("name") for g in result_list]
+            module.fail_json(
+                msg=f"Application Segment '{segment_name}' not found. Available: {available}"
+            )
+        result_list = [matched]
+
+    module.exit_json(changed=False, app_segments=result_list)
 
 
 def main():
@@ -317,6 +339,7 @@ def main():
     argument_spec.update(
         name=dict(type="str", required=False),
         id=dict(type="str", required=False),
+        microtenant_id=dict(type="str", required=False),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     try:

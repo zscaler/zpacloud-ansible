@@ -1,5 +1,63 @@
 # Zscaler Private Access (ZPA) Ansible Collection Changelog
 
+## 2.0.0 (May, 29 2025) - BREAKING CHANGES
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+#### Enhancements - Zscaler OneAPI Support - BREAKING CHANGES
+
+[PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64): The ZIA Ansible Collection now offers support for [OneAPI](https://help.zscaler.com/oneapi/understanding-oneapi) Oauth2 authentication through [Zidentity](https://help.zscaler.com/zidentity/what-zidentity).
+
+**NOTE** As of version v2.0.0, this collection offers backwards compatibility to the Zscaler legacy API framework. This is the recommended authentication method for organizations whose tenants are still not migrated to [Zidentity](https://help.zscaler.com/zidentity/what-zidentity).
+
+⚠️ **WARNING**: Please refer to the [Authentication Page](https://ziacloud-ansible.readthedocs.io/en/latest/authentication.html) for details on authentication requirements prior to upgrading your collection configuration.
+
+⚠️ **WARNING**: Attention Government customers. OneAPI and Zidentity is not currently supported for the following clouds: `GOV` and `GOVUS`. Refer to the [Legacy API Framework](https://github.com/zscaler/zpacloud-ansible/blob/master/README.md) section for more information on how authenticate to these environments using the legacy method.
+
+### NEW - RESOURCES
+
+[PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64): The following new resources and data sources have been introduced:
+
+- Added info resource ``zpa_cloud_browser_isolation_banner_info`` [PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64) :rocket: - Retrieve CBI Banners.
+- Added info resource ``zpa_cloud_browser_isolation_banner`` [PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64) :rocket: - Manages Cloud browser isolation banners
+[Adding a Banner Theme for the Isolation End User Notification in ZPA](https://help.zscaler.com/isolation/adding-banner-theme-isolation-end-user-notification-zpa)
+
+- Added info resource ``zpa_cloud_browser_isolation_certificate_info`` [PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64) :rocket: - Retrieves information of CBI certificates
+- Added info resource ``zpa_cloud_browser_isolation_certificate`` [PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64) :rocket: - Manages CBI Isolation certificates
+[About Root Certificates for Isolation in ZIA](https://help.zscaler.com/isolation/about-root-certificates-isolation-zia)
+
+- Added info resource ``zpa_cloud_browser_isolation_profile_info`` [PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64) :rocket: - Retrieves information of CBI Profiles
+[Creating Isolation Profiles for ZPA](https://help.zscaler.com/isolation/creating-isolation-profiles-zpa)
+
+- Added info resource `zpa_application_segment_ba_v2` [PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64) :rocket: - Manages browser access application segment v2
+
+- Added resource ``zpa_policy_access_app_protection_rule_v2`` [PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64) :rocket: - Manages App Protection Access Policy v2
+- Added resource ``zpa_policy_access_forwarding_rule_v2`` [PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64) :rocket: - Manages Forwarding Access Policy v2
+- Added resource ``zpa_policy_access_isolation_rule_v2`` [PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64) :rocket: - Manages Isolation Access Policy v2
+- Added resource ``zpa_policy_access_redirection_rule_v2`` [PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64) :rocket: - Manages Redirection Access Policy v2
+- Added resource ``zpa_policy_access_rule_v2`` [PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64) :rocket: - Manages Access Policy v2
+- Added resource ``zpa_policy_access_timeout_rule_v2`` [PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64) :rocket: - Manages Timeout Access Policy v2
+- Added resource ``zpa_policy_capabilities_access_rule_v2`` [PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64) :rocket: - Manages Capabilities Access Policy v2
+- Added resource ``zpa_policy_credential_access_rule`` [PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64) :rocket: - Manages Credential Access Policy v2
+- Added resource ``zpa_pra_credential_pool`` [PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64) :rocket: - Manages Privileged Remote Access Credential pool
+
+### DEPRECATIONS
+
+The following resources are now deprecated:
+
+- `zpa_application_segment_browser_access` - Use `zpa_application_segment_ba_v2`
+- `zpa_application_segment_browser_access_info`
+- `zpa_app_protection_security_profile`
+- `zpa_app_protection_security_profile_info`
+- `zpa_policy_access_timeout_rule_info`
+- `zpa_policy_access_rule_info`
+- `zpa_policy_access_isolation_rule_info`
+- `zpa_policy_access_forwarding_rule_info`
+- `zpa_policy_access_app_protection_rule_info`
+- `zpa_app_protection_all_predefined_controls_info`
+
 ## 1.4.6 (April, 8 2025)
 
 ### Notes

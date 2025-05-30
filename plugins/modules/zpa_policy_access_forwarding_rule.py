@@ -76,10 +76,11 @@ options:
     type: str
     required: false
     choices: ["AND", "OR"]
-  policy_type:
-    description: "Indicates the policy type. The following value is supported: client_forwarding"
-    type: str
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
     required: false
+    type: str
   conditions:
     description: "Specifies the set of conditions for the policy rule"
     type: list
@@ -187,7 +188,25 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     map_conditions,
     validate_operand,
     normalize_policy,
+    collect_all_items,
     deleteNone,
+)
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
+    ZPAClientHelper,
+)
+import json
+
+
+from traceback import format_exc
+from ansible.module_utils._text import to_native
+from ansible.module_utils.basic import AnsibleModule
+import json
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    map_conditions,
+    validate_operand,
+    normalize_policy,
+    deleteNone,
+    collect_all_items,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
@@ -195,156 +214,190 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 
 
 def core(module):
-    state = module.params.get("state", "present")
+    state = module.params.get("state")
     client = ZPAClientHelper(module)
-    policy_rule_id = module.params.get("id", None)
-    policy_rule_name = module.params.get("name", None)
-    policy = dict()
-    params = [
-        "id",
-        "name",
-        "description",
-        "policy_type",
-        "action",
-        "operator",
-        "rule_order",
-        "conditions",
-    ]
-    for param_name in params:
-        policy[param_name] = module.params.get(param_name, None)
 
-    conditions = module.params.get("conditions") or []
+    rule_id = module.params.get("id")
+    rule_name = module.params.get("name")
+    microtenant_id = module.params.get("microtenant_id")
 
-    # Validate each operand in the conditions
-    for condition in conditions:
-        operands = condition.get("operands", [])
-        for operand in operands:
+    query_params = {}
+    if microtenant_id:
+        query_params["microtenant_id"] = microtenant_id
+
+    rule = {
+        "id": module.params.get("id"),
+        "microtenant_id": module.params.get("microtenant_id"),
+        "name": module.params.get("name"),
+        "description": module.params.get("description"),
+        "action": module.params.get("action"),
+        "rule_order": module.params.get("rule_order"),
+        "conditions": module.params.get("conditions"),
+    }
+
+    # Validate operands
+    for condition in rule.get("conditions") or []:
+        for operand in condition.get("operands", []):
             validation_result = validate_operand(operand, module)
             if validation_result:
-                module.fail_json(
-                    msg=validation_result
-                )  # Fail if validation returns a warning or error message
+                module.fail_json(msg=validation_result)
 
-    existing_policy = None
-    if policy_rule_id is not None:
-        existing_policy = client.policies.get_rule(
-            policy_type="client_forwarding", rule_id=policy_rule_id
+    existing_rule = None
+    if rule_id:
+        result, _unused, error = client.policies.get_rule(
+            policy_type="client_forwarding", rule_id=rule_id, query_params=query_params
         )
-    elif policy_rule_name is not None:
-        rules = client.policies.list_rules(policy_type="client_forwarding").to_list()
-        for rule in rules:
-            if rule.get("name") == policy_rule_name:
-                existing_policy = rule
+        if error:
+            module.fail_json(
+                msg=f"Error retrieving rule with id {rule_id}: {to_native(error)}"
+            )
+        existing_rule = result.as_dict()
+        module.warn(f"Fetched existing rule: {existing_rule}")
+    else:
+        rules_list, error = collect_all_items(
+            lambda qp: client.policies.list_rules("client_forwarding", query_params=qp),
+            query_params,
+        )
+        if error:
+            module.fail_json(
+                msg=f"Error listing client forwarding rules: {to_native(error)}"
+            )
+        if error:
+            module.fail_json(
+                msg=f"Error listing client forwardin rules: {to_native(error)}"
+            )
+        for r in rules_list:
+            if r.name == rule_name:
+                existing_rule = r.as_dict()
                 break
 
-    if existing_policy is not None:
-        # Normalize both policies' conditions
-        policy["conditions"] = map_conditions(policy.get("conditions", []))
-        existing_policy["conditions"] = map_conditions(
-            existing_policy.get("conditions", [])
+    desired = normalize_policy(
+        {**rule, "conditions": map_conditions(rule.get("conditions", []))}
+    )
+
+    if existing_rule:
+        existing_rule["conditions"] = map_conditions(
+            existing_rule.get("conditions", [])
         )
+        current = normalize_policy(existing_rule)
+        current["rule_order"] = str(existing_rule.get("order", ""))
+    else:
+        current = {}
 
-        desired_policy = normalize_policy(policy)
-        current_policy = normalize_policy(existing_policy)
+    differences_detected = False
+    for key in desired:
+        if key in ["id", "policy_type"]:
+            continue
 
-        fields_to_exclude = ["id", "policy_type"]
-        differences_detected = False
-        for key, value in desired_policy.items():
-            if key not in fields_to_exclude and current_policy.get(key) != value:
-                differences_detected = True
-                # module.warn(
-                #     f"Difference detected in {key}. Current: {current_policy.get(key)}, Desired: {value}"
-                # )
+        desired_value = desired.get(key)
+        current_value = current.get(key)
 
-    if existing_policy:
-        desired_order = policy.get("rule_order")
-        current_order = str(existing_policy.get("order", ""))
-        if desired_order and desired_order != current_order:
+        # Normalize None vs empty list
+        if isinstance(desired_value, list) and not desired_value:
+            desired_value = []
+        if isinstance(current_value, list) and not current_value:
+            current_value = []
+
+        if str(desired_value) != str(current_value):
+            differences_detected = True
+            # module.warn(
+            #     f"Drift detected in '{key}': desired=({type(desired_value).__name__}) "
+            #     f"{desired_value} | current=({type(current_value).__name__}) {current_value}"
+            # )
+
+        if key == "conditions":
+            module.warn(f"→ Desired: {json.dumps(desired_value, indent=2)}")
+            module.warn(f"→ Current: {json.dumps(current_value, indent=2)}")
+
+    # Reorder if specified
+    if existing_rule and rule.get("rule_order"):
+        current_order = str(existing_rule.get("order", ""))
+        desired_order = str(rule["rule_order"])
+        if desired_order != current_order:
             try:
-                reordered_policy = client.policies.reorder_rule(
+                _unused, _unused, error = client.policies.reorder_rule(
                     policy_type="client_forwarding",
-                    rule_id=existing_policy["id"],
+                    rule_id=existing_rule["id"],
                     rule_order=desired_order,
                 )
-                if reordered_policy:
-                    module.warn("Reordered rule to new order: {}".format(desired_order))
-                else:
-                    module.fail_json(msg="Failed to reorder rule, no policy returned.")
+                if error:
+                    module.fail_json(msg=f"Error reordering rule: {to_native(error)}")
+                module.warn(f"Reordered rule to order {desired_order}")
             except Exception as e:
-                module.fail_json(msg="Failed to reorder rule: {}".format(str(e)))
+                module.fail_json(msg=f"Failed to reorder rule: {to_native(e)}")
 
     if module.check_mode:
-        # If in check mode, report changes and exit
-        if state == "present" and (existing_policy is None or differences_detected):
+        if state == "present" and (not existing_rule or differences_detected):
             module.exit_json(changed=True)
-        elif state == "absent" and existing_policy is not None:
+        elif state == "absent" and existing_rule:
             module.exit_json(changed=True)
         else:
-            module.exit_json(changed=False)
+            module.exit_json(changed=False, data=existing_rule or {})
 
-    if existing_policy is not None:
-        id = existing_policy.get("id")
-        existing_policy.update(policy)
-        existing_policy["id"] = id
-
+    # Update or create
     if state == "present":
-        if existing_policy is not None and differences_detected:
+        if existing_rule and differences_detected:
             """Update"""
-            updated_policy = {
-                "policy_type": "client_forwarding",
-                "rule_id": existing_policy.get("id", None),
-                "name": existing_policy.get("name", None),
-                "description": existing_policy.get("description", None),
-                "action": (
-                    existing_policy.get("action", "").upper()
-                    if existing_policy.get("action")
-                    else None
-                ),
-                "conditions": map_conditions(existing_policy.get("conditions", [])),
-                "rule_order": existing_policy.get("rule_order", None),
-            }
-            cleaned_policy = deleteNone(updated_policy)
-            updated_policy = client.policies.update_rule(**cleaned_policy)
-            module.exit_json(changed=True, data=updated_policy)
-        elif existing_policy is None:
-            """Create"""
-            new_policy = {
-                "name": policy.get("name", None),
-                "description": policy.get("description", None),
-                "action": (
-                    policy.get("action", "").upper() if policy.get("action") else None
-                ),
-                "rule_order": policy.get("rule_order", None),
-                "conditions": map_conditions(policy.get("conditions", [])),
-            }
-            cleaned_policy = deleteNone(new_policy)
-            created_policy = client.policies.add_client_forwarding_rule(
-                **cleaned_policy
+            update_data = deleteNone(
+                {
+                    "rule_id": existing_rule["id"],
+                    "microtenant_id": rule["microtenant_id"],
+                    "name": rule["name"],
+                    "description": rule["description"],
+                    "action": rule["action"],
+                    "rule_order": rule["rule_order"],
+                    "conditions": map_conditions(rule["conditions"]),
+                }
             )
-            module.exit_json(
-                changed=True, data=created_policy
-            )  # Mark as changed since we are creating
+            module.warn(f"Update payload to SDK: {update_data}")
+            result, _unused, error = client.policies.update_client_forwarding_rule(
+                **update_data
+            )
+            if error:
+                module.fail_json(msg=f"Error updating rule: {to_native(error)}")
+            module.exit_json(changed=True, data=result.as_dict())
+
+        elif not existing_rule:
+            """Create"""
+            create_data = deleteNone(
+                {
+                    "microtenant_id": rule["microtenant_id"],
+                    "name": rule["name"],
+                    "description": rule["description"],
+                    "action": rule["action"],
+                    "rule_order": rule["rule_order"],
+                    "conditions": map_conditions(rule["conditions"]),
+                }
+            )
+            module.warn(f"Create payload to SDK: {create_data}")
+            result, _unused, error = client.policies.add_client_forwarding_rule(
+                **create_data
+            )
+            if error:
+                module.fail_json(msg=f"Error creating rule: {to_native(error)}")
+            module.exit_json(changed=True, data=result.as_dict())
+
         else:
-            module.exit_json(
-                changed=False, data=existing_policy
-            )  # If there's no change, exit without updating
-    elif state == "absent" and existing_policy is not None:
-        code = client.policies.delete_rule(
-            policy_type="client_forwarding", rule_id=existing_policy.get("id")
+            module.exit_json(changed=False, data=existing_rule)
+
+    elif state == "absent" and existing_rule:
+        _unused, _unused, error = client.policies.delete_rule(
+            policy_type="client_forwarding", rule_id=existing_rule["id"]
         )
-        if code > 299:
-            module.exit_json(changed=False, data=None)
-        module.exit_json(changed=True, data=existing_policy)
-    module.exit_json(changed=False, data={})
+        if error:
+            module.fail_json(msg=f"Error deleting rule: {to_native(error)}")
+        module.exit_json(changed=True, data=existing_rule)
+
+    module.exit_json(changed=False, data=existing_rule or {})
 
 
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
-        id=dict(type="str"),
+        id=dict(type="str", required=False),
+        microtenant_id=dict(type="str", required=False),
         name=dict(type="str", required=True),
         description=dict(type="str", required=False),
-        policy_type=dict(type="str", required=False),
         action=dict(
             type="str",
             required=False,
@@ -400,38 +453,6 @@ def main():
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 
-    # Custom validation for object_type
-    conditions = module.params["conditions"]
-    if conditions:  # Add this check to handle when conditions is None
-        for condition in conditions:
-            operands = condition.get("operands", [])
-            for operand in operands:
-                object_type = operand.get("object_type")
-                valid_object_types = [
-                    "APP",
-                    "APP_GROUP",
-                    "CLIENT_TYPE",
-                    "BRANCH_CONNECTOR_GROUP",
-                    "EDGE_CONNECTOR_GROUP",
-                    "POSTURE",
-                    "MACHINE_GRP",
-                    "TRUSTED_NETWORK",
-                    "PLATFORM",
-                    "IDP",
-                    "SAML",
-                    "SCIM",
-                    "SCIM_GROUP",
-                ]
-                if (
-                    object_type is None or object_type == ""
-                ):  # Explicitly check for None or empty string
-                    module.fail_json(
-                        msg="object_type cannot be empty or None. Must be one of: {', '.join(valid_object_types)}"
-                    )
-                elif object_type not in valid_object_types:
-                    module.fail_json(
-                        msg="Invalid object_type: {object_type}. Must be one of: {', '.join(valid_object_types)}"
-                    )
     try:
         core(module)
     except Exception as e:

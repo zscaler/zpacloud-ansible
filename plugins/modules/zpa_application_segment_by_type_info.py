@@ -46,18 +46,28 @@ extends_documentation_fragment:
 options:
   name:
     description:
-      - Name of the Application Segment type.
+      - Name of the Application Segment type
     required: false
     type: str
   application_type:
     description:
-      - The type of application segment.
+      - The type of application segment
     required: true
     type: str
     choices:
         - BROWSER_ACCESS
         - INSPECT
         - SECURE_REMOTE_ACCESS
+  expand_all:
+    description:
+      - If set to true, includes additional information related to the applications
+    required: false
+    type: bool
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = """
@@ -163,39 +173,68 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
+    collect_all_items,
+)
 
 
 def core(module):
-    application_type = module.params.get("application_type", None)
-    application_name = module.params.get("name", None)
+    application_type = module.params.get("application_type")
+    application_name = module.params.get("name")
+    microtenant_id = module.params.get("microtenant_id")
+    expand_all = module.params.get("expand_all", False)
     client = ZPAClientHelper(module)
-    apps = []
 
-    if application_type is not None:
-        apps = client.app_segments.get_segments_by_type(
-            application_type=application_type
-        ).to_list()
-        if application_name is not None:
-            app_found = False
-            for app in apps:
-                if app.get("name") == application_name:
-                    app_found = True
-                    apps = [app]
-            if not app_found:
-                module.fail_json(
-                    msg="Failed to retrieve Application Segment by Name: '%s'"
-                    % (application_name)
-                )
-    else:
-        module.fail_json(msg="Application type must be specified.")
+    if not application_type:
+        module.fail_json(msg="Parameter 'application_type' is required.")
 
-    module.exit_json(changed=False, apps=apps)
+    # Construct query_params
+    query_params = {
+        "applicationType": application_type,
+        "expandAll": str(expand_all).lower(),
+    }
+
+    if microtenant_id:
+        query_params["microtenant_id"] = microtenant_id
+
+    module.warn(
+        f"[Application Segment] Querying segments of type '{application_type}' with expand_all={expand_all} and microtenant_id={microtenant_id}"
+    )
+
+    # Use collect_all_items for paginated fetch
+    segments, err = collect_all_items(
+        lambda qp: client.app_segment_by_type.get_segments_by_type(
+            application_type=application_type, expand_all=expand_all, query_params=qp
+        ),
+        query_params,
+    )
+
+    if err:
+        module.fail_json(msg=f"Error retrieving application segments: {to_native(err)}")
+
+    # Optional filtering by name
+    if application_name:
+        matched = next(
+            (a for a in segments if getattr(a, "name", "") == application_name), None
+        )
+        if not matched:
+            available = [getattr(a, "name", "") for a in segments]
+            module.fail_json(
+                msg=f"Application Segment '{application_name}' not found. Available: {available}"
+            )
+        segments = [matched]
+
+    # ✅ Serialize from SDK model (snake_case guaranteed)
+    result = [s.as_dict() if hasattr(s, "as_dict") else s for s in segments]
+    module.exit_json(changed=False, data=result)
 
 
 def main():
     argument_spec = ZPAClientHelper.zpa_argument_spec()
     argument_spec.update(
         name=dict(type="str", required=False),
+        expand_all=dict(type="bool", required=False),
+        microtenant_id=dict(type="str", required=False),
         application_type=dict(
             type="str",
             required=True,

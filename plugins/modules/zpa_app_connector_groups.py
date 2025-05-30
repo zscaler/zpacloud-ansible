@@ -166,6 +166,11 @@ options:
     required: false
     type: bool
     default: false
+  microtenant_id:
+    description:
+      - The unique identifier of the Microtenant for the ZPA tenant
+    required: false
+    type: str
 """
 
 EXAMPLES = """
@@ -203,6 +208,8 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     validate_tcp_quick_ack,
     normalize_app,
     deleteNone,
+    validate_iso3166_alpha2,
+    collect_all_items,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
@@ -231,6 +238,7 @@ def core(module):
     group = dict()
     params = [
         "id",
+        "microtenant_id",
         "name",
         "description",
         "enabled",
@@ -255,19 +263,57 @@ def core(module):
     for param_name in params:
         group[param_name] = module.params.get(param_name, None)
 
-    group_id = group.get("id", None)
-    group_name = group.get("name", None)
+    group_id = group.get("id")
+    group_name = group.get("name")
+    microtenant_id = module.params.get("microtenant_id")
+
+    query_params = {}
+    if microtenant_id:
+        query_params["microtenant_id"] = microtenant_id
+
+    # Validate and format country codes
+    countryCode = group.get("country_code")
+    if countryCode:
+        if isinstance(countryCode, list):
+            validated_country_code = []
+            for country_code in countryCode:
+                if validate_iso3166_alpha2(country_code):
+                    validated_country_code.append(country_code)
+                else:
+                    module.fail_json(
+                        msg=f"Invalid country code '{country_code}'. Must be ISO3166 Alpha2."
+                    )
+            group["country_code"] = validated_country_code
+        else:
+            # Handle single string country code
+            if validate_iso3166_alpha2(countryCode):
+                group["country_code"] = countryCode
+            else:
+                module.fail_json(
+                    msg=f"Invalid country code '{countryCode}'. Must be ISO3166 Alpha2."
+                )
 
     existing_group = None
     if group_id is not None:
-        group_box = client.connectors.get_connector_group(group_id=group_id)
-        if group_box is not None:
-            existing_group = group_box.to_dict()
+        result, _unused, error = client.app_connector_groups.get_connector_group(
+            group_id, query_params={"microtenant_id": microtenant_id}
+        )
+        if error:
+            module.fail_json(
+                msg=f"Error fetching app connector group with id {group_id}: {to_native(error)}"
+            )
+        existing_group = result.as_dict()
     elif group_name is not None:
-        groups = client.connectors.list_connector_groups().to_list()
-        for group_ in groups:
-            if group_.get("name") == group_name:
-                existing_group = group_
+        result, error = collect_all_items(
+            client.app_connector_groups.list_connector_groups, query_params
+        )
+        if error:
+            module.fail_json(msg=f"Error app connector groups: {to_native(error)}")
+        if result:
+            for group_ in result:
+                if group_.name == group_name:
+                    existing_group = group_.as_dict()
+                    break
 
     # Normalize and compare existing and desired data
     desired_group = normalize_app(group)
@@ -278,12 +324,11 @@ def core(module):
     for key, value in desired_group.items():
         if key not in fields_to_exclude and current_group.get(key) != value:
             differences_detected = True
-            # module.warn(
-            #     f"Difference detected in {key}. Current: {current_group.get(key)}, Desired: {value}"
-            # )
+            module.warn(
+                f"Difference detected in {key}. Current: {current_group.get(key)}, Desired: {value}"
+            )
 
     if module.check_mode:
-        # If in check mode, report changes and exit
         if state == "present" and (existing_group is None or differences_detected):
             module.exit_json(changed=True)
         elif state == "absent" and existing_group is not None:
@@ -335,93 +380,119 @@ def core(module):
                         existing_long  # If new_long is None, keep the existing value
                     )
 
-                existing_group = deleteNone(
-                    dict(
-                        group_id=existing_group.get("id", None),
-                        name=existing_group.get("name", None),
-                        description=existing_group.get("description", None),
-                        enabled=existing_group.get("enabled", None),
-                        city_country=existing_group.get("city_country", None),
-                        country_code=existing_group.get("country_code", None),
-                        latitude=existing_group.get("latitude", None),
-                        longitude=existing_group.get("longitude", None),
-                        location=existing_group.get("location", None),
-                        upgrade_day=existing_group.get("upgrade_day", None),
-                        upgrade_time_in_secs=existing_group.get(
+    if state == "present":
+        if existing_group:
+            if differences_detected:
+                update_group = deleteNone(
+                    {
+                        "group_id": existing_group.get("id", None),
+                        "microtenant_id": desired_group.get("microtenant_id", None),
+                        "name": desired_group.get("name", None),
+                        "description": desired_group.get("description", None),
+                        "enabled": desired_group.get("enabled", None),
+                        "city_country": desired_group.get("city_country", None),
+                        "country_code": desired_group.get("country_code", None),
+                        "latitude": desired_group.get("latitude", None),
+                        "longitude": desired_group.get("longitude", None),
+                        "location": desired_group.get("location", None),
+                        "upgrade_day": desired_group.get("upgrade_day", None),
+                        "upgrade_time_in_secs": desired_group.get(
                             "upgrade_time_in_secs", None
                         ),
-                        override_version_profile=existing_group.get(
+                        "override_version_profile": desired_group.get(
                             "override_version_profile", None
                         ),
-                        version_profile_id=existing_group.get(
+                        "version_profile_id": desired_group.get(
                             "version_profile_id", None
                         ),
-                        lss_app_connector_group=existing_group.get(
+                        "lss_app_connector_group": desired_group.get(
                             "lss_app_connector_group", None
                         ),
-                        dns_query_type=existing_group.get("dns_query_type", None),
-                        tcp_quick_ack_app=existing_group.get("tcp_quick_ack_app", None),
-                        tcp_quick_ack_assistant=existing_group.get(
+                        "dns_query_type": desired_group.get("dns_query_type", None),
+                        "tcp_quick_ack_app": desired_group.get(
+                            "tcp_quick_ack_app", None
+                        ),
+                        "tcp_quick_ack_assistant": desired_group.get(
                             "tcp_quick_ack_assistant", None
                         ),
-                        tcp_quick_ack_read_assistant=existing_group.get(
+                        "tcp_quick_ack_read_assistant": desired_group.get(
                             "tcp_quick_ack_read_assistant", None
                         ),
-                        use_in_dr_mode=existing_group.get("use_in_dr_mode", None),
-                        pra_enabled=existing_group.get("pra_enabled", None),
-                        waf_disabled=existing_group.get("waf_disabled", None),
-                    )
+                        "use_in_dr_mode": desired_group.get("use_in_dr_mode", None),
+                        "pra_enabled": desired_group.get("pra_enabled", None),
+                        "waf_disabled": desired_group.get("waf_disabled", None),
+                    }
                 )
-                existing_group = client.connectors.update_connector_group(
-                    **existing_group
-                ).to_dict()
-                module.exit_json(changed=True, data=existing_group)
+                module.warn("Payload Update for SDK: {}".format(update_group))
+                updated_group = client.app_connector_groups.update_connector_group(
+                    **updated_group
+                )
+                if error:
+                    module.fail_json(msg=f"Error updating group: {to_native(error)}")
+                module.exit_json(changed=True, data=updated_group.as_dict())
             else:
-                """No Changes Needed"""
                 module.exit_json(changed=False, data=existing_group)
         else:
             """Create"""
-            normalized_group = deleteNone(
-                dict(
-                    name=group.get("name", None),
-                    description=group.get("description", None),
-                    enabled=group.get("enabled", None),
-                    city_country=group.get("city_country", None),
-                    country_code=group.get("country_code", None),
-                    latitude=group.get("latitude", None),
-                    longitude=group.get("longitude", None),
-                    location=group.get("location", None),
-                    upgrade_day=group.get("upgrade_day", None),
-                    upgrade_time_in_secs=group.get("upgrade_time_in_secs", None),
-                    override_version_profile=group.get(
+            create_group = deleteNone(
+                {
+                    "microtenant_id": desired_group.get("microtenant_id", None),
+                    "name": desired_group.get("name", None),
+                    "description": desired_group.get("description", None),
+                    "enabled": desired_group.get("enabled", None),
+                    "city_country": desired_group.get("city_country", None),
+                    "country_code": desired_group.get("country_code", None),
+                    "latitude": desired_group.get("latitude", None),
+                    "longitude": desired_group.get("longitude", None),
+                    "location": desired_group.get("location", None),
+                    "upgrade_day": desired_group.get("upgrade_day", None),
+                    "upgrade_time_in_secs": desired_group.get(
+                        "upgrade_time_in_secs", None
+                    ),
+                    "override_version_profile": desired_group.get(
                         "override_version_profile", None
                     ),
-                    version_profile_id=group.get("version_profile_id", None),
-                    lss_app_connector_group=group.get("lss_app_connector_group", None),
-                    dns_query_type=group.get("dns_query_type", None),
-                    tcp_quick_ack_app=group.get("tcp_quick_ack_app", None),
-                    tcp_quick_ack_assistant=group.get("tcp_quick_ack_assistant", None),
-                    tcp_quick_ack_read_assistant=group.get(
+                    "version_profile_id": desired_group.get("version_profile_id", None),
+                    "lss_app_connector_group": desired_group.get(
+                        "lss_app_connector_group", None
+                    ),
+                    "dns_query_type": desired_group.get("dns_query_type", None),
+                    "tcp_quick_ack_app": desired_group.get("tcp_quick_ack_app", None),
+                    "tcp_quick_ack_assistant": desired_group.get(
+                        "tcp_quick_ack_assistant", None
+                    ),
+                    "tcp_quick_ack_read_assistant": desired_group.get(
                         "tcp_quick_ack_read_assistant", None
                     ),
-                    use_in_dr_mode=group.get("use_in_dr_mode", None),
-                    pra_enabled=group.get("pra_enabled", None),
-                    waf_disabled=group.get("waf_disabled", None),
+                    "use_in_dr_mode": desired_group.get("use_in_dr_mode", None),
+                    "pra_enabled": desired_group.get("pra_enabled", None),
+                    "waf_disabled": desired_group.get("waf_disabled", None),
+                }
+            )
+            module.warn("Payload Update for SDK: {}".format(create_group))
+            created, _unused, error = client.app_connector_groups.add_connector_group(
+                **create_group
+            )
+            if error:
+                module.fail_json(
+                    msg=f"Error creating app connector group: {to_native(error)}"
+                )
+            module.exit_json(changed=True, data=created.as_dict())
+
+    elif state == "absent":
+        if existing_group:
+            _unused, _unused, error = (
+                client.app_connector_groups.delete_connector_group(
+                    group_id=existing_group.get("id"),
+                    microtenant_id=microtenant_id,
                 )
             )
-            group = client.connectors.add_connector_group(**normalized_group).to_dict()
-            module.exit_json(changed=True, data=group)
-    elif (
-        state == "absent"
-        and existing_group is not None
-        and existing_group.get("id") is not None
-    ):
-        code = client.connectors.delete_connector_group(
-            group_id=existing_group.get("id")
-        )
-        if code > 299:
-            module.exit_json(changed=False, data=None)
+        if error:
+            module.fail_json(
+                msg=f"Error deleting app connector group: {to_native(error)}"
+            )
         module.exit_json(changed=True, data=existing_group)
+
     module.exit_json(changed=False, data={})
 
 
@@ -430,6 +501,7 @@ def main():
     argument_spec.update(
         name=dict(type="str", required=True),
         id=dict(type="str", required=False),
+        microtenant_id=dict(type="str", required=False),
         city_country=dict(type="str", required=False),
         country_code=dict(type="str", required=False),
         description=dict(type="str", required=False),

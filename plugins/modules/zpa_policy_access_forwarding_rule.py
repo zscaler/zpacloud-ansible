@@ -300,10 +300,10 @@ def core(module):
 
         if str(desired_value) != str(current_value):
             differences_detected = True
-            module.warn(
-                f"Drift detected in '{key}': desired=({type(desired_value).__name__}) "
-                f"{desired_value} | current=({type(current_value).__name__}) {current_value}"
-            )
+            # module.warn(
+            #     f"Drift detected in '{key}': desired=({type(desired_value).__name__}) "
+            #     f"{desired_value} | current=({type(current_value).__name__}) {current_value}"
+            # )
 
         if key == "conditions":
             module.warn(f"→ Desired: {json.dumps(desired_value, indent=2)}")

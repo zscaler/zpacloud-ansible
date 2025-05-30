@@ -436,16 +436,16 @@ def core(module):
             # Compare sorted lists
             if sorted(current_val or []) != sorted(desired_val or []):
                 differences_detected = True
-                module.warn(
-                    f"Difference detected in domain_names. "
-                    f"Current={sorted(current_val or [])}, Desired={sorted(desired_val or [])}"
-                )
+                # module.warn(
+                #     f"Difference detected in domain_names. "
+                #     f"Current={sorted(current_val or [])}, Desired={sorted(desired_val or [])}"
+                # )
         else:
             if current_val != desired_val:
                 differences_detected = True
-                module.warn(
-                    f"Difference detected in {key}. Current={current_val}, Desired={desired_val}"
-                )
+                # module.warn(
+                #     f"Difference detected in {key}. Current={current_val}, Desired={desired_val}"
+                # )
 
     # Check Mode
     if module.check_mode:

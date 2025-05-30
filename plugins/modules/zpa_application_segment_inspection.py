@@ -433,10 +433,10 @@ def core(module):
             desired_apps_config, key=lambda x: x.get("domain", "")
         ):
             differences_detected = True
-            module.warn(
-                f"Difference detected in application configurations. "
-                f"Current: {normalized_current_apps}, Desired: {desired_apps_config}"
-            )
+            # module.warn(
+            #     f"Difference detected in application configurations. "
+            #     f"Current: {normalized_current_apps}, Desired: {desired_apps_config}"
+            # )
 
     differences_detected = False
 
@@ -450,22 +450,22 @@ def core(module):
             # Compare them as sorted lists to ignore order differences
             if sorted(current_value or []) != sorted(desired_value or []):
                 differences_detected = True
-                module.warn(
-                    f"Difference detected in domain_names. "
-                    f"Current (sorted): {sorted(current_value or [])}, "
-                    f"Desired (sorted): {sorted(desired_value or [])}"
-                )
+                # module.warn(
+                #     f"Difference detected in domain_names. "
+                #     f"Current (sorted): {sorted(current_value or [])}, "
+                #     f"Desired (sorted): {sorted(desired_value or [])}"
+                # )
         else:
             # Normal comparison for everything else
             if current_value != desired_value:
                 differences_detected = True
-                module.warn(
-                    f"Difference detected in {key}. "
-                    f"Current: {current_value}, Desired: {desired_value}"
-                )
-                module.warn(
-                    f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {desired_value}"
-                )
+                # module.warn(
+                #     f"Difference detected in {key}. "
+                #     f"Current: {current_value}, Desired: {desired_value}"
+                # )
+                # module.warn(
+                #     f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {desired_value}"
+                # )
 
     if module.check_mode:
         if state == "present" and (existing_app is None or differences_detected):

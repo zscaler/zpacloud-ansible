@@ -21,10 +21,11 @@
 
     - name: Show cleanup errors (if any)
       ansible.builtin.debug:
-        msg: "Could not delete {{ item.item.name }}: {{ item.msg | default('Unknown error') }}"
+        msg: "Could not delete {{ result.item.name }}: {{ result.msg | default('Unknown error') }}"
       loop: "{{ delete_results.results | default([]) }}"
+      loop_control:
+        loop_var: result
+        label: "{{ result.item.name | default('unknown') }}"
       when:
         - delete_results is defined
-        - item.failed | default(false)
-      loop_control:
-        label: "{{ item.item.name | default('unknown') }}"
+        - result.failed | default(false)

@@ -94,6 +94,7 @@ jobs:
           ZSCALER_CLIENT_ID: ${{ secrets.ZSCALER_CLIENT_ID }}
           ZSCALER_CLIENT_SECRET: ${{ secrets.ZSCALER_CLIENT_SECRET }}
           ZSCALER_VANITY_DOMAIN: ${{ secrets.ZSCALER_VANITY_DOMAIN }}
+          ZPA_CUSTOMER_ID: ${{ secrets.ZPA_CUSTOMER_ID }}
           ZSCALER_CLOUD: ${{ secrets.ZSCALER_CLOUD }}
           OKTA_CLIENT_ORGURL: ${{ secrets.OKTA_CLIENT_ORGURL }}
           OKTA_CLIENT_TOKEN: ${{ secrets.OKTA_CLIENT_TOKEN }}

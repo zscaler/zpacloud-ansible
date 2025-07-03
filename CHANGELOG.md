@@ -19,7 +19,7 @@
 
 #### Enhancements - Zscaler OneAPI Support - BREAKING CHANGES
 
-[PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64): The ZIA Ansible Collection now offers support for [OneAPI](https://help.zscaler.com/oneapi/understanding-oneapi) Oauth2 authentication through [Zidentity](https://help.zscaler.com/zidentity/what-zidentity).
+[PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64): The ZPA Ansible Collection now offers support for [OneAPI](https://help.zscaler.com/oneapi/understanding-oneapi) Oauth2 authentication through [Zidentity](https://help.zscaler.com/zidentity/what-zidentity).
 
 **NOTE** As of version v2.0.0, this collection offers backwards compatibility to the Zscaler legacy API framework. This is the recommended authentication method for organizations whose tenants are still not migrated to [Zidentity](https://help.zscaler.com/zidentity/what-zidentity).
 
@@ -37,7 +37,7 @@
 
 - Added info resource ``zpa_cloud_browser_isolation_certificate_info`` [PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64) :rocket: - Retrieves information of CBI certificates
 - Added info resource ``zpa_cloud_browser_isolation_certificate`` [PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64) :rocket: - Manages CBI Isolation certificates
-[About Root Certificates for Isolation in ZIA](https://help.zscaler.com/isolation/about-root-certificates-isolation-zia)
+[About Root Certificates for Isolation in ZPA](https://help.zscaler.com/isolation/about-root-certificates-isolation-zia)
 
 - Added info resource ``zpa_cloud_browser_isolation_profile_info`` [PR #64](https://github.com/zscaler/ziacloud-ansible/pull/64) :rocket: - Retrieves information of CBI Profiles
 [Creating Isolation Profiles for ZPA](https://help.zscaler.com/isolation/creating-isolation-profiles-zpa)

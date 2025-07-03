@@ -30,7 +30,7 @@
   loop_control:
     loop_var: env_var
 
-- name: Ensure ZIA Credential environment variables are set
+- name: Ensure ZPA Credential environment variables are set
   ansible.builtin.set_fact:
     zpa_cloud:
       client_id: '{{ lookup("env", "ZSCALER_CLIENT_ID") }}'

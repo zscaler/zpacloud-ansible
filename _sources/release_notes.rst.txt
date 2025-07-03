@@ -9,8 +9,47 @@ Releases
 Zscaler Private Access (ZPA) Ansible Collection Changelog
 ---------------------------------------------------------
 
-Version 1.4.6
+Version 2.0.1
 ==============
+
+v2.0.1 (July 2, 2025)
+-------------------------
+
+Notes
+-----
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+Bug Fixes:
+---------------
+
+* (`#66 <https://github.com/zscaler/ziacloud-ansible/pull/66>`_) - Fixed attribute `server_group_ids` in the resource `zpa_application_segment` to be normalized during updates.
+* (`#66 <https://github.com/zscaler/ziacloud-ansible/pull/66>`_) - Fixed attribute `health_reporting` in the resource `zpa_application_segment` by removing the default value `NONE` to comply with the ZPA API requirements.
+
+2.0.0 (May, 29 2025) - BREAKING CHANGES
+------------------------------------------
+
+Notes
+------
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+Enhancements - Zscaler OneAPI Support - BREAKING CHANGES
+---------------------------------------------------------
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+#### Enhancements - Zscaler OneAPI Support - BREAKING CHANGES
+
+* (`64 <https://github.com/zscaler/zpacloud-ansible/pull/64>`_): The ZPA Ansible Collection now offers support for (`OneAPI <https://help.zscaler.com/oneapi/understanding-oneapi>`_) Oauth2 authentication through (`Zidentity <https://help.zscaler.com/zidentity/what-zidentity>`_)
+
+**NOTE** As of version v2.0.0, this collection offers backwards compatibility to the Zscaler legacy API framework. This is the recommended authentication method for organizations whose tenants are still not migrated to (`Zidentity <https://help.zscaler.com/zidentity/what-zidentity>`_)
+
+⚠️ **WARNING**: Please refer to the (`Authentication Page <https://zpacloud-ansible.readthedocs.io/en/latest/authentication.html>`_) for details on authentication requirements prior to upgrading your collection configuration.
+
+⚠️ **WARNING**: Attention Government customers. OneAPI and Zidentity is not currently supported for the following clouds: `GOV` and `GOVUS`. Refer to the (`Legacy API Framework <https://github.com/zscaler/zpacloud-ansible/blob/master/README.md>`_) section for more information on how authenticate to these environments using the legacy method.
 
 1.4.6 (April, 8 2025)
 ---------------------------

@@ -645,7 +645,7 @@ Parameters
 
       :ansible-option-choices:`Choices:`
 
-      - :ansible-option-choices-entry-default:`"NONE"` :ansible-option-choices-default-mark:`← (default)`
+      - :ansible-option-choices-entry:`"NONE"`
       - :ansible-option-choices-entry:`"ON\_ACCESS"`
       - :ansible-option-choices-entry:`"CONTINUOUS"`
 
@@ -846,48 +846,6 @@ Parameters
         <div class="ansible-option-cell">
 
       Indicates if the Zscaler Client Connector (formerly Zscaler App or Z App) receives CNAME DNS records from the connectors.
-
-
-      .. rst-class:: ansible-option-line
-
-      :ansible-option-choices:`Choices:`
-
-      - :ansible-option-choices-entry:`false`
-      - :ansible-option-choices-entry:`true`
-
-
-      .. raw:: html
-
-        </div>
-
-  * - .. raw:: html
-
-        <div class="ansible-option-cell">
-        <div class="ansibleOptionAnchor" id="parameter-is_incomplete_dr_config"></div>
-
-      .. _ansible_collections.zscaler.zpacloud.zpa_application_segment_module__parameter-is_incomplete_dr_config:
-
-      .. rst-class:: ansible-option-title
-
-      **is_incomplete_dr_config**
-
-      .. raw:: html
-
-        <a class="ansibleOptionLink" href="#parameter-is_incomplete_dr_config" title="Permalink to this option"></a>
-
-      .. ansible-option-type-line::
-
-        :ansible-option-type:`boolean`
-
-      .. raw:: html
-
-        </div>
-
-    - .. raw:: html
-
-        <div class="ansible-option-cell">
-
-      Indicates whether or not the disaster recovery configuration is incomplete
 
 
       .. rst-class:: ansible-option-line

@@ -6,6 +6,9 @@ on:
       python-version:
         type: string
         required: true
+permissions:
+  contents: read
+  pull-requests: write
 
 env:
   NAMESPACE: zscaler

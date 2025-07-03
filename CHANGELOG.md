@@ -1,5 +1,16 @@
 # Zscaler Private Access (ZPA) Ansible Collection Changelog
 
+## 2.0.1 (July, 2 2025)
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+### Bug Fixes
+
+- [PR #66](https://github.com/zscaler/zpacloud-ansible/pull/66) Fixed attribute `server_group_ids` in the resource `zpa_application_segment` to be normalized during updates.
+- [PR #66](https://github.com/zscaler/zpacloud-ansible/pull/66) Fixed attribute `health_reporting` in the resource `zpa_application_segment` by removing the default value `NONE` to comply with the ZPA API requirements.
+
 ## 2.0.0 (May, 29 2025) - BREAKING CHANGES
 
 ### Notes

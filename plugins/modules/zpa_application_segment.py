@@ -156,10 +156,6 @@ options:
     description: "Whether or not the application resource is designated for disaster recovery"
     type: bool
     required: false
-  is_incomplete_dr_config:
-    description: "Indicates whether or not the disaster recovery configuration is incomplete"
-    type: bool
-    required: false
   inspect_traffic_with_zia:
     description:
       - Indicates if Inspect Traffic with ZIA is enabled for the application
@@ -202,7 +198,6 @@ options:
       - NONE
       - ON_ACCESS
       - CONTINUOUS
-    default: NONE
   server_group_ids:
     description:
       - ID of the server group.
@@ -299,6 +294,7 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     convert_ports_list,
     collect_all_items,
     normalize_port_processing,
+    normalize_app,
     warn_drift,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
@@ -335,7 +331,6 @@ def core(module):
         "passive_health_enabled",
         "select_connector_close_to_app",
         "use_in_dr_mode",
-        "is_incomplete_dr_config",
         "inspect_traffic_with_zia",
         "ip_anchored",
         "icmp_access_type",
@@ -493,9 +488,6 @@ def core(module):
                             "select_connector_close_to_app"
                         ),
                         "use_in_dr_mode": desired_app.get("use_in_dr_mode"),
-                        "is_incomplete_dr_config": desired_app.get(
-                            "is_incomplete_dr_config"
-                        ),
                         "inspect_traffic_with_zia": desired_app.get(
                             "inspect_traffic_with_zia"
                         ),
@@ -539,7 +531,7 @@ def core(module):
                         f"[POST-UPDATE] Failed to retrieve updated resource by ID. Error: {to_native(err)}"
                     )
                 else:
-                    final_app = normalize_port_processing(refreshed.as_dict())
+                    final_app = normalize_app(normalize_port_processing(refreshed.as_dict()))
                     warn_drift(module, desired_app, final_app)
 
                 module.exit_json(changed=True, data=updated_segment.as_dict())
@@ -576,9 +568,6 @@ def core(module):
                         "select_connector_close_to_app"
                     ),
                     "use_in_dr_mode": desired_app.get("use_in_dr_mode"),
-                    "is_incomplete_dr_config": desired_app.get(
-                        "is_incomplete_dr_config"
-                    ),
                     "inspect_traffic_with_zia": desired_app.get(
                         "inspect_traffic_with_zia"
                     ),
@@ -649,7 +638,6 @@ def main():
         adp_enabled=dict(type="bool", required=False),
         select_connector_close_to_app=dict(type="bool", required=False),
         use_in_dr_mode=dict(type="bool", required=False),
-        is_incomplete_dr_config=dict(type="bool", required=False),
         fqdn_dns_check=dict(type="bool", required=False),
         inspect_traffic_with_zia=dict(type="bool", required=False),
         weighted_load_balancing=dict(type="bool", required=False),
@@ -663,7 +651,6 @@ def main():
         health_reporting=dict(
             type="str",
             required=False,
-            default="NONE",
             choices=["NONE", "ON_ACCESS", "CONTINUOUS"],
         ),
         tcp_keep_alive=dict(type="bool", required=False),

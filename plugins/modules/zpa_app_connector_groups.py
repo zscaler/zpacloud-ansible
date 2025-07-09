@@ -324,9 +324,9 @@ def core(module):
     for key, value in desired_group.items():
         if key not in fields_to_exclude and current_group.get(key) != value:
             differences_detected = True
-            module.warn(
-                f"Difference detected in {key}. Current: {current_group.get(key)}, Desired: {value}"
-            )
+            # module.warn(
+            #     f"Difference detected in {key}. Current: {current_group.get(key)}, Desired: {value}"
+            # )
 
     if module.check_mode:
         if state == "present" and (existing_group is None or differences_detected):
@@ -423,10 +423,8 @@ def core(module):
                         "waf_disabled": desired_group.get("waf_disabled", None),
                     }
                 )
-                module.warn("Payload Update for SDK: {}".format(update_group))
-                updated_group = client.app_connector_groups.update_connector_group(
-                    **updated_group
-                )
+                # module.warn("Payload Update for SDK: {}".format(update_group))
+                updated_group, _unused, error = client.app_connector_groups.update_connector_group(**update_group)
                 if error:
                     module.fail_json(msg=f"Error updating group: {to_native(error)}")
                 module.exit_json(changed=True, data=updated_group.as_dict())

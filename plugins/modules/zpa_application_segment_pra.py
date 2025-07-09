@@ -212,10 +212,6 @@ options:
     description: "Whether or not the application resource is designated for disaster recovery"
     type: bool
     required: false
-  is_incomplete_dr_config:
-    description: "Indicates whether or not the disaster recovery configuration is incomplete"
-    type: bool
-    required: false
   inspect_traffic_with_zia:
     description:
       - Indicates if Inspect Traffic with ZIA is enabled for the application
@@ -363,7 +359,6 @@ def core(module):
         "passive_health_enabled",
         "select_connector_close_to_app",
         "use_in_dr_mode",
-        "is_incomplete_dr_config",
         "inspect_traffic_with_zia",
         "adp_enabled",
         "ip_anchored",
@@ -603,9 +598,6 @@ def core(module):
                             "select_connector_close_to_app", None
                         ),
                         use_in_dr_mode=desired_app.get("use_in_dr_mode", None),
-                        is_incomplete_dr_config=desired_app.get(
-                            "is_incomplete_dr_config", None
-                        ),
                         inspect_traffic_with_zia=desired_app.get(
                             "inspect_traffic_with_zia", None
                         ),
@@ -679,9 +671,6 @@ def core(module):
                     common_apps_dto=desired_app.get(
                         "common_apps_dto", None
                     ),  # Add this line
-                    is_incomplete_dr_config=desired_app.get(
-                        "is_incomplete_dr_config", None
-                    ),
                     inspect_traffic_with_zia=desired_app.get(
                         "inspect_traffic_with_zia", None
                     ),
@@ -769,7 +758,6 @@ def main():
         enabled=dict(type="bool", required=False),
         select_connector_close_to_app=dict(type="bool", required=False),
         use_in_dr_mode=dict(type="bool", required=False),
-        is_incomplete_dr_config=dict(type="bool", required=False),
         inspect_traffic_with_zia=dict(type="bool", required=False),
         fqdn_dns_check=dict(type="bool", required=False),
         bypass_type=dict(

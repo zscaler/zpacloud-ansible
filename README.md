@@ -62,7 +62,7 @@ The ZPA Ansible Collection now offers support for [OneAPI](https://help.zscaler.
 
 **NOTE** As of version v2.0.0, this Ansible Collection offers backwards compatibility to the Zscaler legacy API framework. This is the recommended authentication method for organizations whose tenants are still not migrated to [Zidentity](https://help.zscaler.com/zidentity/what-zidentity).
 
-**NOTE** Notice that OneAPI and Zidentity is not currently supported for the following clouds: `GOV` and `GOVUS`. Refer to the [Legacy API Framework](#legacy-api-framework) for more information on how authenticate to these environments
+**NOTE** Notice that OneAPI and Zidentity is not currently supported for the following clouds: `GOV` and `GOVUS`. Refer to the [Legacy API Framework](https://github.com/zscaler/zpacloud-ansible/blob/master/README.md#legacy-api-framework) for more information on how authenticate to these environments
 
 ## OneAPI - Using modules from the ziacloud Collection in your playbooks
 

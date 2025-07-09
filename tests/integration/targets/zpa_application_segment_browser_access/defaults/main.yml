@@ -9,7 +9,6 @@ passive_health_enabled: true
 select_connector_close_to_app: false
 ip_anchored: false
 use_in_dr_mode: false
-is_incomplete_dr_config: false
 inspect_traffic_with_zia: false
 health_check_type: DEFAULT
 health_reporting: ON_ACCESS

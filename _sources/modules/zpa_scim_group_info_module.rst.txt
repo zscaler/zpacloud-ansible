@@ -23,7 +23,7 @@ zscaler.zpacloud.zpa_scim_group_info module -- Retrieves scim group information 
 .. Collection note
 
 .. note::
-    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 2.0.0).
+    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 2.0.2).
 
     It is not included in ``ansible-core``.
     To check whether it is installed, run :code:`ansible-galaxy collection list`.

@@ -9,8 +9,20 @@ Releases
 Zscaler Private Access (ZPA) Ansible Collection Changelog
 ---------------------------------------------------------
 
-Version 2.0.1
+Version 2.0.2
 ==============
+
+2.0.2 (July, 9 2025)
+-------------------------
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+### Bug Fixes
+
+* (`#68 <https://github.com/zscaler/zpacloud-ansible/pull/68>`_) Fixed `zpa_app_connector_groups` unussigned variable `update_group` in the `update` state.
+
 
 v2.0.1 (July 2, 2025)
 -------------------------

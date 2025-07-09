@@ -159,10 +159,6 @@ app_segments:
       description: Indicates if CNAME is enabled for the application segment.
       type: bool
       sample: true
-    is_incomplete_dr_config:
-      description: Indicates if the application segment has an incomplete disaster recovery configuration.
-      type: bool
-      sample: false
     match_style:
       description: The match style of the application segment.
       type: str

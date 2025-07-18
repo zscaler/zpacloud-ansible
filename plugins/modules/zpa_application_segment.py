@@ -134,11 +134,17 @@ options:
   icmp_access_type:
     description:
       - Indicates the ICMP access type.
+      - When set to true, enables ICMP ping access (converted to "PING").
+      - When set to false, disables ICMP access (converted to "NONE").
+      - When not specified, the API will use its default value.
     type: bool
     required: false
   tcp_keep_alive:
     description:
       - Indicates whether TCP communication sockets are enabled or disabled.
+      - When set to true, enables TCP keep-alive (converted to "1").
+      - When set to false, disables TCP keep-alive (converted to "0").
+      - When not specified, the API will use its default value.
     type: bool
     required: false
   select_connector_close_to_app:
@@ -346,19 +352,21 @@ def core(module):
 
     # Convert tcp_keep_alive from bool → "0"/"1"
     tcp_keep_alive = module.params.get("tcp_keep_alive")
-    converted_tcp_keep_alive = convert_bool_to_str(
-        tcp_keep_alive, true_value="1", false_value="0"
-    )
-    app["tcp_keep_alive"] = converted_tcp_keep_alive
+    if tcp_keep_alive is not None:
+        converted_tcp_keep_alive = convert_bool_to_str(
+            tcp_keep_alive, true_value="1", false_value="0"
+        )
+        app["tcp_keep_alive"] = converted_tcp_keep_alive
 
     # Convert icmp_access_type from bool → "PING"/"NONE"
     icmp_access_type = module.params.get("icmp_access_type")
-    if isinstance(icmp_access_type, bool):
-        app["icmp_access_type"] = "PING" if icmp_access_type else "NONE"
-    else:
-        module.fail_json(
-            msg=f"Invalid value for icmp_access_type: {icmp_access_type}. Only boolean values are allowed."
-        )
+    if icmp_access_type is not None:
+        if isinstance(icmp_access_type, bool):
+            app["icmp_access_type"] = "PING" if icmp_access_type else "NONE"
+        else:
+            module.fail_json(
+                msg=f"Invalid value for icmp_access_type: {icmp_access_type}. Only boolean values are allowed."
+            )
 
     # Validate select_connector_close_to_app vs. udp_port_range
     select_connector_close_to_app = module.params.get("select_connector_close_to_app")

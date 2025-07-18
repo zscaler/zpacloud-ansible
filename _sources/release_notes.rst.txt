@@ -22,7 +22,7 @@ Version 2.0.3
 Bug Fixes
 ------------
 
-- [PR #70](https://github.com/zscaler/zpacloud-ansible/pull/70) Fixed a bug in `zpa_scim_group_info` where group lookups by name failed for certain SCIM groups.
+* (`#70 <https://github.com/zscaler/zpacloud-ansible/pull/70>`_) Fixed a bug in `zpa_scim_group_info` where group lookups by name failed for certain SCIM groups.
 The root cause was incorrect use of `.get()` on SDK model instances; replaced with `getattr()` to ensure compatibility with class-based API responses.
 
 2.0.2 (July, 9 2025)

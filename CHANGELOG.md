@@ -1,5 +1,15 @@
 # Zscaler Private Access (ZPA) Ansible Collection Changelog
 
+## 2.0.4 (July, 18 2025)
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+### Bug Fixes
+
+- [PR #70](https://github.com/zscaler/zpacloud-ansible/pull/70) Fixed a bug in `zpa_scim_group_info` where group lookups by name failed for certain SCIM groups. The root cause was incorrect use of `.get()` on SDK model instances; replaced with `getattr()` to ensure compatibility with class-based API responses.
+
 ## 2.0.3 (July, 18 2025)
 
 ### Notes

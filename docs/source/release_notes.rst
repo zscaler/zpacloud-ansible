@@ -9,17 +9,32 @@ Releases
 Zscaler Private Access (ZPA) Ansible Collection Changelog
 ---------------------------------------------------------
 
-Version 2.0.2
+Version 2.0.3
 ==============
 
-2.0.2 (July, 9 2025)
+2.0.3 (July, 18 2025)
 -------------------------
 
 ### Notes
 
 - Python Versions: **v3.9, v3.10, v3.11**
 
-### Bug Fixes
+Bug Fixes
+------------
+
+- [PR #70](https://github.com/zscaler/zpacloud-ansible/pull/70) Fixed a bug in `zpa_scim_group_info` where group lookups by name failed for certain SCIM groups.
+The root cause was incorrect use of `.get()` on SDK model instances; replaced with `getattr()` to ensure compatibility with class-based API responses.
+
+2.0.2 (July, 9 2025)
+-------------------------
+
+Notes
+------------
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+Bug Fixes
+------------
 
 * (`#68 <https://github.com/zscaler/zpacloud-ansible/pull/68>`_) Fixed `zpa_app_connector_groups` unussigned variable `update_group` in the `update` state.
 
@@ -49,7 +64,8 @@ Notes
 Enhancements - Zscaler OneAPI Support - BREAKING CHANGES
 ---------------------------------------------------------
 
-### Notes
+Notes
+------------
 
 - Python Versions: **v3.9, v3.10, v3.11**
 

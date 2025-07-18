@@ -1,5 +1,15 @@
 # Zscaler Private Access (ZPA) Ansible Collection Changelog
 
+## 2.0.5 (July, 18 2025)
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+### Bug Fixes
+
+- [PR #71](https://github.com/zscaler/zpacloud-ansible/pull/71) Fixed validation and conversion issues with `icmp_access_type` and `tcp_keep_alive` parameters in zpa_application_segment module. The module now properly handles None values (allowing API defaults) and correctly converts boolean values to expected string formats ("PING"/"NONE" for `icmp_access_type`, "1"/"0" for tcp_keep_alive) before sending to the API. This resolves the "Invalid value for `icmp_access_type`: None" error and ensures proper change detection when boolean values are explicitly set.
+
 ## 2.0.4 (July, 18 2025)
 
 ### Notes

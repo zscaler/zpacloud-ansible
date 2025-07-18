@@ -9,21 +9,48 @@ Releases
 Zscaler Private Access (ZPA) Ansible Collection Changelog
 ---------------------------------------------------------
 
-Version 2.0.3
+Version 2.0.5
 ==============
 
-2.0.3 (July, 18 2025)
+2.0.5 (July, 18 2025)
 -------------------------
 
-### Notes
+Notes
+------------
 
 - Python Versions: **v3.9, v3.10, v3.11**
 
 Bug Fixes
 ------------
 
-* (`#70 <https://github.com/zscaler/zpacloud-ansible/pull/70>`_) Fixed a bug in `zpa_scim_group_info` where group lookups by name failed for certain SCIM groups.
-The root cause was incorrect use of `.get()` on SDK model instances; replaced with `getattr()` to ensure compatibility with class-based API responses.
+* (`#71 <https://github.com/zscaler/zpacloud-ansible/pull/71>`_) Fixed validation and conversion issues with `icmp_access_type` and `tcp_keep_alive` parameters in zpa_application_segment module. The module now properly handles None values (allowing API defaults) and correctly converts boolean values to expected string formats ("PING"/"NONE" for `icmp_access_type`, "1"/"0" for tcp_keep_alive) before sending to the API. This resolves the "Invalid value for `icmp_access_type`: None" error and ensures proper change detection when boolean values are explicitly set.
+
+2.0.4 (July, 18 2025)
+-------------------------
+
+Notes
+------------
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+Bug Fixes
+------------
+
+* (`#70 <https://github.com/zscaler/zpacloud-ansible/pull/70>`_) Fixed a bug in `zpa_scim_group_info` where group lookups by name failed for certain SCIM groups. The root cause was incorrect use of `.get()` on SDK model instances; replaced with `getattr()` to ensure compatibility with class-based API responses.
+
+
+2.0.3 (July, 18 2025)
+-------------------------
+
+Notes
+------------
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+Bug Fixes
+------------
+
+* (`#70 <https://github.com/zscaler/zpacloud-ansible/pull/70>`_) Fixed a bug in `zpa_scim_group_info` where group lookups by name failed for certain SCIM groups. The root cause was incorrect use of `.get()` on SDK model instances; replaced with `getattr()` to ensure compatibility with class-based API responses.
 
 2.0.2 (July, 9 2025)
 -------------------------

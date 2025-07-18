@@ -238,12 +238,16 @@ def core(module):
         )
         if err:
             module.fail_json(msg=f"Error searching SCIM groups: {to_native(err)}")
+        # matched = next(
+        #     (
+        #         g
+        #         for g in groups
+        #         if g.name == scim_group_name or g.get("name") == scim_group_name
+        #     ),
+        #     None,
+        # )
         matched = next(
-            (
-                g
-                for g in groups
-                if g.name == scim_group_name or g.get("name") == scim_group_name
-            ),
+            (g for g in groups if getattr(g, "name", None) == scim_group_name),
             None,
         )
         if not matched:

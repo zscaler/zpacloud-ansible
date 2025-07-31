@@ -23,7 +23,7 @@ Notes
 Bug Fixes
 ------------
 
-* (`#73 <https://github.com/zscaler/zpacloud-ansible/pull/73>`_) Removed flake8 from requirements.txt.
+* (`#73 <https://github.com/zscaler/zpacloud-ansible/pull/73>`_) Fixed flake8 package in requirements.txt
 
 
 2.0.5 (July, 18 2025)

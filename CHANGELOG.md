@@ -1,5 +1,15 @@
 # Zscaler Private Access (ZPA) Ansible Collection Changelog
 
+## 2.0.7 (August, 4 2025)
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+### Bug Fixes
+
+- [PR #75](https://github.com/zscaler/zpacloud-ansible/pull/75) - Fixed `collect_all_items` pagination helper.
+
 ## 2.0.6 (July, 31 2025)
 
 ### Notes

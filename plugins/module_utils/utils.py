@@ -53,6 +53,11 @@ def collect_all_items(list_fn, query_params=None):
     Collects all pages of results from a paginated ZPA SDK list_* method.
     Handles both paginated and non-paginated SDK methods.
     """
+    # Ensure query_params is a dict and set maximum page size for efficient pagination
+    if query_params is None:
+        query_params = {}
+    query_params["page_size"] = "500"
+
     result = list_fn(query_params)
 
     # Case 1: (items, error) – non-paginated SDK methods
@@ -69,12 +74,18 @@ def collect_all_items(list_fn, query_params=None):
             return None, err
 
         all_items = items or []
+
+        # Continue calling next() until no more pages are available
         while resp and resp.has_next():
-            page, resp, err = resp.next()  # ✅ unpack all 3
-            if err:
-                return None, err
-            if page:
-                all_items.extend(page)
+            try:
+                page, resp, err = resp.next()
+                if err:
+                    return None, err
+                if page:
+                    all_items.extend(page)
+            except StopIteration:
+                # No more pages available
+                break
 
         return all_items, None
 

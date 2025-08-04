@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "zpacloud-ansible"
-version = "2.0.5"
+version = "2.0.7"
 description = "Ansible collection for Zscaler Private Access (ZPA)"
 authors = ["Zscaler Technology Alliances <devrel@zscaler.com>"]
 license = "MIT"
@@ -12,7 +12,7 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.9.2,<4.0"
-zscaler-sdk-python = ">=1.5.8"
+zscaler-sdk-python = ">=1.7.0"
 aiohttp = ">=3.8.4"
 dpath = ">=2.1.5"
 xmltodict = ">=0.12.0"

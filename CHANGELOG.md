@@ -1,5 +1,24 @@
 # Zscaler Private Access (ZPA) Ansible Collection Changelog
 
+## 2.1.0 (December, 9 2025)
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+### NEW - RESOURCES
+
+- [PR #84](https://github.com/zscaler/zpacloud-ansible/pull/84) - Added datasource ``zpa_workload_tag_group``. This data source can be used when configuring `zpa_policy_access_rule` or `zpa_policy_access_rule_v2`, `object_type` is `WORKLOAD_TAG_GROUP`
+- [PR #84](https://github.com/zscaler/zpacloud-ansible/pull/84) - Added datasource `zpa_risk_score_values`. This data source can be used when configuring policy types that support the `object_type` `RISK_SCORE`
+- [PR #84](https://github.com/zscaler/zpacloud-ansible/pull/84) - Added datasource `zpa_managed_browser_profile`. This data source can be used when configuring `zpa_policy_access_rule_v2` or `zpa_policy_isolation_rule_v2` where the `object_type` is `CHROME_POSTURE_PROFILE`
+- [PR #84](https://github.com/zscaler/zpacloud-ansible/pull/84) - Added datasource `zpa_browser_protection`. This data source can be used when configuring `zpa_policy_browser_protection_rule`.
+- [PR #84](https://github.com/zscaler/zpacloud-ansible/pull/84) - Added datasource `zpa_branch_connector_group`. This data source can be used when configuring `zpa_policy_access_rule` or `zpa_policy_access_rule_v2`, `zpa_policy_forwarding_rule`, `zpa_policy_forwarding_rule_v2`, where the `object_type` is `BRANCH_CONNECTOR_GROUP`
+- [PR #84](https://github.com/zscaler/zpacloud-ansible/pull/84) - Added datasource `zpa_extranet_resource_partner`. This data source is required when configuring resources such as: `zpa_server_group`, `zpa_application_segment`, `zpa_application_segmnent_pra`, `zpa_policy_access_rule_v2` in [Extranet mode](https://help.zscaler.com/zia/about-extranet)
+- [PR #84](https://github.com/zscaler/zpacloud-ansible/pull/84) - Added datasource `zpa_location_controller`. This data source is required when configuring resources such as: `zpa_policy_access_rule_v2`, `zpa_server_group`
+- [PR #84](https://github.com/zscaler/zpacloud-ansible/pull/84) - Added datasource `zpa_location_group_controller`. This data source is required when configuring resources such as: `zpa_policy_access_rule_v2`, `zpa_server_group`
+- [PR #84](https://github.com/zscaler/zpacloud-ansible/pull/84) - Added datasource `zpa_location_controller_summary`. This data source can be used when configuring `zpa_policy_access_rule` or `zpa_policy_access_rule_v2` where the `object_type` is `LOCATION`
+
+
 ## 2.0.7 (August, 4 2025)
 
 ### Notes

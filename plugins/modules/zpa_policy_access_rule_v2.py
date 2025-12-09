@@ -153,6 +153,7 @@ options:
               - RISK_FACTOR_TYPE
               - CHROME_ENTERPRISE
               - CHROME_POSTURE_PROFILE
+              - WORKLOAD_TAG_GROUP
             required: false
 
           values:
@@ -534,6 +535,7 @@ def main():
                                 "RISK_FACTOR_TYPE",
                                 "CHROME_ENTERPRISE",
                                 "CHROME_POSTURE_PROFILE",
+                                "WORKLOAD_TAG_GROUP",
                             ],
                         ),
                     ),

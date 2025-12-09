@@ -49,7 +49,7 @@
         - targets/zpa_posture_profile_info/tasks/main.yml
         - targets/zpa_pra_credential_controller/tasks/main.yml
         - targets/zpa_pra_portal_controller/tasks/main.yml
-        - targets/zpa_private_cloud_group/tasks/main.yml
+        # - targets/zpa_private_cloud_group/tasks/main.yml
         - targets/zpa_provisioning_key/tasks/main.yml
         - targets/zpa_risk_score_values_info/tasks/main.yml
         - targets/zpa_saml_attribute_info/tasks/main.yml

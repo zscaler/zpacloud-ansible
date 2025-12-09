@@ -206,22 +206,22 @@
   ignore_errors: true
   register: delete_user_portal_links
 
-- name: List all Private Cloud Groups
-  zscaler.zpacloud.zpa_private_cloud_group_info:
-    provider: "{{ zpa_cloud }}"
-  register: all_private_cloud_groups
+# - name: List all Private Cloud Groups
+#   zscaler.zpacloud.zpa_private_cloud_group_info:
+#     provider: "{{ zpa_cloud }}"
+#   register: all_private_cloud_groups
 
-- name: Delete all test Private Cloud Groups
-  zscaler.zpacloud.zpa_private_cloud_group:
-    provider: "{{ zpa_cloud }}"
-    state: absent
-    name: "{{ item.name }}"
-  loop: "{{ all_private_cloud_groups.groups | default([]) }}"
-  when:
-    - all_private_cloud_groups.groups is defined
-    - "'test_' in (item.name | default(''))"
-  ignore_errors: true
-  register: delete_private_cloud_groups
+# - name: Delete all test Private Cloud Groups
+#   zscaler.zpacloud.zpa_private_cloud_group:
+#     provider: "{{ zpa_cloud }}"
+#     state: absent
+#     name: "{{ item.name }}"
+#   loop: "{{ all_private_cloud_groups.groups | default([]) }}"
+#   when:
+#     - all_private_cloud_groups.groups is defined
+#     - "'test_' in (item.name | default(''))"
+#   ignore_errors: true
+#   register: delete_private_cloud_groups
 
 - name: Show cleanup errors for any failed deletions
   ansible.builtin.debug:

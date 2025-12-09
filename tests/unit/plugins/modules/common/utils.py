@@ -9,6 +9,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import json
+import os
 from unittest.mock import MagicMock
 
 import pytest
@@ -37,14 +38,21 @@ def set_module_args(**args):
     """
     Set module arguments for testing.
     This injects arguments into the module's input.
+    Compatible with both older and newer Ansible versions (2.14+, 2.15+).
     """
     if "_ansible_remote_tmp" not in args:
         args["_ansible_remote_tmp"] = "/tmp"
     if "_ansible_keep_remote_files" not in args:
         args["_ansible_keep_remote_files"] = False
 
-    args = json.dumps({"ANSIBLE_MODULE_ARGS": args})
-    basic._ANSIBLE_ARGS = to_bytes(args)
+    # Create the args JSON
+    args_json = json.dumps({"ANSIBLE_MODULE_ARGS": args})
+
+    # For Ansible 2.14 and earlier
+    basic._ANSIBLE_ARGS = to_bytes(args_json)
+
+    # For Ansible 2.15+ which uses environment variable
+    os.environ["ANSIBLE_MODULE_ARGS"] = json.dumps(args)
 
 
 class AnsibleExitJson(SystemExit):

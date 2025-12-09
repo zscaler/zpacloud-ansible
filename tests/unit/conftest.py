@@ -40,12 +40,23 @@ def reset_module_args():
     """
     Reset Ansible module args between tests.
     This prevents test pollution.
+    Works with both Ansible 2.14 and 2.15+ methods.
     """
     from ansible.module_utils import basic
 
+    # Clear the old-style args
     basic._ANSIBLE_ARGS = None
+
+    # Clear the environment variable used by Ansible 2.15+
+    if "ANSIBLE_MODULE_ARGS" in os.environ:
+        del os.environ["ANSIBLE_MODULE_ARGS"]
+
     yield
+
+    # Clean up after test
     basic._ANSIBLE_ARGS = None
+    if "ANSIBLE_MODULE_ARGS" in os.environ:
+        del os.environ["ANSIBLE_MODULE_ARGS"]
 
 
 @pytest.fixture

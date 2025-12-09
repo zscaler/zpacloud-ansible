@@ -78,23 +78,21 @@ jobs:
             --cov-report=html:tests/output/coverage \
             --cov-report=term-missing
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        if: matrix.python-version == '3.11'
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}/coverage.xml
-          flags: unittests
-          name: zpacloud-unit-tests
-          fail_ci_if_error: false
-          verbose: true
-
       - name: Upload test results to Codecov
-        uses: codecov/test-results-action@v1
         if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}/junit.xml
+
+      - name: Upload coverage reports to Codecov
+        if: matrix.python-version == '3.10'
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}/coverage.xml
+          flags: unittests
+          name: codecov-unit-tests
+          fail_ci_if_error: false
 
       - name: Upload test results artifact
         uses: actions/upload-artifact@v4

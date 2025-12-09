@@ -38,21 +38,39 @@ def set_module_args(**args):
     """
     Set module arguments for testing.
     This injects arguments into the module's input.
-    Compatible with both older and newer Ansible versions (2.14+, 2.15+).
+    Compatible with both older and newer Ansible versions (2.14+, 2.15+, 2.16+).
     """
+    # Add required Ansible internal parameters for all versions
     if "_ansible_remote_tmp" not in args:
         args["_ansible_remote_tmp"] = "/tmp"
     if "_ansible_keep_remote_files" not in args:
         args["_ansible_keep_remote_files"] = False
 
-    # Create the args JSON
+    # Additional parameters required for Ansible 2.15+
+    if "_ansible_no_log" not in args:
+        args["_ansible_no_log"] = False
+    if "_ansible_debug" not in args:
+        args["_ansible_debug"] = False
+    if "_ansible_diff" not in args:
+        args["_ansible_diff"] = False
+    if "_ansible_verbosity" not in args:
+        args["_ansible_verbosity"] = 0
+    if "_ansible_selinux_special_fs" not in args:
+        args["_ansible_selinux_special_fs"] = ["fuse", "nfs", "vboxsf", "ramfs", "9p", "vfat"]
+    if "_ansible_syslog_facility" not in args:
+        args["_ansible_syslog_facility"] = "LOG_USER"
+    if "_ansible_version" not in args:
+        args["_ansible_version"] = "2.15.0"
+    if "_ansible_module_name" not in args:
+        args["_ansible_module_name"] = "test_module"
+    if "_ansible_string_conversion_action" not in args:
+        args["_ansible_string_conversion_action"] = "warn"
+    if "_ansible_tmpdir" not in args:
+        args["_ansible_tmpdir"] = "/tmp"
+
+    # Create the args JSON for basic._ANSIBLE_ARGS (works for all versions)
     args_json = json.dumps({"ANSIBLE_MODULE_ARGS": args})
-
-    # For Ansible 2.14 and earlier
     basic._ANSIBLE_ARGS = to_bytes(args_json)
-
-    # For Ansible 2.15+ which uses environment variable
-    os.environ["ANSIBLE_MODULE_ARGS"] = json.dumps(args)
 
 
 class AnsibleExitJson(SystemExit):

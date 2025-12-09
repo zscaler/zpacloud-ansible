@@ -102,9 +102,9 @@ reqs:       ## Recreate the requirements.txt file
 	poetry run python ./.github/update-requirements.py
 
 install:
-	rm -f zscaler*
-	ansible-galaxy collection build . --force
-	ansible-galaxy collection install zscaler* --force
-	rm -f zscaler*
+	rm -f zscaler-zpacloud-*.tar.gz
+	poetry run ansible-galaxy collection build . --force
+	poetry run ansible-galaxy collection install zscaler-zpacloud-*.tar.gz --force
+	rm -f zscaler-zpacloud-*.tar.gz
 
 .PHONY: clean-pyc clean-build docs clean local-setup

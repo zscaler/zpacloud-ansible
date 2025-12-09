@@ -1,0 +1,73 @@
+---
+- name: Include default variables
+  ansible.builtin.include_vars:
+    file: ../defaults/main.yml
+
+- name: Ensure required environment variables are set
+  ansible.builtin.fail:
+    msg: "{{ env_var }} is not defined as environment variable"
+  when: lookup('env', env_var) is none
+  loop:
+    - ZSCALER_CLIENT_ID
+    - ZSCALER_CLIENT_SECRET
+    - ZSCALER_VANITY_DOMAIN
+    - ZPA_CUSTOMER_ID
+    - ZSCALER_CLOUD
+  loop_control:
+    loop_var: env_var
+
+- name: Ensure ZPA Credential environment variables are set
+  ansible.builtin.set_fact:
+    zpa_cloud:
+      client_id: '{{ lookup("env", "ZSCALER_CLIENT_ID") }}'
+      client_secret: '{{ lookup("env", "ZSCALER_CLIENT_SECRET") | default(omit) }}'
+      vanity_domain: '{{ lookup("env", "ZSCALER_VANITY_DOMAIN") | default(omit) }}'
+      customer_id: '{{ lookup("env", "ZPA_CUSTOMER_ID") | default(omit) }}'
+      cloud: '{{ lookup("env", "ZSCALER_CLOUD") | default(omit) }}'
+  no_log: true
+
+- name: Main block to Test Risk Score Values Info
+  block:
+    # Fetch all Risk Score Values
+    - name: Fetch all Risk Score Values
+      zscaler.zpacloud.zpa_risk_score_values_info:
+        provider: "{{ zpa_cloud }}"
+      register: result
+
+    - name: Ensure Risk Score Values found
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.values is defined
+
+    - name: Debug - Show all Risk Score Values
+      ansible.builtin.debug:
+        var: result.values
+
+    # Test with exclude_unknown option
+    - name: Fetch Risk Score Values excluding UNKNOWN
+      zscaler.zpacloud.zpa_risk_score_values_info:
+        provider: "{{ zpa_cloud }}"
+        exclude_unknown: true
+      register: result_filtered
+
+    - name: Ensure Risk Score Values found (filtered)
+      ansible.builtin.assert:
+        that:
+          - not result_filtered.changed
+          - result_filtered.values is defined
+
+    - name: Debug - Show filtered Risk Score Values
+      ansible.builtin.debug:
+        var: result_filtered.values
+
+  rescue:
+    - name: Handle errors
+      ansible.builtin.debug:
+        msg: An error occurred during Risk Score Values Info test.
+
+  always:
+    - name: Cleanup operations
+      ansible.builtin.debug:
+        msg: Risk Score Values Info test complete.
+

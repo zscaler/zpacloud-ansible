@@ -1,0 +1,222 @@
+---
+- name: Include default variables
+  ansible.builtin.include_vars:
+    file: ../defaults/main.yml
+
+- name: Import Random String Generator Tasks
+  ansible.builtin.import_tasks: ../../../generate_random_string.yml
+
+- name: Set dynamic name values with random string
+  ansible.builtin.set_fact:
+    appended_portal_name: "{{ portal_name }}_{{ random_string }}"
+    appended_portal_description: "{{ portal_description }}_{{ random_string }}"
+    appended_link_name: "{{ link_name }}_{{ random_string }}"
+    appended_link_description: "{{ link_description }}_{{ random_string }}"
+
+- name: Ensure required environment variables are set
+  ansible.builtin.fail:
+    msg: "{{ env_var }} is not defined as environment variable"
+  when: lookup('env', env_var) is none
+  loop:
+    - ZSCALER_CLIENT_ID
+    - ZSCALER_CLIENT_SECRET
+    - ZSCALER_VANITY_DOMAIN
+    - ZPA_CUSTOMER_ID
+    - ZSCALER_CLOUD
+  loop_control:
+    loop_var: env_var
+
+- name: Ensure ZPA Credential environment variables are set
+  ansible.builtin.set_fact:
+    zpa_cloud:
+      client_id: '{{ lookup("env", "ZSCALER_CLIENT_ID") }}'
+      client_secret: '{{ lookup("env", "ZSCALER_CLIENT_SECRET") | default(omit) }}'
+      vanity_domain: '{{ lookup("env", "ZSCALER_VANITY_DOMAIN") | default(omit) }}'
+      customer_id: '{{ lookup("env", "ZPA_CUSTOMER_ID") | default(omit) }}'
+      cloud: '{{ lookup("env", "ZSCALER_CLOUD") | default(omit) }}'
+  no_log: true
+
+- name: Fetch the Browser Access Certificate
+  zscaler.zpacloud.zpa_ba_certificate_info:
+    provider: "{{ zpa_cloud }}"
+    name: "{{ ba_certificate_name }}"
+  register: ba_certificate
+
+- name: Set Certificate ID as fact
+  ansible.builtin.set_fact:
+    certificate_id: "{{ ba_certificate.certificates[0].id }}"
+
+- name: Main block to Test User Portal Link
+  block:
+    # Clean up any leftover resources
+    - name: Ensure User Portal Link is absent (leftover)
+      zscaler.zpacloud.zpa_user_portal_link:
+        provider: "{{ zpa_cloud }}"
+        state: absent
+        name: "{{ appended_link_name }}"
+      register: result
+      ignore_errors: true
+
+    - name: Ensure User Portal Controller is absent (leftover)
+      zscaler.zpacloud.zpa_user_portal_controller:
+        provider: "{{ zpa_cloud }}"
+        state: absent
+        name: "{{ appended_portal_name }}"
+      register: result
+      ignore_errors: true
+
+  rescue:
+    - name: Handle errors
+      ansible.builtin.debug:
+        msg: An error occurred.
+
+  always:
+    - name: Cleanup operations
+      ansible.builtin.debug:
+        msg: Cleanup complete.
+
+    # Step 1: Create User Portal Controller (dependency)
+    - name: Create User Portal Controller (dependency)
+      zscaler.zpacloud.zpa_user_portal_controller:
+        state: present
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_portal_name }}"
+        description: "{{ appended_portal_description }}"
+        enabled: "{{ portal_enabled }}"
+        user_notification: "{{ portal_user_notification }}"
+        user_notification_enabled: "{{ portal_user_notification_enabled }}"
+        certificate_id: "{{ certificate_id }}"
+        domain: "{{ portal_domain }}"
+      register: portal_result
+
+    - name: Verify User Portal Controller is present
+      ansible.builtin.assert:
+        that:
+          - portal_result.data
+          - portal_result.data.id is defined
+
+    - name: Set User Portal Controller ID as fact
+      ansible.builtin.set_fact:
+        user_portal_id: "{{ portal_result.data.id }}"
+
+    # Step 2: Ensure User Portal Link is absent
+    - name: Ensure User Portal Link is absent
+      zscaler.zpacloud.zpa_user_portal_link:
+        state: absent
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_link_name }}"
+      register: result
+
+    - name: Verify User Portal Link is absent
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+
+    # Step 3: Create User Portal Link (Present)
+    - name: Ensure User Portal Link is (Present)
+      zscaler.zpacloud.zpa_user_portal_link:
+        state: present
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_link_name }}"
+        description: "{{ appended_link_description }}"
+        enabled: "{{ link_enabled }}"
+        link: "{{ link_url }}"
+        protocol: "{{ link_protocol }}"
+        icon_text: "{{ link_icon_text }}"
+        user_portal_link_ids:
+          - "{{ user_portal_id }}"
+      register: result
+
+    - name: Verify User Portal Link is present
+      ansible.builtin.assert:
+        that:
+          - result.data
+          - result.data.name is defined
+          - result.data.enabled is true
+
+    - name: Create the User Portal Link (again; idempotency check)
+      zscaler.zpacloud.zpa_user_portal_link:
+        state: present
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_link_name }}"
+        description: "{{ appended_link_description }}"
+        enabled: "{{ link_enabled }}"
+        link: "{{ link_url }}"
+        protocol: "{{ link_protocol }}"
+        icon_text: "{{ link_icon_text }}"
+        user_portal_link_ids:
+          - "{{ user_portal_id }}"
+      register: result
+
+    - name: Ensure User Portal Link is present (again; idempotency check)
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+
+    # Step 4: Test Info Module
+    - name: Fetch all User Portal Links
+      zscaler.zpacloud.zpa_user_portal_link_info:
+        provider: "{{ zpa_cloud }}"
+      register: result
+
+    - name: Ensure all User Portal Links found
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.links is defined
+
+    - name: Fetch User Portal Link by Name
+      zscaler.zpacloud.zpa_user_portal_link_info:
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_link_name }}"
+      register: result
+
+    - name: Ensure User Portal Link found by name
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.links[0] is defined
+          - result.links[0].name == appended_link_name
+
+    - name: Give the ZPA Cloud a 5 seconds to settle
+      ansible.builtin.pause:
+        seconds: 5
+
+    # Step 5: Delete User Portal Link
+    - name: Delete User Portal Link
+      zscaler.zpacloud.zpa_user_portal_link:
+        state: absent
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_link_name }}"
+      register: result
+
+    - name: Verify User Portal Link is Deleted
+      ansible.builtin.assert:
+        that:
+          - result.changed
+
+    - name: Delete User Portal Link (again; idempotency check)
+      zscaler.zpacloud.zpa_user_portal_link:
+        state: absent
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_link_name }}"
+      register: result
+
+    - name: Verify User Portal Link is absent
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+
+    # Step 6: Clean up User Portal Controller (dependency)
+    - name: Delete User Portal Controller (cleanup)
+      zscaler.zpacloud.zpa_user_portal_controller:
+        state: absent
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_portal_name }}"
+      register: result
+
+    - name: Verify User Portal Controller is Deleted
+      ansible.builtin.assert:
+        that:
+          - result.changed
+

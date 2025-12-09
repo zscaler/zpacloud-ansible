@@ -1,0 +1,18 @@
+---
+# User Portal Controller defaults (dependency)
+portal_name: test_user_portal_controller
+portal_description: test_user_portal_controller
+portal_enabled: true
+portal_user_notification: "test_user_portal_controller"
+portal_user_notification_enabled: true
+portal_domain: "testportal01"
+ba_certificate_name: "sales.bd-hashicorp.com"
+
+# User Portal Link defaults
+link_name: test_user_portal_link
+link_description: test_user_portal_link
+link_enabled: true
+link_url: "server1.example.com"
+link_protocol: "https://"
+link_icon_text: ""
+

@@ -1,0 +1,164 @@
+---
+- name: Include default variables
+  ansible.builtin.include_vars:
+    file: ../defaults/main.yml
+
+- name: Import Random String Generator Tasks
+  ansible.builtin.import_tasks: ../../../generate_random_string.yml
+
+- name: Set dynamic name values with random string
+  ansible.builtin.set_fact:
+    appended_name: "{{ range_name }}_{{ random_string }}"
+    appended_description: "{{ description }}_{{ random_string }}"
+
+- name: Ensure required environment variables are set
+  ansible.builtin.fail:
+    msg: "{{ env_var }} is not defined as environment variable"
+  when: lookup('env', env_var) is none
+  loop:
+    - ZSCALER_CLIENT_ID
+    - ZSCALER_CLIENT_SECRET
+    - ZSCALER_VANITY_DOMAIN
+    - ZPA_CUSTOMER_ID
+    - ZSCALER_CLOUD
+  loop_control:
+    loop_var: env_var
+
+- name: Ensure ZPA Credential environment variables are set
+  ansible.builtin.set_fact:
+    zpa_cloud:
+      client_id: '{{ lookup("env", "ZSCALER_CLIENT_ID") }}'
+      client_secret: '{{ lookup("env", "ZSCALER_CLIENT_SECRET") | default(omit) }}'
+      vanity_domain: '{{ lookup("env", "ZSCALER_VANITY_DOMAIN") | default(omit) }}'
+      customer_id: '{{ lookup("env", "ZPA_CUSTOMER_ID") | default(omit) }}'
+      cloud: '{{ lookup("env", "ZSCALER_CLOUD") | default(omit) }}'
+  no_log: true
+
+- name: Main block to Test C2C IP Range
+  block:
+    - name: Ensure C2C IP Range is absent (leftover)
+      zscaler.zpacloud.zpa_c2c_ip_ranges:
+        provider: "{{ zpa_cloud }}"
+        state: absent
+        name: "{{ appended_name }}"
+      register: result
+
+  rescue:
+    - name: Handle errors
+      ansible.builtin.debug:
+        msg: An error occurred.
+
+  always:
+    - name: Cleanup operations
+      ansible.builtin.debug:
+        msg: Cleanup complete.
+
+    - name: Ensure C2C IP Range is absent
+      zscaler.zpacloud.zpa_c2c_ip_ranges:
+        state: absent
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+      register: result
+
+    - name: Verify C2C IP Range is absent
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+
+    # Create C2C IP Range (Present)
+    - name: Ensure C2C IP Range is (Present)
+      zscaler.zpacloud.zpa_c2c_ip_ranges:
+        state: present
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+        description: "{{ appended_description }}"
+        enabled: "{{ enabled }}"
+        ip_range_begin: "{{ ip_range_begin }}"
+        ip_range_end: "{{ ip_range_end }}"
+        location: "{{ location }}"
+        location_hint: "{{ location_hint }}"
+        country_code: "{{ country_code }}"
+        latitude_in_db: "{{ latitude_in_db }}"
+        longitude_in_db: "{{ longitude_in_db }}"
+      register: result
+
+    - name: Verify C2C IP Range is present
+      ansible.builtin.assert:
+        that:
+          - result.data
+          - result.data.name is defined
+          - result.data.enabled is true
+
+    - name: Create the C2C IP Range (again; idempotency check)
+      zscaler.zpacloud.zpa_c2c_ip_ranges:
+        state: present
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+        description: "{{ appended_description }}"
+        enabled: "{{ enabled }}"
+        ip_range_begin: "{{ ip_range_begin }}"
+        ip_range_end: "{{ ip_range_end }}"
+        location: "{{ location }}"
+        location_hint: "{{ location_hint }}"
+        country_code: "{{ country_code }}"
+        latitude_in_db: "{{ latitude_in_db }}"
+        longitude_in_db: "{{ longitude_in_db }}"
+      register: result
+
+    - name: Ensure C2C IP Range is present (again; idempotency check)
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+
+    - name: Fetch all C2C IP Ranges
+      zscaler.zpacloud.zpa_c2c_ip_ranges_info:
+        provider: "{{ zpa_cloud }}"
+      register: result
+
+    - name: Ensure all C2C IP Ranges found
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.ranges is defined
+
+    - name: Fetch C2C IP Range by Name
+      zscaler.zpacloud.zpa_c2c_ip_ranges_info:
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+      register: result
+
+    - name: Ensure C2C IP Range found by name
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.ranges[0] is defined
+          - result.ranges[0].name == appended_name
+
+    - name: Give the ZPA Cloud a 5 seconds to settle
+      ansible.builtin.pause:
+        seconds: 5
+
+    - name: Delete C2C IP Range
+      zscaler.zpacloud.zpa_c2c_ip_ranges:
+        state: absent
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+      register: result
+
+    - name: Verify C2C IP Range is Deleted
+      ansible.builtin.assert:
+        that:
+          - result.changed
+
+    - name: Delete C2C IP Range (again; idempotency check)
+      zscaler.zpacloud.zpa_c2c_ip_ranges:
+        state: absent
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+      register: result
+
+    - name: Verify C2C IP Range is absent
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+

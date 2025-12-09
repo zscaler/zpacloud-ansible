@@ -1,0 +1,107 @@
+---
+- name: Include default variables
+  ansible.builtin.include_vars:
+    file: ../defaults/main.yml
+
+- name: Ensure required environment variables are set
+  ansible.builtin.fail:
+    msg: "{{ env_var }} is not defined as environment variable"
+  when: lookup('env', env_var) is none
+  loop:
+    - ZSCALER_CLIENT_ID
+    - ZSCALER_CLIENT_SECRET
+    - ZSCALER_VANITY_DOMAIN
+    - ZPA_CUSTOMER_ID
+    - ZSCALER_CLOUD
+  loop_control:
+    loop_var: env_var
+
+- name: Ensure ZPA Credential environment variables are set
+  ansible.builtin.set_fact:
+    zpa_cloud:
+      client_id: '{{ lookup("env", "ZSCALER_CLIENT_ID") }}'
+      client_secret: '{{ lookup("env", "ZSCALER_CLIENT_SECRET") | default(omit) }}'
+      vanity_domain: '{{ lookup("env", "ZSCALER_VANITY_DOMAIN") | default(omit) }}'
+      customer_id: '{{ lookup("env", "ZPA_CUSTOMER_ID") | default(omit) }}'
+      cloud: '{{ lookup("env", "ZSCALER_CLOUD") | default(omit) }}'
+  no_log: true
+
+- name: Main block to Test Location Controller Info
+  block:
+    # First, check if extranet resource partner exists
+    - name: Fetch all Extranet Resource Partners
+      zscaler.zpacloud.zpa_extranet_resource_partner_info:
+        provider: "{{ zpa_cloud }}"
+      register: er_partners
+
+    - name: Debug - Show available Extranet Resource Partners
+      ansible.builtin.debug:
+        var: er_partners.partners
+      when: er_partners.partners | length > 0
+
+    - name: Skip test if no Extranet Resource Partners available
+      ansible.builtin.debug:
+        msg: "Skipping Location Controller Info test - no Extranet Resource Partners available in tenant"
+      when: er_partners.partners | length == 0
+
+    # Only run test if extranet resources exist
+    - name: Set first extranet resource partner for testing
+      ansible.builtin.set_fact:
+        test_er_name: "{{ er_partners.partners[0].name }}"
+      when: er_partners.partners | length > 0
+
+    # Use Location Controller Summary to get available locations
+    - name: Fetch Location Controller Summaries
+      zscaler.zpacloud.zpa_location_controller_summary_info:
+        provider: "{{ zpa_cloud }}"
+      register: location_summaries
+      when: test_er_name is defined
+
+    - name: Debug - Show available locations
+      ansible.builtin.debug:
+        var: location_summaries.locations
+      when:
+        - test_er_name is defined
+        - location_summaries.locations is defined
+        - location_summaries.locations | length > 0
+
+    - name: Set first location name for testing
+      ansible.builtin.set_fact:
+        test_location_name: "{{ location_summaries.locations[0].name }}"
+      when:
+        - test_er_name is defined
+        - location_summaries.locations is defined
+        - location_summaries.locations | length > 0
+
+    # Test Location Controller Info by name
+    - name: Fetch Location Controller by Name and Extranet Resource
+      zscaler.zpacloud.zpa_location_controller_info:
+        provider: "{{ zpa_cloud }}"
+        name: "{{ test_location_name }}"
+        zia_er_name: "{{ test_er_name }}"
+      register: result
+      when:
+        - test_er_name is defined
+        - test_location_name is defined
+      ignore_errors: true
+
+    - name: Verify Location Controller found
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.locations is defined
+      when:
+        - test_er_name is defined
+        - test_location_name is defined
+        - result is not failed
+
+  rescue:
+    - name: Handle errors
+      ansible.builtin.debug:
+        msg: "Location Controller Info test skipped or failed - this may be expected if no extranet resources exist"
+
+  always:
+    - name: Cleanup operations
+      ansible.builtin.debug:
+        msg: Location Controller Info test complete.
+

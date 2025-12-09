@@ -1,0 +1,94 @@
+---
+- name: Include default variables
+  ansible.builtin.include_vars:
+    file: ../defaults/main.yml
+
+- name: Ensure required environment variables are set
+  ansible.builtin.fail:
+    msg: "{{ env_var }} is not defined as environment variable"
+  when: lookup('env', env_var) is none
+  loop:
+    - ZSCALER_CLIENT_ID
+    - ZSCALER_CLIENT_SECRET
+    - ZSCALER_VANITY_DOMAIN
+    - ZPA_CUSTOMER_ID
+    - ZSCALER_CLOUD
+  loop_control:
+    loop_var: env_var
+
+- name: Ensure ZPA Credential environment variables are set
+  ansible.builtin.set_fact:
+    zpa_cloud:
+      client_id: '{{ lookup("env", "ZSCALER_CLIENT_ID") }}'
+      client_secret: '{{ lookup("env", "ZSCALER_CLIENT_SECRET") | default(omit) }}'
+      vanity_domain: '{{ lookup("env", "ZSCALER_VANITY_DOMAIN") | default(omit) }}'
+      customer_id: '{{ lookup("env", "ZPA_CUSTOMER_ID") | default(omit) }}'
+      cloud: '{{ lookup("env", "ZSCALER_CLOUD") | default(omit) }}'
+  no_log: true
+
+- name: Main block to Test Extranet Resource Partner Info
+  block:
+    # Fetch all Extranet Resource Partners
+    - name: Fetch all Extranet Resource Partners
+      zscaler.zpacloud.zpa_extranet_resource_partner_info:
+        provider: "{{ zpa_cloud }}"
+      register: result
+
+    - name: Ensure all Extranet Resource Partners found
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.partners is defined
+
+    - name: Debug - Show all Extranet Resource Partners
+      ansible.builtin.debug:
+        var: result.partners
+      when: result.partners | length > 0
+
+    # If we have partners, test fetching by name and ID
+    - name: Set first partner facts for further testing
+      ansible.builtin.set_fact:
+        first_partner_id: "{{ result.partners[0].id }}"
+        first_partner_name: "{{ result.partners[0].name }}"
+      when: result.partners | length > 0
+
+    - name: Fetch Extranet Resource Partner by Name
+      zscaler.zpacloud.zpa_extranet_resource_partner_info:
+        provider: "{{ zpa_cloud }}"
+        name: "{{ first_partner_name }}"
+      register: result_by_name
+      when: first_partner_name is defined
+
+    - name: Ensure Extranet Resource Partner found by name
+      ansible.builtin.assert:
+        that:
+          - not result_by_name.changed
+          - result_by_name.partners[0] is defined
+          - result_by_name.partners[0].name == first_partner_name
+      when: first_partner_name is defined
+
+    - name: Fetch Extranet Resource Partner by ID
+      zscaler.zpacloud.zpa_extranet_resource_partner_info:
+        provider: "{{ zpa_cloud }}"
+        id: "{{ first_partner_id }}"
+      register: result_by_id
+      when: first_partner_id is defined
+
+    - name: Ensure Extranet Resource Partner found by ID
+      ansible.builtin.assert:
+        that:
+          - not result_by_id.changed
+          - result_by_id.partners[0] is defined
+          - result_by_id.partners[0].id == first_partner_id
+      when: first_partner_id is defined
+
+  rescue:
+    - name: Handle errors
+      ansible.builtin.debug:
+        msg: An error occurred during Extranet Resource Partner Info test.
+
+  always:
+    - name: Cleanup operations
+      ansible.builtin.debug:
+        msg: Extranet Resource Partner Info test complete.
+

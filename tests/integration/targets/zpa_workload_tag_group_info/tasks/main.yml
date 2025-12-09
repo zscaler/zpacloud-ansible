@@ -1,0 +1,94 @@
+---
+- name: Include default variables
+  ansible.builtin.include_vars:
+    file: ../defaults/main.yml
+
+- name: Ensure required environment variables are set
+  ansible.builtin.fail:
+    msg: "{{ env_var }} is not defined as environment variable"
+  when: lookup('env', env_var) is none
+  loop:
+    - ZSCALER_CLIENT_ID
+    - ZSCALER_CLIENT_SECRET
+    - ZSCALER_VANITY_DOMAIN
+    - ZPA_CUSTOMER_ID
+    - ZSCALER_CLOUD
+  loop_control:
+    loop_var: env_var
+
+- name: Ensure ZPA Credential environment variables are set
+  ansible.builtin.set_fact:
+    zpa_cloud:
+      client_id: '{{ lookup("env", "ZSCALER_CLIENT_ID") }}'
+      client_secret: '{{ lookup("env", "ZSCALER_CLIENT_SECRET") | default(omit) }}'
+      vanity_domain: '{{ lookup("env", "ZSCALER_VANITY_DOMAIN") | default(omit) }}'
+      customer_id: '{{ lookup("env", "ZPA_CUSTOMER_ID") | default(omit) }}'
+      cloud: '{{ lookup("env", "ZSCALER_CLOUD") | default(omit) }}'
+  no_log: true
+
+- name: Main block to Test Workload Tag Group Info
+  block:
+    # Fetch all Workload Tag Groups
+    - name: Fetch all Workload Tag Groups
+      zscaler.zpacloud.zpa_workload_tag_group_info:
+        provider: "{{ zpa_cloud }}"
+      register: result
+
+    - name: Ensure all Workload Tag Groups found
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.groups is defined
+
+    - name: Debug - Show all Workload Tag Groups
+      ansible.builtin.debug:
+        var: result.groups
+      when: result.groups | length > 0
+
+    # If we have groups, test fetching by name and ID
+    - name: Set first group facts for further testing
+      ansible.builtin.set_fact:
+        first_group_id: "{{ result.groups[0].id }}"
+        first_group_name: "{{ result.groups[0].name }}"
+      when: result.groups | length > 0
+
+    - name: Fetch Workload Tag Group by Name
+      zscaler.zpacloud.zpa_workload_tag_group_info:
+        provider: "{{ zpa_cloud }}"
+        name: "{{ first_group_name }}"
+      register: result_by_name
+      when: first_group_name is defined
+
+    - name: Ensure Workload Tag Group found by name
+      ansible.builtin.assert:
+        that:
+          - not result_by_name.changed
+          - result_by_name.groups[0] is defined
+          - result_by_name.groups[0].name == first_group_name
+      when: first_group_name is defined
+
+    - name: Fetch Workload Tag Group by ID
+      zscaler.zpacloud.zpa_workload_tag_group_info:
+        provider: "{{ zpa_cloud }}"
+        id: "{{ first_group_id }}"
+      register: result_by_id
+      when: first_group_id is defined
+
+    - name: Ensure Workload Tag Group found by ID
+      ansible.builtin.assert:
+        that:
+          - not result_by_id.changed
+          - result_by_id.groups[0] is defined
+          - result_by_id.groups[0].id == first_group_id
+      when: first_group_id is defined
+
+  rescue:
+    - name: Handle errors
+      ansible.builtin.debug:
+        msg: An error occurred during Workload Tag Group Info test.
+
+  always:
+    - name: Cleanup operations
+      ansible.builtin.debug:
+        msg: Workload Tag Group Info test complete.
+

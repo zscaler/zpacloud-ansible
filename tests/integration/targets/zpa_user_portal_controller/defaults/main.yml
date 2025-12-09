@@ -1,0 +1,9 @@
+---
+portal_name: test_user_portal_controller
+description: test_user_portal_controller
+enabled: true
+user_notification: "test_user_portal_controller"
+user_notification_enabled: true
+domain: "testportal01"
+ba_certificate_name: "sales.bd-hashicorp.com"
+

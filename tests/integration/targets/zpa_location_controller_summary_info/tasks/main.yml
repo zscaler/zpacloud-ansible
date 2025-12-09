@@ -1,0 +1,94 @@
+---
+- name: Include default variables
+  ansible.builtin.include_vars:
+    file: ../defaults/main.yml
+
+- name: Ensure required environment variables are set
+  ansible.builtin.fail:
+    msg: "{{ env_var }} is not defined as environment variable"
+  when: lookup('env', env_var) is none
+  loop:
+    - ZSCALER_CLIENT_ID
+    - ZSCALER_CLIENT_SECRET
+    - ZSCALER_VANITY_DOMAIN
+    - ZPA_CUSTOMER_ID
+    - ZSCALER_CLOUD
+  loop_control:
+    loop_var: env_var
+
+- name: Ensure ZPA Credential environment variables are set
+  ansible.builtin.set_fact:
+    zpa_cloud:
+      client_id: '{{ lookup("env", "ZSCALER_CLIENT_ID") }}'
+      client_secret: '{{ lookup("env", "ZSCALER_CLIENT_SECRET") | default(omit) }}'
+      vanity_domain: '{{ lookup("env", "ZSCALER_VANITY_DOMAIN") | default(omit) }}'
+      customer_id: '{{ lookup("env", "ZPA_CUSTOMER_ID") | default(omit) }}'
+      cloud: '{{ lookup("env", "ZSCALER_CLOUD") | default(omit) }}'
+  no_log: true
+
+- name: Main block to Test Location Controller Summary Info
+  block:
+    # Fetch all Location Controller Summaries
+    - name: Fetch all Location Controller Summaries
+      zscaler.zpacloud.zpa_location_controller_summary_info:
+        provider: "{{ zpa_cloud }}"
+      register: result
+
+    - name: Ensure Location Controller Summaries found
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.locations is defined
+
+    - name: Debug - Show all Location Controller Summaries
+      ansible.builtin.debug:
+        var: result.locations
+      when: result.locations | length > 0
+
+    # If we have locations, test fetching by name and ID
+    - name: Set first location facts for further testing
+      ansible.builtin.set_fact:
+        first_location_id: "{{ result.locations[0].id }}"
+        first_location_name: "{{ result.locations[0].name }}"
+      when: result.locations | length > 0
+
+    - name: Fetch Location Controller Summary by Name
+      zscaler.zpacloud.zpa_location_controller_summary_info:
+        provider: "{{ zpa_cloud }}"
+        name: "{{ first_location_name }}"
+      register: result_by_name
+      when: first_location_name is defined
+
+    - name: Ensure Location Controller Summary found by name
+      ansible.builtin.assert:
+        that:
+          - not result_by_name.changed
+          - result_by_name.locations[0] is defined
+          - result_by_name.locations[0].name == first_location_name
+      when: first_location_name is defined
+
+    - name: Fetch Location Controller Summary by ID
+      zscaler.zpacloud.zpa_location_controller_summary_info:
+        provider: "{{ zpa_cloud }}"
+        id: "{{ first_location_id }}"
+      register: result_by_id
+      when: first_location_id is defined
+
+    - name: Ensure Location Controller Summary found by ID
+      ansible.builtin.assert:
+        that:
+          - not result_by_id.changed
+          - result_by_id.locations[0] is defined
+          - result_by_id.locations[0].id == first_location_id
+      when: first_location_id is defined
+
+  rescue:
+    - name: Handle errors
+      ansible.builtin.debug:
+        msg: An error occurred during Location Controller Summary Info test.
+
+  always:
+    - name: Cleanup operations
+      ansible.builtin.debug:
+        msg: Location Controller Summary Info test complete.
+

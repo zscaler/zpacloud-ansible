@@ -33,6 +33,7 @@ help:
 	@echo "$(COLOR_OK)  docs                       	Build collection documentation$(COLOR_NONE)"
 	@echo "$(COLOR_OK)  reqs                       	Recreate the requirements.txt file$(COLOR_NONE)"
 	@echo "$(COLOR_WARNING)test$(COLOR_NONE)"
+	@echo "$(COLOR_OK)  test:unit                     Execute the unit test suite$(COLOR_NONE)"
 	@echo "$(COLOR_OK)  test:integration:zpa          Execute the full integration test suite$(COLOR_NONE)"
 	@echo "$(COLOR_OK)  old-sanity          		Sanity tests for Ansible v2.9 and Ansible v2.10$(COLOR_NONE)"
 	@echo "$(COLOR_OK)  new-sanity          	        Sanity tests for Ansible v2.11 and above$(COLOR_NONE)"
@@ -79,6 +80,10 @@ format:		## Format with black
 
 check-format:	## Check with black
 	black --check --diff .
+
+test\:unit:
+	@echo "$(COLOR_ZSCALER)Running unit tests...$(COLOR_NONE)"
+	pytest tests/unit/ -v --tb=short
 
 test\:integration\:zpa:
 	@echo "$(COLOR_ZSCALER)Running zpa integration tests...$(COLOR_NONE)"

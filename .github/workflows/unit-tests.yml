@@ -11,6 +11,7 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  checks: write
 
 env:
   NAMESPACE: zscaler
@@ -70,7 +71,8 @@ jobs:
           poetry run pytest tests/unit/ \
             -v \
             --tb=short \
-            --junitxml=test-results.xml \
+            --junitxml=junit.xml \
+            -o junit_family=legacy \
             --cov=plugins \
             --cov-report=xml:coverage.xml \
             --cov-report=html:tests/output/coverage \
@@ -87,12 +89,19 @@ jobs:
           fail_ci_if_error: false
           verbose: true
 
-      - name: Upload test results
+      - name: Upload test results to Codecov
+        uses: codecov/test-results-action@v1
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}/junit.xml
+
+      - name: Upload test results artifact
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: unit-test-results-py${{ matrix.python-version }}
-          path: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}/test-results.xml
+          path: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}/junit.xml
           retention-days: 30
 
       - name: Upload coverage report
@@ -109,6 +118,6 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
-          files: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}/test-results.xml
+          files: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}/junit.xml
           check_name: Unit Test Results (Python ${{ matrix.python-version }})
           comment_mode: off

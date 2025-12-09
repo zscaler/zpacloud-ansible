@@ -35,14 +35,24 @@ if COLLECTION_ROOT not in sys.path:
     sys.path.insert(0, COLLECTION_ROOT)
 
 
+# Store original _load_params function
+_original_load_params = None
+
+
 @pytest.fixture(autouse=True)
 def reset_module_args():
     """
     Reset Ansible module args between tests.
     This prevents test pollution.
-    Works with both Ansible 2.14 and 2.15+ methods.
+    Works with all Ansible versions (2.14, 2.15+, 2.16+, 2.17+).
     """
     from ansible.module_utils import basic
+
+    global _original_load_params
+
+    # Save original _load_params on first run
+    if _original_load_params is None and hasattr(basic, '_load_params'):
+        _original_load_params = basic._load_params
 
     # Clear the old-style args
     basic._ANSIBLE_ARGS = None
@@ -57,6 +67,10 @@ def reset_module_args():
     basic._ANSIBLE_ARGS = None
     if "ANSIBLE_MODULE_ARGS" in os.environ:
         del os.environ["ANSIBLE_MODULE_ARGS"]
+
+    # Restore original _load_params if it was patched
+    if _original_load_params is not None:
+        basic._load_params = _original_load_params
 
 
 @pytest.fixture

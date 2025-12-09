@@ -38,7 +38,7 @@ def set_module_args(**args):
     """
     Set module arguments for testing.
     This injects arguments into the module's input.
-    Compatible with both older and newer Ansible versions (2.14+, 2.15+, 2.16+).
+    Compatible with all Ansible versions (2.14+, 2.15+, 2.16+, 2.17+).
     """
     # Add required Ansible internal parameters for all versions
     if "_ansible_remote_tmp" not in args:
@@ -71,6 +71,12 @@ def set_module_args(**args):
     # Create the args JSON for basic._ANSIBLE_ARGS (works for all versions)
     args_json = json.dumps({"ANSIBLE_MODULE_ARGS": args})
     basic._ANSIBLE_ARGS = to_bytes(args_json)
+
+    # Also patch _load_params to return our args directly (for Ansible 2.17+)
+    def _mock_load_params():
+        return args
+
+    basic._load_params = _mock_load_params
 
 
 class AnsibleExitJson(SystemExit):

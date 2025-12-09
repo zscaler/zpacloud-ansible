@@ -174,13 +174,13 @@ def core(module):
     for group in location_groups:
         group_dict = group.as_dict()
         zia_locations = group_dict.get("zia_locations", [])
-        
+
         for location in zia_locations:
             if location.get("name") == location_name:
                 found_location = location
                 location_group_result = group_dict
                 break
-        
+
         if found_location:
             break
 
@@ -221,4 +221,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

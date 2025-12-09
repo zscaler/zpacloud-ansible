@@ -202,4 +202,3 @@ class TestZPASCIMGroupInfoModule(ModuleTestCase):
             zpa_scim_group_info.main()
 
         assert "not found" in result.value.result["msg"]
-

@@ -181,4 +181,3 @@ class TestZPAPRACredentialControllerInfoModule(ModuleTestCase):
             zpa_pra_credential_controller_info.main()
 
         assert "not found" in result.value.result["msg"]
-

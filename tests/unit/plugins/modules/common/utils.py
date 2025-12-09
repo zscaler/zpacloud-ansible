@@ -9,7 +9,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import json
-from unittest.mock import MagicMock, PropertyMock
+from unittest.mock import MagicMock
 
 import pytest
 from ansible.module_utils import basic
@@ -233,4 +233,3 @@ DEFAULT_PROVIDER = {
     "cloud": "PRODUCTION",
     "vanity_domain": "test_domain",
 }
-

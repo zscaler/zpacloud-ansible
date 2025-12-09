@@ -183,4 +183,3 @@ class TestZPALocationControllerSummaryInfoModule(ModuleTestCase):
             zpa_location_controller_summary_info.main()
 
         assert "not found" in result.value.result["msg"]
-

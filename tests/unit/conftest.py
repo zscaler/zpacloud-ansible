@@ -57,4 +57,3 @@ def mock_zscaler_sdk(mocker):
     mock_sdk = mocker.MagicMock()
     mocker.patch.dict("sys.modules", {"zscaler": mock_sdk})
     return mock_sdk
-

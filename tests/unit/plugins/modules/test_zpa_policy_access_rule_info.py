@@ -217,4 +217,3 @@ class TestZPAPolicyAccessRuleInfoModule(ModuleTestCase):
 
         assert result.value.result["changed"] is False
         assert len(result.value.result["policy_rules"]) == 1
-

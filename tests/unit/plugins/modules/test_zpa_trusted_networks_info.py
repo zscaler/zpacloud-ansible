@@ -178,4 +178,3 @@ class TestZPATrustedNetworksInfoModule(ModuleTestCase):
             zpa_trusted_networks_info.main()
 
         assert "not found" in result.value.result["msg"]
-

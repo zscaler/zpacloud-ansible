@@ -30,7 +30,7 @@ jobs:
         working-directory: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           path: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
 
@@ -65,8 +65,27 @@ jobs:
       - name: Install Ansible
         run: poetry run pip install 'ansible>=2.14'
 
-      - name: Run unit tests
-        run: poetry run pytest tests/unit/ -v --tb=short --junitxml=test-results.xml
+      - name: Run unit tests with coverage
+        run: |
+          poetry run pytest tests/unit/ \
+            -v \
+            --tb=short \
+            --junitxml=test-results.xml \
+            --cov=plugins \
+            --cov-report=xml:coverage.xml \
+            --cov-report=html:tests/output/coverage \
+            --cov-report=term-missing
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        if: matrix.python-version == '3.11'
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}/coverage.xml
+          flags: unittests
+          name: zpacloud-unit-tests
+          fail_ci_if_error: false
+          verbose: true
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -76,6 +95,16 @@ jobs:
           path: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}/test-results.xml
           retention-days: 30
 
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: matrix.python-version == '3.11'
+        with:
+          name: coverage-report
+          path: |
+            ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}/coverage.xml
+            ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}/tests/output/coverage/
+          retention-days: 30
+
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
@@ -83,4 +112,3 @@ jobs:
           files: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}/test-results.xml
           check_name: Unit Test Results (Python ${{ matrix.python-version }})
           comment_mode: off
-

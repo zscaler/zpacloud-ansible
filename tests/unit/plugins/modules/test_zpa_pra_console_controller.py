@@ -22,7 +22,6 @@ from unittest.mock import MagicMock, patch
 from tests.unit.plugins.modules.common.utils import (
     set_module_args,
     AnsibleExitJson,
-    AnsibleFailJson,
     ModuleTestCase,
     DEFAULT_PROVIDER,
 )
@@ -228,4 +227,3 @@ class TestZPAPRAConsoleControllerModule(ModuleTestCase):
 
         mock_client.pra_console.add_console.assert_not_called()
         assert result.value.result["changed"] is True
-

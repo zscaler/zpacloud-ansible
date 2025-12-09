@@ -179,4 +179,3 @@ class TestZPAMachineGroupInfoModule(ModuleTestCase):
             zpa_machine_group_info.main()
 
         assert "not found" in result.value.result["msg"]
-

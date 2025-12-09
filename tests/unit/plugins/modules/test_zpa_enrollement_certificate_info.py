@@ -192,4 +192,3 @@ class TestZPAEnrollmentCertificateInfoModule(ModuleTestCase):
             zpa_enrollement_certificate_info.main()
 
         assert "not found" in result.value.result["msg"]
-

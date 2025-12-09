@@ -9,4 +9,3 @@ location_hint: "Created via Ansible Integration Test"
 country_code: "US"
 latitude_in_db: "37.33874"
 longitude_in_db: "-121.8852525"
-

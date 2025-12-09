@@ -22,7 +22,6 @@ from unittest.mock import MagicMock, patch
 from tests.unit.plugins.modules.common.utils import (
     set_module_args,
     AnsibleExitJson,
-    AnsibleFailJson,
     ModuleTestCase,
     DEFAULT_PROVIDER,
 )
@@ -230,4 +229,3 @@ class TestZPAPolicyAccessRuleModule(ModuleTestCase):
 
         mock_client.policies.add_access_rule.assert_called_once()
         assert result.value.result["changed"] is True
-

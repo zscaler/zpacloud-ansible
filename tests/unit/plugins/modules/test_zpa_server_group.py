@@ -365,4 +365,3 @@ class TestZPAServerGroupModule(ModuleTestCase):
             zpa_server_group.main()
 
         assert "Error deleting group" in result.value.result["msg"]
-

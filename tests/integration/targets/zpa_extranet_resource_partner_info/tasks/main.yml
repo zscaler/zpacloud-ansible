@@ -91,4 +91,3 @@
     - name: Cleanup operations
       ansible.builtin.debug:
         msg: Extranet Resource Partner Info test complete.
-

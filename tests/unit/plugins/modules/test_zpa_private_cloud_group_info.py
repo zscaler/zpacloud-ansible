@@ -234,4 +234,3 @@ class TestZPAPrivateCloudGroupInfoModule(ModuleTestCase):
             zpa_private_cloud_group_info.main()
 
         assert "Error retrieving Private Cloud Groups" in result.value.result["msg"]
-

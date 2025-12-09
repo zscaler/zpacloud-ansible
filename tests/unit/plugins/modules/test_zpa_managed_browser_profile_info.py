@@ -185,4 +185,3 @@ class TestZPAManagedBrowserProfileInfoModule(ModuleTestCase):
             zpa_managed_browser_profile_info.main()
 
         assert "not found" in result.value.result["msg"]
-

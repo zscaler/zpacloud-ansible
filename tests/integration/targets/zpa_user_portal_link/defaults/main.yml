@@ -15,4 +15,3 @@ link_enabled: true
 link_url: "server1.example.com"
 link_protocol: "https://"
 link_icon_text: ""
-

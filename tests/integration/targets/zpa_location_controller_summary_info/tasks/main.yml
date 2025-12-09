@@ -91,4 +91,3 @@
     - name: Cleanup operations
       ansible.builtin.debug:
         msg: Location Controller Summary Info test complete.
-

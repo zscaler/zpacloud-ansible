@@ -243,4 +243,3 @@ class TestZPAPolicyAccessRuleReorderModule(ModuleTestCase):
 
         mock_client.policies.bulk_reorder_rules.assert_called_once()
         assert result.value.result["changed"] is True
-

@@ -642,4 +642,3 @@ class TestZPAApplicationSegmentModule(ModuleTestCase):
         mock_client.application_segment.add_segment.assert_called_once()
         call_kwargs = mock_client.application_segment.add_segment.call_args[1]
         assert call_kwargs.get("match_style") == "INCLUSIVE"
-

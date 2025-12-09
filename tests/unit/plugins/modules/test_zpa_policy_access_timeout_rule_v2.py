@@ -22,7 +22,6 @@ from unittest.mock import MagicMock, patch
 from tests.unit.plugins.modules.common.utils import (
     set_module_args,
     AnsibleExitJson,
-    AnsibleFailJson,
     ModuleTestCase,
     DEFAULT_PROVIDER,
 )
@@ -249,4 +248,3 @@ class TestZPAPolicyAccessTimeoutRuleV2Module(ModuleTestCase):
 
         mock_client.policies.add_timeout_rule_v2.assert_called_once()
         assert result.value.result["changed"] is True
-

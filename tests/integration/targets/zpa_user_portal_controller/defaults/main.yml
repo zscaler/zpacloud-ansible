@@ -6,4 +6,3 @@ user_notification: "test_user_portal_controller"
 user_notification_enabled: true
 domain: "testportal01"
 ba_certificate_name: "sales.bd-hashicorp.com"
-

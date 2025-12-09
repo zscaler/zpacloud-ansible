@@ -191,4 +191,3 @@ class TestZPAIsolationProfileInfoModule(ModuleTestCase):
             zpa_isolation_profile_info.main()
 
         assert "not found" in result.value.result["msg"]
-

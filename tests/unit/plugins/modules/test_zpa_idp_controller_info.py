@@ -207,4 +207,3 @@ class TestZPAIdpControllerInfoModule(ModuleTestCase):
             zpa_idp_controller_info.main()
 
         assert "not found" in result.value.result["msg"]
-

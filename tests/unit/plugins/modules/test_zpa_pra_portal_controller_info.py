@@ -184,4 +184,3 @@ class TestZPAPRAPortalControllerInfoModule(ModuleTestCase):
             zpa_pra_portal_controller_info.main()
 
         assert "not found" in result.value.result["msg"]
-

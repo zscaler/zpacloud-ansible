@@ -163,4 +163,3 @@ class TestZPACloudConnectorGroupInfoModule(ModuleTestCase):
             zpa_cloud_connector_group_info.main()
 
         assert "not found" in result.value.result["msg"]
-

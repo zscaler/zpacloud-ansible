@@ -180,4 +180,3 @@ class TestZPAPRAConsoleControllerInfoModule(ModuleTestCase):
             zpa_pra_console_controller_info.main()
 
         assert "not found" in result.value.result["msg"]
-

@@ -219,4 +219,3 @@
       ansible.builtin.assert:
         that:
           - result.changed
-

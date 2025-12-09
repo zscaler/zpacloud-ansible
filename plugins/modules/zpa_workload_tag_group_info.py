@@ -125,7 +125,7 @@ def core(module):
 
         result_list = [g.as_dict() for g in group_list]
         matched = next((g for g in result_list if g.get("id") == group_id), None)
-        
+
         if not matched:
             module.fail_json(
                 msg=f"Workload Tag Group ID '{group_id}' not found."
@@ -174,4 +174,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

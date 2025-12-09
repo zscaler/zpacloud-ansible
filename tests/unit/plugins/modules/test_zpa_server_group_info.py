@@ -229,4 +229,3 @@ class TestZPAServerGroupInfoModule(ModuleTestCase):
             zpa_server_group_info.main()
 
         assert "Error retrieving Server Groups" in result.value.result["msg"]
-

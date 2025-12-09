@@ -63,11 +63,11 @@ class TestZpaSegmentGroupInfo(ModuleTestCase):
         ) as mock_class:
             # Make zpa_argument_spec return the real argument spec
             mock_class.zpa_argument_spec.return_value = REAL_ARGUMENT_SPEC.copy()
-            
+
             # Create a mock instance for API calls
             client_instance = MagicMock()
             mock_class.return_value = client_instance
-            
+
             yield client_instance
 
     # ==================== FETCH ALL TESTS ====================
@@ -291,7 +291,7 @@ class TestZpaSegmentGroupInfoParametrized(ModuleTestCase):
         ) as mock_class:
             # Preserve the real argument spec
             mock_class.zpa_argument_spec.return_value = REAL_ARGUMENT_SPEC.copy()
-            
+
             client = MagicMock()
             mock_class.return_value = client
 
@@ -316,4 +316,3 @@ class TestZpaSegmentGroupInfoParametrized(ModuleTestCase):
 
             assert result.value.result["changed"] is False
             assert len(result.value.result["groups"]) == expected_count
-

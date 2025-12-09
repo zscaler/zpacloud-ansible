@@ -90,4 +90,3 @@
     - name: Cleanup operations
       ansible.builtin.debug:
         msg: Managed Browser Profile Info test complete.
-

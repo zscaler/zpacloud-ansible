@@ -34,7 +34,11 @@ help:
 	@echo "$(COLOR_OK)  reqs                       	Recreate the requirements.txt file$(COLOR_NONE)"
 	@echo "$(COLOR_WARNING)test$(COLOR_NONE)"
 	@echo "$(COLOR_OK)  test:unit                     Execute the unit test suite$(COLOR_NONE)"
+	@echo "$(COLOR_OK)  test:unit:coverage            Execute unit tests with coverage report$(COLOR_NONE)"
 	@echo "$(COLOR_OK)  test:integration:zpa          Execute the full integration test suite$(COLOR_NONE)"
+	@echo "$(COLOR_OK)  test:integration:coverage     Execute integration tests with coverage$(COLOR_NONE)"
+	@echo "$(COLOR_OK)  coverage:html                 Generate HTML coverage report$(COLOR_NONE)"
+	@echo "$(COLOR_OK)  coverage:report               Show coverage report in terminal$(COLOR_NONE)"
 	@echo "$(COLOR_OK)  old-sanity          		Sanity tests for Ansible v2.9 and Ansible v2.10$(COLOR_NONE)"
 	@echo "$(COLOR_OK)  new-sanity          	        Sanity tests for Ansible v2.11 and above$(COLOR_NONE)"
 # Make sure we have ansible_collections/zscaler/zpacloud_enhanced
@@ -74,6 +78,8 @@ docs:		## Build collection documentation
 clean:		## Remove all auto-generated files
 	rm -rf tests/output
 	rm -rf *.tar.gz
+	rm -rf .coverage coverage.xml htmlcov .pytest_cache
+	rm -rf .tox .eggs *.egg-info
 
 format:		## Format with black
 	black .
@@ -83,11 +89,37 @@ check-format:	## Check with black
 
 test\:unit:
 	@echo "$(COLOR_ZSCALER)Running unit tests...$(COLOR_NONE)"
-	pytest tests/unit/ -v --tb=short
+	poetry run pytest tests/unit/ -v --tb=short
+
+test\:unit\:coverage:
+	@echo "$(COLOR_ZSCALER)Running unit tests with coverage...$(COLOR_NONE)"
+	poetry run pytest tests/unit/ -v --tb=short \
+		--cov=plugins \
+		--cov-report=xml:coverage.xml \
+		--cov-report=html:tests/output/coverage \
+		--cov-report=term-missing
+	@echo "$(COLOR_OK)Coverage report generated at tests/output/coverage/index.html$(COLOR_NONE)"
 
 test\:integration\:zpa:
 	@echo "$(COLOR_ZSCALER)Running zpa integration tests...$(COLOR_NONE)"
-	ansible-playbook tests/integration/run_all_tests.yml
+	poetry run ansible-playbook tests/integration/run_all_tests.yml
+
+test\:integration\:coverage:
+	@echo "$(COLOR_ZSCALER)Running integration tests with coverage...$(COLOR_NONE)"
+	poetry run ansible-test coverage erase
+	poetry run ansible-test integration --coverage --python $(python_version) -v
+	poetry run ansible-test coverage xml --requirements
+	poetry run ansible-test coverage html --requirements
+	@echo "$(COLOR_OK)Coverage report generated at tests/output/coverage/$(COLOR_NONE)"
+
+coverage\:html:
+	@echo "$(COLOR_ZSCALER)Generating HTML coverage report...$(COLOR_NONE)"
+	poetry run coverage html -d tests/output/coverage
+	@echo "$(COLOR_OK)Open tests/output/coverage/index.html in your browser$(COLOR_NONE)"
+
+coverage\:report:
+	@echo "$(COLOR_ZSCALER)Coverage Report:$(COLOR_NONE)"
+	poetry run coverage report --show-missing
 
 .PHONY: old-sanity
 old-sanity:		## Sanity tests for Ansible v2.9 and Ansible v2.10

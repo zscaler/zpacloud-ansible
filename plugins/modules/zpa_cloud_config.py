@@ -74,21 +74,18 @@ options:
       - This is a write-only field and is not returned by the API.
     required: true
     type: str
-    no_log: true
   zia_sandbox_api_token:
     description:
       - ZIA sandbox API token.
       - This is a write-only field and is not returned by the API.
     required: true
     type: str
-    no_log: true
   zia_cloud_service_api_key:
     description:
       - ZIA cloud service API key.
       - This is a write-only field and is not returned by the API.
     required: true
     type: str
-    no_log: true
 """
 
 EXAMPLES = """
@@ -160,7 +157,7 @@ def core(module):
     # Get current config
     current_config = None
     try:
-        configs, _, err = client.zia_customer_config.get_zia_cloud_service_config()
+        configs, _unused, err = client.zia_customer_config.get_zia_cloud_service_config()
         if not err and configs and len(configs) > 0:
             current_config = configs[0]
     except Exception:
@@ -192,12 +189,12 @@ def core(module):
         "zia_cloud_service_api_key": zia_cloud_service_api_key,
     }
 
-    result, _, err = client.zia_customer_config.add_zia_cloud_service_config(**config_payload)
+    result, _unused, err = client.zia_customer_config.add_zia_cloud_service_config(**config_payload)
     if err:
         module.fail_json(msg=f"Error configuring ZIA cloud config: {to_native(err)}")
 
     # Fetch the updated config to return (API doesn't return sensitive fields)
-    configs, _, err = client.zia_customer_config.get_zia_cloud_service_config()
+    configs, _unused, err = client.zia_customer_config.get_zia_cloud_service_config()
     if err:
         module.fail_json(msg=f"Error retrieving updated ZIA cloud config: {to_native(err)}")
 
@@ -255,4 +252,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

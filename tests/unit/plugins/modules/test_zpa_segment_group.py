@@ -17,7 +17,7 @@ COLLECTION_ROOT = os.path.abspath(
 if COLLECTION_ROOT not in sys.path:
     sys.path.insert(0, COLLECTION_ROOT)
 
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -64,11 +64,11 @@ class TestZpaSegmentGroup(ModuleTestCase):
         ) as mock_class:
             # Make zpa_argument_spec return the real argument spec
             mock_class.zpa_argument_spec.return_value = REAL_ARGUMENT_SPEC.copy()
-            
+
             # Create a mock instance for API calls
             client_instance = MagicMock()
             mock_class.return_value = client_instance
-            
+
             yield client_instance
 
     # ==================== CREATE TESTS ====================
@@ -397,7 +397,7 @@ class TestZpaSegmentGroupParametrized(ModuleTestCase):
         ) as mock_class:
             # Preserve the real argument spec
             mock_class.zpa_argument_spec.return_value = REAL_ARGUMENT_SPEC.copy()
-            
+
             client = MagicMock()
             mock_class.return_value = client
 
@@ -434,4 +434,3 @@ class TestZpaSegmentGroupParametrized(ModuleTestCase):
                 zpa_segment_group.main()
 
             assert result.value.result["changed"] is test_case["expected_changed"]
-

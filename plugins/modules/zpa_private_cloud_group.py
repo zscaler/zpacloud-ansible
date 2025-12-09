@@ -100,7 +100,9 @@ options:
     required: false
     choices: ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"]
   upgrade_time_in_secs:
-    description: "Private Cloud Controllers will attempt to update during this specified time. Integer in seconds (i.e., -66600). Must be >= 0 and < 86400, in 15 minute intervals"
+    description:
+      - Private Cloud Controllers will attempt to update during this specified time.
+      - Integer in seconds (i.e., -66600). Must be >= 0 and < 86400, in 15 minute intervals.
     type: str
     required: false
   version_profile_id:
@@ -339,4 +341,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

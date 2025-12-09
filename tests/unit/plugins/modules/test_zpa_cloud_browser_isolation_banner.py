@@ -22,7 +22,6 @@ from unittest.mock import MagicMock, patch
 from tests.unit.plugins.modules.common.utils import (
     set_module_args,
     AnsibleExitJson,
-    AnsibleFailJson,
     ModuleTestCase,
     DEFAULT_PROVIDER,
 )
@@ -199,4 +198,3 @@ class TestZPACBIBannerModule(ModuleTestCase):
 
         mock_client.cbi_banner.add_cbi_banner.assert_not_called()
         assert result.value.result["changed"] is True
-

@@ -124,9 +124,6 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
-    collect_all_items,
-)
 
 
 def get_current_match_styles(client, application_ids, microtenant_id=None):
@@ -241,4 +238,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

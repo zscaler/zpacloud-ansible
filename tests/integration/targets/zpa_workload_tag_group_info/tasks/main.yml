@@ -91,4 +91,3 @@
     - name: Cleanup operations
       ansible.builtin.debug:
         msg: Workload Tag Group Info test complete.
-

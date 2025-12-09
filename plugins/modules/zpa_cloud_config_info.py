@@ -88,7 +88,7 @@ def core(module):
     client = ZPAClientHelper(module)
 
     # Fetch ZIA cloud config
-    configs, _, err = client.zia_customer_config.get_zia_cloud_service_config()
+    configs, _unused, err = client.zia_customer_config.get_zia_cloud_service_config()
     if err:
         module.fail_json(msg=f"Error retrieving ZIA cloud config: {to_native(err)}")
 
@@ -123,4 +123,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

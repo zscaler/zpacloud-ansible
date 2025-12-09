@@ -163,4 +163,3 @@ class TestZPACBIProfileInfoModule(ModuleTestCase):
             zpa_cloud_browser_isolation_profile_info.main()
 
         assert "Error retrieving profile by ID" in result.value.result["msg"]
-

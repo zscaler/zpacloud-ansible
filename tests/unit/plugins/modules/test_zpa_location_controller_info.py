@@ -174,4 +174,3 @@ class TestZPALocationControllerInfoModule(ModuleTestCase):
 
         with pytest.raises(SystemExit):
             zpa_location_controller_info.main()
-

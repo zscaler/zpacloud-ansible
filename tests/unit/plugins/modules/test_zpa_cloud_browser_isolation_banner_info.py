@@ -159,4 +159,3 @@ class TestZPACBIBannerInfoModule(ModuleTestCase):
             zpa_cloud_browser_isolation_banner_info.main()
 
         assert "Error retrieving banner by ID" in result.value.result["msg"]
-

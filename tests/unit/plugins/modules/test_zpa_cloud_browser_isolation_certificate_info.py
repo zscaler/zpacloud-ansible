@@ -151,4 +151,3 @@ class TestZPACBICertificateInfoModule(ModuleTestCase):
             zpa_cloud_browser_isolation_certificate_info.main()
 
         assert "Error retrieving certificate by ID" in result.value.result["msg"]
-

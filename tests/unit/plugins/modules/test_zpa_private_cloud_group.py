@@ -326,4 +326,3 @@ class TestZPAPrivateCloudGroupModule(ModuleTestCase):
             zpa_private_cloud_group.main()
 
         assert "Error deleting Private Cloud Group" in result.value.result["msg"]
-

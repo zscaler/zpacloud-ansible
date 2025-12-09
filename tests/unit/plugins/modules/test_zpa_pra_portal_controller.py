@@ -22,7 +22,6 @@ from unittest.mock import MagicMock, patch
 from tests.unit.plugins.modules.common.utils import (
     set_module_args,
     AnsibleExitJson,
-    AnsibleFailJson,
     ModuleTestCase,
     DEFAULT_PROVIDER,
 )
@@ -231,4 +230,3 @@ class TestZPAPRAPortalControllerModule(ModuleTestCase):
 
         mock_client.pra_portal.add_portal.assert_not_called()
         assert result.value.result["changed"] is True
-

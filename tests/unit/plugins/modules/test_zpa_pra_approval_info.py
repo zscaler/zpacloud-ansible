@@ -155,4 +155,3 @@ class TestZPAPRAApprovalInfoModule(ModuleTestCase):
             zpa_pra_approval_info.main()
 
         assert "Failed to retrieve PRA Approval ID" in result.value.result["msg"]
-

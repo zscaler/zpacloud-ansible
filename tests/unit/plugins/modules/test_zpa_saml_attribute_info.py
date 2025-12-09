@@ -217,4 +217,3 @@ class TestZPASAMLAttributeInfoModule(ModuleTestCase):
             zpa_saml_attribute_info.main()
 
         assert "not found" in result.value.result["msg"]
-

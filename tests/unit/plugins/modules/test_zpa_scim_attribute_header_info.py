@@ -209,4 +209,3 @@ class TestZPASCIMAttributeHeaderInfoModule(ModuleTestCase):
             zpa_scim_attribute_header_info.main()
 
         assert "not found" in result.value.result["msg"]
-

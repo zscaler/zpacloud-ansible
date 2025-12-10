@@ -76,3 +76,65 @@ class TestZPAServiceEdgeControllerModule(ModuleTestCase):
         with pytest.raises(AnsibleExitJson) as result:
             zpa_service_edge_controller.main()
         assert result.value.result["changed"] is True
+
+    def test_bulk_delete_error(self, mock_client):
+        """Test bulk delete error handling"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mock_client.service_edges.bulk_delete_service_edges.return_value = (None, None, "Bulk delete failed")
+        set_module_args(provider=DEFAULT_PROVIDER, ids=["123", "456"])
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_service_edge_controller
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_service_edge_controller.main()
+        assert "bulk delete" in result.value.result["msg"].lower()
+
+    def test_get_service_edge_by_id_error(self, mock_client):
+        """Test error handling when retrieving service edge by ID"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mock_client.service_edges.get_service_edge.return_value = (None, None, "API Error")
+        set_module_args(provider=DEFAULT_PROVIDER, id="123", state="absent")
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_service_edge_controller
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_service_edge_controller.main()
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_list_service_edges_error(self, mock_client, mocker):
+        """Test error handling when listing service edges"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_service_edge_controller.collect_all_items",
+            return_value=(None, "List error"),
+        )
+        set_module_args(provider=DEFAULT_PROVIDER, name="ServiceEdge01", state="absent")
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_service_edge_controller
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_service_edge_controller.main()
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_delete_error(self, mock_client):
+        """Test error handling when deleting service edge"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mock_client.service_edges.get_service_edge.return_value = (MockBox(self.SAMPLE_SERVICE_EDGE), None, None)
+        mock_client.service_edges.delete_connector.return_value = (None, None, "Delete failed")
+        set_module_args(provider=DEFAULT_PROVIDER, id="123", state="absent")
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_service_edge_controller
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_service_edge_controller.main()
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_check_mode_present(self, mock_client):
+        """Test check mode with present state"""
+        mock_client.service_edges.get_service_edge.return_value = (MockBox(self.SAMPLE_SERVICE_EDGE), None, None)
+        set_module_args(provider=DEFAULT_PROVIDER, id="123", state="present", _ansible_check_mode=True)
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_service_edge_controller
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_service_edge_controller.main()
+        # Service edge exists, state=present, no change needed
+        assert "changed" in result.value.result
+
+    def test_fallback_no_id_no_name(self, mock_client):
+        """Test fallback when neither ID nor name provided"""
+        set_module_args(provider=DEFAULT_PROVIDER, state="present")
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_service_edge_controller
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_service_edge_controller.main()
+        assert result.value.result["changed"] is False

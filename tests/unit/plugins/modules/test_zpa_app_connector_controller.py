@@ -112,3 +112,157 @@ class TestZPAAppConnectorControllerModule(ModuleTestCase):
             zpa_app_connector_controller.main()
 
         assert result.value.result["changed"] is True
+
+    def test_bulk_delete(self, mock_client, mocker):
+        """Test bulk delete with connector IDs"""
+        mock_client.app_connectors.bulk_delete_connectors.return_value = (None, None, None)
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            ids=["id1", "id2", "id3"],
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_app_connector_controller
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_app_connector_controller.main()
+
+        assert result.value.result["changed"] is True
+        assert "deleted_connectors" in result.value.result["data"]
+
+    def test_bulk_delete_error(self, mock_client, mocker):
+        """Test bulk delete error handling"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mock_client.app_connectors.bulk_delete_connectors.return_value = (None, None, "Bulk delete error")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            ids=["id1", "id2"],
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_app_connector_controller
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_app_connector_controller.main()
+
+        assert "bulk delete" in result.value.result["msg"].lower()
+
+    def test_get_connector_by_id(self, mock_client, mocker):
+        """Test retrieving connector by ID"""
+        mock_client.app_connectors.get_connector.return_value = (
+            MockBox(self.SAMPLE_CONNECTOR), None, None
+        )
+        mock_client.app_connectors.delete_connector.return_value = (None, None, None)
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            id="216199618143441990",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_app_connector_controller
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_app_connector_controller.main()
+
+        assert result.value.result["changed"] is True
+
+    def test_get_connector_by_id_error(self, mock_client, mocker):
+        """Test error handling when retrieving connector by ID"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mock_client.app_connectors.get_connector.return_value = (None, None, "API Error")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            id="invalid_id",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_app_connector_controller
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_app_connector_controller.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_update_connector(self, mock_client, mocker):
+        """Test updating an existing connector"""
+        existing = {**self.SAMPLE_CONNECTOR, "description": "Old description"}
+        mock_client.app_connectors.get_connector.return_value = (MockBox(existing), None, None)
+        mock_client.app_connectors.update_connector.return_value = (
+            MockBox({**existing, "description": "New description"}), None, None
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            id="216199618143441990",
+            description="New description",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_app_connector_controller
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_app_connector_controller.main()
+
+        assert result.value.result["changed"] is True
+
+    def test_update_no_change(self, mock_client, mocker):
+        """Test no update when values match"""
+        mock_client.app_connectors.get_connector.return_value = (MockBox(self.SAMPLE_CONNECTOR), None, None)
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            id="216199618143441990",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_app_connector_controller
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_app_connector_controller.main()
+
+        assert result.value.result["changed"] is False
+
+    def test_list_connectors_error(self, mock_client, mocker):
+        """Test error handling when listing connectors"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_app_connector_controller.collect_all_items",
+            return_value=(None, "List error"),
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            name="Test_Connector",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_app_connector_controller
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_app_connector_controller.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_delete_error(self, mock_client, mocker):
+        """Test error handling when deleting connector"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_app_connector_controller.collect_all_items",
+            return_value=([MockBox(self.SAMPLE_CONNECTOR)], None),
+        )
+        mock_client.app_connectors.delete_connector.return_value = (None, None, "Delete error")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            name="Test_App_Connector",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_app_connector_controller
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_app_connector_controller.main()
+
+        assert "error" in result.value.result["msg"].lower()

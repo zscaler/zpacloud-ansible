@@ -141,3 +141,213 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
             zpa_user_portal_link.main()
 
         assert result.value.result["changed"] is False
+
+    def test_get_link_by_id(self, mock_client, mocker):
+        """Test retrieving link by ID"""
+        mock_client.user_portal_link.get_portal_link.return_value = (
+            MockBox(self.SAMPLE_LINK), None, None
+        )
+        mock_client.user_portal_link.delete_portal_link.return_value = (None, None, None)
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            id="216199618143441990",
+            name="Test_Portal_Link",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_user_portal_link.main()
+
+        assert result.value.result["changed"] is True
+
+    def test_get_link_by_id_error(self, mock_client, mocker):
+        """Test error when retrieving link by ID"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mock_client.user_portal_link.get_portal_link.return_value = (None, None, "Not found")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            id="invalid_id",
+            name="Test_Portal_Link",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_user_portal_link.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_list_links_error(self, mock_client, mocker):
+        """Test error handling when listing links"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_link.collect_all_items",
+            return_value=(None, "List error"),
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="Test_Portal_Link",
+            link="https://example.com",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_user_portal_link.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_update_link(self, mock_client, mocker):
+        """Test updating an existing link"""
+        existing = {**self.SAMPLE_LINK, "description": "Old Description"}
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_link.collect_all_items",
+            return_value=([MockBox(existing)], None),
+        )
+        mock_client.user_portal_link.update_portal_link.return_value = (
+            MockBox({**existing, "description": "New Description"}), None, None
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="Test_Portal_Link",
+            description="New Description",
+            link="https://example.com",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_user_portal_link.main()
+
+        assert result.value.result["changed"] is True
+
+    def test_update_link_error(self, mock_client, mocker):
+        """Test error handling when updating link"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        existing = {**self.SAMPLE_LINK, "description": "Old Description"}
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_link.collect_all_items",
+            return_value=([MockBox(existing)], None),
+        )
+        mock_client.user_portal_link.update_portal_link.return_value = (None, None, "Update failed")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="Test_Portal_Link",
+            description="New Description",
+            link="https://example.com",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_user_portal_link.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_create_link_error(self, mock_client, mocker):
+        """Test error handling when creating link"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_link.collect_all_items",
+            return_value=([], None),
+        )
+        mock_client.user_portal_link.add_portal_link.return_value = (None, None, "Create failed")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="New_Portal_Link",
+            link="https://newlink.com",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_user_portal_link.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_delete_link_error(self, mock_client, mocker):
+        """Test error handling when deleting link"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_link.collect_all_items",
+            return_value=([MockBox(self.SAMPLE_LINK)], None),
+        )
+        mock_client.user_portal_link.delete_portal_link.return_value = (None, None, "Delete failed")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            name="Test_Portal_Link",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_user_portal_link.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_check_mode_present_new(self, mock_client, mocker):
+        """Test check mode with present state - new link"""
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_link.collect_all_items",
+            return_value=([], None),
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="New_Portal_Link",
+            link="https://example.com",
+            _ansible_check_mode=True,
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_user_portal_link.main()
+
+        assert result.value.result["changed"] is True
+
+    def test_user_portal_ids_comparison(self, mock_client, mocker):
+        """Test comparison of user_portal_link_ids"""
+        existing = {
+            **self.SAMPLE_LINK,
+            "user_portals": [{"id": "portal1"}, {"id": "portal2"}]
+        }
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_link.collect_all_items",
+            return_value=([MockBox(existing)], None),
+        )
+        mock_client.user_portal_link.update_portal_link.return_value = (
+            MockBox(existing), None, None
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="Test_Portal_Link",
+            link="https://example.com",
+            user_portal_link_ids=["portal3", "portal4"],
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_user_portal_link.main()
+
+        # Different portal IDs should trigger update
+        assert result.value.result["changed"] is True

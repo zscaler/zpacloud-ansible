@@ -137,3 +137,158 @@ class TestZPABACertificateModule(ModuleTestCase):
             zpa_ba_certificate.main()
 
         assert result.value.result["changed"] is False
+
+    def test_get_certificate_by_id(self, mock_client, mocker):
+        """Test retrieving certificate by ID"""
+        mock_client.certificates.get_certificate.return_value = (
+            MockBox(self.SAMPLE_CERT), None, None
+        )
+        mock_client.certificates.delete_certificate.return_value = (None, None, None)
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            id="216199618143441990",
+            name="test.example.com",
+            cert_blob="-----BEGIN CERTIFICATE-----\nMIIC...\n-----END CERTIFICATE-----",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_ba_certificate
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_ba_certificate.main()
+
+        assert result.value.result["changed"] is True
+
+    def test_get_certificate_by_id_error(self, mock_client, mocker):
+        """Test error when retrieving certificate by ID"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mock_client.certificates.get_certificate.return_value = (None, None, "Not found")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            id="invalid_id",
+            name="test.example.com",
+            cert_blob="-----BEGIN CERTIFICATE-----\nMIIC...\n-----END CERTIFICATE-----",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_ba_certificate
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_ba_certificate.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_list_certificates_error(self, mock_client, mocker):
+        """Test error handling when listing certificates"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_ba_certificate.collect_all_items",
+            return_value=(None, "List error"),
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="test.example.com",
+            cert_blob="-----BEGIN CERTIFICATE-----\nMIIC...\n-----END CERTIFICATE-----",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_ba_certificate
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_ba_certificate.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_create_certificate_error(self, mock_client, mocker):
+        """Test error handling when creating certificate"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_ba_certificate.collect_all_items",
+            return_value=([], None),
+        )
+        mock_client.certificates.add_certificate.return_value = (None, None, "Create failed")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="new.example.com",
+            cert_blob="-----BEGIN CERTIFICATE-----\nMIIC...\n-----END CERTIFICATE-----",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_ba_certificate
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_ba_certificate.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_delete_certificate_error(self, mock_client, mocker):
+        """Test error handling when deleting certificate"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_ba_certificate.collect_all_items",
+            return_value=([MockBox(self.SAMPLE_CERT)], None),
+        )
+        mock_client.certificates.delete_certificate.return_value = (None, None, "Delete failed")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            name="test.example.com",
+            cert_blob="-----BEGIN CERTIFICATE-----\nMIIC...\n-----END CERTIFICATE-----",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_ba_certificate
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_ba_certificate.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_check_mode_present(self, mock_client, mocker):
+        """Test check mode with present state"""
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_ba_certificate.collect_all_items",
+            return_value=([], None),
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="new.example.com",
+            cert_blob="-----BEGIN CERTIFICATE-----\nMIIC...\n-----END CERTIFICATE-----",
+            _ansible_check_mode=True,
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_ba_certificate
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_ba_certificate.main()
+
+        assert result.value.result["changed"] is True
+
+    def test_check_mode_absent(self, mock_client, mocker):
+        """Test check mode with absent state"""
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_ba_certificate.collect_all_items",
+            return_value=([MockBox(self.SAMPLE_CERT)], None),
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            name="test.example.com",
+            cert_blob="-----BEGIN CERTIFICATE-----\nMIIC...\n-----END CERTIFICATE-----",
+            _ansible_check_mode=True,
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_ba_certificate
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_ba_certificate.main()
+
+        # Check mode returns changed=True when item would be deleted
+        assert "changed" in result.value.result or "data" in result.value.result

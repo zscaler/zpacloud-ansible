@@ -90,4 +90,3 @@ class TestZPALSSClientTypesInfoModule(ModuleTestCase):
             zpa_lss_client_types_info.main()
 
         assert "Failed to retrieve LSS client types" in result.value.result["msg"]
-

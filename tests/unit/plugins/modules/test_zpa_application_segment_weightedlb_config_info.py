@@ -69,4 +69,3 @@ class TestZPAAppSegmentWeightedLBConfigInfoModule(ModuleTestCase):
         with pytest.raises(AnsibleFailJson) as result:
             zpa_application_segment_weightedlb_config_info.main()
         assert "not found" in result.value.result["msg"]
-

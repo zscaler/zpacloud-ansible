@@ -122,4 +122,3 @@ class TestZPAConnectorAssistantScheduleInfoModule(ModuleTestCase):
             zpa_connector_assistant_schedule_info.main()
 
         assert "Failed to retrieve App Connector Schedule" in result.value.result["msg"]
-

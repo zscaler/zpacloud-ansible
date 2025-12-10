@@ -12,7 +12,6 @@ from unittest.mock import MagicMock, patch
 from tests.unit.plugins.modules.common.utils import (
     set_module_args,
     AnsibleExitJson,
-    AnsibleFailJson,
     ModuleTestCase,
     DEFAULT_PROVIDER,
 )
@@ -113,4 +112,3 @@ class TestZPAAppConnectorControllerModule(ModuleTestCase):
             zpa_app_connector_controller.main()
 
         assert result.value.result["changed"] is True
-

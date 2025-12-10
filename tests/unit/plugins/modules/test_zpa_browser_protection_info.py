@@ -81,4 +81,3 @@ class TestZPABrowserProtectionInfoModule(ModuleTestCase):
         with pytest.raises(AnsibleFailJson) as result:
             zpa_browser_protection_info.main()
         assert "No browser protection profiles found" in result.value.result["msg"]
-

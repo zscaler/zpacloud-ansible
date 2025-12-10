@@ -67,4 +67,3 @@ class TestZPAUserPortalControllerInfoModule(ModuleTestCase):
         with pytest.raises(AnsibleFailJson) as result:
             zpa_user_portal_controller_info.main()
         assert "not found" in result.value.result["msg"]
-

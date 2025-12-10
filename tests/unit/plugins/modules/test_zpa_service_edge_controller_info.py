@@ -124,4 +124,3 @@ class TestZPAServiceEdgeControllerInfoModule(ModuleTestCase):
             zpa_service_edge_controller_info.main()
 
         assert "Error" in result.value.result["msg"]
-

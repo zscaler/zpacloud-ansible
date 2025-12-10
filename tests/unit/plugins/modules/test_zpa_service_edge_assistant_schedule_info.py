@@ -94,4 +94,3 @@ class TestZPAServiceEdgeAssistantScheduleInfoModule(ModuleTestCase):
             zpa_service_edge_assistant_schedule_info.main()
 
         assert "Failed" in result.value.result["msg"] or "not found" in result.value.result["msg"].lower() or "Error" in result.value.result["msg"]
-

@@ -70,4 +70,3 @@ class TestZPAExtranetResourcePartnerInfoModule(ModuleTestCase):
         with pytest.raises(AnsibleFailJson) as result:
             zpa_extranet_resource_partner_info.main()
         assert "not found" in result.value.result["msg"]
-

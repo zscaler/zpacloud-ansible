@@ -6,15 +6,12 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-import pytest
-
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     deleteNone,
     remove_cloud_suffix,
     collect_all_items,
     normalize_app,
     convert_ports_list,
-    convert_ports,
     convert_bool_to_str,
     convert_str_to_bool,
     validate_latitude,

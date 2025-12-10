@@ -167,4 +167,3 @@ class TestZPAApplicationSegmentInfoModule(ModuleTestCase):
             zpa_application_segment_info.main()
 
         assert "Error retrieving Application Segments" in result.value.result["msg"]
-

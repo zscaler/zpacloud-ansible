@@ -68,4 +68,3 @@ class TestZPAAppProtectionCustomControlInfoModule(ModuleTestCase):
         with pytest.raises(AnsibleFailJson) as result:
             zpa_app_protection_custom_control_info.main()
         assert "not found" in result.value.result["msg"]
-

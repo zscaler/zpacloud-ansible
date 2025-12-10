@@ -70,4 +70,3 @@ class TestZPAWorkloadTagGroupInfoModule(ModuleTestCase):
         with pytest.raises(AnsibleFailJson) as result:
             zpa_workload_tag_group_info.main()
         assert "not found" in result.value.result["msg"]
-

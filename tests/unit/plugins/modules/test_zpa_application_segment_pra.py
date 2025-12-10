@@ -6,7 +6,7 @@ __metaclass__ = type
 import pytest
 from unittest.mock import MagicMock, patch
 from tests.unit.plugins.modules.common.utils import (
-    set_module_args, AnsibleExitJson, AnsibleFailJson, ModuleTestCase, DEFAULT_PROVIDER,
+    set_module_args, AnsibleExitJson, ModuleTestCase, DEFAULT_PROVIDER,
 )
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import ZPAClientHelper
 
@@ -63,4 +63,3 @@ class TestZPAApplicationSegmentPRAModule(ModuleTestCase):
         with pytest.raises(AnsibleExitJson) as result:
             zpa_application_segment_pra.main()
         assert result.value.result["changed"] is False
-

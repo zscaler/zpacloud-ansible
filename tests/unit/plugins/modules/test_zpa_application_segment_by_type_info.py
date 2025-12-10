@@ -72,4 +72,3 @@ class TestZPAAppSegmentByTypeInfoModule(ModuleTestCase):
         with pytest.raises(AnsibleFailJson) as result:
             zpa_application_segment_by_type_info.main()
         assert "not found" in result.value.result["msg"]
-

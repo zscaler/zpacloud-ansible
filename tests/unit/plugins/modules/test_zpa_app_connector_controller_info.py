@@ -159,4 +159,3 @@ class TestZPAAppConnectorControllerInfoModule(ModuleTestCase):
             zpa_app_connector_controller_info.main()
 
         assert "Error" in result.value.result["msg"]
-

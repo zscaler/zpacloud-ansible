@@ -155,4 +155,3 @@ class TestZPAC2CIPRangesInfoModule(ModuleTestCase):
             zpa_c2c_ip_ranges_info.main()
 
         assert "Failed to retrieve" in result.value.result["msg"]
-

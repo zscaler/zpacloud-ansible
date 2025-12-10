@@ -47,4 +47,3 @@ class TestZPALSSConfigLogTypesFormatsInfoModule(ModuleTestCase):
         with pytest.raises(AnsibleFailJson) as result:
             zpa_lss_config_log_types_formats_info.main()
         assert "Failed to retrieve" in result.value.result["msg"]
-

@@ -95,4 +95,3 @@ class TestZPARiskScoreValuesInfoModule(ModuleTestCase):
 
         assert result.value.result["changed"] is False
         assert result.value.result["values"] == []
-

@@ -122,4 +122,3 @@ class TestZPAUserPortalAUPInfoModule(ModuleTestCase):
             zpa_user_portal_aup_info.main()
 
         assert "Error" in result.value.result["msg"]
-

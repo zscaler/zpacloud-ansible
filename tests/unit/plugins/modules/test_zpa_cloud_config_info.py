@@ -97,4 +97,3 @@ class TestZPACloudConfigInfoModule(ModuleTestCase):
             zpa_cloud_config_info.main()
 
         assert "No ZIA cloud config found" in result.value.result["msg"]
-

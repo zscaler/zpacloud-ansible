@@ -67,4 +67,3 @@ class TestZPAAppProtectionSecurityProfileInfoModule(ModuleTestCase):
         with pytest.raises(AnsibleFailJson) as result:
             zpa_app_protection_security_profile_info.main()
         assert "not found" in result.value.result["msg"]
-

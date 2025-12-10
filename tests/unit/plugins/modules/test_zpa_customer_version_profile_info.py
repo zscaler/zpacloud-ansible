@@ -150,4 +150,3 @@ class TestZPACustomerVersionProfileInfoModule(ModuleTestCase):
             zpa_customer_version_profile_info.main()
 
         assert "Error retrieving version profiles" in result.value.result["msg"]
-

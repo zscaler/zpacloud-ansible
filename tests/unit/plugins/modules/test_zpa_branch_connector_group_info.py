@@ -70,4 +70,3 @@ class TestZPABranchConnectorGroupInfoModule(ModuleTestCase):
         with pytest.raises(AnsibleFailJson) as result:
             zpa_branch_connector_group_info.main()
         assert "Couldn't find" in result.value.result["msg"]
-

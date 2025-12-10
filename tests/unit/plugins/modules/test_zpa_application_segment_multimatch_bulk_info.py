@@ -62,4 +62,3 @@ class TestZPAAppSegmentMultimatchBulkInfoModule(ModuleTestCase):
         with pytest.raises(AnsibleFailJson) as result:
             zpa_application_segment_multimatch_bulk_info.main()
         assert "Failed to retrieve" in result.value.result["msg"]
-

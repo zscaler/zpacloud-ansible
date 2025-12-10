@@ -65,4 +65,3 @@ class TestZPALSSConfigControllerInfoModule(ModuleTestCase):
         with pytest.raises(AnsibleFailJson) as result:
             zpa_lss_config_controller_info.main()
         assert "Failed to retrieve" in result.value.result["msg"]
-

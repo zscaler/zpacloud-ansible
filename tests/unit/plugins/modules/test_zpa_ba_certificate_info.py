@@ -165,4 +165,3 @@ class TestZPABACertificateInfoModule(ModuleTestCase):
             zpa_ba_certificate_info.main()
 
         assert "Error retrieving BA Certificate" in result.value.result["msg"]
-

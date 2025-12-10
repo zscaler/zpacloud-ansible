@@ -72,6 +72,8 @@ jobs:
             -v \
             --tb=short \
             --cov=plugins \
+            --cov-report=xml:coverage.xml \
+            --cov-report=html:tests/output/coverage \
             --junitxml=junit.xml \
             -o junit_family=legacy
 

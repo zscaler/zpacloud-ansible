@@ -122,3 +122,55 @@ class TestZPAUserPortalAUPInfoModule(ModuleTestCase):
             zpa_user_portal_aup_info.main()
 
         assert "Error" in result.value.result["msg"]
+
+    def test_get_aup_by_name(self, mock_client, mocker):
+        """Test retrieving AUP by name"""
+        mock_aups = [MockBox(self.SAMPLE_AUP), MockBox(self.SAMPLE_AUP_2)]
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_aup_info.collect_all_items",
+            return_value=(mock_aups, None),
+        )
+
+        set_module_args(provider=DEFAULT_PROVIDER, name="Test_AUP")
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_aup_info
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_user_portal_aup_info.main()
+
+        assert result.value.result["changed"] is False
+        assert len(result.value.result["aups"]) == 1
+
+    def test_aup_not_found_by_name(self, mock_client, mocker):
+        """Test error when AUP not found by name"""
+        mock_aups = [MockBox(self.SAMPLE_AUP)]
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_aup_info.collect_all_items",
+            return_value=(mock_aups, None),
+        )
+
+        set_module_args(provider=DEFAULT_PROVIDER, name="NonExistent_AUP")
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_aup_info
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_user_portal_aup_info.main()
+
+        assert "not found" in result.value.result["msg"].lower()
+
+    def test_with_microtenant_id(self, mock_client, mocker):
+        """Test with microtenant_id parameter"""
+        mock_aups = [MockBox(self.SAMPLE_AUP)]
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_aup_info.collect_all_items",
+            return_value=(mock_aups, None),
+        )
+
+        set_module_args(provider=DEFAULT_PROVIDER, microtenant_id="123456")
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_aup_info
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_user_portal_aup_info.main()
+
+        assert result.value.result["changed"] is False

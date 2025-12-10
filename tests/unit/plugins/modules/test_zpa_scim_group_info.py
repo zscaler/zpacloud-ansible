@@ -202,3 +202,66 @@ class TestZPASCIMGroupInfoModule(ModuleTestCase):
             zpa_scim_group_info.main()
 
         assert "not found" in result.value.result["msg"]
+
+    def test_api_error_on_list_idps(self, mock_client):
+        """Test error handling when listing IdPs"""
+        mock_client.idp.list_idps.return_value = (None, None, "API Error")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            idp_name="Okta_Users",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_scim_group_info,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_scim_group_info.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_api_error_on_get_scim_group(self, mock_client):
+        """Test error handling when getting SCIM group by ID"""
+        mock_idp = MockBox(self.SAMPLE_IDP)
+        mock_client.idp.list_idps.return_value = ([mock_idp], None, None)
+        mock_client.scim_groups.get_scim_group.return_value = (None, None, "Not found")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            id="999999",
+            idp_name="Okta_Users",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_scim_group_info,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_scim_group_info.main()
+
+        assert "not found" in result.value.result["msg"].lower()
+
+    def test_api_error_on_list_scim_groups(self, mock_client, mocker):
+        """Test error handling when listing SCIM groups"""
+        mock_idp = MockBox(self.SAMPLE_IDP)
+        mock_client.idp.list_idps.return_value = ([mock_idp], None, None)
+
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_scim_group_info.collect_all_items",
+            return_value=(None, "API Error"),
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            idp_name="Okta_Users",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_scim_group_info,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_scim_group_info.main()
+
+        assert "error" in result.value.result["msg"].lower()

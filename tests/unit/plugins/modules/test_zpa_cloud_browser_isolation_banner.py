@@ -198,3 +198,135 @@ class TestZPACBIBannerModule(ModuleTestCase):
 
         mock_client.cbi_banner.add_cbi_banner.assert_not_called()
         assert result.value.result["changed"] is True
+
+    def test_get_banner_by_id(self, mock_client):
+        """Test retrieving banner by ID"""
+        mock_client.cbi_banner.get_cbi_banner.return_value = (
+            MockBox(self.SAMPLE_BANNER), None, None
+        )
+        mock_client.cbi_banner.delete_cbi_banner.return_value = (None, None, None)
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            id="70132442-25f8-44eb-a5bb-caeaac67c201",
+            name="Example CBI Banner",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_cloud_browser_isolation_banner,
+        )
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_cloud_browser_isolation_banner.main()
+
+        assert result.value.result["changed"] is True
+
+    def test_get_banner_by_id_error(self, mock_client):
+        """Test error when retrieving banner by ID"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mock_client.cbi_banner.get_cbi_banner.return_value = (None, None, "Not found")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            id="invalid_id",
+            name="Test_Banner",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_cloud_browser_isolation_banner,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_cloud_browser_isolation_banner.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_list_banners_error(self, mock_client):
+        """Test error handling when listing banners"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mock_client.cbi_banner.list_cbi_banners.return_value = (None, None, "List error")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="Test_Banner",
+            banner=True,
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_cloud_browser_isolation_banner,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_cloud_browser_isolation_banner.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_create_banner_error(self, mock_client):
+        """Test error handling when creating banner"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mock_client.cbi_banner.list_cbi_banners.return_value = ([], None, None)
+        mock_client.cbi_banner.add_cbi_banner.return_value = (None, None, "Create failed")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="New_Banner",
+            banner=True,
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_cloud_browser_isolation_banner,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_cloud_browser_isolation_banner.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_update_banner_error(self, mock_client):
+        """Test error handling when updating banner"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        existing = {**self.SAMPLE_BANNER, "notification_title": "Old"}
+        mock_client.cbi_banner.list_cbi_banners.return_value = ([MockBox(existing)], None, None)
+        mock_client.cbi_banner.update_cbi_banner.return_value = (None, None, "Update failed")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="Example CBI Banner",
+            notification_title="New Title",
+            banner=True,
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_cloud_browser_isolation_banner,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_cloud_browser_isolation_banner.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_delete_banner_error(self, mock_client):
+        """Test error handling when deleting banner"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mock_client.cbi_banner.list_cbi_banners.return_value = ([MockBox(self.SAMPLE_BANNER)], None, None)
+        mock_client.cbi_banner.delete_cbi_banner.return_value = (None, None, "Delete failed")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            name="Example CBI Banner",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_cloud_browser_isolation_banner,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_cloud_browser_isolation_banner.main()
+
+        assert "error" in result.value.result["msg"].lower()

@@ -181,3 +181,137 @@ class TestZPACBICertificateModule(ModuleTestCase):
 
         mock_client.cbi_certificate.add_cbi_certificate.assert_not_called()
         assert result.value.result["changed"] is True
+
+    def test_get_certificate_by_id(self, mock_client):
+        """Test retrieving certificate by ID"""
+        mock_client.cbi_certificate.get_cbi_certificate.return_value = (
+            MockBox(self.SAMPLE_CERT), None, None
+        )
+        mock_client.cbi_certificate.delete_cbi_certificate.return_value = (None, None, None)
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            id="dfad8a65-1b24-4a97-83e9-a4f1d80139e1",
+            name="cbi_profile01.acme.com",
+            pem="-----BEGIN CERTIFICATE-----\nMIID...\n-----END CERTIFICATE-----",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_cloud_browser_isolation_certificate,
+        )
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_cloud_browser_isolation_certificate.main()
+
+        assert result.value.result["changed"] is True
+
+    def test_get_certificate_by_id_error(self, mock_client):
+        """Test error when retrieving certificate by ID"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mock_client.cbi_certificate.get_cbi_certificate.return_value = (None, None, "Not found")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            id="invalid_id",
+            name="Test_Cert",
+            pem="-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_cloud_browser_isolation_certificate,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_cloud_browser_isolation_certificate.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_list_certificates_error(self, mock_client):
+        """Test error handling when listing certificates"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mock_client.cbi_certificate.list_cbi_certificates.return_value = (None, None, "List error")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="Test_Cert",
+            pem="-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_cloud_browser_isolation_certificate,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_cloud_browser_isolation_certificate.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_create_certificate_error(self, mock_client):
+        """Test error handling when creating certificate"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mock_client.cbi_certificate.list_cbi_certificates.return_value = ([], None, None)
+        mock_client.cbi_certificate.add_cbi_certificate.return_value = (None, None, "Create failed")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="New_Cert",
+            pem="-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_cloud_browser_isolation_certificate,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_cloud_browser_isolation_certificate.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_update_certificate_error(self, mock_client):
+        """Test error handling when updating certificate"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        existing = {**self.SAMPLE_CERT, "pem": "OLD_PEM"}
+        mock_client.cbi_certificate.list_cbi_certificates.return_value = ([MockBox(existing)], None, None)
+        mock_client.cbi_certificate.update_cbi_certificate.return_value = (None, None, "Update failed")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="cbi_profile01.acme.com",
+            pem="-----BEGIN CERTIFICATE-----\nNEW...\n-----END CERTIFICATE-----",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_cloud_browser_isolation_certificate,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_cloud_browser_isolation_certificate.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_delete_certificate_error(self, mock_client):
+        """Test error handling when deleting certificate"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mock_client.cbi_certificate.list_cbi_certificates.return_value = ([MockBox(self.SAMPLE_CERT)], None, None)
+        mock_client.cbi_certificate.delete_cbi_certificate.return_value = (None, None, "Delete failed")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            name="cbi_profile01.acme.com",
+            pem="-----BEGIN CERTIFICATE-----\nMIID...\n-----END CERTIFICATE-----",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_cloud_browser_isolation_certificate,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_cloud_browser_isolation_certificate.main()
+
+        assert "error" in result.value.result["msg"].lower()

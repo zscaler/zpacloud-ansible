@@ -217,3 +217,59 @@ class TestZPASAMLAttributeInfoModule(ModuleTestCase):
             zpa_saml_attribute_info.main()
 
         assert "not found" in result.value.result["msg"]
+
+    def test_api_error_on_list_attributes(self, mock_client, mocker):
+        """Test error handling when listing SAML attributes"""
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_saml_attribute_info.collect_all_items",
+            return_value=(None, "API Error"),
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_saml_attribute_info,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_saml_attribute_info.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_idp_not_found(self, mock_client):
+        """Test when IdP is not found"""
+        mock_client.idp.list_idps.return_value = ([], None, None)
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            idp_name="NonExistent_IdP",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_saml_attribute_info,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_saml_attribute_info.main()
+
+        assert "not found" in result.value.result["msg"].lower()
+
+    def test_api_error_on_list_idps(self, mock_client):
+        """Test error handling when listing IdPs"""
+        mock_client.idp.list_idps.return_value = (None, None, "API Error")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            idp_name="Okta_Users",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_saml_attribute_info,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_saml_attribute_info.main()
+
+        assert "error" in result.value.result["msg"].lower()

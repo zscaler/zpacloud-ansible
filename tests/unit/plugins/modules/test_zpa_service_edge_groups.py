@@ -478,3 +478,123 @@ class TestZPAServiceEdgeGroupsModule(ModuleTestCase):
             zpa_service_edge_groups.main()
 
         assert "Error deleting group" in result.value.result["msg"]
+
+    def test_get_group_by_id(self, mock_client, mocker):
+        """Test retrieving service edge group by ID"""
+        mock_client.service_edge_group.get_service_edge_group.return_value = (
+            MockBox(self.SAMPLE_GROUP), None, None
+        )
+        mock_client.service_edge_group.delete_service_edge_group.return_value = (None, None, None)
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            id="216199618143441985",
+            name="Test_Service_Edge_Group",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_service_edge_groups,
+        )
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_service_edge_groups.main()
+
+        assert result.value.result["changed"] is True
+
+    def test_get_group_by_id_error(self, mock_client, mocker):
+        """Test error when retrieving service edge group by ID"""
+        mock_client.service_edge_group.get_service_edge_group.return_value = (None, None, "Not found")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            id="invalid_id",
+            name="Test_Group",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_service_edge_groups,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_service_edge_groups.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_invalid_country_code_list(self, mock_client, mocker):
+        """Test invalid country code in list"""
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_service_edge_groups.collect_all_items",
+            return_value=([], None),
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="Test_Group",
+            country_code=["US", "INVALID"],
+            latitude="37.33874",
+            longitude="-121.8852525",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_service_edge_groups,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_service_edge_groups.main()
+
+        assert "invalid country code" in result.value.result["msg"].lower()
+
+    def test_list_groups_error(self, mock_client, mocker):
+        """Test error handling when listing service edge groups"""
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_service_edge_groups.collect_all_items",
+            return_value=(None, "List error"),
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="Test_Group",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_service_edge_groups,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_service_edge_groups.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_valid_country_code(self, mock_client, mocker):
+        """Test valid country code validation"""
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_service_edge_groups.collect_all_items",
+            return_value=([], None),
+        )
+
+        created_group = {**self.SAMPLE_GROUP, "country_code": "CA"}
+        mock_client.service_edge_group.add_service_edge_group.return_value = (
+            MockBox(created_group), None, None
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="Test_Group",
+            country_code="CA",
+            latitude="37.33874",
+            longitude="-121.8852525",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_service_edge_groups,
+        )
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_service_edge_groups.main()
+
+        assert result.value.result["changed"] is True

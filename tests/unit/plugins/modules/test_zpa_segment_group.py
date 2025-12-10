@@ -361,6 +361,80 @@ class TestZpaSegmentGroup(ModuleTestCase):
         # Should indicate no change needed
         assert result.value.result["changed"] is False
 
+    def test_get_group_by_id(self, mock_client):
+        """Test retrieving segment group by ID"""
+        mock_data = create_mock_segment_group(
+            id="12345",
+            name="Test_Segment_Group",
+            description="Test Description",
+            enabled=True,
+        )
+
+        mock_client.segment_groups.get_group.return_value = (
+            MockBox(mock_data),
+            None,
+            None,
+        )
+        mock_client.segment_groups.delete_group.return_value = (None, None, None)
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            id="12345",
+            name="Test_Segment_Group",
+        )
+
+        with pytest.raises(AnsibleExitJson) as result:
+            from ansible_collections.zscaler.zpacloud.plugins.modules import (
+                zpa_segment_group,
+            )
+
+            zpa_segment_group.main()
+
+        assert result.value.result["changed"] is True
+
+    def test_get_group_by_id_error(self, mock_client):
+        """Test error when retrieving segment group by ID"""
+        mock_client.segment_groups.get_group.return_value = (None, None, "Not found")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            id="invalid_id",
+            name="Test_Group",
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            from ansible_collections.zscaler.zpacloud.plugins.modules import (
+                zpa_segment_group,
+            )
+
+            zpa_segment_group.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_list_groups_error(self, mock_client, mocker):
+        """Test error handling when listing segment groups"""
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_segment_group.collect_all_items",
+            return_value=(None, "List error"),
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="Test_Group",
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            from ansible_collections.zscaler.zpacloud.plugins.modules import (
+                zpa_segment_group,
+            )
+
+            zpa_segment_group.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
 
 # ==================== PARAMETRIZED TESTS ====================
 

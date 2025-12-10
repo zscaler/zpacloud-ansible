@@ -124,3 +124,55 @@ class TestZPAServiceEdgeControllerInfoModule(ModuleTestCase):
             zpa_service_edge_controller_info.main()
 
         assert "Error" in result.value.result["msg"]
+
+    def test_get_service_edge_by_name(self, mock_client, mocker):
+        """Test retrieving service edge by name"""
+        mock_edges = [MockBox(self.SAMPLE_SERVICE_EDGE), MockBox(self.SAMPLE_SERVICE_EDGE_2)]
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_service_edge_controller_info.collect_all_items",
+            return_value=(mock_edges, None),
+        )
+
+        set_module_args(provider=DEFAULT_PROVIDER, name="Test_Service_Edge")
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_service_edge_controller_info
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_service_edge_controller_info.main()
+
+        assert result.value.result["changed"] is False
+        assert len(result.value.result["groups"]) == 1
+
+    def test_service_edge_not_found_by_name(self, mock_client, mocker):
+        """Test error when service edge not found by name"""
+        mock_edges = [MockBox(self.SAMPLE_SERVICE_EDGE)]
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_service_edge_controller_info.collect_all_items",
+            return_value=(mock_edges, None),
+        )
+
+        set_module_args(provider=DEFAULT_PROVIDER, name="NonExistent_Edge")
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_service_edge_controller_info
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_service_edge_controller_info.main()
+
+        assert "not found" in result.value.result["msg"].lower()
+
+    def test_with_microtenant_id(self, mock_client, mocker):
+        """Test with microtenant_id parameter"""
+        mock_edges = [MockBox(self.SAMPLE_SERVICE_EDGE)]
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_service_edge_controller_info.collect_all_items",
+            return_value=(mock_edges, None),
+        )
+
+        set_module_args(provider=DEFAULT_PROVIDER, microtenant_id="123456")
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_service_edge_controller_info
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_service_edge_controller_info.main()
+
+        assert result.value.result["changed"] is False

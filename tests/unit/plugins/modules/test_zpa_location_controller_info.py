@@ -174,3 +174,54 @@ class TestZPALocationControllerInfoModule(ModuleTestCase):
 
         with pytest.raises(SystemExit):
             zpa_location_controller_info.main()
+
+    def test_api_error_on_list(self, mock_client, mocker):
+        """Test error when listing extranet resources."""
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_location_controller_info.collect_all_items",
+            return_value=(None, "API Error"),
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            name="San Jose Location",
+            zia_er_name="Partner_ER",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_location_controller_info,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_location_controller_info.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_api_error_on_get_locations(self, mock_client, mocker):
+        """Test error when fetching locations."""
+        mock_ers = [MockBox(self.SAMPLE_EXTRANET_RESOURCE)]
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_location_controller_info.collect_all_items",
+            return_value=(mock_ers, None),
+        )
+
+        mock_client.location_controller.get_location_extranet_resource.return_value = (
+            None,
+            None,
+            "API Error",
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            name="San Jose Location",
+            zia_er_name="Partner_ER",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_location_controller_info,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_location_controller_info.main()
+
+        assert "error" in result.value.result["msg"].lower()

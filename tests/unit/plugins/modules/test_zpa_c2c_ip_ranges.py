@@ -153,3 +153,146 @@ class TestZPAC2CIPRangesModule(ModuleTestCase):
             zpa_c2c_ip_ranges.main()
 
         assert result.value.result["changed"] is False
+
+    def test_get_range_by_id(self, mock_client):
+        """Test retrieving IP range by ID"""
+        mock_client.c2c_ip_ranges.get_ip_range.return_value = (
+            MockBox(self.SAMPLE_IP_RANGE), None, None
+        )
+        mock_client.c2c_ip_ranges.delete_ip_range.return_value = (None, None, None)
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            id="216199618143441990",
+            name="Test_C2C_IP_Range",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_c2c_ip_ranges
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_c2c_ip_ranges.main()
+
+        assert result.value.result["changed"] is True
+
+    def test_get_range_by_id_error(self, mock_client):
+        """Test error when retrieving IP range by ID"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mock_client.c2c_ip_ranges.get_ip_range.return_value = (None, None, "Not found")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            id="invalid_id",
+            name="Test_IP_Range",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_c2c_ip_ranges
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_c2c_ip_ranges.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_list_ranges_error(self, mock_client):
+        """Test error handling when listing IP ranges"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mock_client.c2c_ip_ranges.list_ip_ranges.return_value = (None, None, "List error")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="Test_IP_Range",
+            ip_range_begin="10.0.0.1",
+            ip_range_end="10.0.0.254",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_c2c_ip_ranges
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_c2c_ip_ranges.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_create_range_error(self, mock_client):
+        """Test error handling when creating IP range"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mock_client.c2c_ip_ranges.list_ip_ranges.return_value = ([], None, None)
+        mock_client.c2c_ip_ranges.add_ip_range.return_value = (None, None, "Create failed")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="New_IP_Range",
+            ip_range_begin="10.0.0.1",
+            ip_range_end="10.0.0.254",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_c2c_ip_ranges
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_c2c_ip_ranges.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_update_range_error(self, mock_client):
+        """Test error handling when updating IP range"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        existing = {**self.SAMPLE_IP_RANGE, "description": "Old"}
+        mock_client.c2c_ip_ranges.list_ip_ranges.return_value = ([MockBox(existing)], None, None)
+        mock_client.c2c_ip_ranges.update_ip_range.return_value = (None, None, "Update failed")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="Test_C2C_IP_Range",
+            description="New description",
+            ip_range_begin="10.0.0.1",
+            ip_range_end="10.0.0.254",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_c2c_ip_ranges
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_c2c_ip_ranges.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_delete_range_error(self, mock_client):
+        """Test error handling when deleting IP range"""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mock_client.c2c_ip_ranges.list_ip_ranges.return_value = ([MockBox(self.SAMPLE_IP_RANGE)], None, None)
+        mock_client.c2c_ip_ranges.delete_ip_range.return_value = (None, None, "Delete failed")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            name="Test_C2C_IP_Range",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_c2c_ip_ranges
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_c2c_ip_ranges.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_check_mode(self, mock_client):
+        """Test check mode"""
+        mock_client.c2c_ip_ranges.list_ip_ranges.return_value = ([], None, None)
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="New_IP_Range",
+            ip_range_begin="10.0.0.1",
+            ip_range_end="10.0.0.254",
+            _ansible_check_mode=True,
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_c2c_ip_ranges
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_c2c_ip_ranges.main()
+
+        assert result.value.result["changed"] is True

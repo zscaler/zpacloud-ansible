@@ -266,3 +266,176 @@ class TestZPAProvisioningKeyModule(ModuleTestCase):
             zpa_provisioning_key.main()
 
         assert "not found" in result.value.result["msg"]
+
+    def test_get_key_by_id(self, mock_client, mocker):
+        """Test retrieving provisioning key by ID"""
+        mock_cert = MockBox(self.SAMPLE_ENROLLMENT_CERT)
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_provisioning_key.collect_all_items",
+            return_value=([mock_cert], None),
+        )
+        mock_client.provisioning.get_provisioning_key.return_value = (
+            MockBox(self.SAMPLE_KEY), None, None
+        )
+        mock_client.provisioning.delete_provisioning_key.return_value = (None, None, None)
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            id="38108",
+            name="Provisioning_Key01",
+            key_type="connector",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_provisioning_key,
+        )
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_provisioning_key.main()
+
+        assert result.value.result["changed"] is True
+
+    def test_get_key_by_id_error(self, mock_client, mocker):
+        """Test error when retrieving provisioning key by ID"""
+        mock_cert = MockBox(self.SAMPLE_ENROLLMENT_CERT)
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_provisioning_key.collect_all_items",
+            return_value=([mock_cert], None),
+        )
+        mock_client.provisioning.get_provisioning_key.return_value = (None, None, "Not found")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            id="invalid_id",
+            name="Test_Key",
+            key_type="connector",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_provisioning_key,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_provisioning_key.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_create_key_error(self, mock_client, mocker):
+        """Test error handling when creating provisioning key"""
+        mock_cert = MockBox(self.SAMPLE_ENROLLMENT_CERT)
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_provisioning_key.collect_all_items",
+            side_effect=[
+                ([mock_cert], None),
+                ([], None),
+            ],
+        )
+        mock_client.provisioning.add_provisioning_key.return_value = (None, None, "Create failed")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="New_Key",
+            max_usage="10",
+            component_id="216199618143441990",
+            key_type="connector",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_provisioning_key,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_provisioning_key.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_update_key_error(self, mock_client, mocker):
+        """Test error handling when updating provisioning key"""
+        mock_cert = MockBox(self.SAMPLE_ENROLLMENT_CERT)
+        existing_key = {**self.SAMPLE_KEY, "max_usage": 5}
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_provisioning_key.collect_all_items",
+            side_effect=[
+                ([mock_cert], None),
+                ([MockBox(existing_key)], None),
+            ],
+        )
+        mock_client.provisioning.update_provisioning_key.return_value = (None, None, "Update failed")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="Provisioning_Key01",
+            max_usage="10",
+            component_id="216199618143441990",
+            key_type="connector",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_provisioning_key,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_provisioning_key.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_delete_key_error(self, mock_client, mocker):
+        """Test error handling when deleting provisioning key"""
+        mock_cert = MockBox(self.SAMPLE_ENROLLMENT_CERT)
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_provisioning_key.collect_all_items",
+            side_effect=[
+                ([mock_cert], None),
+                ([MockBox(self.SAMPLE_KEY)], None),
+            ],
+        )
+        mock_client.provisioning.delete_provisioning_key.return_value = (None, None, "Delete failed")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="absent",
+            name="Provisioning_Key01",
+            key_type="connector",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_provisioning_key,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_provisioning_key.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_list_keys_error(self, mock_client, mocker):
+        """Test error handling when listing provisioning keys"""
+        mock_cert = MockBox(self.SAMPLE_ENROLLMENT_CERT)
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_provisioning_key.collect_all_items",
+            side_effect=[
+                ([mock_cert], None),
+                (None, "List error"),
+            ],
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="Test_Key",
+            max_usage="10",
+            component_id="216199618143441990",
+            key_type="connector",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_provisioning_key,
+        )
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_provisioning_key.main()
+
+        assert "error" in result.value.result["msg"].lower()

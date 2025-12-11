@@ -9,7 +9,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>zscaler.zpacloud.zpa_policy_access_forwarding_rule module – Create a Policy Forwarding Rule. &mdash; Ansible Collections Documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=c5b67dd2" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
       <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
 
@@ -17,7 +17,7 @@
     <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=9a3ee07e"></script>
+      <script src="../_static/documentation_options.js?v=20623aea"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -95,28 +95,43 @@
 <li class="toctree-l2"><a class="reference internal" href="zpa_application_segment_info_module.html">zscaler.zpacloud.zpa_application_segment_info module – Retrieve an application segment information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_application_segment_inspection_module.html">zscaler.zpacloud.zpa_application_segment_inspection module – Create an AppProtection application segment in the ZPA Cloud.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_application_segment_module.html">zscaler.zpacloud.zpa_application_segment module – Create an application segment in the ZPA Cloud.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_application_segment_multimatch_bulk_info_module.html">zscaler.zpacloud.zpa_application_segment_multimatch_bulk_info module – Retrieves unsupported multimatch references for domain names.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_application_segment_multimatch_bulk_module.html">zscaler.zpacloud.zpa_application_segment_multimatch_bulk module – Bulk update multimatch settings for Application Segments.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_application_segment_pra_module.html">zscaler.zpacloud.zpa_application_segment_pra module – Create an PRA application segment in the ZPA Cloud.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_application_segment_weightedlb_config_info_module.html">zscaler.zpacloud.zpa_application_segment_weightedlb_config_info module – Retrieves Weighted Load Balancing Config for an Application Segment.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_application_segment_weightedlb_config_module.html">zscaler.zpacloud.zpa_application_segment_weightedlb_config module – Manage Weighted Load Balancing Config for an Application Segment.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_application_server_info_module.html">zscaler.zpacloud.zpa_application_server_info module – Retrieve an application server information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_application_server_module.html">zscaler.zpacloud.zpa_application_server module – Create an application server in the ZPA Cloud.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_ba_certificate_info_module.html">zscaler.zpacloud.zpa_ba_certificate_info module – Retrieves browser access certificate information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_ba_certificate_module.html">zscaler.zpacloud.zpa_ba_certificate module – Create certificate in the ZPA Cloud.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_branch_connector_group_info_module.html">zscaler.zpacloud.zpa_branch_connector_group_info module – Retrieves Branch Connector Group information.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_browser_protection_info_module.html">zscaler.zpacloud.zpa_browser_protection_info module – Retrieves Browser Protection Profile information.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_c2c_ip_ranges_info_module.html">zscaler.zpacloud.zpa_c2c_ip_ranges_info module – Retrieves information about C2C IP Ranges.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_c2c_ip_ranges_module.html">zscaler.zpacloud.zpa_c2c_ip_ranges module – Create a C2C IP Range</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_cloud_browser_isolation_banner_info_module.html">zscaler.zpacloud.zpa_cloud_browser_isolation_banner_info module – Retrieve CBI Banners.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_cloud_browser_isolation_banner_module.html">zscaler.zpacloud.zpa_cloud_browser_isolation_banner module – Create a Cloud Browser Isolation Banner</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_cloud_browser_isolation_certificate_info_module.html">zscaler.zpacloud.zpa_cloud_browser_isolation_certificate_info module – Retrieve CBI Certificates.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_cloud_browser_isolation_certificate_module.html">zscaler.zpacloud.zpa_cloud_browser_isolation_certificate module – Create a CBI Certificate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_cloud_browser_isolation_profile_info_module.html">zscaler.zpacloud.zpa_cloud_browser_isolation_profile_info module – Retrieve CBI Profile.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_cloud_config_info_module.html">zscaler.zpacloud.zpa_cloud_config_info module – Retrieves ZIA Cloud Config information.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_cloud_config_module.html">zscaler.zpacloud.zpa_cloud_config module – Manages ZIA Cloud Config in ZPA.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_cloud_connector_group_info_module.html">zscaler.zpacloud.zpa_cloud_connector_group_info module – Retrieves cloud connector group information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_connector_assistant_schedule_info_module.html">zscaler.zpacloud.zpa_connector_assistant_schedule_info module – Gets the Auto Delete frequency of the App Connector.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_connector_assistant_schedule_module.html">zscaler.zpacloud.zpa_connector_assistant_schedule module – Configures Auto Delete for the specified disconnected App Connector</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_customer_version_profile_info_module.html">zscaler.zpacloud.zpa_customer_version_profile_info module – Retrieves visible version profiles.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_enrollement_certificate_info_module.html">zscaler.zpacloud.zpa_enrollement_certificate_info module – Retrieves enrollment certificate information.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_extranet_resource_partner_info_module.html">zscaler.zpacloud.zpa_extranet_resource_partner_info module – Retrieves information about an Extranet Resource Partner.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_idp_controller_info_module.html">zscaler.zpacloud.zpa_idp_controller_info module – Retrieves Identity Provider information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_isolation_profile_info_module.html">zscaler.zpacloud.zpa_isolation_profile_info module – Retrieves Isolation Profile information.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_location_controller_info_module.html">zscaler.zpacloud.zpa_location_controller_info module – Retrieves information about a Location Controller.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_location_controller_summary_info_module.html">zscaler.zpacloud.zpa_location_controller_summary_info module – Retrieves Location Controller summary information.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_location_group_controller_info_module.html">zscaler.zpacloud.zpa_location_group_controller_info module – Retrieves information about a Location Group Controller.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_lss_client_types_info_module.html">zscaler.zpacloud.zpa_lss_client_types_info module – Retrieves Log Streaming Service (LSS) Client Types information from ZPA Cloud.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_lss_config_controller_info_module.html">zscaler.zpacloud.zpa_lss_config_controller_info module – Retrieves LSS Config controller information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_lss_config_controller_module.html">zscaler.zpacloud.zpa_lss_config_controller module – Create a LSS CONFIG.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_lss_config_log_types_formats_info_module.html">zscaler.zpacloud.zpa_lss_config_log_types_formats_info module – Retrieves LSS Log formats Information.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_machine_group_info_module.html">zscaler.zpacloud.zpa_machine_group_info module – Retrieves machine group information.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_managed_browser_profile_info_module.html">zscaler.zpacloud.zpa_managed_browser_profile_info module – Retrieves information about a Managed Browser Profile.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_app_protection_rule_module.html">zscaler.zpacloud.zpa_policy_access_app_protection_rule module – Manage ZPA Access App Protection Policy Rules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_policy_access_app_protection_rule_v2_module.html">zscaler.zpacloud.zpa_policy_access_app_protection_rule_v2 module – Manage ZPA Access App Protection Rules (v2)</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">zscaler.zpacloud.zpa_policy_access_forwarding_rule module – Create a Policy Forwarding Rule.</a><ul>
@@ -153,8 +168,11 @@
 <li class="toctree-l2"><a class="reference internal" href="zpa_pra_credential_pool_module.html">zscaler.zpacloud.zpa_pra_credential_pool module – Create a PRA Credential Pool.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_pra_portal_controller_info_module.html">zscaler.zpacloud.zpa_pra_portal_controller_info module – Retrieves information about a PRA Portal.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_pra_portal_controller_module.html">zscaler.zpacloud.zpa_pra_portal_controller module – Create a PRA Portal Controller.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_private_cloud_group_info_module.html">zscaler.zpacloud.zpa_private_cloud_group_info module – Retrieves information about a Private Cloud Group.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_private_cloud_group_module.html">zscaler.zpacloud.zpa_private_cloud_group module – Create a Private Cloud Group</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_provisioning_key_info_module.html">zscaler.zpacloud.zpa_provisioning_key_info module – Retrieves details about a Provisioning Key.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_provisioning_key_module.html">zscaler.zpacloud.zpa_provisioning_key module – Create a Provisioning Key.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_risk_score_values_info_module.html">zscaler.zpacloud.zpa_risk_score_values_info module – Retrieves Risk Score Values.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_saml_attribute_info_module.html">zscaler.zpacloud.zpa_saml_attribute_info module – Retrieves saml attributes from a given IDP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_scim_attribute_header_info_module.html">zscaler.zpacloud.zpa_scim_attribute_header_info module – Retrieves scim attribute header from a given IDP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_scim_group_info_module.html">zscaler.zpacloud.zpa_scim_group_info module – Retrieves scim group information from a given IDP</a></li>
@@ -168,6 +186,13 @@
 <li class="toctree-l2"><a class="reference internal" href="zpa_service_edge_groups_info_module.html">zscaler.zpacloud.zpa_service_edge_groups_info module – Retrieves information about a Service Edge Group.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_service_edge_groups_module.html">zscaler.zpacloud.zpa_service_edge_groups module – Create an Service Edge Group in the ZPA Cloud.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_trusted_networks_info_module.html">zscaler.zpacloud.zpa_trusted_networks_info module – Retrieves information about a Trusted Network.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_user_portal_aup_info_module.html">zscaler.zpacloud.zpa_user_portal_aup_info module – Retrieves information about a User Portal Acceptable Use Policy (AUP).</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_user_portal_aup_module.html">zscaler.zpacloud.zpa_user_portal_aup module – Create a User Portal Acceptable Use Policy (AUP)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_user_portal_controller_info_module.html">zscaler.zpacloud.zpa_user_portal_controller_info module – Retrieves information about a User Portal Controller.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_user_portal_controller_module.html">zscaler.zpacloud.zpa_user_portal_controller module – Create a User Portal Controller</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_user_portal_link_info_module.html">zscaler.zpacloud.zpa_user_portal_link_info module – Retrieves information about a User Portal Link.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_user_portal_link_module.html">zscaler.zpacloud.zpa_user_portal_link module – Create a User Portal Link</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_workload_tag_group_info_module.html">zscaler.zpacloud.zpa_workload_tag_group_info module – Retrieves information about a Workload Tag Group.</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../common_return_values.html">Common Return Values</a></li>
@@ -219,7 +244,7 @@
 <h1>zscaler.zpacloud.zpa_policy_access_forwarding_rule module – Create a Policy Forwarding Rule.<a class="headerlink" href="#zscaler-zpacloud-zpa-policy-access-forwarding-rule-module-create-a-policy-forwarding-rule" title="Link to this heading"></a></h1>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/">zscaler.zpacloud collection</a> (version 2.0.7).</p>
+<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/">zscaler.zpacloud collection</a> (version 2.1.0).</p>
 <p>It is not included in <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code>.
 To check whether it is installed, run <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span></code>.</p>
 <p>To install it, use: <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">install</span> <span class="pre">zscaler.zpacloud</span></code>.

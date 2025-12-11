@@ -23,12 +23,12 @@ zscaler.zpacloud.zpa_provisioning_key_info module -- Retrieves details about a P
 .. Collection note
 
 .. note::
-    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 2.0.7).
+    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 2.1.0).
 
     It is not included in ``ansible-core``.
     To check whether it is installed, run :code:`ansible-galaxy collection list`.
 
-    To install it, use: :code:`ansible-galaxy collection install zscaler.zpacloud`.
+    To install it, use: :code:`ansible\-galaxy collection install zscaler.zpacloud`.
     You need further requirements to be able to use this module,
     see :ref:`Requirements <ansible_collections.zscaler.zpacloud.zpa_provisioning_key_info_module_requirements>` for details.
 
@@ -66,7 +66,7 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- Zscaler SDK Python can be obtained from PyPI \ `https://pypi.org/project/zscaler-sdk-python/ <https://pypi.org/project/zscaler-sdk-python/>`__
+- Zscaler SDK Python can be obtained from PyPI \ `https://pypi.org/project/zscaler\-sdk\-python/ <https://pypi.org/project/zscaler-sdk-python/>`__
 
 
 
@@ -423,7 +423,7 @@ Parameters
 
         <div class="ansible-option-cell">
 
-      The private key for JWT-based OAuth2 authentication.
+      The private key for JWT\-based OAuth2 authentication.
 
       Used for OneAPI client authentication when use\_legacy\_client=false and not using client\_secret.
 
@@ -736,7 +736,7 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      The private key for JWT-based OAuth2 authentication.
+      The private key for JWT\-based OAuth2 authentication.
 
       Used for OneAPI client authentication when use\_legacy\_client=false and not using client\_secret.
 

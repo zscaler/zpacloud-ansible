@@ -23,12 +23,12 @@ zscaler.zpacloud.zpa_policy_access_rule_v2 module -- Manage ZPA Access Policy Ru
 .. Collection note
 
 .. note::
-    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 2.0.7).
+    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 2.1.0).
 
     It is not included in ``ansible-core``.
     To check whether it is installed, run :code:`ansible-galaxy collection list`.
 
-    To install it, use: :code:`ansible-galaxy collection install zscaler.zpacloud`.
+    To install it, use: :code:`ansible\-galaxy collection install zscaler.zpacloud`.
     You need further requirements to be able to use this module,
     see :ref:`Requirements <ansible_collections.zscaler.zpacloud.zpa_policy_access_rule_v2_module_requirements>` for details.
 
@@ -67,7 +67,7 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- Zscaler SDK Python (https://pypi.org/project/zscaler-sdk-python/)
+- Zscaler SDK Python (https://pypi.org/project/zscaler\-sdk\-python/)
 
 
 
@@ -438,7 +438,7 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      A dictionary of left-hand side (lhs) and right-hand side (rhs) values used for advanced condition matching.
+      A dictionary of left\-hand side (lhs) and right\-hand side (rhs) values used for advanced condition matching.
 
 
       .. raw:: html
@@ -480,7 +480,7 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      Left-hand-side value used in operand evaluation.
+      Left\-hand\-side value used in operand evaluation.
 
 
       .. raw:: html
@@ -522,7 +522,7 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      Right-hand-side value used in operand evaluation.
+      Right\-hand\-side value used in operand evaluation.
 
 
       .. raw:: html
@@ -590,6 +590,7 @@ Parameters
       - :ansible-option-choices-entry:`"RISK\_FACTOR\_TYPE"`
       - :ansible-option-choices-entry:`"CHROME\_ENTERPRISE"`
       - :ansible-option-choices-entry:`"CHROME\_POSTURE\_PROFILE"`
+      - :ansible-option-choices-entry:`"WORKLOAD\_TAG\_GROUP"`
 
 
       .. raw:: html
@@ -923,7 +924,7 @@ Parameters
 
         <div class="ansible-option-cell">
 
-      The private key for JWT-based OAuth2 authentication.
+      The private key for JWT\-based OAuth2 authentication.
 
       Used for OneAPI client authentication when use\_legacy\_client=false and not using client\_secret.
 
@@ -1236,7 +1237,7 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      The private key for JWT-based OAuth2 authentication.
+      The private key for JWT\-based OAuth2 authentication.
 
       Used for OneAPI client authentication when use\_legacy\_client=false and not using client\_secret.
 

@@ -23,12 +23,12 @@ zscaler.zpacloud.zpa_pra_approval module -- Create a PRA Approval Controller.
 .. Collection note
 
 .. note::
-    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 2.0.7).
+    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 2.1.0).
 
     It is not included in ``ansible-core``.
     To check whether it is installed, run :code:`ansible-galaxy collection list`.
 
-    To install it, use: :code:`ansible-galaxy collection install zscaler.zpacloud`.
+    To install it, use: :code:`ansible\-galaxy collection install zscaler.zpacloud`.
     You need further requirements to be able to use this module,
     see :ref:`Requirements <ansible_collections.zscaler.zpacloud.zpa_pra_approval_module_requirements>` for details.
 
@@ -66,7 +66,7 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- Zscaler SDK Python can be obtained from PyPI \ `https://pypi.org/project/zscaler-sdk-python/ <https://pypi.org/project/zscaler-sdk-python/>`__
+- Zscaler SDK Python can be obtained from PyPI \ `https://pypi.org/project/zscaler\-sdk\-python/ <https://pypi.org/project/zscaler-sdk-python/>`__
 
 
 
@@ -445,7 +445,7 @@ Parameters
 
         <div class="ansible-option-cell">
 
-      The private key for JWT-based OAuth2 authentication.
+      The private key for JWT\-based OAuth2 authentication.
 
       Used for OneAPI client authentication when use\_legacy\_client=false and not using client\_secret.
 
@@ -758,7 +758,7 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      The private key for JWT-based OAuth2 authentication.
+      The private key for JWT\-based OAuth2 authentication.
 
       Used for OneAPI client authentication when use\_legacy\_client=false and not using client\_secret.
 
@@ -1427,7 +1427,7 @@ Parameters
 
       The cron expression for the end time of the privileged approval, specifying the exact time of day the approval ends.
 
-      Example: '0 0 18 ? \* MON-FRI' ends the approval at 6:00 PM on weekdays.
+      Example: '0 0 18 ? \* MON\-FRI' ends the approval at 6:00 PM on weekdays.
 
 
       .. raw:: html
@@ -1513,7 +1513,7 @@ Parameters
 
       The cron expression for the start time of the privileged approval, specifying the exact time of day the approval begins.
 
-      Example: '0 15 10 ? \* MON-FRI' starts the approval at 10:15 AM on weekdays.
+      Example: '0 15 10 ? \* MON\-FRI' starts the approval at 10:15 AM on weekdays.
 
 
       .. raw:: html

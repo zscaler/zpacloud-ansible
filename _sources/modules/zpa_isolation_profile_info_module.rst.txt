@@ -23,12 +23,12 @@ zscaler.zpacloud.zpa_isolation_profile_info module -- Retrieves Isolation Profil
 .. Collection note
 
 .. note::
-    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 2.0.7).
+    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 2.1.0).
 
     It is not included in ``ansible-core``.
     To check whether it is installed, run :code:`ansible-galaxy collection list`.
 
-    To install it, use: :code:`ansible-galaxy collection install zscaler.zpacloud`.
+    To install it, use: :code:`ansible\-galaxy collection install zscaler.zpacloud`.
     You need further requirements to be able to use this module,
     see :ref:`Requirements <ansible_collections.zscaler.zpacloud.zpa_isolation_profile_info_module_requirements>` for details.
 
@@ -66,7 +66,7 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- Zscaler SDK Python can be obtained from PyPI \ `https://pypi.org/project/zscaler-sdk-python/ <https://pypi.org/project/zscaler-sdk-python/>`__
+- Zscaler SDK Python can be obtained from PyPI \ `https://pypi.org/project/zscaler\-sdk\-python/ <https://pypi.org/project/zscaler-sdk-python/>`__
 
 
 
@@ -379,7 +379,7 @@ Parameters
 
         <div class="ansible-option-cell">
 
-      The private key for JWT-based OAuth2 authentication.
+      The private key for JWT\-based OAuth2 authentication.
 
       Used for OneAPI client authentication when use\_legacy\_client=false and not using client\_secret.
 
@@ -692,7 +692,7 @@ Parameters
 
         <div class="ansible-option-indent-desc"></div><div class="ansible-option-cell">
 
-      The private key for JWT-based OAuth2 authentication.
+      The private key for JWT\-based OAuth2 authentication.
 
       Used for OneAPI client authentication when use\_legacy\_client=false and not using client\_secret.
 
@@ -1669,7 +1669,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
       .. rst-class:: ansible-option-line
       .. rst-class:: ansible-option-sample
 
-      :ansible-option-sample-bold:`Sample:` :ansible-rv-sample-value:`"fdeffec0-9f76-4f42-a39b-9233a1cc09c8"`
+      :ansible-option-sample-bold:`Sample:` :ansible-rv-sample-value:`"fdeffec0\-9f76\-4f42\-a39b\-9233a1cc09c8"`
 
 
       .. raw:: html
@@ -1722,7 +1722,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
       .. rst-class:: ansible-option-line
       .. rst-class:: ansible-option-sample
 
-      :ansible-option-sample-bold:`Sample:` :ansible-rv-sample-value:`"8ba47504-e249-4f34-a9ca-6a8fd0a3c322"`
+      :ansible-option-sample-bold:`Sample:` :ansible-rv-sample-value:`"8ba47504\-e249\-4f34\-a9ca\-6a8fd0a3c322"`
 
 
       .. raw:: html
@@ -1775,7 +1775,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
       .. rst-class:: ansible-option-line
       .. rst-class:: ansible-option-sample
 
-      :ansible-option-sample-bold:`Sample:` :ansible-rv-sample-value:`"https://redirect.isolation.zscaler.com/tenant/d374ac83d089/profile/fdeffec0-9f76-4f42-a39b-9233a1cc09c8/zpa/render"`
+      :ansible-option-sample-bold:`Sample:` :ansible-rv-sample-value:`"https://redirect.isolation.zscaler.com/tenant/d374ac83d089/profile/fdeffec0\-9f76\-4f42\-a39b\-9233a1cc09c8/zpa/render"`
 
 
       .. raw:: html

@@ -138,3 +138,34 @@ class TestZPAServiceEdgeControllerModule(ModuleTestCase):
         with pytest.raises(AnsibleExitJson) as result:
             zpa_service_edge_controller.main()
         assert result.value.result["changed"] is False
+
+    def test_check_mode_delete(self, mock_client):
+        """Test check mode for delete"""
+        mock_client.service_edges.get_service_edge.return_value = (
+            MockBox(self.SAMPLE_SERVICE_EDGE), None, None
+        )
+        set_module_args(
+            provider=DEFAULT_PROVIDER, id="123", state="absent", _ansible_check_mode=True
+        )
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_service_edge_controller
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_service_edge_controller.main()
+        mock_client.service_edges.delete_connector.assert_not_called()
+        assert result.value.result["changed"] is True
+
+    def test_with_microtenant_id(self, mock_client, mocker):
+        """Test with microtenant_id parameter"""
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules."
+            "zpa_service_edge_controller.collect_all_items",
+            return_value=([MockBox(self.SAMPLE_SERVICE_EDGE)], None),
+        )
+        mock_client.service_edges.delete_connector.return_value = (None, None, None)
+        set_module_args(
+            provider=DEFAULT_PROVIDER, name="ServiceEdge01",
+            microtenant_id="123456", state="absent"
+        )
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_service_edge_controller
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_service_edge_controller.main()
+        assert result.value.result["changed"] is True

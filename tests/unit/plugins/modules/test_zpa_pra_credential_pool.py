@@ -184,3 +184,182 @@ class TestZPAPRACredentialPoolModule(ModuleTestCase):
 
         mock_client.pra_credential_pool.add_credential_pool.assert_not_called()
         assert result.value.result["changed"] is True
+
+    def test_no_change_when_identical(self, mock_client, mocker):
+        """Test no change when pool matches desired state."""
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules."
+            "zpa_pra_credential_pool.collect_all_items",
+            return_value=([MockBox(self.SAMPLE_POOL)], None),
+        )
+        mock_client.pra_credential_pool.get_credential_pool.return_value = (
+            MockBox(self.SAMPLE_POOL), None, None
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            name="credential_pool01",
+            credential_type="USERNAME_PASSWORD",
+            credential_ids=["8530", "8531"],
+            state="present",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_credential_pool
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_pra_credential_pool.main()
+
+        assert result.value.result["changed"] is False
+
+    def test_get_pool_by_id(self, mock_client, mocker):
+        """Test retrieving pool by ID."""
+        mock_client.pra_credential_pool.get_credential_pool.return_value = (
+            MockBox(self.SAMPLE_POOL), None, None
+        )
+        mock_client.pra_credential_pool.delete_credential_pool.return_value = (None, None, None)
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER, id="8540", name="credential_pool01",
+            credential_type="USERNAME_PASSWORD", credential_ids=["8530"], state="absent",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_credential_pool
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_pra_credential_pool.main()
+
+        assert result.value.result["changed"] is True
+
+    def test_get_pool_by_id_error(self, mock_client, mocker):
+        """Test error when retrieving pool by ID."""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mock_client.pra_credential_pool.get_credential_pool.return_value = (None, None, "Not found")
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER, id="invalid_id", name="test",
+            credential_type="USERNAME_PASSWORD", credential_ids=["123"], state="absent",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_credential_pool
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_pra_credential_pool.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_list_pools_error(self, mock_client, mocker):
+        """Test error handling when listing pools."""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules."
+            "zpa_pra_credential_pool.collect_all_items",
+            return_value=(None, "API Error"),
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER, name="pool", credential_type="USERNAME_PASSWORD",
+            credential_ids=["123"], state="present",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_credential_pool
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_pra_credential_pool.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_create_pool_error(self, mock_client, mocker):
+        """Test error handling when creating pool."""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules."
+            "zpa_pra_credential_pool.collect_all_items",
+            return_value=([], None),
+        )
+        mock_client.pra_credential_pool.add_credential_pool.return_value = (
+            None, None, "Create failed"
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER, name="pool", credential_type="USERNAME_PASSWORD",
+            credential_ids=["123"], state="present",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_credential_pool
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_pra_credential_pool.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_delete_pool_error(self, mock_client, mocker):
+        """Test error handling when deleting pool."""
+        from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules."
+            "zpa_pra_credential_pool.collect_all_items",
+            return_value=([MockBox(self.SAMPLE_POOL)], None),
+        )
+        mock_client.pra_credential_pool.get_credential_pool.return_value = (
+            MockBox(self.SAMPLE_POOL), None, None
+        )
+        mock_client.pra_credential_pool.delete_credential_pool.return_value = (
+            None, None, "Delete failed"
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER, name="credential_pool01",
+            credential_type="USERNAME_PASSWORD", credential_ids=["8530"], state="absent",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_credential_pool
+
+        with pytest.raises(AnsibleFailJson) as result:
+            zpa_pra_credential_pool.main()
+
+        assert "error" in result.value.result["msg"].lower()
+
+    def test_check_mode_delete(self, mock_client, mocker):
+        """Test check mode for delete."""
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules."
+            "zpa_pra_credential_pool.collect_all_items",
+            return_value=([MockBox(self.SAMPLE_POOL)], None),
+        )
+        mock_client.pra_credential_pool.get_credential_pool.return_value = (
+            MockBox(self.SAMPLE_POOL), None, None
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER, name="credential_pool01",
+            credential_type="USERNAME_PASSWORD", credential_ids=["8530"],
+            state="absent", _ansible_check_mode=True,
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_credential_pool
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_pra_credential_pool.main()
+
+        mock_client.pra_credential_pool.delete_credential_pool.assert_not_called()
+        assert result.value.result["changed"] is True
+
+    def test_delete_nonexistent_pool(self, mock_client, mocker):
+        """Test deleting a non-existent pool."""
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules."
+            "zpa_pra_credential_pool.collect_all_items",
+            return_value=([], None),
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER, name="nonexistent",
+            credential_type="USERNAME_PASSWORD", credential_ids=["123"], state="absent",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_credential_pool
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_pra_credential_pool.main()
+
+        assert result.value.result["changed"] is False

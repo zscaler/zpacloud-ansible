@@ -3719,13 +3719,13 @@ type = ["pytest-mypy"]
 
 [[package]]
 name = "zscaler-sdk-python"
-version = "1.9.7"
+version = "1.9.8"
 description = "Official Python SDK for the Zscaler Products"
 optional = false
 python-versions = "<4.0,>=3.9.2"
 files = [
-    {file = "zscaler_sdk_python-1.9.7-py3-none-any.whl", hash = "sha256:0efd28032677b6e1090e5830ed9b59860a4a46b193bd5bcddc9249d64dd2490d"},
-    {file = "zscaler_sdk_python-1.9.7.tar.gz", hash = "sha256:f0a5064a081fdb1b86da97ad7296f08b475dfe638897b2018a575565159a5472"},
+    {file = "zscaler_sdk_python-1.9.8-py3-none-any.whl", hash = "sha256:cd399b484b413b6dc29c8daa4557c38473d115b652092e46435cd10a20615742"},
+    {file = "zscaler_sdk_python-1.9.8.tar.gz", hash = "sha256:e4e9a0a62256eef5a557c0aab33df628f18d77656d0edba34170c255800c9b36"},
 ]
 
 [package.dependencies]

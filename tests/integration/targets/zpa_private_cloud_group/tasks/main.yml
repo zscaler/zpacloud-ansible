@@ -1,0 +1,183 @@
+---
+- name: Include default variables
+  ansible.builtin.include_vars:
+    file: ../defaults/main.yml
+
+- name: Import Random String Generator Tasks
+  ansible.builtin.import_tasks: ../../../generate_random_string.yml
+
+- name: Set dynamic name values with random string
+  ansible.builtin.set_fact:
+    appended_name: "{{ group_name }}_{{ random_string }}"
+    appended_description: "{{ description }}_{{ random_string }}"
+
+- name: Ensure required environment variables are set
+  ansible.builtin.fail:
+    msg: "{{ env_var }} is not defined as environment variable"
+  when: lookup('env', env_var) is none
+  loop:
+    - ZSCALER_CLIENT_ID
+    - ZSCALER_CLIENT_SECRET
+    - ZSCALER_VANITY_DOMAIN
+    - ZPA_CUSTOMER_ID
+    - ZSCALER_CLOUD
+  loop_control:
+    loop_var: env_var
+
+- name: Ensure ZPA Credential environment variables are set
+  ansible.builtin.set_fact:
+    zpa_cloud:
+      client_id: '{{ lookup("env", "ZSCALER_CLIENT_ID") }}'
+      client_secret: '{{ lookup("env", "ZSCALER_CLIENT_SECRET") | default(omit) }}'
+      vanity_domain: '{{ lookup("env", "ZSCALER_VANITY_DOMAIN") | default(omit) }}'
+      customer_id: '{{ lookup("env", "ZPA_CUSTOMER_ID") | default(omit) }}'
+      cloud: '{{ lookup("env", "ZSCALER_CLOUD") | default(omit) }}'
+  no_log: true
+
+- name: Main block to Test Private Cloud Group
+  block:
+    - name: Ensure Private Cloud Group is absent (leftover)
+      zscaler.zpacloud.zpa_private_cloud_group:
+        provider: "{{ zpa_cloud }}"
+        state: absent
+        name: "{{ appended_name }}"
+      register: result
+
+  rescue:
+    - name: Handle errors
+      ansible.builtin.debug:
+        msg: An error occurred.
+
+  always:
+    - name: Cleanup operations
+      ansible.builtin.debug:
+        msg: Cleanup complete.
+
+    - name: Ensure Private Cloud Group is absent
+      zscaler.zpacloud.zpa_private_cloud_group:
+        state: absent
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+      register: result
+
+    - name: Verify Private Cloud Group is absent
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+
+    # Create Private Cloud Group (Present)
+    - name: Ensure Private Cloud Group is (Present)
+      zscaler.zpacloud.zpa_private_cloud_group:
+        state: present
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+        description: "{{ appended_description }}"
+        enabled: "{{ enabled }}"
+        city_country: "{{ city_country }}"
+        country_code: "{{ country_code }}"
+        latitude: "{{ latitude }}"
+        longitude: "{{ longitude }}"
+        location: "{{ location }}"
+        upgrade_day: "{{ upgrade_day }}"
+      register: result
+
+    - name: Verify Private Cloud Group is present
+      ansible.builtin.assert:
+        that:
+          - result.data
+          - result.data.name is defined
+          - result.data.enabled is true
+
+    - name: Create the Private Cloud Group (again; idempotency check)
+      zscaler.zpacloud.zpa_private_cloud_group:
+        state: present
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+        description: "{{ appended_description }}"
+        enabled: "{{ enabled }}"
+        city_country: "{{ city_country }}"
+        country_code: "{{ country_code }}"
+        latitude: "{{ latitude }}"
+        longitude: "{{ longitude }}"
+        location: "{{ location }}"
+        upgrade_day: "{{ upgrade_day }}"
+      register: result
+
+    - name: Ensure Private Cloud Group is present (again; idempotency check)
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+
+    # Test Info Module - Fetch All
+    - name: Fetch all Private Cloud Groups
+      zscaler.zpacloud.zpa_private_cloud_group_info:
+        provider: "{{ zpa_cloud }}"
+      register: result
+
+    - name: Ensure all Private Cloud Groups found
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.groups is defined
+
+    # Test Info Module - Fetch by Name
+    - name: Fetch Private Cloud Group by Name
+      zscaler.zpacloud.zpa_private_cloud_group_info:
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+      register: result
+
+    - name: Ensure Private Cloud Group found by name
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.groups[0] is defined
+          - result.groups[0].name == appended_name
+
+    # Get the ID for testing fetch by ID
+    - name: Set group ID for further testing
+      ansible.builtin.set_fact:
+        group_id: "{{ result.groups[0].id }}"
+
+    # Test Info Module - Fetch by ID
+    - name: Fetch Private Cloud Group by ID
+      zscaler.zpacloud.zpa_private_cloud_group_info:
+        provider: "{{ zpa_cloud }}"
+        id: "{{ group_id }}"
+      register: result
+
+    - name: Ensure Private Cloud Group found by ID
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.groups[0] is defined
+          - result.groups[0].id == group_id
+
+    - name: Give the ZPA Cloud a 5 seconds to settle
+      ansible.builtin.pause:
+        seconds: 5
+
+    # Delete Private Cloud Group
+    - name: Delete Private Cloud Group
+      zscaler.zpacloud.zpa_private_cloud_group:
+        state: absent
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+      register: result
+
+    - name: Verify Private Cloud Group is Deleted
+      ansible.builtin.assert:
+        that:
+          - result.changed
+
+    - name: Delete Private Cloud Group (again; idempotency check)
+      zscaler.zpacloud.zpa_private_cloud_group:
+        state: absent
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+      register: result
+
+    - name: Verify Private Cloud Group is absent
+      ansible.builtin.assert:
+        that:
+          - not result.changed

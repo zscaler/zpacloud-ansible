@@ -1,0 +1,155 @@
+---
+- name: Include default variables
+  ansible.builtin.include_vars:
+    file: ../defaults/main.yml
+
+- name: Import Random String Generator Tasks
+  ansible.builtin.import_tasks: ../../../generate_random_string.yml
+
+- name: Set dynamic name values with random string
+  ansible.builtin.set_fact:
+    appended_name: "{{ aup_name }}_{{ random_string }}"
+    appended_description: "{{ description }}_{{ random_string }}"
+
+- name: Ensure required environment variables are set
+  ansible.builtin.fail:
+    msg: "{{ env_var }} is not defined as environment variable"
+  when: lookup('env', env_var) is none
+  loop:
+    - ZSCALER_CLIENT_ID
+    - ZSCALER_CLIENT_SECRET
+    - ZSCALER_VANITY_DOMAIN
+    - ZPA_CUSTOMER_ID
+    - ZSCALER_CLOUD
+  loop_control:
+    loop_var: env_var
+
+- name: Ensure ZPA Credential environment variables are set
+  ansible.builtin.set_fact:
+    zpa_cloud:
+      client_id: '{{ lookup("env", "ZSCALER_CLIENT_ID") }}'
+      client_secret: '{{ lookup("env", "ZSCALER_CLIENT_SECRET") | default(omit) }}'
+      vanity_domain: '{{ lookup("env", "ZSCALER_VANITY_DOMAIN") | default(omit) }}'
+      customer_id: '{{ lookup("env", "ZPA_CUSTOMER_ID") | default(omit) }}'
+      cloud: '{{ lookup("env", "ZSCALER_CLOUD") | default(omit) }}'
+  no_log: true
+
+- name: Main block to Test User Portal AUP
+  block:
+    - name: Ensure User Portal AUP is absent (leftover)
+      zscaler.zpacloud.zpa_user_portal_aup:
+        provider: "{{ zpa_cloud }}"
+        state: absent
+        name: "{{ appended_name }}"
+      register: result
+
+  rescue:
+    - name: Handle errors
+      ansible.builtin.debug:
+        msg: An error occurred.
+
+  always:
+    - name: Cleanup operations
+      ansible.builtin.debug:
+        msg: Cleanup complete.
+
+    - name: Ensure User Portal AUP is absent
+      zscaler.zpacloud.zpa_user_portal_aup:
+        state: absent
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+      register: result
+
+    - name: Verify User Portal AUP is absent
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+
+    # Create User Portal AUP (Present)
+    - name: Ensure User Portal AUP is (Present)
+      zscaler.zpacloud.zpa_user_portal_aup:
+        state: present
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+        description: "{{ appended_description }}"
+        enabled: "{{ enabled }}"
+        aup: "{{ aup }}"
+        email: "{{ email }}"
+        phone_num: "{{ phone_num }}"
+      register: result
+
+    - name: Verify User Portal AUP is present
+      ansible.builtin.assert:
+        that:
+          - result.data
+          - result.data.name is defined
+          - result.data.enabled is true
+
+    - name: Create the User Portal AUP (again; idempotency check)
+      zscaler.zpacloud.zpa_user_portal_aup:
+        state: present
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+        description: "{{ appended_description }}"
+        enabled: "{{ enabled }}"
+        aup: "{{ aup }}"
+        email: "{{ email }}"
+        phone_num: "{{ phone_num }}"
+      register: result
+
+    - name: Ensure User Portal AUP is present (again; idempotency check)
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+
+    - name: Fetch all User Portal AUPs
+      zscaler.zpacloud.zpa_user_portal_aup_info:
+        provider: "{{ zpa_cloud }}"
+      register: result
+
+    - name: Ensure all User Portal AUPs found
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.aups is defined
+
+    - name: Fetch User Portal AUP by Name
+      zscaler.zpacloud.zpa_user_portal_aup_info:
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+      register: result
+
+    - name: Ensure User Portal AUP found by name
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.aups[0] is defined
+          - result.aups[0].name == appended_name
+
+    - name: Give the ZPA Cloud a 5 seconds to settle
+      ansible.builtin.pause:
+        seconds: 5
+
+    - name: Delete User Portal AUP
+      zscaler.zpacloud.zpa_user_portal_aup:
+        state: absent
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+      register: result
+
+    - name: Verify User Portal AUP is Deleted
+      ansible.builtin.assert:
+        that:
+          - result.changed
+
+    - name: Delete User Portal AUP (again; idempotency check)
+      zscaler.zpacloud.zpa_user_portal_aup:
+        state: absent
+        provider: "{{ zpa_cloud }}"
+        name: "{{ appended_name }}"
+      register: result
+
+    - name: Verify User Portal AUP is absent
+      ansible.builtin.assert:
+        that:
+          - not result.changed

@@ -1,0 +1,4 @@
+---
+# Location Controller Info requires an extranet resource partner
+# These values should match existing resources in the test tenant
+zia_er_name: "Partner_ER"

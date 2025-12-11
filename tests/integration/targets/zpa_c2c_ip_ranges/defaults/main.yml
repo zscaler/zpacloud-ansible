@@ -1,0 +1,11 @@
+---
+range_name: test_c2c_ip_range
+description: test_c2c_ip_range
+enabled: true
+ip_range_begin: "10.100.100.1"
+ip_range_end: "10.100.100.254"
+location: "San Jose, CA, USA"
+location_hint: "Created via Ansible Integration Test"
+country_code: "US"
+latitude_in_db: "37.33874"
+longitude_in_db: "-121.8852525"

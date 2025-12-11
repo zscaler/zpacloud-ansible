@@ -1,0 +1,92 @@
+---
+- name: Include default variables
+  ansible.builtin.include_vars:
+    file: ../defaults/main.yml
+
+- name: Ensure required environment variables are set
+  ansible.builtin.fail:
+    msg: "{{ env_var }} is not defined as environment variable"
+  when: lookup('env', env_var) is none
+  loop:
+    - ZSCALER_CLIENT_ID
+    - ZSCALER_CLIENT_SECRET
+    - ZSCALER_VANITY_DOMAIN
+    - ZPA_CUSTOMER_ID
+    - ZSCALER_CLOUD
+  loop_control:
+    loop_var: env_var
+
+- name: Ensure ZPA Credential environment variables are set
+  ansible.builtin.set_fact:
+    zpa_cloud:
+      client_id: '{{ lookup("env", "ZSCALER_CLIENT_ID") }}'
+      client_secret: '{{ lookup("env", "ZSCALER_CLIENT_SECRET") | default(omit) }}'
+      vanity_domain: '{{ lookup("env", "ZSCALER_VANITY_DOMAIN") | default(omit) }}'
+      customer_id: '{{ lookup("env", "ZPA_CUSTOMER_ID") | default(omit) }}'
+      cloud: '{{ lookup("env", "ZSCALER_CLOUD") | default(omit) }}'
+  no_log: true
+
+- name: Main block to Test Managed Browser Profile Info
+  block:
+    # Fetch all Managed Browser Profiles
+    - name: Fetch all Managed Browser Profiles
+      zscaler.zpacloud.zpa_managed_browser_profile_info:
+        provider: "{{ zpa_cloud }}"
+      register: result
+
+    - name: Ensure all Managed Browser Profiles found
+      ansible.builtin.assert:
+        that:
+          - not result.changed
+          - result.profiles is defined
+
+    - name: Debug - Show all Managed Browser Profiles
+      ansible.builtin.debug:
+        var: result.profiles
+      when: result.profiles | length > 0
+
+    # Test fetching by name (Profile01)
+    - name: Fetch Managed Browser Profile by Name
+      zscaler.zpacloud.zpa_managed_browser_profile_info:
+        provider: "{{ zpa_cloud }}"
+        name: "{{ profile_name }}"
+      register: result_by_name
+
+    - name: Ensure Managed Browser Profile found by name
+      ansible.builtin.assert:
+        that:
+          - not result_by_name.changed
+          - result_by_name.profiles[0] is defined
+          - result_by_name.profiles[0].name == profile_name
+
+    - name: Debug - Show Managed Browser Profile by Name
+      ansible.builtin.debug:
+        var: result_by_name.profiles[0]
+
+    # Get the ID from the result and test fetching by ID
+    - name: Set profile ID for further testing
+      ansible.builtin.set_fact:
+        profile_id: "{{ result_by_name.profiles[0].id }}"
+
+    - name: Fetch Managed Browser Profile by ID
+      zscaler.zpacloud.zpa_managed_browser_profile_info:
+        provider: "{{ zpa_cloud }}"
+        id: "{{ profile_id }}"
+      register: result_by_id
+
+    - name: Ensure Managed Browser Profile found by ID
+      ansible.builtin.assert:
+        that:
+          - not result_by_id.changed
+          - result_by_id.profiles[0] is defined
+          - result_by_id.profiles[0].id == profile_id
+
+  rescue:
+    - name: Handle errors
+      ansible.builtin.debug:
+        msg: An error occurred during Managed Browser Profile Info test.
+
+  always:
+    - name: Cleanup operations
+      ansible.builtin.debug:
+        msg: Managed Browser Profile Info test complete.

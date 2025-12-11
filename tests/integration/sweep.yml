@@ -1,4 +1,21 @@
 ---
+- name: List all C2C IP Ranges
+  zscaler.zpacloud.zpa_c2c_ip_ranges_info:
+    provider: "{{ zpa_cloud }}"
+  register: all_c2c_ip_ranges
+
+- name: Delete all test C2C IP Ranges
+  zscaler.zpacloud.zpa_c2c_ip_ranges:
+    provider: "{{ zpa_cloud }}"
+    state: absent
+    name: "{{ item.name }}"
+  loop: "{{ all_c2c_ip_ranges.ranges | default([]) }}"
+  when:
+    - all_c2c_ip_ranges.ranges is defined
+    - "'test_' in (item.name | default(''))"
+  ignore_errors: true
+  register: delete_c2c_ip_ranges
+
 - name: List all Application Segments
   zscaler.zpacloud.zpa_application_segment_info:
     provider: "{{ zpa_cloud }}"
@@ -138,11 +155,80 @@
   ignore_errors: true
   register: delete_timeout_rules
 
+- name: List all User Portal AUPs
+  zscaler.zpacloud.zpa_user_portal_aup_info:
+    provider: "{{ zpa_cloud }}"
+  register: all_user_portal_aups
+
+- name: Delete all test User Portal AUPs
+  zscaler.zpacloud.zpa_user_portal_aup:
+    provider: "{{ zpa_cloud }}"
+    state: absent
+    name: "{{ item.name }}"
+  loop: "{{ all_user_portal_aups.aups | default([]) }}"
+  when:
+    - all_user_portal_aups.aups is defined
+    - "'test_' in (item.name | default(''))"
+  ignore_errors: true
+  register: delete_user_portal_aups
+
+- name: List all User Portal Controllers
+  zscaler.zpacloud.zpa_user_portal_controller_info:
+    provider: "{{ zpa_cloud }}"
+  register: all_user_portal_controllers
+
+- name: Delete all test User Portal Controllers
+  zscaler.zpacloud.zpa_user_portal_controller:
+    provider: "{{ zpa_cloud }}"
+    state: absent
+    name: "{{ item.name }}"
+  loop: "{{ all_user_portal_controllers.portals | default([]) }}"
+  when:
+    - all_user_portal_controllers.portals is defined
+    - "'test_' in (item.name | default(''))"
+  ignore_errors: true
+  register: delete_user_portal_controllers
+
+- name: List all User Portal Links
+  zscaler.zpacloud.zpa_user_portal_link_info:
+    provider: "{{ zpa_cloud }}"
+  register: all_user_portal_links
+
+- name: Delete all test User Portal Links
+  zscaler.zpacloud.zpa_user_portal_link:
+    provider: "{{ zpa_cloud }}"
+    state: absent
+    name: "{{ item.name }}"
+  loop: "{{ all_user_portal_links.links | default([]) }}"
+  when:
+    - all_user_portal_links.links is defined
+    - "'test_' in (item.name | default(''))"
+  ignore_errors: true
+  register: delete_user_portal_links
+
+# - name: List all Private Cloud Groups
+#   zscaler.zpacloud.zpa_private_cloud_group_info:
+#     provider: "{{ zpa_cloud }}"
+#   register: all_private_cloud_groups
+
+# - name: Delete all test Private Cloud Groups
+#   zscaler.zpacloud.zpa_private_cloud_group:
+#     provider: "{{ zpa_cloud }}"
+#     state: absent
+#     name: "{{ item.name }}"
+#   loop: "{{ all_private_cloud_groups.groups | default([]) }}"
+#   when:
+#     - all_private_cloud_groups.groups is defined
+#     - "'test_' in (item.name | default(''))"
+#   ignore_errors: true
+#   register: delete_private_cloud_groups
+
 - name: Show cleanup errors for any failed deletions
   ansible.builtin.debug:
     msg: "Failed to delete {{ item.item.name | default('unknown') }}: {{ item.msg | default('Unknown error') }}"
   loop: >-
     {{
+      (delete_c2c_ip_ranges.results | default([])) +
       (delete_app_segments.results | default([])) +
       (delete_ba_segments.results | default([])) +
       (delete_segment_groups.results | default([])) +
@@ -151,7 +237,11 @@
       (delete_provisioning_keys.results | default([])) +
       (delete_service_edge_groups.results | default([])) +
       (delete_application_servers.results | default([])) +
-      (delete_timeout_rules.results | default([]))
+      (delete_timeout_rules.results | default([])) +
+      (delete_user_portal_aups.results | default([])) +
+      (delete_user_portal_controllers.results | default([])) +
+      (delete_user_portal_links.results | default([])) +
+      (delete_private_cloud_groups.results | default([]))
     }}
   when: item.failed | default(false)
   loop_control:
@@ -162,6 +252,7 @@
     sweep_successful: >-
       {{
         not (
+          (delete_c2c_ip_ranges.failed | default(false)) or
           (delete_app_segments.failed | default(false)) or
           (delete_ba_segments.failed | default(false)) or
           (delete_segment_groups.failed | default(false)) or
@@ -170,7 +261,11 @@
           (delete_provisioning_keys.failed | default(false)) or
           (delete_service_edge_groups.failed | default(false)) or
           (delete_application_servers.failed | default(false)) or
-          (delete_timeout_rules.failed | default(false))
+          (delete_timeout_rules.failed | default(false)) or
+          (delete_user_portal_aups.failed | default(false)) or
+          (delete_user_portal_controllers.failed | default(false)) or
+          (delete_user_portal_links.failed | default(false)) or
+          (delete_private_cloud_groups.failed | default(false))
         )
       }}
 

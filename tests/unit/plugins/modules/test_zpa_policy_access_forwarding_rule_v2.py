@@ -307,17 +307,31 @@ class TestZPAPolicyAccessForwardingRuleV2Module(ModuleTestCase):
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
         existing = dict(self.SAMPLE_RULE)
         existing["description"] = "Old"
-        mocker.patch("ansible_collections.zscaler.zpacloud.plugins.modules.zpa_policy_access_forwarding_rule_v2.collect_all_items", return_value=([MockBox(existing)], None))
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules."
+            "zpa_policy_access_forwarding_rule_v2.collect_all_items",
+            return_value=([MockBox(existing)], None),
+        )
         mock_client.policies.update_client_forwarding_rule_v2.return_value = (None, None, "Update failed")
-        set_module_args(provider=DEFAULT_PROVIDER, state="present", name="Test_Forwarding_Rule_V2", description="New", action="BYPASS")
+        set_module_args(
+            provider=DEFAULT_PROVIDER, state="present", name="Test_Forwarding_Rule_V2",
+            description="New", action="BYPASS",
+        )
         from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_forwarding_rule_v2
         with pytest.raises(AnsibleFailJson):
             zpa_policy_access_forwarding_rule_v2.main()
 
     def test_check_mode_no_change(self, mock_client, mocker):
         """Test check mode when no changes needed."""
-        mocker.patch("ansible_collections.zscaler.zpacloud.plugins.modules.zpa_policy_access_forwarding_rule_v2.collect_all_items", return_value=([MockBox(self.SAMPLE_RULE)], None))
-        set_module_args(provider=DEFAULT_PROVIDER, state="present", name="Test_Forwarding_Rule_V2", description="Test Forwarding Rule V2", action="BYPASS", _ansible_check_mode=True)
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules."
+            "zpa_policy_access_forwarding_rule_v2.collect_all_items",
+            return_value=([MockBox(self.SAMPLE_RULE)], None),
+        )
+        set_module_args(
+            provider=DEFAULT_PROVIDER, state="present", name="Test_Forwarding_Rule_V2",
+            description="Test Forwarding Rule V2", action="BYPASS", _ansible_check_mode=True,
+        )
         from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_forwarding_rule_v2
         with pytest.raises(AnsibleExitJson) as result:
             zpa_policy_access_forwarding_rule_v2.main()

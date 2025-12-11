@@ -161,7 +161,11 @@ class TestZPAPolicyAccessIsolationRuleModule(ModuleTestCase):
 
     def test_list_rules_error(self, mock_client, mocker):
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
-        mocker.patch("ansible_collections.zscaler.zpacloud.plugins.modules.zpa_policy_access_isolation_rule.collect_all_items", return_value=(None, "API Error"))
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules."
+            "zpa_policy_access_isolation_rule.collect_all_items",
+            return_value=(None, "API Error"),
+        )
         set_module_args(provider=DEFAULT_PROVIDER, name="Test", action="ISOLATE", state="present")
         from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_isolation_rule
         with pytest.raises(AnsibleFailJson):
@@ -169,7 +173,11 @@ class TestZPAPolicyAccessIsolationRuleModule(ModuleTestCase):
 
     def test_create_rule_error(self, mock_client, mocker):
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
-        mocker.patch("ansible_collections.zscaler.zpacloud.plugins.modules.zpa_policy_access_isolation_rule.collect_all_items", return_value=([], None))
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules."
+            "zpa_policy_access_isolation_rule.collect_all_items",
+            return_value=([], None),
+        )
         mock_client.policies.add_isolation_rule.return_value = (None, None, "Create failed")
         set_module_args(provider=DEFAULT_PROVIDER, name="New", action="ISOLATE", state="present")
         from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_isolation_rule
@@ -178,7 +186,11 @@ class TestZPAPolicyAccessIsolationRuleModule(ModuleTestCase):
 
     def test_delete_rule_error(self, mock_client, mocker):
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
-        mocker.patch("ansible_collections.zscaler.zpacloud.plugins.modules.zpa_policy_access_isolation_rule.collect_all_items", return_value=([MockBox(self.SAMPLE_RULE)], None))
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules."
+            "zpa_policy_access_isolation_rule.collect_all_items",
+            return_value=([MockBox(self.SAMPLE_RULE)], None),
+        )
         mock_client.policies.delete_rule.return_value = (None, None, "Delete failed")
         set_module_args(provider=DEFAULT_PROVIDER, name="Test_Isolation_Rule", state="absent")
         from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_isolation_rule
@@ -186,16 +198,30 @@ class TestZPAPolicyAccessIsolationRuleModule(ModuleTestCase):
             zpa_policy_access_isolation_rule.main()
 
     def test_check_mode_create(self, mock_client, mocker):
-        mocker.patch("ansible_collections.zscaler.zpacloud.plugins.modules.zpa_policy_access_isolation_rule.collect_all_items", return_value=([], None))
-        set_module_args(provider=DEFAULT_PROVIDER, name="New", action="ISOLATE", state="present", _ansible_check_mode=True)
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules."
+            "zpa_policy_access_isolation_rule.collect_all_items",
+            return_value=([], None),
+        )
+        set_module_args(
+            provider=DEFAULT_PROVIDER, name="New", action="ISOLATE",
+            state="present", _ansible_check_mode=True,
+        )
         from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_isolation_rule
         with pytest.raises(AnsibleExitJson) as result:
             zpa_policy_access_isolation_rule.main()
         assert result.value.result["changed"] is True
 
     def test_check_mode_delete(self, mock_client, mocker):
-        mocker.patch("ansible_collections.zscaler.zpacloud.plugins.modules.zpa_policy_access_isolation_rule.collect_all_items", return_value=([MockBox(self.SAMPLE_RULE)], None))
-        set_module_args(provider=DEFAULT_PROVIDER, name="Test_Isolation_Rule", state="absent", _ansible_check_mode=True)
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules."
+            "zpa_policy_access_isolation_rule.collect_all_items",
+            return_value=([MockBox(self.SAMPLE_RULE)], None),
+        )
+        set_module_args(
+            provider=DEFAULT_PROVIDER, name="Test_Isolation_Rule",
+            state="absent", _ansible_check_mode=True,
+        )
         from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_isolation_rule
         with pytest.raises(AnsibleExitJson) as result:
             zpa_policy_access_isolation_rule.main()
@@ -203,9 +229,16 @@ class TestZPAPolicyAccessIsolationRuleModule(ModuleTestCase):
 
     def test_with_microtenant_id(self, mock_client, mocker):
         """Test with microtenant_id parameter."""
-        mocker.patch("ansible_collections.zscaler.zpacloud.plugins.modules.zpa_policy_access_isolation_rule.collect_all_items", return_value=([], None))
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules."
+            "zpa_policy_access_isolation_rule.collect_all_items",
+            return_value=([], None),
+        )
         mock_client.policies.add_isolation_rule.return_value = (MockBox(self.SAMPLE_RULE), None, None)
-        set_module_args(provider=DEFAULT_PROVIDER, state="present", name="Test_Rule", action="ISOLATE", microtenant_id="123456")
+        set_module_args(
+            provider=DEFAULT_PROVIDER, state="present", name="Test_Rule",
+            action="ISOLATE", microtenant_id="123456",
+        )
         from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_isolation_rule
         with pytest.raises(AnsibleExitJson) as result:
             zpa_policy_access_isolation_rule.main()
@@ -216,17 +249,31 @@ class TestZPAPolicyAccessIsolationRuleModule(ModuleTestCase):
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
         existing = dict(self.SAMPLE_RULE)
         existing["description"] = "Old"
-        mocker.patch("ansible_collections.zscaler.zpacloud.plugins.modules.zpa_policy_access_isolation_rule.collect_all_items", return_value=([MockBox(existing)], None))
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules."
+            "zpa_policy_access_isolation_rule.collect_all_items",
+            return_value=([MockBox(existing)], None),
+        )
         mock_client.policies.update_isolation_rule.return_value = (None, None, "Update failed")
-        set_module_args(provider=DEFAULT_PROVIDER, state="present", name="Test_Isolation_Rule", description="New", action="ISOLATE")
+        set_module_args(
+            provider=DEFAULT_PROVIDER, state="present", name="Test_Isolation_Rule",
+            description="New", action="ISOLATE",
+        )
         from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_isolation_rule
         with pytest.raises(AnsibleFailJson):
             zpa_policy_access_isolation_rule.main()
 
     def test_check_mode_no_change(self, mock_client, mocker):
         """Test check mode when no changes needed."""
-        mocker.patch("ansible_collections.zscaler.zpacloud.plugins.modules.zpa_policy_access_isolation_rule.collect_all_items", return_value=([MockBox(self.SAMPLE_RULE)], None))
-        set_module_args(provider=DEFAULT_PROVIDER, state="present", name="Test_Isolation_Rule", description="Test Isolation Rule", action="ISOLATE", _ansible_check_mode=True)
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules."
+            "zpa_policy_access_isolation_rule.collect_all_items",
+            return_value=([MockBox(self.SAMPLE_RULE)], None),
+        )
+        set_module_args(
+            provider=DEFAULT_PROVIDER, state="present", name="Test_Isolation_Rule",
+            description="Test Isolation Rule", action="ISOLATE", _ansible_check_mode=True,
+        )
         from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_isolation_rule
         with pytest.raises(AnsibleExitJson) as result:
             zpa_policy_access_isolation_rule.main()

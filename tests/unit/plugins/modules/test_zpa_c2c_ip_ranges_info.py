@@ -73,7 +73,9 @@ class TestZPAC2CIPRangesInfoModule(ModuleTestCase):
 
         set_module_args(provider=DEFAULT_PROVIDER)
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_c2c_ip_ranges_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_c2c_ip_ranges_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_c2c_ip_ranges_info.main()
@@ -93,7 +95,9 @@ class TestZPAC2CIPRangesInfoModule(ModuleTestCase):
             id="216199618143441990",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_c2c_ip_ranges_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_c2c_ip_ranges_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_c2c_ip_ranges_info.main()
@@ -113,7 +117,9 @@ class TestZPAC2CIPRangesInfoModule(ModuleTestCase):
             name="Branch_Range",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_c2c_ip_ranges_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_c2c_ip_ranges_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_c2c_ip_ranges_info.main()
@@ -134,7 +140,9 @@ class TestZPAC2CIPRangesInfoModule(ModuleTestCase):
             name="NonExistent_Range",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_c2c_ip_ranges_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_c2c_ip_ranges_info,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_c2c_ip_ranges_info.main()
@@ -149,7 +157,9 @@ class TestZPAC2CIPRangesInfoModule(ModuleTestCase):
             id="123",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_c2c_ip_ranges_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_c2c_ip_ranges_info,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_c2c_ip_ranges_info.main()

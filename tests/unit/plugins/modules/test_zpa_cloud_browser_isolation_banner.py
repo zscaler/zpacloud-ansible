@@ -100,12 +100,20 @@ class TestZPACBIBannerModule(ModuleTestCase):
         existing_banner = dict(self.SAMPLE_BANNER)
         existing_banner["notification_title"] = "Old Title"
         mock_existing = MockBox(existing_banner)
-        mock_client.cbi_banner.list_cbi_banners.return_value = ([mock_existing], None, None)
+        mock_client.cbi_banner.list_cbi_banners.return_value = (
+            [mock_existing],
+            None,
+            None,
+        )
 
         updated_banner = dict(self.SAMPLE_BANNER)
         updated_banner["notification_title"] = "New Title"
         mock_updated = MockBox(updated_banner)
-        mock_client.cbi_banner.update_cbi_banner.return_value = (mock_updated, None, None)
+        mock_client.cbi_banner.update_cbi_banner.return_value = (
+            mock_updated,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -131,7 +139,11 @@ class TestZPACBIBannerModule(ModuleTestCase):
     def test_delete_banner(self, mock_client):
         """Test deleting a CBI Banner."""
         mock_existing = MockBox(self.SAMPLE_BANNER)
-        mock_client.cbi_banner.list_cbi_banners.return_value = ([mock_existing], None, None)
+        mock_client.cbi_banner.list_cbi_banners.return_value = (
+            [mock_existing],
+            None,
+            None,
+        )
         mock_client.cbi_banner.delete_cbi_banner.return_value = (None, None, None)
 
         set_module_args(
@@ -153,7 +165,11 @@ class TestZPACBIBannerModule(ModuleTestCase):
     def test_no_change_when_identical(self, mock_client):
         """Test no change when banner already matches desired state."""
         mock_existing = MockBox(self.SAMPLE_BANNER)
-        mock_client.cbi_banner.list_cbi_banners.return_value = ([mock_existing], None, None)
+        mock_client.cbi_banner.list_cbi_banners.return_value = (
+            [mock_existing],
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -202,7 +218,9 @@ class TestZPACBIBannerModule(ModuleTestCase):
     def test_get_banner_by_id(self, mock_client):
         """Test retrieving banner by ID"""
         mock_client.cbi_banner.get_cbi_banner.return_value = (
-            MockBox(self.SAMPLE_BANNER), None, None
+            MockBox(self.SAMPLE_BANNER),
+            None,
+            None,
         )
         mock_client.cbi_banner.delete_cbi_banner.return_value = (None, None, None)
 
@@ -225,6 +243,7 @@ class TestZPACBIBannerModule(ModuleTestCase):
     def test_get_banner_by_id_error(self, mock_client):
         """Test error when retrieving banner by ID"""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mock_client.cbi_banner.get_cbi_banner.return_value = (None, None, "Not found")
 
         set_module_args(
@@ -246,7 +265,12 @@ class TestZPACBIBannerModule(ModuleTestCase):
     def test_list_banners_error(self, mock_client):
         """Test error handling when listing banners"""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
-        mock_client.cbi_banner.list_cbi_banners.return_value = (None, None, "List error")
+
+        mock_client.cbi_banner.list_cbi_banners.return_value = (
+            None,
+            None,
+            "List error",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -267,8 +291,13 @@ class TestZPACBIBannerModule(ModuleTestCase):
     def test_create_banner_error(self, mock_client):
         """Test error handling when creating banner"""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mock_client.cbi_banner.list_cbi_banners.return_value = ([], None, None)
-        mock_client.cbi_banner.add_cbi_banner.return_value = (None, None, "Create failed")
+        mock_client.cbi_banner.add_cbi_banner.return_value = (
+            None,
+            None,
+            "Create failed",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -289,9 +318,18 @@ class TestZPACBIBannerModule(ModuleTestCase):
     def test_update_banner_error(self, mock_client):
         """Test error handling when updating banner"""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         existing = {**self.SAMPLE_BANNER, "notification_title": "Old"}
-        mock_client.cbi_banner.list_cbi_banners.return_value = ([MockBox(existing)], None, None)
-        mock_client.cbi_banner.update_cbi_banner.return_value = (None, None, "Update failed")
+        mock_client.cbi_banner.list_cbi_banners.return_value = (
+            [MockBox(existing)],
+            None,
+            None,
+        )
+        mock_client.cbi_banner.update_cbi_banner.return_value = (
+            None,
+            None,
+            "Update failed",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -313,8 +351,17 @@ class TestZPACBIBannerModule(ModuleTestCase):
     def test_delete_banner_error(self, mock_client):
         """Test error handling when deleting banner"""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
-        mock_client.cbi_banner.list_cbi_banners.return_value = ([MockBox(self.SAMPLE_BANNER)], None, None)
-        mock_client.cbi_banner.delete_cbi_banner.return_value = (None, None, "Delete failed")
+
+        mock_client.cbi_banner.list_cbi_banners.return_value = (
+            [MockBox(self.SAMPLE_BANNER)],
+            None,
+            None,
+        )
+        mock_client.cbi_banner.delete_cbi_banner.return_value = (
+            None,
+            None,
+            "Delete failed",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,

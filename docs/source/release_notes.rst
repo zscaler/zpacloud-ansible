@@ -9,8 +9,25 @@ Releases
 Zscaler Private Access (ZPA) Ansible Collection Changelog
 ---------------------------------------------------------
 
-Version 2.1.0
+Version 2.1.1
 ==============
+
+2.1.1 (February, 17 2026)
+----------------------------
+
+Notes
+-----
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+Enhancements
+-----------------
+* (`#91 <https://github.com/zscaler/zpacloud-ansible/pull/91>`_) - Added boolean `policy_style` attribute to `zpa_application_segment` to enable `FQDN-to-IP Policy Evaluation`
+
+Bug Fixes
+------------
+
+* (`#91 <https://github.com/zscaler/zpacloud-ansible/pull/91>`_) - Improved `zpa_client` to support authentication via both OneAPI and legacy methods.
 
 2.1.0 (December, 10 2025)
 -------------------------
@@ -33,11 +50,6 @@ New Resources
 * (`#84 <https://github.com/zscaler/zpacloud-ansible/pull/84>`_) - Added info resource ``zpa_location_group_controller``. This info resource is required when configuring resources such as: ``zpa_policy_access_rule_v2``, ``zpa_server_group``
 * (`#84 <https://github.com/zscaler/zpacloud-ansible/pull/84>`_) - Added info resource ``zpa_location_controller_summary``. This info resource can be used when configuring ``zpa_policy_access_rule`` or ``zpa_policy_access_rule_v2`` where the ``object_type`` is ``LOCATION``
 
-
-
-Version 2.0.7
-==============
-
 2.0.7 (August, 4 2025)
 -------------------------
 
@@ -45,7 +57,8 @@ Version 2.0.7
 
 - Python Versions: **v3.9, v3.10, v3.11**
 
-### Bug Fixes
+Bug Fixes
+------------
 
 * (`#75 <https://github.com/zscaler/zpacloud-ansible/pull/75>`_) - Fixed `collect_all_items` pagination helper.
 
@@ -62,7 +75,6 @@ Bug Fixes
 ------------
 
 * (`#73 <https://github.com/zscaler/zpacloud-ansible/pull/73>`_) Fixed flake8 package in requirements.txt
-
 
 2.0.5 (July, 18 2025)
 -------------------------

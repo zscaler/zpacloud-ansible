@@ -64,10 +64,14 @@ class TestZPAAppSegmentWeightedLBConfigModule(ModuleTestCase):
     def test_update_weighted_lb_config_by_id(self, mock_client):
         """Test updating weighted LB config by application ID"""
         mock_client.application_segment.get_weighted_lb_config.return_value = (
-            MockBox({**self.SAMPLE_CONFIG, "weighted_load_balancing": False}), None, None
+            MockBox({**self.SAMPLE_CONFIG, "weighted_load_balancing": False}),
+            None,
+            None,
         )
         mock_client.application_segment.update_weighted_lb_config.return_value = (
-            MockBox(self.SAMPLE_CONFIG), None, None
+            MockBox(self.SAMPLE_CONFIG),
+            None,
+            None,
         )
 
         set_module_args(
@@ -76,7 +80,9 @@ class TestZPAAppSegmentWeightedLBConfigModule(ModuleTestCase):
             weighted_load_balancing=True,
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_weightedlb_config
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_weightedlb_config,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_application_segment_weightedlb_config.main()
@@ -90,10 +96,14 @@ class TestZPAAppSegmentWeightedLBConfigModule(ModuleTestCase):
             return_value=([MockBox(self.SAMPLE_SEGMENT)], None),
         )
         mock_client.application_segment.get_weighted_lb_config.return_value = (
-            MockBox({**self.SAMPLE_CONFIG, "weighted_load_balancing": False}), None, None
+            MockBox({**self.SAMPLE_CONFIG, "weighted_load_balancing": False}),
+            None,
+            None,
         )
         mock_client.application_segment.update_weighted_lb_config.return_value = (
-            MockBox(self.SAMPLE_CONFIG), None, None
+            MockBox(self.SAMPLE_CONFIG),
+            None,
+            None,
         )
 
         set_module_args(
@@ -102,7 +112,9 @@ class TestZPAAppSegmentWeightedLBConfigModule(ModuleTestCase):
             weighted_load_balancing=True,
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_weightedlb_config
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_weightedlb_config,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_application_segment_weightedlb_config.main()
@@ -112,7 +124,9 @@ class TestZPAAppSegmentWeightedLBConfigModule(ModuleTestCase):
     def test_no_change_when_config_same(self, mock_client):
         """Test no change when config already matches"""
         mock_client.application_segment.get_weighted_lb_config.return_value = (
-            MockBox(self.SAMPLE_CONFIG), None, None
+            MockBox(self.SAMPLE_CONFIG),
+            None,
+            None,
         )
 
         set_module_args(
@@ -125,7 +139,9 @@ class TestZPAAppSegmentWeightedLBConfigModule(ModuleTestCase):
             ],
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_weightedlb_config
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_weightedlb_config,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_application_segment_weightedlb_config.main()
@@ -135,7 +151,9 @@ class TestZPAAppSegmentWeightedLBConfigModule(ModuleTestCase):
     def test_check_mode(self, mock_client):
         """Test check mode"""
         mock_client.application_segment.get_weighted_lb_config.return_value = (
-            MockBox({**self.SAMPLE_CONFIG, "weighted_load_balancing": False}), None, None
+            MockBox({**self.SAMPLE_CONFIG, "weighted_load_balancing": False}),
+            None,
+            None,
         )
 
         set_module_args(
@@ -145,7 +163,9 @@ class TestZPAAppSegmentWeightedLBConfigModule(ModuleTestCase):
             _ansible_check_mode=True,
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_weightedlb_config
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_weightedlb_config,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_application_segment_weightedlb_config.main()
@@ -155,7 +175,9 @@ class TestZPAAppSegmentWeightedLBConfigModule(ModuleTestCase):
     def test_get_config_error(self, mock_client):
         """Test error when retrieving current config"""
         mock_client.application_segment.get_weighted_lb_config.return_value = (
-            None, None, "Config error"
+            None,
+            None,
+            "Config error",
         )
 
         set_module_args(
@@ -164,7 +186,9 @@ class TestZPAAppSegmentWeightedLBConfigModule(ModuleTestCase):
             weighted_load_balancing=True,
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_weightedlb_config
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_weightedlb_config,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_application_segment_weightedlb_config.main()
@@ -174,10 +198,14 @@ class TestZPAAppSegmentWeightedLBConfigModule(ModuleTestCase):
     def test_update_error(self, mock_client):
         """Test error during update"""
         mock_client.application_segment.get_weighted_lb_config.return_value = (
-            MockBox({**self.SAMPLE_CONFIG, "weighted_load_balancing": False}), None, None
+            MockBox({**self.SAMPLE_CONFIG, "weighted_load_balancing": False}),
+            None,
+            None,
         )
         mock_client.application_segment.update_weighted_lb_config.return_value = (
-            None, None, "Update error"
+            None,
+            None,
+            "Update error",
         )
 
         set_module_args(
@@ -186,7 +214,9 @@ class TestZPAAppSegmentWeightedLBConfigModule(ModuleTestCase):
             weighted_load_balancing=True,
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_weightedlb_config
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_weightedlb_config,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_application_segment_weightedlb_config.main()
@@ -206,7 +236,9 @@ class TestZPAAppSegmentWeightedLBConfigModule(ModuleTestCase):
             weighted_load_balancing=True,
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_weightedlb_config
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_weightedlb_config,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_application_segment_weightedlb_config.main()
@@ -226,7 +258,9 @@ class TestZPAAppSegmentWeightedLBConfigModule(ModuleTestCase):
             weighted_load_balancing=True,
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_weightedlb_config
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_weightedlb_config,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_application_segment_weightedlb_config.main()
@@ -236,10 +270,14 @@ class TestZPAAppSegmentWeightedLBConfigModule(ModuleTestCase):
     def test_mapping_drift_different_length(self, mock_client):
         """Test drift detection with different mapping lengths"""
         mock_client.application_segment.get_weighted_lb_config.return_value = (
-            MockBox(self.SAMPLE_CONFIG), None, None
+            MockBox(self.SAMPLE_CONFIG),
+            None,
+            None,
         )
         mock_client.application_segment.update_weighted_lb_config.return_value = (
-            MockBox({}), None, None
+            MockBox({}),
+            None,
+            None,
         )
 
         set_module_args(
@@ -250,7 +288,9 @@ class TestZPAAppSegmentWeightedLBConfigModule(ModuleTestCase):
             ],
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_weightedlb_config
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_weightedlb_config,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_application_segment_weightedlb_config.main()
@@ -260,10 +300,14 @@ class TestZPAAppSegmentWeightedLBConfigModule(ModuleTestCase):
     def test_mapping_drift_different_weight(self, mock_client):
         """Test drift detection with different weights"""
         mock_client.application_segment.get_weighted_lb_config.return_value = (
-            MockBox(self.SAMPLE_CONFIG), None, None
+            MockBox(self.SAMPLE_CONFIG),
+            None,
+            None,
         )
         mock_client.application_segment.update_weighted_lb_config.return_value = (
-            MockBox({}), None, None
+            MockBox({}),
+            None,
+            None,
         )
 
         set_module_args(
@@ -275,7 +319,9 @@ class TestZPAAppSegmentWeightedLBConfigModule(ModuleTestCase):
             ],
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_weightedlb_config
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_weightedlb_config,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_application_segment_weightedlb_config.main()
@@ -285,10 +331,14 @@ class TestZPAAppSegmentWeightedLBConfigModule(ModuleTestCase):
     def test_mapping_drift_new_server_group(self, mock_client):
         """Test drift detection with new server group ID"""
         mock_client.application_segment.get_weighted_lb_config.return_value = (
-            MockBox(self.SAMPLE_CONFIG), None, None
+            MockBox(self.SAMPLE_CONFIG),
+            None,
+            None,
         )
         mock_client.application_segment.update_weighted_lb_config.return_value = (
-            MockBox({}), None, None
+            MockBox({}),
+            None,
+            None,
         )
 
         set_module_args(
@@ -300,7 +350,9 @@ class TestZPAAppSegmentWeightedLBConfigModule(ModuleTestCase):
             ],
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_weightedlb_config
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_weightedlb_config,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_application_segment_weightedlb_config.main()

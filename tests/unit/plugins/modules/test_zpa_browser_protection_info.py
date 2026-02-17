@@ -6,9 +6,15 @@ __metaclass__ = type
 import pytest
 from unittest.mock import MagicMock, patch
 from tests.unit.plugins.modules.common.utils import (
-    set_module_args, AnsibleExitJson, AnsibleFailJson, ModuleTestCase, DEFAULT_PROVIDER,
+    set_module_args,
+    AnsibleExitJson,
+    AnsibleFailJson,
+    ModuleTestCase,
+    DEFAULT_PROVIDER,
 )
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import ZPAClientHelper
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
+    ZPAClientHelper,
+)
 
 REAL_ARGUMENT_SPEC = ZPAClientHelper.zpa_argument_spec()
 
@@ -23,8 +29,18 @@ class MockBox:
 
 class TestZPABrowserProtectionInfoModule(ModuleTestCase):
     SAMPLE_PROFILES = [
-        {"id": "123", "name": "Browser_Profile_01", "default_csp": True, "criteria": {}},
-        {"id": "456", "name": "Browser_Profile_02", "default_csp": False, "criteria": {}},
+        {
+            "id": "123",
+            "name": "Browser_Profile_01",
+            "default_csp": True,
+            "criteria": {},
+        },
+        {
+            "id": "456",
+            "name": "Browser_Profile_02",
+            "default_csp": False,
+            "criteria": {},
+        },
     ]
 
     @pytest.fixture
@@ -43,7 +59,10 @@ class TestZPABrowserProtectionInfoModule(ModuleTestCase):
             return_value=([MockBox(p) for p in self.SAMPLE_PROFILES], None),
         )
         set_module_args(provider=DEFAULT_PROVIDER)
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_browser_protection_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_browser_protection_info,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_browser_protection_info.main()
         assert result.value.result["changed"] is False
@@ -55,7 +74,10 @@ class TestZPABrowserProtectionInfoModule(ModuleTestCase):
             return_value=([MockBox(p) for p in self.SAMPLE_PROFILES], None),
         )
         set_module_args(provider=DEFAULT_PROVIDER, name="Browser_Profile_02")
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_browser_protection_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_browser_protection_info,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_browser_protection_info.main()
         assert result.value.result["profile"]["name"] == "Browser_Profile_02"
@@ -66,7 +88,10 @@ class TestZPABrowserProtectionInfoModule(ModuleTestCase):
             return_value=([MockBox(p) for p in self.SAMPLE_PROFILES], None),
         )
         set_module_args(provider=DEFAULT_PROVIDER, name="NonExistent")
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_browser_protection_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_browser_protection_info,
+        )
+
         with pytest.raises(AnsibleFailJson) as result:
             zpa_browser_protection_info.main()
         assert "Couldn't find" in result.value.result["msg"]
@@ -77,7 +102,10 @@ class TestZPABrowserProtectionInfoModule(ModuleTestCase):
             return_value=([], None),
         )
         set_module_args(provider=DEFAULT_PROVIDER)
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_browser_protection_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_browser_protection_info,
+        )
+
         with pytest.raises(AnsibleFailJson) as result:
             zpa_browser_protection_info.main()
         assert "No browser protection profiles found" in result.value.result["msg"]
@@ -89,7 +117,10 @@ class TestZPABrowserProtectionInfoModule(ModuleTestCase):
             return_value=(None, "API Error"),
         )
         set_module_args(provider=DEFAULT_PROVIDER)
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_browser_protection_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_browser_protection_info,
+        )
+
         with pytest.raises(AnsibleFailJson) as result:
             zpa_browser_protection_info.main()
         assert "error" in result.value.result["msg"].lower()
@@ -125,7 +156,10 @@ class TestZPABrowserProtectionInfoModule(ModuleTestCase):
             return_value=([MockBox(profile_with_criteria)], None),
         )
         set_module_args(provider=DEFAULT_PROVIDER, name="Profile_With_Criteria")
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_browser_protection_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_browser_protection_info,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_browser_protection_info.main()
         assert result.value.result["changed"] is False
@@ -142,7 +176,10 @@ class TestZPABrowserProtectionInfoModule(ModuleTestCase):
             return_value=([MockBox(p) for p in profiles], None),
         )
         set_module_args(provider=DEFAULT_PROVIDER)
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_browser_protection_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_browser_protection_info,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_browser_protection_info.main()
         # Module returns something (either first profile or None)

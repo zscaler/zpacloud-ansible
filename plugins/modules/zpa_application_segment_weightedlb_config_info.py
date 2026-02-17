@@ -141,7 +141,9 @@ def core(module):
 
     # Validate that at least one of application_id or application_name is provided
     if not application_id and not application_name:
-        module.fail_json(msg="Either 'application_id' or 'application_name' must be provided")
+        module.fail_json(
+            msg="Either 'application_id' or 'application_name' must be provided"
+        )
 
     # If application_name is provided, resolve it to application_id
     if application_name and not application_id:
@@ -149,7 +151,9 @@ def core(module):
             client.application_segment.list_segments, query_params
         )
         if err:
-            module.fail_json(msg=f"Error listing application segments: {to_native(err)}")
+            module.fail_json(
+                msg=f"Error listing application segments: {to_native(err)}"
+            )
 
         matched_segment = None
         for segment in segment_list:

@@ -484,9 +484,7 @@ class TestZpaSegmentGroupParametrized(ModuleTestCase):
             else:
                 client.segment_groups.list_groups.return_value = ([], None, None)
 
-            mock_response = create_mock_segment_group(
-                id="12345", **test_case["input"]
-            )
+            mock_response = create_mock_segment_group(id="12345", **test_case["input"])
             client.segment_groups.add_group.return_value = (
                 MockBox(mock_response),
                 None,

@@ -122,7 +122,11 @@ class TestZPAPolicyAccessTimeoutRuleModule(ModuleTestCase):
         )
 
         mock_updated = MockBox(self.SAMPLE_RULE)
-        mock_client.policies.update_timeout_rule.return_value = (mock_updated, None, None)
+        mock_client.policies.update_timeout_rule.return_value = (
+            mock_updated,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -217,9 +221,7 @@ class TestZPAPolicyAccessTimeoutRuleModule(ModuleTestCase):
         rule_with_conditions["conditions"] = [
             {
                 "operator": "OR",
-                "operands": [
-                    {"object_type": "APP", "lhs": "id", "rhs": "123456"}
-                ]
+                "operands": [{"object_type": "APP", "lhs": "id", "rhs": "123456"}],
             }
         ]
         mock_created = MockBox(rule_with_conditions)
@@ -236,9 +238,7 @@ class TestZPAPolicyAccessTimeoutRuleModule(ModuleTestCase):
             conditions=[
                 {
                     "operator": "OR",
-                    "operands": [
-                        {"object_type": "APP", "lhs": "id", "rhs": "123456"}
-                    ]
+                    "operands": [{"object_type": "APP", "lhs": "id", "rhs": "123456"}],
                 }
             ],
             state="present",

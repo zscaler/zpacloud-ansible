@@ -110,7 +110,10 @@ class TestZPASCIMGroupInfoModule(ModuleTestCase):
         mock_idp = MockBox(self.SAMPLE_IDP)
         mock_client.idp.list_idps.return_value = ([mock_idp], None, None)
 
-        mock_groups = [MockBox(self.SAMPLE_SCIM_GROUP), MockBox(self.SAMPLE_SCIM_GROUP_2)]
+        mock_groups = [
+            MockBox(self.SAMPLE_SCIM_GROUP),
+            MockBox(self.SAMPLE_SCIM_GROUP_2),
+        ]
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_scim_group_info.collect_all_items",
             return_value=(mock_groups, None),
@@ -138,7 +141,10 @@ class TestZPASCIMGroupInfoModule(ModuleTestCase):
         mock_idp = MockBox(self.SAMPLE_IDP)
         mock_client.idp.list_idps.return_value = ([mock_idp], None, None)
 
-        mock_groups = [MockBox(self.SAMPLE_SCIM_GROUP), MockBox(self.SAMPLE_SCIM_GROUP_2)]
+        mock_groups = [
+            MockBox(self.SAMPLE_SCIM_GROUP),
+            MockBox(self.SAMPLE_SCIM_GROUP_2),
+        ]
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_scim_group_info.collect_all_items",
             return_value=(mock_groups, None),

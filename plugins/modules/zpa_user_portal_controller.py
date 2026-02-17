@@ -176,7 +176,9 @@ def core(module):
             client.user_portal_controller.list_user_portals, query_params
         )
         if error:
-            module.fail_json(msg=f"Error listing User Portal Controllers: {to_native(error)}")
+            module.fail_json(
+                msg=f"Error listing User Portal Controllers: {to_native(error)}"
+            )
         for item in portal_list or []:
             item_dict = item.as_dict()
             if item_dict.get("name") == portal_name:
@@ -215,14 +217,20 @@ def core(module):
                         "domain": desired_portal.get("domain"),
                         "ext_domain": desired_portal.get("ext_domain"),
                         "ext_domain_name": desired_portal.get("ext_domain_name"),
-                        "ext_domain_translation": desired_portal.get("ext_domain_translation"),
+                        "ext_domain_translation": desired_portal.get(
+                            "ext_domain_translation"
+                        ),
                         "ext_label": desired_portal.get("ext_label"),
                         "user_notification": desired_portal.get("user_notification"),
-                        "user_notification_enabled": desired_portal.get("user_notification_enabled"),
+                        "user_notification_enabled": desired_portal.get(
+                            "user_notification_enabled"
+                        ),
                     }
                 )
-                updated, _unused, error = client.user_portal_controller.update_user_portal(
-                    portal_id=existing_portal.get("id"), **update_portal
+                updated, _unused, error = (
+                    client.user_portal_controller.update_user_portal(
+                        portal_id=existing_portal.get("id"), **update_portal
+                    )
                 )
                 if error:
                     module.fail_json(
@@ -242,13 +250,19 @@ def core(module):
                     "domain": desired_portal.get("domain"),
                     "ext_domain": desired_portal.get("ext_domain"),
                     "ext_domain_name": desired_portal.get("ext_domain_name"),
-                    "ext_domain_translation": desired_portal.get("ext_domain_translation"),
+                    "ext_domain_translation": desired_portal.get(
+                        "ext_domain_translation"
+                    ),
                     "ext_label": desired_portal.get("ext_label"),
                     "user_notification": desired_portal.get("user_notification"),
-                    "user_notification_enabled": desired_portal.get("user_notification_enabled"),
+                    "user_notification_enabled": desired_portal.get(
+                        "user_notification_enabled"
+                    ),
                 }
             )
-            created, _unused, error = client.user_portal_controller.add_user_portal(**payload)
+            created, _unused, error = client.user_portal_controller.add_user_portal(
+                **payload
+            )
             if error:
                 module.fail_json(
                     msg=f"Error creating User Portal Controller: {to_native(error)}"
@@ -262,7 +276,9 @@ def core(module):
             microtenant_id=microtenant_id,
         )
         if error:
-            module.fail_json(msg=f"Error deleting User Portal Controller: {to_native(error)}")
+            module.fail_json(
+                msg=f"Error deleting User Portal Controller: {to_native(error)}"
+            )
         module.exit_json(changed=True, data=existing_portal)
 
     module.exit_json(changed=False, data={})

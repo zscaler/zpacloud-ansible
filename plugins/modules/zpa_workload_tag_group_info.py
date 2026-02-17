@@ -121,15 +121,15 @@ def core(module):
             client.workload_tag_group.get_workload_tag_group_summary, query_params
         )
         if err:
-            module.fail_json(msg=f"Error retrieving Workload Tag Groups: {to_native(err)}")
+            module.fail_json(
+                msg=f"Error retrieving Workload Tag Groups: {to_native(err)}"
+            )
 
         result_list = [g.as_dict() for g in group_list]
         matched = next((g for g in result_list if g.get("id") == group_id), None)
 
         if not matched:
-            module.fail_json(
-                msg=f"Workload Tag Group ID '{group_id}' not found."
-            )
+            module.fail_json(msg=f"Workload Tag Group ID '{group_id}' not found.")
         module.exit_json(changed=False, groups=[matched])
 
     # If no ID, we fetch all

@@ -61,7 +61,11 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_policy_access_forwarding_rule.collect_all_items",
             return_value=([], None),
         )
-        mock_client.policies.add_client_forwarding_rule.return_value = (MockBox(self.SAMPLE_RULE), None, None)
+        mock_client.policies.add_client_forwarding_rule.return_value = (
+            MockBox(self.SAMPLE_RULE),
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -71,7 +75,9 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
             action="BYPASS",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_forwarding_rule
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_policy_access_forwarding_rule,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_policy_access_forwarding_rule.main()
@@ -91,7 +97,9 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
             name="Test_Forwarding_Rule",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_forwarding_rule
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_policy_access_forwarding_rule,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_policy_access_forwarding_rule.main()
@@ -112,7 +120,9 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
             action="BYPASS",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_forwarding_rule
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_policy_access_forwarding_rule,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_policy_access_forwarding_rule.main()
@@ -131,7 +141,9 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
             name="NonExistent_Rule",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_forwarding_rule
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_policy_access_forwarding_rule,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_policy_access_forwarding_rule.main()
@@ -146,7 +158,11 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_policy_access_forwarding_rule.collect_all_items",
             return_value=([MockBox(existing_rule)], None),
         )
-        mock_client.policies.update_client_forwarding_rule.return_value = (MockBox(self.SAMPLE_RULE), None, None)
+        mock_client.policies.update_client_forwarding_rule.return_value = (
+            MockBox(self.SAMPLE_RULE),
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -156,7 +172,9 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
             action="BYPASS",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_forwarding_rule
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_policy_access_forwarding_rule,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_policy_access_forwarding_rule.main()
@@ -165,7 +183,11 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
 
     def test_get_rule_by_id(self, mock_client, mocker):
         """Test retrieving rule by ID."""
-        mock_client.policies.get_rule.return_value = (MockBox(self.SAMPLE_RULE), None, None)
+        mock_client.policies.get_rule.return_value = (
+            MockBox(self.SAMPLE_RULE),
+            None,
+            None,
+        )
         mock_client.policies.delete_rule.return_value = (None, None, None)
 
         set_module_args(
@@ -175,7 +197,9 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
             state="absent",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_forwarding_rule
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_policy_access_forwarding_rule,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_policy_access_forwarding_rule.main()
@@ -185,6 +209,7 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
     def test_get_rule_by_id_error(self, mock_client, mocker):
         """Test error when retrieving rule by ID."""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mock_client.policies.get_rule.return_value = (None, None, "Not found")
 
         set_module_args(
@@ -194,7 +219,9 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
             state="absent",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_forwarding_rule
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_policy_access_forwarding_rule,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_policy_access_forwarding_rule.main()
@@ -204,6 +231,7 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
     def test_list_rules_error(self, mock_client, mocker):
         """Test error handling when listing rules."""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_policy_access_forwarding_rule.collect_all_items",
             return_value=(None, "API Error"),
@@ -216,7 +244,9 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
             state="present",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_forwarding_rule
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_policy_access_forwarding_rule,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_policy_access_forwarding_rule.main()
@@ -226,11 +256,16 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
     def test_create_rule_error(self, mock_client, mocker):
         """Test error handling when creating rule."""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_policy_access_forwarding_rule.collect_all_items",
             return_value=([], None),
         )
-        mock_client.policies.add_client_forwarding_rule.return_value = (None, None, "Create failed")
+        mock_client.policies.add_client_forwarding_rule.return_value = (
+            None,
+            None,
+            "Create failed",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -239,7 +274,9 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
             state="present",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_forwarding_rule
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_policy_access_forwarding_rule,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_policy_access_forwarding_rule.main()
@@ -249,13 +286,18 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
     def test_update_rule_error(self, mock_client, mocker):
         """Test error handling when updating rule."""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         existing_rule = dict(self.SAMPLE_RULE)
         existing_rule["description"] = "Old"
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_policy_access_forwarding_rule.collect_all_items",
             return_value=([MockBox(existing_rule)], None),
         )
-        mock_client.policies.update_client_forwarding_rule.return_value = (None, None, "Update failed")
+        mock_client.policies.update_client_forwarding_rule.return_value = (
+            None,
+            None,
+            "Update failed",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -265,7 +307,9 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
             state="present",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_forwarding_rule
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_policy_access_forwarding_rule,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_policy_access_forwarding_rule.main()
@@ -275,6 +319,7 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
     def test_delete_rule_error(self, mock_client, mocker):
         """Test error handling when deleting rule."""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_policy_access_forwarding_rule.collect_all_items",
             return_value=([MockBox(self.SAMPLE_RULE)], None),
@@ -287,7 +332,9 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
             state="absent",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_forwarding_rule
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_policy_access_forwarding_rule,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_policy_access_forwarding_rule.main()
@@ -309,7 +356,9 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
             _ansible_check_mode=True,
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_forwarding_rule
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_policy_access_forwarding_rule,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_policy_access_forwarding_rule.main()
@@ -331,7 +380,9 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
             _ansible_check_mode=True,
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_forwarding_rule
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_policy_access_forwarding_rule,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_policy_access_forwarding_rule.main()
@@ -358,7 +409,9 @@ class TestZPAPolicyAccessForwardingRuleModule(ModuleTestCase):
             state="present",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_access_forwarding_rule
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_policy_access_forwarding_rule,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_policy_access_forwarding_rule.main()

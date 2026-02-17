@@ -79,7 +79,11 @@ class TestZPAPostureProfileInfoModule(ModuleTestCase):
     def test_get_profile_by_id(self, mock_client):
         """Test fetching a Posture Profile by ID."""
         mock_profile = MockBox(self.SAMPLE_PROFILE)
-        mock_client.posture_profiles.get_profile.return_value = (mock_profile, None, None)
+        mock_client.posture_profiles.get_profile.return_value = (
+            mock_profile,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -144,7 +148,11 @@ class TestZPAPostureProfileInfoModule(ModuleTestCase):
 
     def test_profile_not_found_by_id(self, mock_client):
         """Test fetching a non-existent profile by ID."""
-        mock_client.posture_profiles.get_profile.return_value = (None, None, "Not Found")
+        mock_client.posture_profiles.get_profile.return_value = (
+            None,
+            None,
+            "Not Found",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,

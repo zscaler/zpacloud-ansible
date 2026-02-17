@@ -89,7 +89,11 @@ class TestZPASAMLAttributeInfoModule(ModuleTestCase):
     def test_get_attribute_by_id(self, mock_client):
         """Test fetching a SAML Attribute by ID."""
         mock_attr = MockBox(self.SAMPLE_ATTR)
-        mock_client.saml_attributes.get_saml_attribute.return_value = (mock_attr, None, None)
+        mock_client.saml_attributes.get_saml_attribute.return_value = (
+            mock_attr,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -180,7 +184,11 @@ class TestZPASAMLAttributeInfoModule(ModuleTestCase):
 
     def test_attribute_not_found_by_id(self, mock_client):
         """Test fetching a non-existent attribute by ID."""
-        mock_client.saml_attributes.get_saml_attribute.return_value = (None, None, "Not Found")
+        mock_client.saml_attributes.get_saml_attribute.return_value = (
+            None,
+            None,
+            "Not Found",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,

@@ -6,9 +6,15 @@ __metaclass__ = type
 import pytest
 from unittest.mock import MagicMock, patch
 from tests.unit.plugins.modules.common.utils import (
-    set_module_args, AnsibleExitJson, AnsibleFailJson, ModuleTestCase, DEFAULT_PROVIDER,
+    set_module_args,
+    AnsibleExitJson,
+    AnsibleFailJson,
+    ModuleTestCase,
+    DEFAULT_PROVIDER,
 )
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import ZPAClientHelper
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
+    ZPAClientHelper,
+)
 
 REAL_ARGUMENT_SPEC = ZPAClientHelper.zpa_argument_spec()
 
@@ -43,7 +49,10 @@ class TestZPAExtranetResourcePartnerInfoModule(ModuleTestCase):
             return_value=([MockBox(p) for p in self.SAMPLE_PARTNERS], None),
         )
         set_module_args(provider=DEFAULT_PROVIDER)
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_extranet_resource_partner_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_extranet_resource_partner_info,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_extranet_resource_partner_info.main()
         assert result.value.result["changed"] is False
@@ -55,7 +64,10 @@ class TestZPAExtranetResourcePartnerInfoModule(ModuleTestCase):
             return_value=([MockBox(p) for p in self.SAMPLE_PARTNERS], None),
         )
         set_module_args(provider=DEFAULT_PROVIDER, id="123")
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_extranet_resource_partner_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_extranet_resource_partner_info,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_extranet_resource_partner_info.main()
         assert result.value.result["partners"][0]["name"] == "Partner_ER_01"
@@ -66,7 +78,10 @@ class TestZPAExtranetResourcePartnerInfoModule(ModuleTestCase):
             return_value=([MockBox(p) for p in self.SAMPLE_PARTNERS], None),
         )
         set_module_args(provider=DEFAULT_PROVIDER, name="NonExistent")
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_extranet_resource_partner_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_extranet_resource_partner_info,
+        )
+
         with pytest.raises(AnsibleFailJson) as result:
             zpa_extranet_resource_partner_info.main()
         assert "not found" in result.value.result["msg"]

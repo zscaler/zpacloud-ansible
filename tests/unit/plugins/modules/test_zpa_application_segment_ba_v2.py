@@ -6,9 +6,14 @@ __metaclass__ = type
 import pytest
 from unittest.mock import MagicMock, patch
 from tests.unit.plugins.modules.common.utils import (
-    set_module_args, AnsibleExitJson, ModuleTestCase, DEFAULT_PROVIDER,
+    set_module_args,
+    AnsibleExitJson,
+    ModuleTestCase,
+    DEFAULT_PROVIDER,
 )
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import ZPAClientHelper
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
+    ZPAClientHelper,
+)
 
 REAL_ARGUMENT_SPEC = ZPAClientHelper.zpa_argument_spec()
 
@@ -29,7 +34,9 @@ class TestZPAApplicationSegmentBAV2Module(ModuleTestCase):
         "enabled": True,
         "segment_group_id": "456",
         "server_group_ids": ["789"],
-        "common_apps_dto": {"apps_config": [{"domain": "app1.example.com", "application_port": "443"}]},
+        "common_apps_dto": {
+            "apps_config": [{"domain": "app1.example.com", "application_port": "443"}]
+        },
     }
 
     @pytest.fixture
@@ -54,11 +61,21 @@ class TestZPAApplicationSegmentBAV2Module(ModuleTestCase):
             segment_group_id="456",
             server_group_ids=["789"],
             common_apps_dto={
-                "apps_config": [{"name": "app1", "domain": "app1.example.com", "application_port": "443",
-                                 "application_protocol": "HTTPS", "app_types": ["BROWSER_ACCESS"]}]
+                "apps_config": [
+                    {
+                        "name": "app1",
+                        "domain": "app1.example.com",
+                        "application_port": "443",
+                        "application_protocol": "HTTPS",
+                        "app_types": ["BROWSER_ACCESS"],
+                    }
+                ]
             },
         )
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_ba_v2
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_ba_v2,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_application_segment_ba_v2.main()
         assert result.value.result["changed"] is False

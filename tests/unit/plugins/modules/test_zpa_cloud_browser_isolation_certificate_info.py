@@ -75,7 +75,11 @@ class TestZPACBICertificateInfoModule(ModuleTestCase):
     def test_get_certificate_by_id(self, mock_client):
         """Test fetching a CBI Certificate by ID."""
         mock_cert = MockBox(self.SAMPLE_CERT)
-        mock_client.cbi_certificate.get_cbi_certificate.return_value = (mock_cert, None, None)
+        mock_client.cbi_certificate.get_cbi_certificate.return_value = (
+            mock_cert,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -92,12 +96,18 @@ class TestZPACBICertificateInfoModule(ModuleTestCase):
         mock_client.cbi_certificate.get_cbi_certificate.assert_called_once()
         assert result.value.result["changed"] is False
         assert len(result.value.result["certificates"]) == 1
-        assert result.value.result["certificates"][0]["name"] == "ansible.securitygeek.io"
+        assert (
+            result.value.result["certificates"][0]["name"] == "ansible.securitygeek.io"
+        )
 
     def test_get_certificate_by_name(self, mock_client):
         """Test fetching a CBI Certificate by name."""
         mock_certs = [MockBox(self.SAMPLE_CERT), MockBox(self.SAMPLE_CERT_2)]
-        mock_client.cbi_certificate.list_cbi_certificates.return_value = (mock_certs, None, None)
+        mock_client.cbi_certificate.list_cbi_certificates.return_value = (
+            mock_certs,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -113,12 +123,18 @@ class TestZPACBICertificateInfoModule(ModuleTestCase):
 
         assert result.value.result["changed"] is False
         assert len(result.value.result["certificates"]) == 1
-        assert result.value.result["certificates"][0]["name"] == "Zscaler Root Certificate"
+        assert (
+            result.value.result["certificates"][0]["name"] == "Zscaler Root Certificate"
+        )
 
     def test_get_all_certificates(self, mock_client):
         """Test fetching all CBI Certificates."""
         mock_certs = [MockBox(self.SAMPLE_CERT), MockBox(self.SAMPLE_CERT_2)]
-        mock_client.cbi_certificate.list_cbi_certificates.return_value = (mock_certs, None, None)
+        mock_client.cbi_certificate.list_cbi_certificates.return_value = (
+            mock_certs,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -136,7 +152,11 @@ class TestZPACBICertificateInfoModule(ModuleTestCase):
 
     def test_api_error_on_get_by_id(self, mock_client):
         """Test handling API error when fetching by ID."""
-        mock_client.cbi_certificate.get_cbi_certificate.return_value = (None, None, "API Error")
+        mock_client.cbi_certificate.get_cbi_certificate.return_value = (
+            None,
+            None,
+            "API Error",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,

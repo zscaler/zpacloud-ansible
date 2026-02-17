@@ -55,7 +55,14 @@ def set_module_args(**args):
     if "_ansible_verbosity" not in args:
         args["_ansible_verbosity"] = 0
     if "_ansible_selinux_special_fs" not in args:
-        args["_ansible_selinux_special_fs"] = ["fuse", "nfs", "vboxsf", "ramfs", "9p", "vfat"]
+        args["_ansible_selinux_special_fs"] = [
+            "fuse",
+            "nfs",
+            "vboxsf",
+            "ramfs",
+            "9p",
+            "vfat",
+        ]
     if "_ansible_syslog_facility" not in args:
         args["_ansible_syslog_facility"] = "LOG_USER"
     if "_ansible_version" not in args:
@@ -83,6 +90,7 @@ class AnsibleExitJson(SystemExit):
     Exception raised when module calls exit_json().
     Inherits from SystemExit so it won't be caught by 'except Exception'.
     """
+
     def __init__(self, kwargs):
         self.result = kwargs
         super().__init__(0)
@@ -93,6 +101,7 @@ class AnsibleFailJson(SystemExit):
     Exception raised when module calls fail_json().
     Inherits from SystemExit so it won't be caught by 'except Exception'.
     """
+
     def __init__(self, kwargs):
         self.result = kwargs
         super().__init__(1)

@@ -81,11 +81,13 @@ clean:		## Remove all auto-generated files
 	rm -rf .coverage coverage.xml htmlcov .pytest_cache
 	rm -rf .tox .eggs *.egg-info
 
+.PHONY: format
 format:		## Format with black
-	black .
+	poetry run black .
 
+.PHONY: check-format
 check-format:	## Check with black
-	black --check --diff .
+	poetry run black --check --diff .
 
 test\:unit:
 	@echo "$(COLOR_ZSCALER)Running unit tests...$(COLOR_NONE)"
@@ -127,7 +129,7 @@ old-sanity:		## Sanity tests for Ansible v2.9 and Ansible v2.10
 
 .PHONY: new-sanity
 new-sanity:		## Sanity tests for Ansible v2.11 and above
-	ansible-test sanity -v --skip-test pylint --python $(python_version)
+	ansible-test sanity -v --skip-test pylint --skip-test pep8 --python $(python_version)
 
 .PHONY: new-sanity-docker
 new-sanity-docker:

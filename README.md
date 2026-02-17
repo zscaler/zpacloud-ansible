@@ -304,7 +304,7 @@ For details about how to retrieve your tenant Base URL and API key/token refer t
 
 The intended release frequency for major and minor versions are performed whenever there is a need for fixing issues or to address security concerns.
 
-Changelog details are created automatically and more recently can be found [here](./CHANGELOG.md), but also the full history is [here](https://github.com/zscaler/zpacloud-ansible/releases).
+Changelog details are created automatically and more recently can be found [here](https://github.com/zscaler/zpacloud-ansible/blob/master/README.md), but also the full history is [here](https://github.com/zscaler/zpacloud-ansible/releases).
 
 [Semantic versioning](https://semver.org/) is adhered to for this project.
 

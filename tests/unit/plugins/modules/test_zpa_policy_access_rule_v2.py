@@ -79,7 +79,11 @@ class TestZPAPolicyAccessRuleV2Module(ModuleTestCase):
         )
 
         mock_created = MockBox(self.SAMPLE_RULE)
-        mock_client.policies.add_access_rule_v2.return_value = (mock_created, None, None)
+        mock_client.policies.add_access_rule_v2.return_value = (
+            mock_created,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -112,7 +116,11 @@ class TestZPAPolicyAccessRuleV2Module(ModuleTestCase):
         )
 
         mock_updated = MockBox(self.SAMPLE_RULE)
-        mock_client.policies.update_access_rule_v2.return_value = (mock_updated, None, None)
+        mock_client.policies.update_access_rule_v2.return_value = (
+            mock_updated,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -195,13 +203,15 @@ class TestZPAPolicyAccessRuleV2Module(ModuleTestCase):
         rule_with_conditions["conditions"] = [
             {
                 "operator": "OR",
-                "operands": [
-                    {"object_type": "APP", "values": ["123456", "789012"]}
-                ]
+                "operands": [{"object_type": "APP", "values": ["123456", "789012"]}],
             }
         ]
         mock_created = MockBox(rule_with_conditions)
-        mock_client.policies.add_access_rule_v2.return_value = (mock_created, None, None)
+        mock_client.policies.add_access_rule_v2.return_value = (
+            mock_created,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -214,7 +224,7 @@ class TestZPAPolicyAccessRuleV2Module(ModuleTestCase):
                     "operator": "OR",
                     "operands": [
                         {"object_type": "APP", "values": ["123456", "789012"]}
-                    ]
+                    ],
                 }
             ],
             state="present",
@@ -244,13 +254,17 @@ class TestZPAPolicyAccessRuleV2Module(ModuleTestCase):
                 "operands": [
                     {
                         "object_type": "SCIM_GROUP",
-                        "entry_values": {"lhs": "72058304855015574", "rhs": "490880"}
+                        "entry_values": {"lhs": "72058304855015574", "rhs": "490880"},
                     }
-                ]
+                ],
             }
         ]
         mock_created = MockBox(rule_with_conditions)
-        mock_client.policies.add_access_rule_v2.return_value = (mock_created, None, None)
+        mock_client.policies.add_access_rule_v2.return_value = (
+            mock_created,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -263,9 +277,12 @@ class TestZPAPolicyAccessRuleV2Module(ModuleTestCase):
                     "operands": [
                         {
                             "object_type": "SCIM_GROUP",
-                            "entry_values": {"lhs": "72058304855015574", "rhs": "490880"}
+                            "entry_values": {
+                                "lhs": "72058304855015574",
+                                "rhs": "490880",
+                            },
                         }
-                    ]
+                    ],
                 }
             ],
             state="present",

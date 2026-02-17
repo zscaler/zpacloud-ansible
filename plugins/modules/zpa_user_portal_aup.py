@@ -116,7 +116,16 @@ def core(module):
     client = ZPAClientHelper(module)
 
     # Collect parameters
-    params = ["id", "name", "description", "enabled", "aup", "email", "phone_num", "microtenant_id"]
+    params = [
+        "id",
+        "name",
+        "description",
+        "enabled",
+        "aup",
+        "email",
+        "phone_num",
+        "microtenant_id",
+    ]
     aup_data = {param: module.params.get(param) for param in params}
     aup_id = aup_data.get("id")
     aup_name = aup_data.get("name")
@@ -203,7 +212,9 @@ def core(module):
                     "phone_num": desired_aup.get("phone_num"),
                 }
             )
-            created, _unused, error = client.user_portal_aup.add_user_portal_aup(**payload)
+            created, _unused, error = client.user_portal_aup.add_user_portal_aup(
+                **payload
+            )
             if error:
                 module.fail_json(
                     msg=f"Error creating User Portal AUP: {to_native(error)}"

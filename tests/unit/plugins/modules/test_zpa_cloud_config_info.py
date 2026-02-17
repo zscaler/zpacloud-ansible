@@ -64,7 +64,9 @@ class TestZPACloudConfigInfoModule(ModuleTestCase):
 
         set_module_args(provider=DEFAULT_PROVIDER)
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_cloud_config_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_cloud_config_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_cloud_config_info.main()
@@ -75,11 +77,17 @@ class TestZPACloudConfigInfoModule(ModuleTestCase):
         assert result.value.result["config"]["zia_username"] == "admin@example.com"
 
     def test_api_error(self, mock_client):
-        mock_client.zia_customer_config.get_zia_cloud_service_config.return_value = (None, None, "API Error")
+        mock_client.zia_customer_config.get_zia_cloud_service_config.return_value = (
+            None,
+            None,
+            "API Error",
+        )
 
         set_module_args(provider=DEFAULT_PROVIDER)
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_cloud_config_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_cloud_config_info,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_cloud_config_info.main()
@@ -87,11 +95,17 @@ class TestZPACloudConfigInfoModule(ModuleTestCase):
         assert "Error retrieving ZIA cloud config" in result.value.result["msg"]
 
     def test_no_config_found(self, mock_client):
-        mock_client.zia_customer_config.get_zia_cloud_service_config.return_value = ([], None, None)
+        mock_client.zia_customer_config.get_zia_cloud_service_config.return_value = (
+            [],
+            None,
+            None,
+        )
 
         set_module_args(provider=DEFAULT_PROVIDER)
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_cloud_config_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_cloud_config_info,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_cloud_config_info.main()

@@ -54,7 +54,9 @@ class TestZPALSSClientTypesInfoModule(ModuleTestCase):
 
         set_module_args(provider=DEFAULT_PROVIDER)
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_lss_client_types_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_lss_client_types_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_lss_client_types_info.main()
@@ -64,14 +66,18 @@ class TestZPALSSClientTypesInfoModule(ModuleTestCase):
         assert result.value.result["data"] == self.SAMPLE_CLIENT_TYPES
 
     def test_get_specific_client_type(self, mock_client):
-        mock_client.lss.get_client_types.return_value = {"zpn_client_type_zapp": "Client Connector"}
+        mock_client.lss.get_client_types.return_value = {
+            "zpn_client_type_zapp": "Client Connector"
+        }
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
             client_type="zpn_client_type_zapp",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_lss_client_types_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_lss_client_types_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_lss_client_types_info.main()
@@ -84,7 +90,9 @@ class TestZPALSSClientTypesInfoModule(ModuleTestCase):
 
         set_module_args(provider=DEFAULT_PROVIDER)
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_lss_client_types_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_lss_client_types_info,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_lss_client_types_info.main()

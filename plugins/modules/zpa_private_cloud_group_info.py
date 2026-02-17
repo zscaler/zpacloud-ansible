@@ -200,7 +200,9 @@ def core(module):
         query_params["microtenant_id"] = microtenant_id
 
     if group_id:
-        result, _unused, error = client.private_cloud_group.get_cloud_group(group_id, query_params)
+        result, _unused, error = client.private_cloud_group.get_cloud_group(
+            group_id, query_params
+        )
         if error or result is None:
             module.fail_json(
                 msg=f"Failed to retrieve Private Cloud Group ID '{group_id}': {to_native(error)}"
@@ -208,7 +210,9 @@ def core(module):
         module.exit_json(changed=False, groups=[result.as_dict()])
 
     # If no ID, we fetch all
-    group_list, err = collect_all_items(client.private_cloud_group.list_cloud_groups, query_params)
+    group_list, err = collect_all_items(
+        client.private_cloud_group.list_cloud_groups, query_params
+    )
     if err:
         module.fail_json(msg=f"Error retrieving Private Cloud Groups: {to_native(err)}")
 

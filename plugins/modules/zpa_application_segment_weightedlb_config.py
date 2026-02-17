@@ -137,7 +137,9 @@ def core(module):
     application_id = module.params.get("application_id")
     application_name = module.params.get("application_name")
     weighted_load_balancing = module.params.get("weighted_load_balancing")
-    application_to_server_group_mappings = module.params.get("application_to_server_group_mappings")
+    application_to_server_group_mappings = module.params.get(
+        "application_to_server_group_mappings"
+    )
     microtenant_id = module.params.get("microtenant_id")
 
     query_params = {}
@@ -146,7 +148,9 @@ def core(module):
 
     # Validate that at least one of application_id or application_name is provided
     if not application_id and not application_name:
-        module.fail_json(msg="Either 'application_id' or 'application_name' must be provided")
+        module.fail_json(
+            msg="Either 'application_id' or 'application_name' must be provided"
+        )
 
     # If application_name is provided, resolve it to application_id
     if application_name and not application_id:
@@ -154,7 +158,9 @@ def core(module):
             client.application_segment.list_segments, query_params
         )
         if err:
-            module.fail_json(msg=f"Error listing application segments: {to_native(err)}")
+            module.fail_json(
+                msg=f"Error listing application segments: {to_native(err)}"
+            )
 
         matched_segment = None
         for segment in segment_list:
@@ -201,10 +207,14 @@ def core(module):
                 if not current_m:
                     drift = True
                     break
-                if new_mapping.get("weight") and str(current_m.get("weight")) != str(new_mapping.get("weight")):
+                if new_mapping.get("weight") and str(current_m.get("weight")) != str(
+                    new_mapping.get("weight")
+                ):
                     drift = True
                     break
-                if new_mapping.get("passive") is not None and current_m.get("passive") != new_mapping.get("passive"):
+                if new_mapping.get("passive") is not None and current_m.get(
+                    "passive"
+                ) != new_mapping.get("passive"):
                     drift = True
                     break
 
@@ -213,15 +223,15 @@ def core(module):
 
     if drift:
         # Build payload
-        payload = deleteNone({
-            "weighted_load_balancing": weighted_load_balancing,
-            "application_to_server_group_mappings": application_to_server_group_mappings,
-        })
+        payload = deleteNone(
+            {
+                "weighted_load_balancing": weighted_load_balancing,
+                "application_to_server_group_mappings": application_to_server_group_mappings,
+            }
+        )
 
         updated, _unused, error = client.application_segment.update_weighted_lb_config(
-            segment_id=application_id,
-            query_params=query_params,
-            **payload
+            segment_id=application_id, query_params=query_params, **payload
         )
         if error:
             module.fail_json(

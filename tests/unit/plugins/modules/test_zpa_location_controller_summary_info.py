@@ -72,7 +72,10 @@ class TestZPALocationControllerSummaryInfoModule(ModuleTestCase):
 
     def test_get_all_location_summaries(self, mock_client, mocker):
         """Test fetching all Location Controller summaries."""
-        mock_locations = [MockBox(self.SAMPLE_LOCATION), MockBox(self.SAMPLE_LOCATION_2)]
+        mock_locations = [
+            MockBox(self.SAMPLE_LOCATION),
+            MockBox(self.SAMPLE_LOCATION_2),
+        ]
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_location_controller_summary_info.collect_all_items",
             return_value=(mock_locations, None),
@@ -94,7 +97,10 @@ class TestZPALocationControllerSummaryInfoModule(ModuleTestCase):
 
     def test_get_location_by_id(self, mock_client, mocker):
         """Test fetching a Location Controller summary by ID."""
-        mock_locations = [MockBox(self.SAMPLE_LOCATION), MockBox(self.SAMPLE_LOCATION_2)]
+        mock_locations = [
+            MockBox(self.SAMPLE_LOCATION),
+            MockBox(self.SAMPLE_LOCATION_2),
+        ]
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_location_controller_summary_info.collect_all_items",
             return_value=(mock_locations, None),
@@ -118,7 +124,10 @@ class TestZPALocationControllerSummaryInfoModule(ModuleTestCase):
 
     def test_get_location_by_name(self, mock_client, mocker):
         """Test fetching a Location Controller summary by name."""
-        mock_locations = [MockBox(self.SAMPLE_LOCATION), MockBox(self.SAMPLE_LOCATION_2)]
+        mock_locations = [
+            MockBox(self.SAMPLE_LOCATION),
+            MockBox(self.SAMPLE_LOCATION_2),
+        ]
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_location_controller_summary_info.collect_all_items",
             return_value=(mock_locations, None),

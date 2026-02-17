@@ -141,7 +141,9 @@ def get_current_match_styles(client, application_ids, microtenant_id=None):
             if error:
                 continue
             if segment:
-                segment_dict = segment.as_dict() if hasattr(segment, "as_dict") else segment
+                segment_dict = (
+                    segment.as_dict() if hasattr(segment, "as_dict") else segment
+                )
                 match_styles[app_id] = segment_dict.get("match_style", "")
         except Exception:
             continue
@@ -157,7 +159,9 @@ def core(module):
     microtenant_id = module.params.get("microtenant_id")
 
     if not application_ids or len(application_ids) == 0:
-        module.fail_json(msg="At least one application ID must be provided in 'application_ids'")
+        module.fail_json(
+            msg="At least one application ID must be provided in 'application_ids'"
+        )
 
     # Convert application_ids to integers for the API
     try:
@@ -166,7 +170,9 @@ def core(module):
         module.fail_json(msg=f"Invalid application ID format: {to_native(e)}")
 
     # Check current state for drift detection
-    current_match_styles = get_current_match_styles(client, application_ids, microtenant_id)
+    current_match_styles = get_current_match_styles(
+        client, application_ids, microtenant_id
+    )
 
     # Determine if any update is needed
     needs_update = False
@@ -188,7 +194,9 @@ def core(module):
         if microtenant_id:
             kwargs["microtenant_id"] = microtenant_id
 
-        result, _unused, error = client.application_segment.bulk_update_multimatch(**kwargs)
+        result, _unused, error = client.application_segment.bulk_update_multimatch(
+            **kwargs
+        )
         if error:
             module.fail_json(
                 msg=f"Failed to bulk update multimatch: {to_native(error)}"
@@ -200,7 +208,7 @@ def core(module):
                 "message": "Bulk update multimatch operation completed successfully.",
                 "application_ids": application_ids,
                 "match_style": match_style,
-            }
+            },
         )
     else:
         module.exit_json(
@@ -209,7 +217,7 @@ def core(module):
                 "message": "No changes required. All application segments already have the specified match_style.",
                 "application_ids": application_ids,
                 "match_style": match_style,
-            }
+            },
         )
 
 

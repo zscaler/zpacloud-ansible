@@ -65,10 +65,18 @@ class TestZPACBICertificateModule(ModuleTestCase):
 
     def test_create_certificate(self, mock_client):
         """Test creating a new CBI Certificate."""
-        mock_client.cbi_certificate.list_cbi_certificates.return_value = ([], None, None)
+        mock_client.cbi_certificate.list_cbi_certificates.return_value = (
+            [],
+            None,
+            None,
+        )
 
         mock_created = MockBox(self.SAMPLE_CERT)
-        mock_client.cbi_certificate.add_cbi_certificate.return_value = (mock_created, None, None)
+        mock_client.cbi_certificate.add_cbi_certificate.return_value = (
+            mock_created,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -90,12 +98,22 @@ class TestZPACBICertificateModule(ModuleTestCase):
     def test_update_certificate(self, mock_client):
         """Test updating an existing CBI Certificate."""
         existing_cert = dict(self.SAMPLE_CERT)
-        existing_cert["pem"] = "-----BEGIN CERTIFICATE-----\nOLDCERT...\n-----END CERTIFICATE-----"
+        existing_cert["pem"] = (
+            "-----BEGIN CERTIFICATE-----\nOLDCERT...\n-----END CERTIFICATE-----"
+        )
         mock_existing = MockBox(existing_cert)
-        mock_client.cbi_certificate.list_cbi_certificates.return_value = ([mock_existing], None, None)
+        mock_client.cbi_certificate.list_cbi_certificates.return_value = (
+            [mock_existing],
+            None,
+            None,
+        )
 
         mock_updated = MockBox(self.SAMPLE_CERT)
-        mock_client.cbi_certificate.update_cbi_certificate.return_value = (mock_updated, None, None)
+        mock_client.cbi_certificate.update_cbi_certificate.return_value = (
+            mock_updated,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -117,8 +135,16 @@ class TestZPACBICertificateModule(ModuleTestCase):
     def test_delete_certificate(self, mock_client):
         """Test deleting a CBI Certificate."""
         mock_existing = MockBox(self.SAMPLE_CERT)
-        mock_client.cbi_certificate.list_cbi_certificates.return_value = ([mock_existing], None, None)
-        mock_client.cbi_certificate.delete_cbi_certificate.return_value = (None, None, None)
+        mock_client.cbi_certificate.list_cbi_certificates.return_value = (
+            [mock_existing],
+            None,
+            None,
+        )
+        mock_client.cbi_certificate.delete_cbi_certificate.return_value = (
+            None,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -140,7 +166,11 @@ class TestZPACBICertificateModule(ModuleTestCase):
     def test_no_change_when_identical(self, mock_client):
         """Test no change when certificate already matches desired state."""
         mock_existing = MockBox(self.SAMPLE_CERT)
-        mock_client.cbi_certificate.list_cbi_certificates.return_value = ([mock_existing], None, None)
+        mock_client.cbi_certificate.list_cbi_certificates.return_value = (
+            [mock_existing],
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -162,7 +192,11 @@ class TestZPACBICertificateModule(ModuleTestCase):
 
     def test_check_mode_create(self, mock_client):
         """Test check mode for create operation."""
-        mock_client.cbi_certificate.list_cbi_certificates.return_value = ([], None, None)
+        mock_client.cbi_certificate.list_cbi_certificates.return_value = (
+            [],
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -185,9 +219,15 @@ class TestZPACBICertificateModule(ModuleTestCase):
     def test_get_certificate_by_id(self, mock_client):
         """Test retrieving certificate by ID"""
         mock_client.cbi_certificate.get_cbi_certificate.return_value = (
-            MockBox(self.SAMPLE_CERT), None, None
+            MockBox(self.SAMPLE_CERT),
+            None,
+            None,
         )
-        mock_client.cbi_certificate.delete_cbi_certificate.return_value = (None, None, None)
+        mock_client.cbi_certificate.delete_cbi_certificate.return_value = (
+            None,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -209,7 +249,12 @@ class TestZPACBICertificateModule(ModuleTestCase):
     def test_get_certificate_by_id_error(self, mock_client):
         """Test error when retrieving certificate by ID"""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
-        mock_client.cbi_certificate.get_cbi_certificate.return_value = (None, None, "Not found")
+
+        mock_client.cbi_certificate.get_cbi_certificate.return_value = (
+            None,
+            None,
+            "Not found",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -231,7 +276,12 @@ class TestZPACBICertificateModule(ModuleTestCase):
     def test_list_certificates_error(self, mock_client):
         """Test error handling when listing certificates"""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
-        mock_client.cbi_certificate.list_cbi_certificates.return_value = (None, None, "List error")
+
+        mock_client.cbi_certificate.list_cbi_certificates.return_value = (
+            None,
+            None,
+            "List error",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -252,8 +302,17 @@ class TestZPACBICertificateModule(ModuleTestCase):
     def test_create_certificate_error(self, mock_client):
         """Test error handling when creating certificate"""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
-        mock_client.cbi_certificate.list_cbi_certificates.return_value = ([], None, None)
-        mock_client.cbi_certificate.add_cbi_certificate.return_value = (None, None, "Create failed")
+
+        mock_client.cbi_certificate.list_cbi_certificates.return_value = (
+            [],
+            None,
+            None,
+        )
+        mock_client.cbi_certificate.add_cbi_certificate.return_value = (
+            None,
+            None,
+            "Create failed",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -274,9 +333,18 @@ class TestZPACBICertificateModule(ModuleTestCase):
     def test_update_certificate_error(self, mock_client):
         """Test error handling when updating certificate"""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         existing = {**self.SAMPLE_CERT, "pem": "OLD_PEM"}
-        mock_client.cbi_certificate.list_cbi_certificates.return_value = ([MockBox(existing)], None, None)
-        mock_client.cbi_certificate.update_cbi_certificate.return_value = (None, None, "Update failed")
+        mock_client.cbi_certificate.list_cbi_certificates.return_value = (
+            [MockBox(existing)],
+            None,
+            None,
+        )
+        mock_client.cbi_certificate.update_cbi_certificate.return_value = (
+            None,
+            None,
+            "Update failed",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -297,8 +365,17 @@ class TestZPACBICertificateModule(ModuleTestCase):
     def test_delete_certificate_error(self, mock_client):
         """Test error handling when deleting certificate"""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
-        mock_client.cbi_certificate.list_cbi_certificates.return_value = ([MockBox(self.SAMPLE_CERT)], None, None)
-        mock_client.cbi_certificate.delete_cbi_certificate.return_value = (None, None, "Delete failed")
+
+        mock_client.cbi_certificate.list_cbi_certificates.return_value = (
+            [MockBox(self.SAMPLE_CERT)],
+            None,
+            None,
+        )
+        mock_client.cbi_certificate.delete_cbi_certificate.return_value = (
+            None,
+            None,
+            "Delete failed",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,

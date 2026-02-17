@@ -6,9 +6,15 @@ __metaclass__ = type
 import pytest
 from unittest.mock import MagicMock, patch
 from tests.unit.plugins.modules.common.utils import (
-    set_module_args, AnsibleExitJson, AnsibleFailJson, ModuleTestCase, DEFAULT_PROVIDER,
+    set_module_args,
+    AnsibleExitJson,
+    AnsibleFailJson,
+    ModuleTestCase,
+    DEFAULT_PROVIDER,
 )
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import ZPAClientHelper
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
+    ZPAClientHelper,
+)
 
 REAL_ARGUMENT_SPEC = ZPAClientHelper.zpa_argument_spec()
 
@@ -44,7 +50,10 @@ class TestZPAAppSegmentByTypeInfoModule(ModuleTestCase):
             return_value=([MockBox(s) for s in self.SAMPLE_SEGMENTS], None),
         )
         set_module_args(provider=DEFAULT_PROVIDER, application_type="BROWSER_ACCESS")
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_by_type_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_by_type_info,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_application_segment_by_type_info.main()
         assert result.value.result["changed"] is False
@@ -55,8 +64,15 @@ class TestZPAAppSegmentByTypeInfoModule(ModuleTestCase):
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_application_segment_by_type_info.collect_all_items",
             return_value=([MockBox(s) for s in self.SAMPLE_SEGMENTS], None),
         )
-        set_module_args(provider=DEFAULT_PROVIDER, application_type="BROWSER_ACCESS", name="ba_app01")
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_by_type_info
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            application_type="BROWSER_ACCESS",
+            name="ba_app01",
+        )
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_by_type_info,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_application_segment_by_type_info.main()
         assert len(result.value.result["data"]) == 1
@@ -67,8 +83,15 @@ class TestZPAAppSegmentByTypeInfoModule(ModuleTestCase):
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_application_segment_by_type_info.collect_all_items",
             return_value=([MockBox(s) for s in self.SAMPLE_SEGMENTS], None),
         )
-        set_module_args(provider=DEFAULT_PROVIDER, application_type="BROWSER_ACCESS", name="NonExistent")
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_by_type_info
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            application_type="BROWSER_ACCESS",
+            name="NonExistent",
+        )
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_by_type_info,
+        )
+
         with pytest.raises(AnsibleFailJson) as result:
             zpa_application_segment_by_type_info.main()
         assert "not found" in result.value.result["msg"]

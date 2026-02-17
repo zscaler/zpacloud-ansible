@@ -128,14 +128,16 @@ def flatten_unsupported_references(references):
     result = []
     for ref in references:
         ref_dict = ref.as_dict() if hasattr(ref, "as_dict") else ref
-        result.append({
-            "id": ref_dict.get("id", ""),
-            "app_segment_name": ref_dict.get("app_segment_name", ""),
-            "domains": ref_dict.get("domains", []),
-            "tcp_ports": ref_dict.get("tcp_ports", []),
-            "match_style": ref_dict.get("match_style", ""),
-            "microtenant_name": ref_dict.get("microtenant_name", ""),
-        })
+        result.append(
+            {
+                "id": ref_dict.get("id", ""),
+                "app_segment_name": ref_dict.get("app_segment_name", ""),
+                "domains": ref_dict.get("domains", []),
+                "tcp_ports": ref_dict.get("tcp_ports", []),
+                "match_style": ref_dict.get("match_style", ""),
+                "microtenant_name": ref_dict.get("microtenant_name", ""),
+            }
+        )
     return result
 
 
@@ -146,15 +148,19 @@ def core(module):
     microtenant_id = module.params.get("microtenant_id")
 
     if not domain_names or len(domain_names) == 0:
-        module.fail_json(msg="At least one domain name must be provided in 'domain_names'")
+        module.fail_json(
+            msg="At least one domain name must be provided in 'domain_names'"
+        )
 
     # Get the unsupported multimatch references
     kwargs = {}
     if microtenant_id:
         kwargs["microtenant_id"] = microtenant_id
 
-    references, _unused, error = client.application_segment.get_multimatch_unsupported_references(
-        domain_names, **kwargs
+    references, _unused, error = (
+        client.application_segment.get_multimatch_unsupported_references(
+            domain_names, **kwargs
+        )
     )
     if error:
         module.fail_json(
@@ -165,9 +171,7 @@ def core(module):
     flattened = flatten_unsupported_references(references or [])
 
     module.exit_json(
-        changed=False,
-        domain_names=domain_names,
-        unsupported_references=flattened
+        changed=False, domain_names=domain_names, unsupported_references=flattened
     )
 
 

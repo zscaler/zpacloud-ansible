@@ -88,7 +88,11 @@ class TestZPAEnrollmentCertificateInfoModule(ModuleTestCase):
     def test_get_certificate_by_id(self, mock_client):
         """Test fetching an Enrollment Certificate by ID."""
         mock_cert = MockBox(self.SAMPLE_CERT)
-        mock_client.enrollment_certificates.get_enrolment.return_value = (mock_cert, None, None)
+        mock_client.enrollment_certificates.get_enrolment.return_value = (
+            mock_cert,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -109,7 +113,11 @@ class TestZPAEnrollmentCertificateInfoModule(ModuleTestCase):
 
     def test_get_certificate_by_name(self, mock_client, mocker):
         """Test fetching an Enrollment Certificate by name."""
-        mock_certs = [MockBox(self.SAMPLE_CERT), MockBox(self.SAMPLE_CERT_2), MockBox(self.SAMPLE_CERT_3)]
+        mock_certs = [
+            MockBox(self.SAMPLE_CERT),
+            MockBox(self.SAMPLE_CERT_2),
+            MockBox(self.SAMPLE_CERT_3),
+        ]
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_enrollement_certificate_info.collect_all_items",
             return_value=(mock_certs, None),
@@ -133,7 +141,11 @@ class TestZPAEnrollmentCertificateInfoModule(ModuleTestCase):
 
     def test_get_all_certificates(self, mock_client, mocker):
         """Test fetching all Enrollment Certificates."""
-        mock_certs = [MockBox(self.SAMPLE_CERT), MockBox(self.SAMPLE_CERT_2), MockBox(self.SAMPLE_CERT_3)]
+        mock_certs = [
+            MockBox(self.SAMPLE_CERT),
+            MockBox(self.SAMPLE_CERT_2),
+            MockBox(self.SAMPLE_CERT_3),
+        ]
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_enrollement_certificate_info.collect_all_items",
             return_value=(mock_certs, None),
@@ -155,7 +167,11 @@ class TestZPAEnrollmentCertificateInfoModule(ModuleTestCase):
 
     def test_certificate_not_found_by_id(self, mock_client):
         """Test fetching a non-existent certificate by ID."""
-        mock_client.enrollment_certificates.get_enrolment.return_value = (None, None, "Not Found")
+        mock_client.enrollment_certificates.get_enrolment.return_value = (
+            None,
+            None,
+            "Not Found",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -169,7 +185,9 @@ class TestZPAEnrollmentCertificateInfoModule(ModuleTestCase):
         with pytest.raises(AnsibleFailJson) as result:
             zpa_enrollement_certificate_info.main()
 
-        assert "Failed to retrieve Enrollment Certificate ID" in result.value.result["msg"]
+        assert (
+            "Failed to retrieve Enrollment Certificate ID" in result.value.result["msg"]
+        )
 
     def test_certificate_not_found_by_name(self, mock_client, mocker):
         """Test fetching a non-existent certificate by name."""

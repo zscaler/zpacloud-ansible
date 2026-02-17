@@ -128,11 +128,13 @@ def core(module):
     all_locations = []
     for loc in locations:
         loc_dict = loc.as_dict() if hasattr(loc, "as_dict") else loc
-        all_locations.append({
-            "id": loc_dict.get("id", ""),
-            "name": loc_dict.get("name", ""),
-            "enabled": loc_dict.get("enabled", False),
-        })
+        all_locations.append(
+            {
+                "id": loc_dict.get("id", ""),
+                "name": loc_dict.get("name", ""),
+                "enabled": loc_dict.get("enabled", False),
+            }
+        )
 
     # If ID is specified, filter by ID
     if location_id:

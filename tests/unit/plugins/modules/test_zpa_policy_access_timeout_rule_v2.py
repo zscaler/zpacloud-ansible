@@ -82,7 +82,11 @@ class TestZPAPolicyAccessTimeoutRuleV2Module(ModuleTestCase):
         )
 
         mock_created = MockBox(self.SAMPLE_RULE)
-        mock_client.policies.add_timeout_rule_v2.return_value = (mock_created, None, None)
+        mock_client.policies.add_timeout_rule_v2.return_value = (
+            mock_created,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -120,7 +124,11 @@ class TestZPAPolicyAccessTimeoutRuleV2Module(ModuleTestCase):
         )
 
         mock_updated = MockBox(self.SAMPLE_RULE)
-        mock_client.policies.update_timeout_rule_v2.return_value = (mock_updated, None, None)
+        mock_client.policies.update_timeout_rule_v2.return_value = (
+            mock_updated,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -213,13 +221,15 @@ class TestZPAPolicyAccessTimeoutRuleV2Module(ModuleTestCase):
         rule_with_conditions["conditions"] = [
             {
                 "operator": "OR",
-                "operands": [
-                    {"object_type": "APP", "values": ["123456"]}
-                ]
+                "operands": [{"object_type": "APP", "values": ["123456"]}],
             }
         ]
         mock_created = MockBox(rule_with_conditions)
-        mock_client.policies.add_timeout_rule_v2.return_value = (mock_created, None, None)
+        mock_client.policies.add_timeout_rule_v2.return_value = (
+            mock_created,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -231,9 +241,7 @@ class TestZPAPolicyAccessTimeoutRuleV2Module(ModuleTestCase):
             conditions=[
                 {
                     "operator": "OR",
-                    "operands": [
-                        {"object_type": "APP", "values": ["123456"]}
-                    ]
+                    "operands": [{"object_type": "APP", "values": ["123456"]}],
                 }
             ],
             state="present",

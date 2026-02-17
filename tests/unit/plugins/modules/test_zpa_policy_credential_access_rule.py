@@ -68,7 +68,9 @@ class TestZPAPolicyCredentialAccessRuleModule(ModuleTestCase):
         )
         mock_created = MockBox(self.SAMPLE_RULE)
         mock_client.policies.add_privileged_credential_rule_v2.return_value = (
-            mock_created, None, None
+            mock_created,
+            None,
+            None,
         )
 
         set_module_args(
@@ -100,7 +102,9 @@ class TestZPAPolicyCredentialAccessRuleModule(ModuleTestCase):
         )
         mock_updated = MockBox(self.SAMPLE_RULE)
         mock_client.policies.update_privileged_credential_rule_v2.return_value = (
-            mock_updated, None, None
+            mock_updated,
+            None,
+            None,
         )
 
         set_module_args(
@@ -202,7 +206,11 @@ class TestZPAPolicyCredentialAccessRuleModule(ModuleTestCase):
 
     def test_get_rule_by_id(self, mock_client, mocker):
         """Test retrieving rule by ID."""
-        mock_client.policies.get_rule.return_value = (MockBox(self.SAMPLE_RULE), None, None)
+        mock_client.policies.get_rule.return_value = (
+            MockBox(self.SAMPLE_RULE),
+            None,
+            None,
+        )
         mock_client.policies.delete_rule.return_value = (None, None, None)
 
         set_module_args(
@@ -273,7 +281,9 @@ class TestZPAPolicyCredentialAccessRuleModule(ModuleTestCase):
             return_value=([], None),
         )
         mock_client.policies.add_privileged_credential_rule_v2.return_value = (
-            None, None, "Create failed"
+            None,
+            None,
+            "Create failed",
         )
 
         set_module_args(
@@ -422,7 +432,9 @@ class TestZPAPolicyCredentialAccessRuleModule(ModuleTestCase):
         )
         mock_created = MockBox(self.SAMPLE_RULE)
         mock_client.policies.add_privileged_credential_rule_v2.return_value = (
-            mock_created, None, None
+            mock_created,
+            None,
+            None,
         )
 
         set_module_args(

@@ -241,6 +241,12 @@ options:
       - EXCLUSIVE
       - INCLUSIVE
     default: EXCLUSIVE
+  policy_style:
+    description:
+      - Enable dual policy evaluation (resolve FQDN to Server IP and enforce policies based on Server IP and FQDN)
+      - false = NONE (disabled), true = DUAL_POLICY_EVAL (enabled). Default: disabled.
+    type: bool
+    required: false
   tcp_protocols:
     description: Indicates the AD Protection protocols to be inspected on the specified TCP port ranges
     type: list
@@ -345,6 +351,7 @@ def core(module):
         "domain_names",
         "match_style",
         "bypass_on_reauth",
+        "policy_style",
     ]
 
     for param_name in params:
@@ -366,6 +373,15 @@ def core(module):
         else:
             module.fail_json(
                 msg=f"Invalid value for icmp_access_type: {icmp_access_type}. Only boolean values are allowed."
+            )
+
+    policy_style = module.params.get("policy_style")
+    if policy_style is not None:
+        if isinstance(policy_style, bool):
+            app["policy_style"] = "NONE" if policy_style else "DUAL_POLICY_EVAL"
+        else:
+            module.fail_json(
+                msg=f"Invalid value for policy_style: {policy_style}. Only boolean values are allowed."
             )
 
     # Validate select_connector_close_to_app vs. udp_port_range
@@ -492,6 +508,7 @@ def core(module):
                         ),
                         "tcp_keep_alive": desired_app.get("tcp_keep_alive"),
                         "icmp_access_type": desired_app.get("icmp_access_type"),
+                        "policy_style": desired_app.get("policy_style"),
                         "select_connector_close_to_app": desired_app.get(
                             "select_connector_close_to_app"
                         ),
@@ -570,6 +587,7 @@ def core(module):
                     "is_cname_enabled": desired_app.get("is_cname_enabled"),
                     "tcp_keep_alive": desired_app.get("tcp_keep_alive"),
                     "icmp_access_type": desired_app.get("icmp_access_type"),
+                    "policy_style": desired_app.get("policy_style"),
                     "match_style": desired_app.get("match_style"),
                     "passive_health_enabled": desired_app.get("passive_health_enabled"),
                     "select_connector_close_to_app": desired_app.get(
@@ -662,6 +680,7 @@ def main():
             choices=["NONE", "ON_ACCESS", "CONTINUOUS"],
         ),
         tcp_keep_alive=dict(type="bool", required=False),
+        policy_style=dict(type="bool", required=False),
         segment_group_id=dict(type="str", required=False),
         double_encrypt=dict(type="bool", required=False),
         health_check_type=dict(type="str", default="DEFAULT", required=False),

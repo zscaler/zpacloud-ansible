@@ -1,5 +1,19 @@
 # Zscaler Private Access (ZPA) Ansible Collection Changelog
 
+## 2.1.1 (February, 17 2026)
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+### Enhancements
+
+- [#91](https://github.com/zscaler/ziacloud-ansible/pull/91) - Added boolean `policy_style` attribute to `zpa_application_segment` to enable `FQDN-to-IP Policy Evaluation`
+
+### Bug Fixes
+
+- [#91](https://github.com/zscaler/ziacloud-ansible/pull/91) - Improved `zpa_client` to support authentication via both OneAPI and legacy methods.
+
 ## 2.1.0 (December, 10 2025)
 
 ### Notes

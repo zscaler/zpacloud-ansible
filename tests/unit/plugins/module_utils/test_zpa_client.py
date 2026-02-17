@@ -8,6 +8,7 @@ __metaclass__ = type
 
 from unittest.mock import MagicMock, patch
 import os
+import pytest
 
 
 def create_mock_module(params_dict):
@@ -93,27 +94,16 @@ class TestZPAClientHelper:
         assert "use_legacy_client" in provider_options
 
     def test_zpa_argument_spec_cloud_choices(self):
-        """Test that cloud parameter has valid choices"""
+        """Test that cloud parameters have valid choices from CLOUD_CHOICES"""
         from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
             ZPAClientHelper,
+            CLOUD_CHOICES,
         )
 
         spec = ZPAClientHelper.zpa_argument_spec()
 
-        expected_choices = [
-            "BETA",
-            "GOV",
-            "GOVUS",
-            "PRODUCTION",
-            "QA",
-            "QA2",
-            "PREVIEW",
-            "beta",
-            "production",
-        ]
-
-        assert spec["zpa_cloud"]["choices"] == expected_choices
-        assert spec["cloud"]["choices"] == expected_choices
+        assert spec["zpa_cloud"]["choices"] == CLOUD_CHOICES
+        assert spec["cloud"]["choices"] == CLOUD_CHOICES
 
     def test_valid_zpa_cloud_constant(self):
         """Test that VALID_ZPA_CLOUD contains expected values"""
@@ -121,7 +111,7 @@ class TestZPAClientHelper:
             VALID_ZPA_CLOUD,
         )
 
-        expected = {"PRODUCTION", "BETA", "QA", "QA2", "GOV", "GOVUS", "PREVIEW", "ZPATWO"}
+        expected = frozenset({"PRODUCTION", "BETA", "QA", "QA2", "GOV", "GOVUS", "PREVIEW", "ZPATWO"})
         assert VALID_ZPA_CLOUD == expected
 
     @patch.dict(os.environ, {}, clear=True)
@@ -535,3 +525,86 @@ class TestZPAClientHelper:
 
         call_args = mock_oneapi.call_args[0][0]
         assert call_args["microtenantId"] == "micro123"
+
+    @patch.dict(os.environ, {}, clear=True)
+    @patch("ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client.HAS_ZSCALER", True)
+    @patch("ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client.HAS_VERSION", True)
+    def test_legacy_params_without_use_legacy_client_fails(self):
+        """Test that Legacy params without use_legacy_client fail with helpful message."""
+        from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
+            ZPAClientHelper,
+        )
+
+        mock_module = create_mock_module({
+            "provider": {
+                "use_legacy_client": False,
+                "zpa_client_id": "cid",
+                "zpa_client_secret": "secret",
+                "zpa_customer_id": "cust",
+                "zpa_cloud": "PRODUCTION",
+            },
+            "use_legacy_client": False,
+        })
+        mock_module.fail_json.side_effect = Exception("fail_json called")
+
+        with pytest.raises(Exception, match="fail_json called"):
+            ZPAClientHelper(mock_module)
+        call_msg = mock_module.fail_json.call_args[1]["msg"]
+        assert "Legacy API" in call_msg
+        assert "use_legacy_client" in call_msg.lower()
+
+    @patch.dict(os.environ, {}, clear=True)
+    @patch("ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client.HAS_ZSCALER", True)
+    @patch("ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client.HAS_VERSION", True)
+    def test_legacy_client_with_oneapi_params_fails(self):
+        """Test that use_legacy_client=true with OneAPI params fails (mutually exclusive)."""
+        from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
+            ZPAClientHelper,
+        )
+
+        mock_module = create_mock_module({
+            "provider": {
+                "use_legacy_client": True,
+                "zpa_client_id": "cid",
+                "zpa_client_secret": "secret",
+                "zpa_customer_id": "cust",
+                "zpa_cloud": "PRODUCTION",
+                "vanity_domain": "test.zscaler.com",
+                "client_id": "oid",
+                "client_secret": "osecret",
+            },
+            "use_legacy_client": True,
+        })
+        mock_module.fail_json.side_effect = Exception("fail_json called")
+
+        with pytest.raises(Exception, match="fail_json called"):
+            ZPAClientHelper(mock_module)
+        call_msg = mock_module.fail_json.call_args[1]["msg"]
+        assert "use_legacy_client" in call_msg.lower()
+        assert "OneAPI" in call_msg
+
+    @patch.dict(os.environ, {}, clear=True)
+    @patch("ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client.HAS_ZSCALER", True)
+    @patch("ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client.HAS_VERSION", True)
+    @patch("ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client.OneAPIClient")
+    def test_oneapi_cloud_production_ignored(self, mock_oneapi):
+        """Test OneAPI ignores Legacy cloud names (PRODUCTION) to avoid URL breakage."""
+        from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
+            ZPAClientHelper,
+        )
+
+        mock_oneapi.return_value = MagicMock()
+
+        mock_module = create_mock_module({
+            "provider": {
+                "client_id": "cid",
+                "client_secret": "csecret",
+                "vanity_domain": "test.zscaler.com",
+                "cloud": "PRODUCTION",
+            },
+            "use_legacy_client": False,
+        })
+
+        ZPAClientHelper(mock_module)
+        call_args = mock_oneapi.call_args[0][0]
+        assert "cloud" not in call_args

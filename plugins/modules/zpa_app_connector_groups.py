@@ -424,7 +424,9 @@ def core(module):
                     }
                 )
                 # module.warn("Payload Update for SDK: {}".format(update_group))
-                updated_group, _unused, error = client.app_connector_groups.update_connector_group(**update_group)
+                updated_group, _unused, error = (
+                    client.app_connector_groups.update_connector_group(**update_group)
+                )
                 if error:
                     module.fail_json(msg=f"Error updating group: {to_native(error)}")
                 module.exit_json(changed=True, data=updated_group.as_dict())

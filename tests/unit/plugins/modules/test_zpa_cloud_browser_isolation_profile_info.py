@@ -87,7 +87,11 @@ class TestZPACBIProfileInfoModule(ModuleTestCase):
     def test_get_profile_by_id(self, mock_client):
         """Test fetching a CBI Profile by ID."""
         mock_profile = MockBox(self.SAMPLE_PROFILE)
-        mock_client.cbi_profile.get_cbi_profile.return_value = (mock_profile, None, None)
+        mock_client.cbi_profile.get_cbi_profile.return_value = (
+            mock_profile,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -109,7 +113,11 @@ class TestZPACBIProfileInfoModule(ModuleTestCase):
     def test_get_profile_by_name(self, mock_client):
         """Test fetching a CBI Profile by name."""
         mock_profiles = [MockBox(self.SAMPLE_PROFILE), MockBox(self.SAMPLE_PROFILE_2)]
-        mock_client.cbi_profile.list_cbi_profiles.return_value = (mock_profiles, None, None)
+        mock_client.cbi_profile.list_cbi_profiles.return_value = (
+            mock_profiles,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -130,7 +138,11 @@ class TestZPACBIProfileInfoModule(ModuleTestCase):
     def test_get_all_profiles(self, mock_client):
         """Test fetching all CBI Profiles."""
         mock_profiles = [MockBox(self.SAMPLE_PROFILE), MockBox(self.SAMPLE_PROFILE_2)]
-        mock_client.cbi_profile.list_cbi_profiles.return_value = (mock_profiles, None, None)
+        mock_client.cbi_profile.list_cbi_profiles.return_value = (
+            mock_profiles,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,

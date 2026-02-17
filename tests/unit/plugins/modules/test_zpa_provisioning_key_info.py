@@ -86,7 +86,11 @@ class TestZPAProvisioningKeyInfoModule(ModuleTestCase):
     def test_get_key_by_id(self, mock_client):
         """Test fetching a Provisioning Key by ID."""
         mock_key = MockBox(self.SAMPLE_KEY)
-        mock_client.provisioning.get_provisioning_key.return_value = (mock_key, None, None)
+        mock_client.provisioning.get_provisioning_key.return_value = (
+            mock_key,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -129,7 +133,9 @@ class TestZPAProvisioningKeyInfoModule(ModuleTestCase):
 
         assert result.value.result["changed"] is False
         assert len(result.value.result["provisioning_keys"]) == 1
-        assert result.value.result["provisioning_keys"][0]["name"] == "Provisioning_Key01"
+        assert (
+            result.value.result["provisioning_keys"][0]["name"] == "Provisioning_Key01"
+        )
 
     def test_get_all_connector_keys(self, mock_client, mocker):
         """Test fetching all connector Provisioning Keys."""
@@ -156,7 +162,11 @@ class TestZPAProvisioningKeyInfoModule(ModuleTestCase):
 
     def test_key_not_found_by_id(self, mock_client):
         """Test fetching a non-existent key by ID."""
-        mock_client.provisioning.get_provisioning_key.return_value = (None, None, "Not Found")
+        mock_client.provisioning.get_provisioning_key.return_value = (
+            None,
+            None,
+            "Not Found",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,

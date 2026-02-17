@@ -259,9 +259,7 @@ class TestZpaSegmentGroupInfo(ModuleTestCase):
     def test_id_and_name_mutually_exclusive(self, mock_client):
         """Test that id and name cannot be specified together"""
         # This should fail due to mutually_exclusive constraint in module
-        set_module_args(
-            provider=DEFAULT_PROVIDER, id="12345", name="Test_Group"
-        )
+        set_module_args(provider=DEFAULT_PROVIDER, id="12345", name="Test_Group")
 
         with pytest.raises(AnsibleFailJson):
             from ansible_collections.zscaler.zpacloud.plugins.modules import (

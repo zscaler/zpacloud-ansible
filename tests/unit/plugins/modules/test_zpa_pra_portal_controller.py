@@ -239,20 +239,32 @@ class TestZPAPRAPortalControllerModule(ModuleTestCase):
             return_value=([], None),
         )
         set_module_args(provider=DEFAULT_PROVIDER, name="nonexistent", state="absent")
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_portal_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_pra_portal_controller,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_pra_portal_controller.main()
         assert result.value.result["changed"] is False
 
     def test_get_portal_by_id(self, mock_client, mocker):
         """Test retrieving portal by ID."""
-        mock_client.pra_portal.get_portal.return_value = (MockBox(self.SAMPLE_PORTAL), None, None)
+        mock_client.pra_portal.get_portal.return_value = (
+            MockBox(self.SAMPLE_PORTAL),
+            None,
+            None,
+        )
         mock_client.pra_portal.delete_portal.return_value = (None, None, None)
         set_module_args(
-            provider=DEFAULT_PROVIDER, id="216199618143442004",
-            name="portal.acme.com", state="absent",
+            provider=DEFAULT_PROVIDER,
+            id="216199618143442004",
+            name="portal.acme.com",
+            state="absent",
         )
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_portal_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_pra_portal_controller,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_pra_portal_controller.main()
         assert result.value.result["changed"] is True
@@ -260,16 +272,22 @@ class TestZPAPRAPortalControllerModule(ModuleTestCase):
     def test_list_portals_error(self, mock_client, mocker):
         """Test error handling when listing portals."""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules."
             "zpa_pra_portal_controller.collect_all_items",
             return_value=(None, "API Error"),
         )
         set_module_args(
-            provider=DEFAULT_PROVIDER, name="portal.acme.com",
-            domain="portal.acme.com", state="present",
+            provider=DEFAULT_PROVIDER,
+            name="portal.acme.com",
+            domain="portal.acme.com",
+            state="present",
         )
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_portal_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_pra_portal_controller,
+        )
+
         with pytest.raises(AnsibleFailJson) as result:
             zpa_pra_portal_controller.main()
         assert "error" in result.value.result["msg"].lower()
@@ -277,6 +295,7 @@ class TestZPAPRAPortalControllerModule(ModuleTestCase):
     def test_create_portal_error(self, mock_client, mocker):
         """Test error handling when creating portal."""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules."
             "zpa_pra_portal_controller.collect_all_items",
@@ -284,10 +303,15 @@ class TestZPAPRAPortalControllerModule(ModuleTestCase):
         )
         mock_client.pra_portal.add_portal.return_value = (None, None, "Create failed")
         set_module_args(
-            provider=DEFAULT_PROVIDER, name="portal.acme.com",
-            domain="portal.acme.com", state="present",
+            provider=DEFAULT_PROVIDER,
+            name="portal.acme.com",
+            domain="portal.acme.com",
+            state="present",
         )
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_portal_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_pra_portal_controller,
+        )
+
         with pytest.raises(AnsibleFailJson) as result:
             zpa_pra_portal_controller.main()
         assert "error" in result.value.result["msg"].lower()
@@ -295,14 +319,24 @@ class TestZPAPRAPortalControllerModule(ModuleTestCase):
     def test_delete_portal_error(self, mock_client, mocker):
         """Test error handling when deleting portal."""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules."
             "zpa_pra_portal_controller.collect_all_items",
             return_value=([MockBox(self.SAMPLE_PORTAL)], None),
         )
-        mock_client.pra_portal.delete_portal.return_value = (None, None, "Delete failed")
-        set_module_args(provider=DEFAULT_PROVIDER, name="portal.acme.com", state="absent")
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_portal_controller
+        mock_client.pra_portal.delete_portal.return_value = (
+            None,
+            None,
+            "Delete failed",
+        )
+        set_module_args(
+            provider=DEFAULT_PROVIDER, name="portal.acme.com", state="absent"
+        )
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_pra_portal_controller,
+        )
+
         with pytest.raises(AnsibleFailJson) as result:
             zpa_pra_portal_controller.main()
         assert "error" in result.value.result["msg"].lower()
@@ -315,10 +349,15 @@ class TestZPAPRAPortalControllerModule(ModuleTestCase):
             return_value=([MockBox(self.SAMPLE_PORTAL)], None),
         )
         set_module_args(
-            provider=DEFAULT_PROVIDER, name="portal.acme.com",
-            state="absent", _ansible_check_mode=True,
+            provider=DEFAULT_PROVIDER,
+            name="portal.acme.com",
+            state="absent",
+            _ansible_check_mode=True,
         )
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_portal_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_pra_portal_controller,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_pra_portal_controller.main()
         mock_client.pra_portal.delete_portal.assert_not_called()

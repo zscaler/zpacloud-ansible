@@ -245,9 +245,7 @@ def core(module):
             )
             created, _unused, error = client.c2c_ip_ranges.add_ip_range(**payload)
             if error:
-                module.fail_json(
-                    msg=f"Error creating C2C IP Range: {to_native(error)}"
-                )
+                module.fail_json(msg=f"Error creating C2C IP Range: {to_native(error)}")
             module.exit_json(changed=True, data=created.as_dict())
 
     # Step 4: Delete

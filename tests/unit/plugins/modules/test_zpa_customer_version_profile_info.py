@@ -78,7 +78,9 @@ class TestZPACustomerVersionProfileInfoModule(ModuleTestCase):
 
         set_module_args(provider=DEFAULT_PROVIDER, id="216199618143441990")
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_customer_version_profile_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_customer_version_profile_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_customer_version_profile_info.main()
@@ -96,7 +98,9 @@ class TestZPACustomerVersionProfileInfoModule(ModuleTestCase):
 
         set_module_args(provider=DEFAULT_PROVIDER, name="Default")
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_customer_version_profile_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_customer_version_profile_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_customer_version_profile_info.main()
@@ -113,7 +117,9 @@ class TestZPACustomerVersionProfileInfoModule(ModuleTestCase):
 
         set_module_args(provider=DEFAULT_PROVIDER)
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_customer_version_profile_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_customer_version_profile_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_customer_version_profile_info.main()
@@ -129,7 +135,9 @@ class TestZPACustomerVersionProfileInfoModule(ModuleTestCase):
 
         set_module_args(provider=DEFAULT_PROVIDER, name="NonExistent")
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_customer_version_profile_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_customer_version_profile_info,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_customer_version_profile_info.main()
@@ -144,7 +152,9 @@ class TestZPACustomerVersionProfileInfoModule(ModuleTestCase):
 
         set_module_args(provider=DEFAULT_PROVIDER)
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_customer_version_profile_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_customer_version_profile_info,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_customer_version_profile_info.main()

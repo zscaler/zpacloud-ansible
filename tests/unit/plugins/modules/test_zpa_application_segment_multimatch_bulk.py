@@ -57,10 +57,14 @@ class TestZPAAppSegmentMultimatchBulkModule(ModuleTestCase):
     def test_bulk_update_success(self, mock_client):
         """Test successful bulk update"""
         mock_client.application_segment.get_segment.return_value = (
-            MockBox(self.SAMPLE_SEGMENT), None, None
+            MockBox(self.SAMPLE_SEGMENT),
+            None,
+            None,
         )
         mock_client.application_segment.bulk_update_multimatch.return_value = (
-            MockBox({}), None, None
+            MockBox({}),
+            None,
+            None,
         )
 
         set_module_args(
@@ -69,7 +73,9 @@ class TestZPAAppSegmentMultimatchBulkModule(ModuleTestCase):
             match_style="INCLUSIVE",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_multimatch_bulk
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_multimatch_bulk,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_application_segment_multimatch_bulk.main()
@@ -80,7 +86,9 @@ class TestZPAAppSegmentMultimatchBulkModule(ModuleTestCase):
     def test_no_change_when_match_style_same(self, mock_client):
         """Test no change when match_style already matches"""
         mock_client.application_segment.get_segment.return_value = (
-            MockBox(self.SAMPLE_SEGMENT), None, None
+            MockBox(self.SAMPLE_SEGMENT),
+            None,
+            None,
         )
 
         set_module_args(
@@ -89,7 +97,9 @@ class TestZPAAppSegmentMultimatchBulkModule(ModuleTestCase):
             match_style="EXCLUSIVE",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_multimatch_bulk
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_multimatch_bulk,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_application_segment_multimatch_bulk.main()
@@ -99,7 +109,9 @@ class TestZPAAppSegmentMultimatchBulkModule(ModuleTestCase):
     def test_check_mode(self, mock_client):
         """Test check mode"""
         mock_client.application_segment.get_segment.return_value = (
-            MockBox(self.SAMPLE_SEGMENT), None, None
+            MockBox(self.SAMPLE_SEGMENT),
+            None,
+            None,
         )
 
         set_module_args(
@@ -109,7 +121,9 @@ class TestZPAAppSegmentMultimatchBulkModule(ModuleTestCase):
             _ansible_check_mode=True,
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_multimatch_bulk
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_multimatch_bulk,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_application_segment_multimatch_bulk.main()
@@ -124,7 +138,9 @@ class TestZPAAppSegmentMultimatchBulkModule(ModuleTestCase):
             match_style="INCLUSIVE",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_multimatch_bulk
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_multimatch_bulk,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_application_segment_multimatch_bulk.main()
@@ -139,7 +155,9 @@ class TestZPAAppSegmentMultimatchBulkModule(ModuleTestCase):
             match_style="INCLUSIVE",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_multimatch_bulk
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_multimatch_bulk,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_application_segment_multimatch_bulk.main()
@@ -149,10 +167,14 @@ class TestZPAAppSegmentMultimatchBulkModule(ModuleTestCase):
     def test_bulk_update_error(self, mock_client):
         """Test error handling during bulk update"""
         mock_client.application_segment.get_segment.return_value = (
-            MockBox(self.SAMPLE_SEGMENT), None, None
+            MockBox(self.SAMPLE_SEGMENT),
+            None,
+            None,
         )
         mock_client.application_segment.bulk_update_multimatch.return_value = (
-            None, None, "Bulk update failed"
+            None,
+            None,
+            "Bulk update failed",
         )
 
         set_module_args(
@@ -161,7 +183,9 @@ class TestZPAAppSegmentMultimatchBulkModule(ModuleTestCase):
             match_style="INCLUSIVE",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_multimatch_bulk
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_multimatch_bulk,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_application_segment_multimatch_bulk.main()
@@ -171,10 +195,14 @@ class TestZPAAppSegmentMultimatchBulkModule(ModuleTestCase):
     def test_with_microtenant_id(self, mock_client):
         """Test with microtenant_id"""
         mock_client.application_segment.get_segment.return_value = (
-            MockBox(self.SAMPLE_SEGMENT), None, None
+            MockBox(self.SAMPLE_SEGMENT),
+            None,
+            None,
         )
         mock_client.application_segment.bulk_update_multimatch.return_value = (
-            MockBox({}), None, None
+            MockBox({}),
+            None,
+            None,
         )
 
         set_module_args(
@@ -184,7 +212,9 @@ class TestZPAAppSegmentMultimatchBulkModule(ModuleTestCase):
             microtenant_id="123456",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_multimatch_bulk
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_multimatch_bulk,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_application_segment_multimatch_bulk.main()
@@ -194,10 +224,14 @@ class TestZPAAppSegmentMultimatchBulkModule(ModuleTestCase):
     def test_segment_fetch_error_continues(self, mock_client):
         """Test that segment fetch errors are handled gracefully"""
         mock_client.application_segment.get_segment.return_value = (
-            None, None, "Fetch error"
+            None,
+            None,
+            "Fetch error",
         )
         mock_client.application_segment.bulk_update_multimatch.return_value = (
-            MockBox({}), None, None
+            MockBox({}),
+            None,
+            None,
         )
 
         set_module_args(
@@ -206,7 +240,9 @@ class TestZPAAppSegmentMultimatchBulkModule(ModuleTestCase):
             match_style="INCLUSIVE",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_multimatch_bulk
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_multimatch_bulk,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_application_segment_multimatch_bulk.main()

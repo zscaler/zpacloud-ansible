@@ -112,7 +112,11 @@ class TestZPAPolicyAccessRuleModule(ModuleTestCase):
         )
 
         mock_updated = MockBox(self.SAMPLE_RULE)
-        mock_client.policies.update_access_rule.return_value = (mock_updated, None, None)
+        mock_client.policies.update_access_rule.return_value = (
+            mock_updated,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -195,9 +199,7 @@ class TestZPAPolicyAccessRuleModule(ModuleTestCase):
         rule_with_conditions["conditions"] = [
             {
                 "operator": "OR",
-                "operands": [
-                    {"object_type": "APP", "lhs": "id", "rhs": "123456"}
-                ]
+                "operands": [{"object_type": "APP", "lhs": "id", "rhs": "123456"}],
             }
         ]
         mock_created = MockBox(rule_with_conditions)
@@ -212,9 +214,7 @@ class TestZPAPolicyAccessRuleModule(ModuleTestCase):
             conditions=[
                 {
                     "operator": "OR",
-                    "operands": [
-                        {"object_type": "APP", "lhs": "id", "rhs": "123456"}
-                    ]
+                    "operands": [{"object_type": "APP", "lhs": "id", "rhs": "123456"}],
                 }
             ],
             state="present",
@@ -284,6 +284,7 @@ class TestZPAPolicyAccessRuleModule(ModuleTestCase):
     def test_get_rule_by_id_error(self, mock_client, mocker):
         """Test error when retrieving rule by ID."""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mock_client.policies.get_rule.return_value = (None, None, "Not found")
 
         set_module_args(
@@ -305,6 +306,7 @@ class TestZPAPolicyAccessRuleModule(ModuleTestCase):
     def test_list_rules_error(self, mock_client, mocker):
         """Test error handling when listing rules."""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_policy_access_rule.collect_all_items",
             return_value=(None, "API Error"),
@@ -329,11 +331,16 @@ class TestZPAPolicyAccessRuleModule(ModuleTestCase):
     def test_create_rule_error(self, mock_client, mocker):
         """Test error handling when creating rule."""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_policy_access_rule.collect_all_items",
             return_value=([], None),
         )
-        mock_client.policies.add_access_rule.return_value = (None, None, "Create failed")
+        mock_client.policies.add_access_rule.return_value = (
+            None,
+            None,
+            "Create failed",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -354,6 +361,7 @@ class TestZPAPolicyAccessRuleModule(ModuleTestCase):
     def test_update_rule_error(self, mock_client, mocker):
         """Test error handling when updating rule."""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         existing_rule = dict(self.SAMPLE_RULE)
         existing_rule["description"] = "Old description"
         mock_existing = MockBox(existing_rule)
@@ -362,7 +370,11 @@ class TestZPAPolicyAccessRuleModule(ModuleTestCase):
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_policy_access_rule.collect_all_items",
             return_value=([mock_existing], None),
         )
-        mock_client.policies.update_access_rule.return_value = (None, None, "Update failed")
+        mock_client.policies.update_access_rule.return_value = (
+            None,
+            None,
+            "Update failed",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -384,6 +396,7 @@ class TestZPAPolicyAccessRuleModule(ModuleTestCase):
     def test_delete_rule_error(self, mock_client, mocker):
         """Test error handling when deleting rule."""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mock_existing = MockBox(self.SAMPLE_RULE)
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_policy_access_rule.collect_all_items",
@@ -486,6 +499,7 @@ class TestZPAPolicyAccessRuleModule(ModuleTestCase):
     def test_reorder_rule_error(self, mock_client, mocker):
         """Test error handling when reordering rule."""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         existing_rule = dict(self.SAMPLE_RULE)
         existing_rule["order"] = 5
         mock_existing = MockBox(existing_rule)

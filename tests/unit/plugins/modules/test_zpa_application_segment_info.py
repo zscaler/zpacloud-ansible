@@ -74,11 +74,17 @@ class TestZPAApplicationSegmentInfoModule(ModuleTestCase):
 
     def test_get_segment_by_id(self, mock_client):
         mock_segment = MockBox(self.SAMPLE_SEGMENT)
-        mock_client.application_segment.get_segment.return_value = (mock_segment, None, None)
+        mock_client.application_segment.get_segment.return_value = (
+            mock_segment,
+            None,
+            None,
+        )
 
         set_module_args(provider=DEFAULT_PROVIDER, id="216199618143441990")
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_application_segment_info.main()
@@ -97,7 +103,9 @@ class TestZPAApplicationSegmentInfoModule(ModuleTestCase):
 
         set_module_args(provider=DEFAULT_PROVIDER, name="Test_App_Segment")
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_application_segment_info.main()
@@ -116,7 +124,9 @@ class TestZPAApplicationSegmentInfoModule(ModuleTestCase):
 
         set_module_args(provider=DEFAULT_PROVIDER)
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_application_segment_info.main()
@@ -125,11 +135,17 @@ class TestZPAApplicationSegmentInfoModule(ModuleTestCase):
         assert len(result.value.result["app_segments"]) == 2
 
     def test_segment_not_found_by_id(self, mock_client):
-        mock_client.application_segment.get_segment.return_value = (None, None, "Not Found")
+        mock_client.application_segment.get_segment.return_value = (
+            None,
+            None,
+            "Not Found",
+        )
 
         set_module_args(provider=DEFAULT_PROVIDER, id="999999999999999999")
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_info,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_application_segment_info.main()
@@ -146,7 +162,9 @@ class TestZPAApplicationSegmentInfoModule(ModuleTestCase):
 
         set_module_args(provider=DEFAULT_PROVIDER, name="NonExistent_Segment")
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_info,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_application_segment_info.main()
@@ -161,7 +179,9 @@ class TestZPAApplicationSegmentInfoModule(ModuleTestCase):
 
         set_module_args(provider=DEFAULT_PROVIDER)
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_info,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_application_segment_info.main()

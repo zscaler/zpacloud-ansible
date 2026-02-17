@@ -84,7 +84,10 @@ class TestZPALocationControllerInfoModule(ModuleTestCase):
             return_value=(mock_ers, None),
         )
 
-        mock_locations = [MockBox(self.SAMPLE_LOCATION), MockBox(self.SAMPLE_LOCATION_2)]
+        mock_locations = [
+            MockBox(self.SAMPLE_LOCATION),
+            MockBox(self.SAMPLE_LOCATION_2),
+        ]
         mock_client.location_controller.get_location_extranet_resource.return_value = (
             mock_locations,
             None,

@@ -16,9 +16,7 @@ import pytest
 # The collection is at: /path/to/ansible_collections/zscaler/zpacloud
 # We need to add /path/to to sys.path so ansible_collections.zscaler.zpacloud works
 
-COLLECTION_ROOT = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..")
-)
+COLLECTION_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 # This is the zpacloud directory
 
 # Go up to ansible_collections parent (3 levels: zpacloud -> zscaler -> ansible_collections -> parent)
@@ -51,7 +49,7 @@ def reset_module_args():
     global _original_load_params
 
     # Save original _load_params on first run
-    if _original_load_params is None and hasattr(basic, '_load_params'):
+    if _original_load_params is None and hasattr(basic, "_load_params"):
         _original_load_params = basic._load_params
 
     # Clear the old-style args

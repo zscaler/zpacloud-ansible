@@ -196,7 +196,9 @@ def core(module):
             client.private_cloud_group.list_cloud_groups, query_params
         )
         if error:
-            module.fail_json(msg=f"Error listing Private Cloud Groups: {to_native(error)}")
+            module.fail_json(
+                msg=f"Error listing Private Cloud Groups: {to_native(error)}"
+            )
         for item in group_list or []:
             item_dict = item.as_dict()
             if item_dict.get("name") == group_name:
@@ -250,10 +252,14 @@ def core(module):
                         "latitude": desired_group.get("latitude"),
                         "location": desired_group.get("location"),
                         "longitude": desired_group.get("longitude"),
-                        "override_version_profile": desired_group.get("override_version_profile"),
+                        "override_version_profile": desired_group.get(
+                            "override_version_profile"
+                        ),
                         "site_id": desired_group.get("site_id"),
                         "upgrade_day": desired_group.get("upgrade_day"),
-                        "upgrade_time_in_secs": desired_group.get("upgrade_time_in_secs"),
+                        "upgrade_time_in_secs": desired_group.get(
+                            "upgrade_time_in_secs"
+                        ),
                         "version_profile_id": desired_group.get("version_profile_id"),
                     }
                 )
@@ -280,14 +286,18 @@ def core(module):
                     "latitude": desired_group.get("latitude"),
                     "location": desired_group.get("location"),
                     "longitude": desired_group.get("longitude"),
-                    "override_version_profile": desired_group.get("override_version_profile"),
+                    "override_version_profile": desired_group.get(
+                        "override_version_profile"
+                    ),
                     "site_id": desired_group.get("site_id"),
                     "upgrade_day": desired_group.get("upgrade_day"),
                     "upgrade_time_in_secs": desired_group.get("upgrade_time_in_secs"),
                     "version_profile_id": desired_group.get("version_profile_id"),
                 }
             )
-            created, _unused, error = client.private_cloud_group.add_cloud_group(**payload)
+            created, _unused, error = client.private_cloud_group.add_cloud_group(
+                **payload
+            )
             if error:
                 module.fail_json(
                     msg=f"Error creating Private Cloud Group: {to_native(error)}"
@@ -301,7 +311,9 @@ def core(module):
             microtenant_id=microtenant_id,
         )
         if error:
-            module.fail_json(msg=f"Error deleting Private Cloud Group: {to_native(error)}")
+            module.fail_json(
+                msg=f"Error deleting Private Cloud Group: {to_native(error)}"
+            )
         module.exit_json(changed=True, data=existing_group)
 
     module.exit_json(changed=False, data={})
@@ -326,7 +338,15 @@ def main():
         upgrade_day=dict(
             type="str",
             required=False,
-            choices=["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"],
+            choices=[
+                "SUNDAY",
+                "MONDAY",
+                "TUESDAY",
+                "WEDNESDAY",
+                "THURSDAY",
+                "FRIDAY",
+                "SATURDAY",
+            ],
         ),
         upgrade_time_in_secs=dict(type="str", required=False),
         version_profile_id=dict(type="str", required=False),

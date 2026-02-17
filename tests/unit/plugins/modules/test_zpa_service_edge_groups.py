@@ -482,9 +482,15 @@ class TestZPAServiceEdgeGroupsModule(ModuleTestCase):
     def test_get_group_by_id(self, mock_client, mocker):
         """Test retrieving service edge group by ID"""
         mock_client.service_edge_group.get_service_edge_group.return_value = (
-            MockBox(self.SAMPLE_GROUP), None, None
+            MockBox(self.SAMPLE_GROUP),
+            None,
+            None,
         )
-        mock_client.service_edge_group.delete_service_edge_group.return_value = (None, None, None)
+        mock_client.service_edge_group.delete_service_edge_group.return_value = (
+            None,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -504,7 +510,11 @@ class TestZPAServiceEdgeGroupsModule(ModuleTestCase):
 
     def test_get_group_by_id_error(self, mock_client, mocker):
         """Test error when retrieving service edge group by ID"""
-        mock_client.service_edge_group.get_service_edge_group.return_value = (None, None, "Not found")
+        mock_client.service_edge_group.get_service_edge_group.return_value = (
+            None,
+            None,
+            "Not found",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -578,7 +588,9 @@ class TestZPAServiceEdgeGroupsModule(ModuleTestCase):
 
         created_group = {**self.SAMPLE_GROUP, "country_code": "CA"}
         mock_client.service_edge_group.add_service_edge_group.return_value = (
-            MockBox(created_group), None, None
+            MockBox(created_group),
+            None,
+            None,
         )
 
         set_module_args(

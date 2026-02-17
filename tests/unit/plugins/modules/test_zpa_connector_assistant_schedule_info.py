@@ -63,7 +63,9 @@ class TestZPAConnectorAssistantScheduleInfoModule(ModuleTestCase):
 
         set_module_args(provider=DEFAULT_PROVIDER)
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_connector_assistant_schedule_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_connector_assistant_schedule_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_connector_assistant_schedule_info.main()
@@ -84,7 +86,9 @@ class TestZPAConnectorAssistantScheduleInfoModule(ModuleTestCase):
             id="5",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_connector_assistant_schedule_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_connector_assistant_schedule_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_connector_assistant_schedule_info.main()
@@ -104,19 +108,30 @@ class TestZPAConnectorAssistantScheduleInfoModule(ModuleTestCase):
             id="999",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_connector_assistant_schedule_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_connector_assistant_schedule_info,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_connector_assistant_schedule_info.main()
 
-        assert "No App Connector Schedule found with ID '999'" in result.value.result["msg"]
+        assert (
+            "No App Connector Schedule found with ID '999'"
+            in result.value.result["msg"]
+        )
 
     def test_api_error(self, mock_client):
-        mock_client.app_connector_schedule.get_connector_schedule.return_value = (None, None, "API Error")
+        mock_client.app_connector_schedule.get_connector_schedule.return_value = (
+            None,
+            None,
+            "API Error",
+        )
 
         set_module_args(provider=DEFAULT_PROVIDER)
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_connector_assistant_schedule_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_connector_assistant_schedule_info,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_connector_assistant_schedule_info.main()

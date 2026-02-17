@@ -160,7 +160,9 @@ def core(module):
         query_params["microtenant_id"] = microtenant_id
 
     if aup_id:
-        result, _unused, error = client.user_portal_aup.get_user_portal_aup(aup_id, query_params)
+        result, _unused, error = client.user_portal_aup.get_user_portal_aup(
+            aup_id, query_params
+        )
         if error or result is None:
             module.fail_json(
                 msg=f"Failed to retrieve User Portal AUP ID '{aup_id}': {to_native(error)}"
@@ -168,7 +170,9 @@ def core(module):
         module.exit_json(changed=False, aups=[result.as_dict()])
 
     # If no ID, we fetch all
-    aup_list, err = collect_all_items(client.user_portal_aup.list_user_portal_aup, query_params)
+    aup_list, err = collect_all_items(
+        client.user_portal_aup.list_user_portal_aup, query_params
+    )
     if err:
         module.fail_json(msg=f"Error retrieving User Portal AUPs: {to_native(err)}")
 

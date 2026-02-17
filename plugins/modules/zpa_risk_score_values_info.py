@@ -114,7 +114,9 @@ def core(module):
         query_params["microtenant_id"] = microtenant_id
 
     # Fetch risk score values
-    values, _unused, err = client.policies.get_risk_score_values(query_params=query_params if query_params else None)
+    values, _unused, err = client.policies.get_risk_score_values(
+        query_params=query_params if query_params else None
+    )
     if err:
         module.fail_json(msg=f"Error retrieving risk score values: {to_native(err)}")
 

@@ -6,9 +6,15 @@ __metaclass__ = type
 import pytest
 from unittest.mock import MagicMock, patch
 from tests.unit.plugins.modules.common.utils import (
-    set_module_args, AnsibleExitJson, AnsibleFailJson, ModuleTestCase, DEFAULT_PROVIDER,
+    set_module_args,
+    AnsibleExitJson,
+    AnsibleFailJson,
+    ModuleTestCase,
+    DEFAULT_PROVIDER,
 )
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import ZPAClientHelper
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
+    ZPAClientHelper,
+)
 
 REAL_ARGUMENT_SPEC = ZPAClientHelper.zpa_argument_spec()
 
@@ -43,7 +49,10 @@ class TestZPAWorkloadTagGroupInfoModule(ModuleTestCase):
             return_value=([MockBox(g) for g in self.SAMPLE_GROUPS], None),
         )
         set_module_args(provider=DEFAULT_PROVIDER)
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_workload_tag_group_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_workload_tag_group_info,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_workload_tag_group_info.main()
         assert result.value.result["changed"] is False
@@ -55,7 +64,10 @@ class TestZPAWorkloadTagGroupInfoModule(ModuleTestCase):
             return_value=([MockBox(g) for g in self.SAMPLE_GROUPS], None),
         )
         set_module_args(provider=DEFAULT_PROVIDER, id="123")
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_workload_tag_group_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_workload_tag_group_info,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_workload_tag_group_info.main()
         assert result.value.result["groups"][0]["name"] == "Production"
@@ -66,7 +78,10 @@ class TestZPAWorkloadTagGroupInfoModule(ModuleTestCase):
             return_value=([MockBox(g) for g in self.SAMPLE_GROUPS], None),
         )
         set_module_args(provider=DEFAULT_PROVIDER, name="NonExistent")
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_workload_tag_group_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_workload_tag_group_info,
+        )
+
         with pytest.raises(AnsibleFailJson) as result:
             zpa_workload_tag_group_info.main()
         assert "not found" in result.value.result["msg"]

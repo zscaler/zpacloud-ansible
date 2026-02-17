@@ -63,10 +63,11 @@ options:
             - BETA
             - GOV
             - GOVUS
+            - PREVIEW
             - PRODUCTION
             - QA
             - QA2
-            - PREVIEW
+            - ZPATWO
             - beta
             - production
     use_legacy_client:
@@ -123,10 +124,11 @@ options:
             - BETA
             - GOV
             - GOVUS
+            - PREVIEW
             - PRODUCTION
             - QA
             - QA2
-            - PREVIEW
+            - ZPATWO
             - beta
             - production
 """
@@ -173,10 +175,11 @@ options:
                     - BETA
                     - GOV
                     - GOVUS
+                    - PREVIEW
                     - PRODUCTION
                     - QA
                     - QA2
-                    - PREVIEW
+                    - ZPATWO
                     - beta
                     - production
             use_legacy_client:
@@ -233,10 +236,11 @@ options:
                     - BETA
                     - GOV
                     - GOVUS
+                    - PREVIEW
                     - PRODUCTION
                     - QA
                     - QA2
-                    - PREVIEW
+                    - ZPATWO
                     - beta
                     - production
 """

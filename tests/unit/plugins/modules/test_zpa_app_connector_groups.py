@@ -517,9 +517,15 @@ class TestZPAAppConnectorGroupsModule(ModuleTestCase):
     def test_get_group_by_id(self, mock_client, mocker):
         """Test retrieving connector group by ID"""
         mock_client.app_connector_groups.get_connector_group.return_value = (
-            MockBox(self.SAMPLE_GROUP), None, None
+            MockBox(self.SAMPLE_GROUP),
+            None,
+            None,
         )
-        mock_client.app_connector_groups.delete_connector_group.return_value = (None, None, None)
+        mock_client.app_connector_groups.delete_connector_group.return_value = (
+            None,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -539,7 +545,11 @@ class TestZPAAppConnectorGroupsModule(ModuleTestCase):
 
     def test_get_group_by_id_error(self, mock_client, mocker):
         """Test error when retrieving connector group by ID"""
-        mock_client.app_connector_groups.get_connector_group.return_value = (None, None, "Not found")
+        mock_client.app_connector_groups.get_connector_group.return_value = (
+            None,
+            None,
+            "Not found",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -591,7 +601,9 @@ class TestZPAAppConnectorGroupsModule(ModuleTestCase):
 
         created_group = {**self.SAMPLE_GROUP, "country_code": "CA"}
         mock_client.app_connector_groups.add_connector_group.return_value = (
-            MockBox(created_group), None, None
+            MockBox(created_group),
+            None,
+            None,
         )
 
         set_module_args(

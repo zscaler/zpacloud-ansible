@@ -6,9 +6,14 @@ __metaclass__ = type
 import pytest
 from unittest.mock import MagicMock, patch
 from tests.unit.plugins.modules.common.utils import (
-    set_module_args, AnsibleExitJson, ModuleTestCase, DEFAULT_PROVIDER,
+    set_module_args,
+    AnsibleExitJson,
+    ModuleTestCase,
+    DEFAULT_PROVIDER,
 )
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import ZPAClientHelper
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
+    ZPAClientHelper,
+)
 
 REAL_ARGUMENT_SPEC = ZPAClientHelper.zpa_argument_spec()
 
@@ -29,7 +34,9 @@ class TestZPAApplicationSegmentPRAModule(ModuleTestCase):
         "enabled": True,
         "segment_group_id": "456",
         "server_group_ids": ["789"],
-        "common_apps_dto": {"apps_config": [{"domain": "app1.example.com", "application_port": "3389"}]},
+        "common_apps_dto": {
+            "apps_config": [{"domain": "app1.example.com", "application_port": "3389"}]
+        },
         "pra_apps": [],
     }
 
@@ -55,11 +62,21 @@ class TestZPAApplicationSegmentPRAModule(ModuleTestCase):
             segment_group_id="456",
             server_group_ids=["789"],
             common_apps_dto={
-                "apps_config": [{"name": "app1", "domain": "app1.example.com", "application_port": "3389",
-                                 "application_protocol": "RDP", "app_types": ["SECURE_REMOTE_ACCESS"]}]
+                "apps_config": [
+                    {
+                        "name": "app1",
+                        "domain": "app1.example.com",
+                        "application_port": "3389",
+                        "application_protocol": "RDP",
+                        "app_types": ["SECURE_REMOTE_ACCESS"],
+                    }
+                ]
             },
         )
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_application_segment_pra
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_pra,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_application_segment_pra.main()
         assert result.value.result["changed"] is False

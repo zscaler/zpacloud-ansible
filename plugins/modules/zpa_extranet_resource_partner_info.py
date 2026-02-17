@@ -120,7 +120,9 @@ def core(module):
         client.extranet_resource.list_extranet_resources_partner, query_params
     )
     if err:
-        module.fail_json(msg=f"Error retrieving Extranet Resource Partners: {to_native(err)}")
+        module.fail_json(
+            msg=f"Error retrieving Extranet Resource Partners: {to_native(err)}"
+        )
 
     result_list = [p.as_dict() for p in partner_list]
 

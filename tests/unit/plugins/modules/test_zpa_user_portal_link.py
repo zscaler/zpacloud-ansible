@@ -61,7 +61,11 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_link.collect_all_items",
             return_value=([], None),
         )
-        mock_client.user_portal_link.add_portal_link.return_value = (MockBox(self.SAMPLE_LINK), None, None)
+        mock_client.user_portal_link.add_portal_link.return_value = (
+            MockBox(self.SAMPLE_LINK),
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -71,7 +75,9 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
             link="https://example.com",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_link,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_user_portal_link.main()
@@ -84,7 +90,11 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_link.collect_all_items",
             return_value=([existing], None),
         )
-        mock_client.user_portal_link.delete_portal_link.return_value = (None, None, None)
+        mock_client.user_portal_link.delete_portal_link.return_value = (
+            None,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -92,7 +102,9 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
             name="Test_Portal_Link",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_link,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_user_portal_link.main()
@@ -116,7 +128,9 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
             protocol="https://",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_link,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_user_portal_link.main()
@@ -135,7 +149,9 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
             name="NonExistent_Link",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_link,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_user_portal_link.main()
@@ -145,9 +161,15 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
     def test_get_link_by_id(self, mock_client, mocker):
         """Test retrieving link by ID"""
         mock_client.user_portal_link.get_portal_link.return_value = (
-            MockBox(self.SAMPLE_LINK), None, None
+            MockBox(self.SAMPLE_LINK),
+            None,
+            None,
         )
-        mock_client.user_portal_link.delete_portal_link.return_value = (None, None, None)
+        mock_client.user_portal_link.delete_portal_link.return_value = (
+            None,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -156,7 +178,9 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
             name="Test_Portal_Link",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_link,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_user_portal_link.main()
@@ -166,7 +190,12 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
     def test_get_link_by_id_error(self, mock_client, mocker):
         """Test error when retrieving link by ID"""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
-        mock_client.user_portal_link.get_portal_link.return_value = (None, None, "Not found")
+
+        mock_client.user_portal_link.get_portal_link.return_value = (
+            None,
+            None,
+            "Not found",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -175,7 +204,9 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
             name="Test_Portal_Link",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_link,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_user_portal_link.main()
@@ -185,6 +216,7 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
     def test_list_links_error(self, mock_client, mocker):
         """Test error handling when listing links"""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_link.collect_all_items",
             return_value=(None, "List error"),
@@ -197,7 +229,9 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
             link="https://example.com",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_link,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_user_portal_link.main()
@@ -212,7 +246,9 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
             return_value=([MockBox(existing)], None),
         )
         mock_client.user_portal_link.update_portal_link.return_value = (
-            MockBox({**existing, "description": "New Description"}), None, None
+            MockBox({**existing, "description": "New Description"}),
+            None,
+            None,
         )
 
         set_module_args(
@@ -223,7 +259,9 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
             link="https://example.com",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_link,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_user_portal_link.main()
@@ -233,12 +271,17 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
     def test_update_link_error(self, mock_client, mocker):
         """Test error handling when updating link"""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         existing = {**self.SAMPLE_LINK, "description": "Old Description"}
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_link.collect_all_items",
             return_value=([MockBox(existing)], None),
         )
-        mock_client.user_portal_link.update_portal_link.return_value = (None, None, "Update failed")
+        mock_client.user_portal_link.update_portal_link.return_value = (
+            None,
+            None,
+            "Update failed",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -248,7 +291,9 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
             link="https://example.com",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_link,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_user_portal_link.main()
@@ -258,11 +303,16 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
     def test_create_link_error(self, mock_client, mocker):
         """Test error handling when creating link"""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_link.collect_all_items",
             return_value=([], None),
         )
-        mock_client.user_portal_link.add_portal_link.return_value = (None, None, "Create failed")
+        mock_client.user_portal_link.add_portal_link.return_value = (
+            None,
+            None,
+            "Create failed",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -271,7 +321,9 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
             link="https://newlink.com",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_link,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_user_portal_link.main()
@@ -281,11 +333,16 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
     def test_delete_link_error(self, mock_client, mocker):
         """Test error handling when deleting link"""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_link.collect_all_items",
             return_value=([MockBox(self.SAMPLE_LINK)], None),
         )
-        mock_client.user_portal_link.delete_portal_link.return_value = (None, None, "Delete failed")
+        mock_client.user_portal_link.delete_portal_link.return_value = (
+            None,
+            None,
+            "Delete failed",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -293,7 +350,9 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
             name="Test_Portal_Link",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_link,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_user_portal_link.main()
@@ -315,7 +374,9 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
             _ansible_check_mode=True,
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_link,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_user_portal_link.main()
@@ -326,14 +387,16 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
         """Test comparison of user_portal_link_ids"""
         existing = {
             **self.SAMPLE_LINK,
-            "user_portals": [{"id": "portal1"}, {"id": "portal2"}]
+            "user_portals": [{"id": "portal1"}, {"id": "portal2"}],
         }
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_link.collect_all_items",
             return_value=([MockBox(existing)], None),
         )
         mock_client.user_portal_link.update_portal_link.return_value = (
-            MockBox(existing), None, None
+            MockBox(existing),
+            None,
+            None,
         )
 
         set_module_args(
@@ -344,7 +407,9 @@ class TestZPAUserPortalLinkModule(ModuleTestCase):
             user_portal_link_ids=["portal3", "portal4"],
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_link
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_link,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_user_portal_link.main()

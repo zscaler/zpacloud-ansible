@@ -75,7 +75,11 @@ class TestZPAPRACredentialControllerModule(ModuleTestCase):
         )
 
         mock_created = MockBox(self.SAMPLE_CRED)
-        mock_client.pra_credential.add_credential.return_value = (mock_created, None, None)
+        mock_client.pra_credential.add_credential.return_value = (
+            mock_created,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -110,7 +114,11 @@ class TestZPAPRACredentialControllerModule(ModuleTestCase):
         )
 
         mock_updated = MockBox(self.SAMPLE_CRED)
-        mock_client.pra_credential.update_credential.return_value = (mock_updated, None, None)
+        mock_client.pra_credential.update_credential.return_value = (
+            mock_updated,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -236,17 +244,29 @@ class TestZPAPRACredentialControllerModule(ModuleTestCase):
             return_value=([], None),
         )
         set_module_args(provider=DEFAULT_PROVIDER, name="nonexistent", state="absent")
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_credential_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_pra_credential_controller,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_pra_credential_controller.main()
         assert result.value.result["changed"] is False
 
     def test_get_credential_by_id(self, mock_client, mocker):
         """Test retrieving credential by ID."""
-        mock_client.pra_credential.get_credential.return_value = (MockBox(self.SAMPLE_CRED), None, None)
+        mock_client.pra_credential.get_credential.return_value = (
+            MockBox(self.SAMPLE_CRED),
+            None,
+            None,
+        )
         mock_client.pra_credential.delete_credential.return_value = (None, None, None)
-        set_module_args(provider=DEFAULT_PROVIDER, id="8530", name="credential01", state="absent")
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_credential_controller
+        set_module_args(
+            provider=DEFAULT_PROVIDER, id="8530", name="credential01", state="absent"
+        )
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_pra_credential_controller,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_pra_credential_controller.main()
         assert result.value.result["changed"] is True
@@ -254,16 +274,23 @@ class TestZPAPRACredentialControllerModule(ModuleTestCase):
     def test_list_credentials_error(self, mock_client, mocker):
         """Test error handling when listing credentials."""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules."
             "zpa_pra_credential_controller.collect_all_items",
             return_value=(None, "API Error"),
         )
         set_module_args(
-            provider=DEFAULT_PROVIDER, name="test", credential_type="USERNAME_PASSWORD",
-            user_name="admin", state="present",
+            provider=DEFAULT_PROVIDER,
+            name="test",
+            credential_type="USERNAME_PASSWORD",
+            user_name="admin",
+            state="present",
         )
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_credential_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_pra_credential_controller,
+        )
+
         with pytest.raises(AnsibleFailJson) as result:
             zpa_pra_credential_controller.main()
         assert "error" in result.value.result["msg"].lower()
@@ -271,17 +298,29 @@ class TestZPAPRACredentialControllerModule(ModuleTestCase):
     def test_create_credential_error(self, mock_client, mocker):
         """Test error handling when creating credential."""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules."
             "zpa_pra_credential_controller.collect_all_items",
             return_value=([], None),
         )
-        mock_client.pra_credential.add_credential.return_value = (None, None, "Create failed")
-        set_module_args(
-            provider=DEFAULT_PROVIDER, name="test", credential_type="USERNAME_PASSWORD",
-            user_name="admin", password="secret", state="present",
+        mock_client.pra_credential.add_credential.return_value = (
+            None,
+            None,
+            "Create failed",
         )
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_credential_controller
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            name="test",
+            credential_type="USERNAME_PASSWORD",
+            user_name="admin",
+            password="secret",
+            state="present",
+        )
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_pra_credential_controller,
+        )
+
         with pytest.raises(AnsibleFailJson) as result:
             zpa_pra_credential_controller.main()
         assert "error" in result.value.result["msg"].lower()
@@ -289,14 +328,22 @@ class TestZPAPRACredentialControllerModule(ModuleTestCase):
     def test_delete_credential_error(self, mock_client, mocker):
         """Test error handling when deleting credential."""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules."
             "zpa_pra_credential_controller.collect_all_items",
             return_value=([MockBox(self.SAMPLE_CRED)], None),
         )
-        mock_client.pra_credential.delete_credential.return_value = (None, None, "Delete failed")
+        mock_client.pra_credential.delete_credential.return_value = (
+            None,
+            None,
+            "Delete failed",
+        )
         set_module_args(provider=DEFAULT_PROVIDER, name="credential01", state="absent")
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_credential_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_pra_credential_controller,
+        )
+
         with pytest.raises(AnsibleFailJson) as result:
             zpa_pra_credential_controller.main()
         assert "error" in result.value.result["msg"].lower()
@@ -309,9 +356,15 @@ class TestZPAPRACredentialControllerModule(ModuleTestCase):
             return_value=([MockBox(self.SAMPLE_CRED)], None),
         )
         set_module_args(
-            provider=DEFAULT_PROVIDER, name="credential01", state="absent", _ansible_check_mode=True,
+            provider=DEFAULT_PROVIDER,
+            name="credential01",
+            state="absent",
+            _ansible_check_mode=True,
         )
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_credential_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_pra_credential_controller,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_pra_credential_controller.main()
         mock_client.pra_credential.delete_credential.assert_not_called()

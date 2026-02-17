@@ -126,15 +126,15 @@ def core(module):
             break
 
     if not extranet_resource:
-        module.fail_json(
-            msg=f"Extranet resource '{zia_er_name}' not found"
-        )
+        module.fail_json(msg=f"Extranet resource '{zia_er_name}' not found")
 
     zpn_er_id = extranet_resource.get("id")
 
     # Step 2: Get locations using zpn_er_id
-    locations, _unused, error = client.location_controller.get_location_extranet_resource(
-        zpn_er_id, query_params
+    locations, _unused, error = (
+        client.location_controller.get_location_extranet_resource(
+            zpn_er_id, query_params
+        )
     )
     if error:
         module.fail_json(
@@ -148,7 +148,9 @@ def core(module):
 
     # Step 3: Search for the specific location by name
     result_list = [loc.as_dict() for loc in locations]
-    matched = next((loc for loc in result_list if loc.get("name") == location_name), None)
+    matched = next(
+        (loc for loc in result_list if loc.get("name") == location_name), None
+    )
 
     if not matched:
         available = [loc.get("name") for loc in result_list]

@@ -178,7 +178,11 @@ def core(module):
     current_portal_ids = []
     if current_link.get("user_portals"):
         current_portal_ids = sorted(
-            [str(p.get("id")) for p in current_link.get("user_portals", []) if p.get("id")]
+            [
+                str(p.get("id"))
+                for p in current_link.get("user_portals", [])
+                if p.get("id")
+            ]
         )
 
     # Sort desired user_portal_link_ids for consistent comparison
@@ -232,7 +236,9 @@ def core(module):
                         "link": desired_link.get("link"),
                         "link_path": desired_link.get("link_path"),
                         "protocol": desired_link.get("protocol"),
-                        "user_portal_link_ids": desired_link.get("user_portal_link_ids"),
+                        "user_portal_link_ids": desired_link.get(
+                            "user_portal_link_ids"
+                        ),
                     }
                 )
                 updated, _unused, error = client.user_portal_link.update_portal_link(

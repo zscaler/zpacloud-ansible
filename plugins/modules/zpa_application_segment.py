@@ -244,7 +244,7 @@ options:
   policy_style:
     description:
       - Enable dual policy evaluation (resolve FQDN to Server IP and enforce policies based on Server IP and FQDN)
-      - false = NONE (disabled), true = DUAL_POLICY_EVAL (enabled). Default: disabled.
+      - "false = NONE (disabled), true = DUAL_POLICY_EVAL (enabled). Default is disabled."
     type: bool
     required: false
   tcp_protocols:
@@ -556,7 +556,9 @@ def core(module):
                         f"[POST-UPDATE] Failed to retrieve updated resource by ID. Error: {to_native(err)}"
                     )
                 else:
-                    final_app = normalize_app(normalize_port_processing(refreshed.as_dict()))
+                    final_app = normalize_app(
+                        normalize_port_processing(refreshed.as_dict())
+                    )
                     warn_drift(module, desired_app, final_app)
 
                 module.exit_json(changed=True, data=updated_segment.as_dict())

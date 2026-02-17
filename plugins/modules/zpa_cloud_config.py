@@ -157,7 +157,9 @@ def core(module):
     # Get current config
     current_config = None
     try:
-        configs, _unused, err = client.zia_customer_config.get_zia_cloud_service_config()
+        configs, _unused, err = (
+            client.zia_customer_config.get_zia_cloud_service_config()
+        )
         if not err and configs and len(configs) > 0:
             current_config = configs[0]
     except Exception:
@@ -166,7 +168,11 @@ def core(module):
     # Check if update is needed
     needs_update = True
     if current_config:
-        current_dict = current_config.as_dict() if hasattr(current_config, "as_dict") else current_config
+        current_dict = (
+            current_config.as_dict()
+            if hasattr(current_config, "as_dict")
+            else current_config
+        )
         current_domain = current_dict.get("zia_cloud_domain", "")
         current_username = current_dict.get("zia_username", "")
 
@@ -189,14 +195,18 @@ def core(module):
         "zia_cloud_service_api_key": zia_cloud_service_api_key,
     }
 
-    result, _unused, err = client.zia_customer_config.add_zia_cloud_service_config(**config_payload)
+    result, _unused, err = client.zia_customer_config.add_zia_cloud_service_config(
+        **config_payload
+    )
     if err:
         module.fail_json(msg=f"Error configuring ZIA cloud config: {to_native(err)}")
 
     # Fetch the updated config to return (API doesn't return sensitive fields)
     configs, _unused, err = client.zia_customer_config.get_zia_cloud_service_config()
     if err:
-        module.fail_json(msg=f"Error retrieving updated ZIA cloud config: {to_native(err)}")
+        module.fail_json(
+            msg=f"Error retrieving updated ZIA cloud config: {to_native(err)}"
+        )
 
     if configs and len(configs) > 0:
         config = configs[0]

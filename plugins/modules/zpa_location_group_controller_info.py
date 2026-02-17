@@ -147,15 +147,15 @@ def core(module):
             break
 
     if not extranet_resource:
-        module.fail_json(
-            msg=f"Extranet resource '{zia_er_name}' not found"
-        )
+        module.fail_json(msg=f"Extranet resource '{zia_er_name}' not found")
 
     zpn_er_id = extranet_resource.get("id")
 
     # Step 2: Get location groups using zpn_er_id
-    location_groups, _unused, error = client.location_controller.get_location_group_extranet_resource(
-        zpn_er_id, query_params
+    location_groups, _unused, error = (
+        client.location_controller.get_location_group_extranet_resource(
+            zpn_er_id, query_params
+        )
     )
     if error:
         module.fail_json(

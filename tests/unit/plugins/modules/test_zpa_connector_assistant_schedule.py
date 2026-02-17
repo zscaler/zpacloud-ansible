@@ -59,7 +59,9 @@ class TestZPAConnectorAssistantScheduleModule(ModuleTestCase):
     def test_create_schedule_when_none_exists(self, mock_client):
         # No existing schedule
         mock_client.connectors.get_connector_schedule.return_value = None
-        mock_client.connectors.add_connector_schedule.return_value = MockSchedule(self.SAMPLE_SCHEDULE)
+        mock_client.connectors.add_connector_schedule.return_value = MockSchedule(
+            self.SAMPLE_SCHEDULE
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -71,7 +73,9 @@ class TestZPAConnectorAssistantScheduleModule(ModuleTestCase):
             frequency_interval="7",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_connector_assistant_schedule
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_connector_assistant_schedule,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_connector_assistant_schedule.main()
@@ -100,7 +104,9 @@ class TestZPAConnectorAssistantScheduleModule(ModuleTestCase):
             frequency_interval="7",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_connector_assistant_schedule
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_connector_assistant_schedule,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_connector_assistant_schedule.main()
@@ -128,7 +134,9 @@ class TestZPAConnectorAssistantScheduleModule(ModuleTestCase):
             frequency_interval="7",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_connector_assistant_schedule
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_connector_assistant_schedule,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_connector_assistant_schedule.main()
@@ -147,10 +155,15 @@ class TestZPAConnectorAssistantScheduleModule(ModuleTestCase):
             enabled=False,
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_connector_assistant_schedule
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_connector_assistant_schedule,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_connector_assistant_schedule.main()
 
         assert result.value.result["changed"] is False
-        assert "No schedule exists and creation is not enabled" in result.value.result["message"]
+        assert (
+            "No schedule exists and creation is not enabled"
+            in result.value.result["message"]
+        )

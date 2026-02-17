@@ -144,7 +144,11 @@ class TestZPAPRACredentialControllerInfoModule(ModuleTestCase):
 
     def test_credential_not_found_by_id(self, mock_client):
         """Test fetching a non-existent credential by ID."""
-        mock_client.pra_credential.get_credential.return_value = (None, None, "Not Found")
+        mock_client.pra_credential.get_credential.return_value = (
+            None,
+            None,
+            "Not Found",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,

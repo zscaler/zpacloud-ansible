@@ -59,7 +59,11 @@ class TestZPALocationGroupControllerInfoModule(ModuleTestCase):
         "name": "US West Location Group",
         "zia_locations": [
             {"id": "216199618143442002", "name": "San Jose Location", "enabled": True},
-            {"id": "216199618143442003", "name": "Los Angeles Location", "enabled": True},
+            {
+                "id": "216199618143442003",
+                "name": "Los Angeles Location",
+                "enabled": True,
+            },
         ],
     }
 
@@ -103,7 +107,10 @@ class TestZPALocationGroupControllerInfoModule(ModuleTestCase):
 
         assert result.value.result["changed"] is False
         assert len(result.value.result["location_groups"]) == 1
-        assert result.value.result["location_groups"][0]["name"] == "US West Location Group"
+        assert (
+            result.value.result["location_groups"][0]["name"]
+            == "US West Location Group"
+        )
 
     def test_extranet_resource_not_found(self, mock_client, mocker):
         """Test when extranet resource is not found."""

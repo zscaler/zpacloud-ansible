@@ -61,7 +61,11 @@ class TestZPAUserPortalControllerModule(ModuleTestCase):
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_controller.collect_all_items",
             return_value=([], None),
         )
-        mock_client.user_portal_controller.add_user_portal.return_value = (MockBox(self.SAMPLE_PORTAL), None, None)
+        mock_client.user_portal_controller.add_user_portal.return_value = (
+            MockBox(self.SAMPLE_PORTAL),
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -70,7 +74,9 @@ class TestZPAUserPortalControllerModule(ModuleTestCase):
             description="Test User Portal",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_controller,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_user_portal_controller.main()
@@ -83,7 +89,11 @@ class TestZPAUserPortalControllerModule(ModuleTestCase):
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_controller.collect_all_items",
             return_value=([existing], None),
         )
-        mock_client.user_portal_controller.delete_user_portal.return_value = (None, None, None)
+        mock_client.user_portal_controller.delete_user_portal.return_value = (
+            None,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -91,7 +101,9 @@ class TestZPAUserPortalControllerModule(ModuleTestCase):
             name="Test_User_Portal",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_controller,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_user_portal_controller.main()
@@ -115,7 +127,9 @@ class TestZPAUserPortalControllerModule(ModuleTestCase):
             ext_domain="portal.example.com",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_controller,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_user_portal_controller.main()
@@ -134,7 +148,9 @@ class TestZPAUserPortalControllerModule(ModuleTestCase):
             name="NonExistent_Portal",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_controller,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_user_portal_controller.main()
@@ -144,9 +160,15 @@ class TestZPAUserPortalControllerModule(ModuleTestCase):
     def test_get_portal_by_id(self, mock_client, mocker):
         """Test retrieving portal by ID"""
         mock_client.user_portal_controller.get_user_portal.return_value = (
-            MockBox(self.SAMPLE_PORTAL), None, None
+            MockBox(self.SAMPLE_PORTAL),
+            None,
+            None,
         )
-        mock_client.user_portal_controller.delete_user_portal.return_value = (None, None, None)
+        mock_client.user_portal_controller.delete_user_portal.return_value = (
+            None,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -155,7 +177,9 @@ class TestZPAUserPortalControllerModule(ModuleTestCase):
             name="Test_User_Portal",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_controller,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_user_portal_controller.main()
@@ -165,7 +189,12 @@ class TestZPAUserPortalControllerModule(ModuleTestCase):
     def test_get_portal_by_id_error(self, mock_client, mocker):
         """Test error when retrieving portal by ID"""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
-        mock_client.user_portal_controller.get_user_portal.return_value = (None, None, "Not found")
+
+        mock_client.user_portal_controller.get_user_portal.return_value = (
+            None,
+            None,
+            "Not found",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -174,7 +203,9 @@ class TestZPAUserPortalControllerModule(ModuleTestCase):
             name="Test_Portal",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_controller,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_user_portal_controller.main()
@@ -184,6 +215,7 @@ class TestZPAUserPortalControllerModule(ModuleTestCase):
     def test_list_portals_error(self, mock_client, mocker):
         """Test error handling when listing portals"""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_controller.collect_all_items",
             return_value=(None, "List error"),
@@ -195,7 +227,9 @@ class TestZPAUserPortalControllerModule(ModuleTestCase):
             name="Test_Portal",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_controller,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_user_portal_controller.main()
@@ -210,7 +244,9 @@ class TestZPAUserPortalControllerModule(ModuleTestCase):
             return_value=([MockBox(existing)], None),
         )
         mock_client.user_portal_controller.update_user_portal.return_value = (
-            MockBox({**existing, "description": "New Description"}), None, None
+            MockBox({**existing, "description": "New Description"}),
+            None,
+            None,
         )
 
         set_module_args(
@@ -220,7 +256,9 @@ class TestZPAUserPortalControllerModule(ModuleTestCase):
             description="New Description",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_controller,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_user_portal_controller.main()
@@ -230,12 +268,17 @@ class TestZPAUserPortalControllerModule(ModuleTestCase):
     def test_update_portal_error(self, mock_client, mocker):
         """Test error handling when updating portal"""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         existing = {**self.SAMPLE_PORTAL, "description": "Old Description"}
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_controller.collect_all_items",
             return_value=([MockBox(existing)], None),
         )
-        mock_client.user_portal_controller.update_user_portal.return_value = (None, None, "Update failed")
+        mock_client.user_portal_controller.update_user_portal.return_value = (
+            None,
+            None,
+            "Update failed",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -244,7 +287,9 @@ class TestZPAUserPortalControllerModule(ModuleTestCase):
             description="New Description",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_controller,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_user_portal_controller.main()
@@ -254,11 +299,16 @@ class TestZPAUserPortalControllerModule(ModuleTestCase):
     def test_create_portal_error(self, mock_client, mocker):
         """Test error handling when creating portal"""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_controller.collect_all_items",
             return_value=([], None),
         )
-        mock_client.user_portal_controller.add_user_portal.return_value = (None, None, "Create failed")
+        mock_client.user_portal_controller.add_user_portal.return_value = (
+            None,
+            None,
+            "Create failed",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -266,7 +316,9 @@ class TestZPAUserPortalControllerModule(ModuleTestCase):
             name="New_Portal",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_controller,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_user_portal_controller.main()
@@ -276,11 +328,16 @@ class TestZPAUserPortalControllerModule(ModuleTestCase):
     def test_delete_portal_error(self, mock_client, mocker):
         """Test error handling when deleting portal"""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_user_portal_controller.collect_all_items",
             return_value=([MockBox(self.SAMPLE_PORTAL)], None),
         )
-        mock_client.user_portal_controller.delete_user_portal.return_value = (None, None, "Delete failed")
+        mock_client.user_portal_controller.delete_user_portal.return_value = (
+            None,
+            None,
+            "Delete failed",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -288,7 +345,9 @@ class TestZPAUserPortalControllerModule(ModuleTestCase):
             name="Test_User_Portal",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_controller,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_user_portal_controller.main()
@@ -309,7 +368,9 @@ class TestZPAUserPortalControllerModule(ModuleTestCase):
             _ansible_check_mode=True,
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_user_portal_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_user_portal_controller,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_user_portal_controller.main()

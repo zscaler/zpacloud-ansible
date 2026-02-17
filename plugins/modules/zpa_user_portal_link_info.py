@@ -184,7 +184,9 @@ def core(module):
         query_params["microtenant_id"] = microtenant_id
 
     if link_id:
-        result, _unused, error = client.user_portal_link.get_portal_link(link_id, query_params)
+        result, _unused, error = client.user_portal_link.get_portal_link(
+            link_id, query_params
+        )
         if error or result is None:
             module.fail_json(
                 msg=f"Failed to retrieve User Portal Link ID '{link_id}': {to_native(error)}"
@@ -192,7 +194,9 @@ def core(module):
         module.exit_json(changed=False, links=[result.as_dict()])
 
     # If no ID, we fetch all
-    link_list, err = collect_all_items(client.user_portal_link.list_portal_link, query_params)
+    link_list, err = collect_all_items(
+        client.user_portal_link.list_portal_link, query_params
+    )
     if err:
         module.fail_json(msg=f"Error retrieving User Portal Links: {to_native(err)}")
 

@@ -105,7 +105,11 @@ class TestZPACBIBannerInfoModule(ModuleTestCase):
     def test_get_banner_by_name(self, mock_client):
         """Test fetching a CBI Banner by name."""
         mock_banners = [MockBox(self.SAMPLE_BANNER), MockBox(self.SAMPLE_BANNER_2)]
-        mock_client.cbi_banner.list_cbi_banners.return_value = (mock_banners, None, None)
+        mock_client.cbi_banner.list_cbi_banners.return_value = (
+            mock_banners,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -126,7 +130,11 @@ class TestZPACBIBannerInfoModule(ModuleTestCase):
     def test_get_all_banners(self, mock_client):
         """Test fetching all CBI Banners."""
         mock_banners = [MockBox(self.SAMPLE_BANNER), MockBox(self.SAMPLE_BANNER_2)]
-        mock_client.cbi_banner.list_cbi_banners.return_value = (mock_banners, None, None)
+        mock_client.cbi_banner.list_cbi_banners.return_value = (
+            mock_banners,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,

@@ -333,6 +333,12 @@ def normalize_app(app):
         if isinstance(value, bool):
             normalized["icmp_access_type"] = "PING" if value else "NONE"
 
+    # Handle policy_style conversion
+    if "policy_style" in normalized:
+        value = normalized["policy_style"]
+        if isinstance(value, bool):
+            normalized["policy_style"] = "DUAL_POLICY_EVAL" if value else "NONE"
+
     # Handle port ranges
     for port_type in ["tcp", "udp"]:
         range_key = f"{port_type}_port_range"
@@ -653,7 +659,7 @@ def validate_operand(operand, module):
         "SAML",
         "RISK_FACTOR_TYPE",
         "CHROME_ENTERPRISE",
-        "WORKLOAD_TAG_GROUP"
+        "WORKLOAD_TAG_GROUP",
     ]
 
     if object_type not in valid_object_types:
@@ -664,7 +670,7 @@ def validate_operand(operand, module):
         "APP_GROUP",
         "MACHINE_GRP",
         "EDGE_CONNECTOR_GROUP",
-        "WORKLOAD_TAG_GROUP"
+        "WORKLOAD_TAG_GROUP",
     ]:
         if not lhs:
             return lhsWarn(object_type, "id", lhs)
@@ -732,7 +738,7 @@ def validate_operand(operand, module):
             "zpn_client_type_zapp_partner",
             "zpn_client_type_branch_connector",
             "zpn_client_type_vdi",
-            "zpn_client_type_zia_inspection"
+            "zpn_client_type_zia_inspection",
         ]
         if rhs not in valid_client_types:
             return rhsWarn(object_type, f"one of {valid_client_types}", rhs)
@@ -828,7 +834,7 @@ def normalize_policy_v2(policy):
         "LOCATION",
         "BRANCH_CONNECTOR_GROUP",
         "CHROME_POSTURE_PROFILE",
-        "WORKLOAD_TAG_GROUP"
+        "WORKLOAD_TAG_GROUP",
     }
 
     ENTRY_TYPES = {
@@ -1075,7 +1081,7 @@ def convert_conditions_v1_to_v2(v1_conditions, module=None):
         "LOCATION",
         "BRANCH_CONNECTOR_GROUP",
         "CHROME_POSTURE_PROFILE",
-        "WORKLOAD_TAG_GROUP"
+        "WORKLOAD_TAG_GROUP",
     }
 
     ENTRY_TYPES = {
@@ -1166,7 +1172,7 @@ def validate_operand_v2(operand, module):
         "LOCATION",
         "CLIENT_TYPE",
         "CHROME_POSTURE_PROFILE",
-        "WORKLOAD_TAG_GROUP"
+        "WORKLOAD_TAG_GROUP",
     }
 
     ENTRY_OBJECT_TYPES = {
@@ -1206,7 +1212,7 @@ def validate_operand_v2(operand, module):
                 "zpn_client_type_zapp_partner",
                 "zpn_client_type_branch_connector",
                 "zpn_client_type_vdi",
-                "zpn_client_type_zia_inspection"
+                "zpn_client_type_zia_inspection",
             ]
             bad = [v for v in values if v not in allowed]
             if bad:

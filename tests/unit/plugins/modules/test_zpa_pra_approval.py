@@ -120,7 +120,11 @@ class TestZPAPRAApprovalModule(ModuleTestCase):
         )
 
         mock_updated = MockBox(self.SAMPLE_APPROVAL)
-        mock_client.pra_approval.update_approval.return_value = (mock_updated, None, None)
+        mock_client.pra_approval.update_approval.return_value = (
+            mock_updated,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -242,9 +246,14 @@ class TestZPAPRAApprovalModule(ModuleTestCase):
             return_value=([], None),
         )
         set_module_args(
-            provider=DEFAULT_PROVIDER, email_ids=["nonexistent@example.com"], state="absent",
+            provider=DEFAULT_PROVIDER,
+            email_ids=["nonexistent@example.com"],
+            state="absent",
         )
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_approval
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_pra_approval,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_pra_approval.main()
         assert result.value.result["changed"] is False
@@ -252,14 +261,21 @@ class TestZPAPRAApprovalModule(ModuleTestCase):
     def test_get_approval_by_id(self, mock_client, mocker):
         """Test retrieving approval by ID."""
         mock_client.pra_approval.get_approval.return_value = (
-            MockBox(self.SAMPLE_APPROVAL), None, None
+            MockBox(self.SAMPLE_APPROVAL),
+            None,
+            None,
         )
         mock_client.pra_approval.delete_approval.return_value = (None, None, None)
         set_module_args(
-            provider=DEFAULT_PROVIDER, id="216199618143442020",
-            email_ids=["jdoe@example.com"], state="absent",
+            provider=DEFAULT_PROVIDER,
+            id="216199618143442020",
+            email_ids=["jdoe@example.com"],
+            state="absent",
         )
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_approval
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_pra_approval,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_pra_approval.main()
         assert result.value.result["changed"] is True
@@ -267,16 +283,22 @@ class TestZPAPRAApprovalModule(ModuleTestCase):
     def test_list_approvals_error(self, mock_client, mocker):
         """Test error handling when listing approvals."""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules."
             "zpa_pra_approval.collect_all_items",
             return_value=(None, "API Error"),
         )
         set_module_args(
-            provider=DEFAULT_PROVIDER, email_ids=["test@example.com"],
-            application_ids=["123"], state="present",
+            provider=DEFAULT_PROVIDER,
+            email_ids=["test@example.com"],
+            application_ids=["123"],
+            state="present",
         )
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_approval
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_pra_approval,
+        )
+
         with pytest.raises(AnsibleFailJson) as result:
             zpa_pra_approval.main()
         assert "error" in result.value.result["msg"].lower()
@@ -284,17 +306,27 @@ class TestZPAPRAApprovalModule(ModuleTestCase):
     def test_create_approval_error(self, mock_client, mocker):
         """Test error handling when creating approval."""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules."
             "zpa_pra_approval.collect_all_items",
             return_value=([], None),
         )
-        mock_client.pra_approval.add_approval.return_value = (None, None, "Create failed")
-        set_module_args(
-            provider=DEFAULT_PROVIDER, email_ids=["test@example.com"],
-            application_ids=["123"], state="present",
+        mock_client.pra_approval.add_approval.return_value = (
+            None,
+            None,
+            "Create failed",
         )
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_approval
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            email_ids=["test@example.com"],
+            application_ids=["123"],
+            state="present",
+        )
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_pra_approval,
+        )
+
         with pytest.raises(AnsibleFailJson) as result:
             zpa_pra_approval.main()
         assert "error" in result.value.result["msg"].lower()
@@ -302,16 +334,26 @@ class TestZPAPRAApprovalModule(ModuleTestCase):
     def test_delete_approval_error(self, mock_client, mocker):
         """Test error handling when deleting approval."""
         from tests.unit.plugins.modules.common.utils import AnsibleFailJson
+
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules."
             "zpa_pra_approval.collect_all_items",
             return_value=([MockBox(self.SAMPLE_APPROVAL)], None),
         )
-        mock_client.pra_approval.delete_approval.return_value = (None, None, "Delete failed")
-        set_module_args(
-            provider=DEFAULT_PROVIDER, email_ids=["jdoe@example.com"], state="absent",
+        mock_client.pra_approval.delete_approval.return_value = (
+            None,
+            None,
+            "Delete failed",
         )
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_approval
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            email_ids=["jdoe@example.com"],
+            state="absent",
+        )
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_pra_approval,
+        )
+
         with pytest.raises(AnsibleFailJson) as result:
             zpa_pra_approval.main()
         assert "error" in result.value.result["msg"].lower()
@@ -324,10 +366,15 @@ class TestZPAPRAApprovalModule(ModuleTestCase):
             return_value=([MockBox(self.SAMPLE_APPROVAL)], None),
         )
         set_module_args(
-            provider=DEFAULT_PROVIDER, email_ids=["jdoe@example.com"],
-            state="absent", _ansible_check_mode=True,
+            provider=DEFAULT_PROVIDER,
+            email_ids=["jdoe@example.com"],
+            state="absent",
+            _ansible_check_mode=True,
         )
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_pra_approval
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_pra_approval,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_pra_approval.main()
         mock_client.pra_approval.delete_approval.assert_not_called()

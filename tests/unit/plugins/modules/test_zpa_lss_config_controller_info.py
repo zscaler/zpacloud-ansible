@@ -6,9 +6,15 @@ __metaclass__ = type
 import pytest
 from unittest.mock import MagicMock, patch
 from tests.unit.plugins.modules.common.utils import (
-    set_module_args, AnsibleExitJson, AnsibleFailJson, ModuleTestCase, DEFAULT_PROVIDER,
+    set_module_args,
+    AnsibleExitJson,
+    AnsibleFailJson,
+    ModuleTestCase,
+    DEFAULT_PROVIDER,
 )
-from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import ZPAClientHelper
+from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
+    ZPAClientHelper,
+)
 
 REAL_ARGUMENT_SPEC = ZPAClientHelper.zpa_argument_spec()
 
@@ -44,16 +50,26 @@ class TestZPALSSConfigControllerInfoModule(ModuleTestCase):
             return_value=([MockBox(c) for c in self.SAMPLE_CONFIGS], None),
         )
         set_module_args(provider=DEFAULT_PROVIDER)
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_lss_config_controller_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_lss_config_controller_info,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_lss_config_controller_info.main()
         assert result.value.result["changed"] is False
         assert len(result.value.result["data"]) == 2
 
     def test_get_config_by_id(self, mock_client):
-        mock_client.lss.get_config.return_value = (MockBox(self.SAMPLE_CONFIGS[0]), None, None)
+        mock_client.lss.get_config.return_value = (
+            MockBox(self.SAMPLE_CONFIGS[0]),
+            None,
+            None,
+        )
         set_module_args(provider=DEFAULT_PROVIDER, id="123")
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_lss_config_controller_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_lss_config_controller_info,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_lss_config_controller_info.main()
         assert result.value.result["data"][0]["id"] == "123"
@@ -61,7 +77,10 @@ class TestZPALSSConfigControllerInfoModule(ModuleTestCase):
     def test_config_not_found_by_id(self, mock_client):
         mock_client.lss.get_config.return_value = (None, None, "Not found")
         set_module_args(provider=DEFAULT_PROVIDER, id="999")
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_lss_config_controller_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_lss_config_controller_info,
+        )
+
         with pytest.raises(AnsibleFailJson) as result:
             zpa_lss_config_controller_info.main()
         assert "Failed to retrieve" in result.value.result["msg"]
@@ -73,7 +92,10 @@ class TestZPALSSConfigControllerInfoModule(ModuleTestCase):
             return_value=([MockBox(c) for c in self.SAMPLE_CONFIGS], None),
         )
         set_module_args(provider=DEFAULT_PROVIDER, name="LSS_Config01")
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_lss_config_controller_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_lss_config_controller_info,
+        )
+
         with pytest.raises(AnsibleExitJson) as result:
             zpa_lss_config_controller_info.main()
         assert result.value.result["changed"] is False
@@ -86,7 +108,10 @@ class TestZPALSSConfigControllerInfoModule(ModuleTestCase):
             return_value=([MockBox(c) for c in self.SAMPLE_CONFIGS], None),
         )
         set_module_args(provider=DEFAULT_PROVIDER, name="NonExistent_Config")
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_lss_config_controller_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_lss_config_controller_info,
+        )
+
         with pytest.raises(AnsibleFailJson) as result:
             zpa_lss_config_controller_info.main()
         assert "not found" in result.value.result["msg"].lower()
@@ -98,7 +123,10 @@ class TestZPALSSConfigControllerInfoModule(ModuleTestCase):
             return_value=(None, "List error"),
         )
         set_module_args(provider=DEFAULT_PROVIDER)
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_lss_config_controller_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_lss_config_controller_info,
+        )
+
         with pytest.raises(AnsibleFailJson) as result:
             zpa_lss_config_controller_info.main()
         assert "error" in result.value.result["msg"].lower()

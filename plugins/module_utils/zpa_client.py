@@ -76,16 +76,18 @@ except ImportError as e:
 # =============================================================================
 
 # Legacy API: ZPA_CLOUD values
-VALID_ZPA_CLOUD = frozenset({
-    "PRODUCTION",
-    "BETA",
-    "QA",
-    "QA2",
-    "GOV",
-    "GOVUS",
-    "PREVIEW",
-    "ZPATWO",
-})
+VALID_ZPA_CLOUD = frozenset(
+    {
+        "PRODUCTION",
+        "BETA",
+        "QA",
+        "QA2",
+        "GOV",
+        "GOVUS",
+        "PREVIEW",
+        "ZPATWO",
+    }
+)
 
 # OneAPI: ZSCALER_CLOUD values only
 VALID_ZSCALER_CLOUD = frozenset({"beta", "production"})
@@ -123,9 +125,8 @@ class ZPAClientHelper:
     @staticmethod
     def _resolve_use_legacy_client(provider, module):
         """Resolve use_legacy_client from provider, module params, or env."""
-        val = (
-            provider.get("use_legacy_client")
-            or module.params.get("use_legacy_client")
+        val = provider.get("use_legacy_client") or module.params.get(
+            "use_legacy_client"
         )
         if val is not None:
             return bool(val)
@@ -134,12 +135,14 @@ class ZPAClientHelper:
     def _validate_legacy_params_require_use_legacy_client(self, provider, module):
         """When Legacy params are provided without use_legacy_client, fail with clear guidance."""
         params = self._resolve_legacy_params(provider, module)
-        has_all_legacy = all([
-            params["zpa_client_id"],
-            params["zpa_client_secret"],
-            params["zpa_customer_id"],
-            params["zpa_cloud"],
-        ])
+        has_all_legacy = all(
+            [
+                params["zpa_client_id"],
+                params["zpa_client_secret"],
+                params["zpa_customer_id"],
+                params["zpa_cloud"],
+            ]
+        )
         if has_all_legacy:
             module.fail_json(
                 msg="You appear to be using Legacy API parameters (zpa_client_id, zpa_client_secret, zpa_customer_id, zpa_cloud). "
@@ -149,11 +152,27 @@ class ZPAClientHelper:
     def _validate_no_oneapi_params_with_legacy(self, provider, module):
         """use_legacy_client MUST NOT be set when using OneAPI parameters."""
         has_oneapi = (
-            (provider.get("vanity_domain") or module.params.get("vanity_domain") or os.getenv("ZSCALER_VANITY_DOMAIN"))
-            and (provider.get("client_id") or module.params.get("client_id") or os.getenv("ZSCALER_CLIENT_ID"))
+            (
+                provider.get("vanity_domain")
+                or module.params.get("vanity_domain")
+                or os.getenv("ZSCALER_VANITY_DOMAIN")
+            )
             and (
-                (provider.get("client_secret") or module.params.get("client_secret") or os.getenv("ZSCALER_CLIENT_SECRET"))
-                or (provider.get("private_key") or module.params.get("private_key") or os.getenv("ZSCALER_PRIVATE_KEY"))
+                provider.get("client_id")
+                or module.params.get("client_id")
+                or os.getenv("ZSCALER_CLIENT_ID")
+            )
+            and (
+                (
+                    provider.get("client_secret")
+                    or module.params.get("client_secret")
+                    or os.getenv("ZSCALER_CLIENT_SECRET")
+                )
+                or (
+                    provider.get("private_key")
+                    or module.params.get("private_key")
+                    or os.getenv("ZSCALER_PRIVATE_KEY")
+                )
             )
         )
         if has_oneapi:
@@ -175,11 +194,21 @@ class ZPAClientHelper:
     def _resolve_legacy_params(provider, module):
         """Resolve Legacy API params: zpa_client_id, zpa_client_secret, zpa_customer_id, zpa_cloud (ZPA_CLOUD)."""
         return {
-            "zpa_client_id": provider.get("zpa_client_id") or module.params.get("zpa_client_id") or os.getenv("ZPA_CLIENT_ID"),
-            "zpa_client_secret": provider.get("zpa_client_secret") or module.params.get("zpa_client_secret") or os.getenv("ZPA_CLIENT_SECRET"),
-            "zpa_customer_id": provider.get("zpa_customer_id") or module.params.get("zpa_customer_id") or os.getenv("ZPA_CUSTOMER_ID"),
-            "zpa_cloud": provider.get("zpa_cloud") or os.getenv("ZPA_CLOUD") or module.params.get("zpa_cloud"),
-            "zpa_microtenant_id": provider.get("zpa_microtenant_id") or module.params.get("zpa_microtenant_id") or os.getenv("ZPA_MICROTENANT_ID"),
+            "zpa_client_id": provider.get("zpa_client_id")
+            or module.params.get("zpa_client_id")
+            or os.getenv("ZPA_CLIENT_ID"),
+            "zpa_client_secret": provider.get("zpa_client_secret")
+            or module.params.get("zpa_client_secret")
+            or os.getenv("ZPA_CLIENT_SECRET"),
+            "zpa_customer_id": provider.get("zpa_customer_id")
+            or module.params.get("zpa_customer_id")
+            or os.getenv("ZPA_CUSTOMER_ID"),
+            "zpa_cloud": provider.get("zpa_cloud")
+            or os.getenv("ZPA_CLOUD")
+            or module.params.get("zpa_cloud"),
+            "zpa_microtenant_id": provider.get("zpa_microtenant_id")
+            or module.params.get("zpa_microtenant_id")
+            or os.getenv("ZPA_MICROTENANT_ID"),
         }
 
     def _init_legacy_client(self, module, provider):
@@ -219,13 +248,27 @@ class ZPAClientHelper:
     def _resolve_oneapi_params(provider, module):
         """Resolve OneAPI params. Cloud uses ZSCALER_CLOUD (param name: cloud)."""
         return {
-            "client_id": provider.get("client_id") or module.params.get("client_id") or os.getenv("ZSCALER_CLIENT_ID"),
-            "client_secret": provider.get("client_secret") or module.params.get("client_secret") or os.getenv("ZSCALER_CLIENT_SECRET"),
-            "private_key": provider.get("private_key") or module.params.get("private_key") or os.getenv("ZSCALER_PRIVATE_KEY"),
-            "vanity_domain": provider.get("vanity_domain") or module.params.get("vanity_domain") or os.getenv("ZSCALER_VANITY_DOMAIN"),
-            "cloud": provider.get("cloud") or os.getenv("ZSCALER_CLOUD") or module.params.get("cloud"),
-            "customer_id": provider.get("customer_id") or module.params.get("customer_id") or os.getenv("ZPA_CUSTOMER_ID"),
-            "microtenant_id": provider.get("microtenant_id") or module.params.get("microtenant_id") or os.getenv("ZPA_MICROTENANT_ID"),
+            "client_id": provider.get("client_id")
+            or module.params.get("client_id")
+            or os.getenv("ZSCALER_CLIENT_ID"),
+            "client_secret": provider.get("client_secret")
+            or module.params.get("client_secret")
+            or os.getenv("ZSCALER_CLIENT_SECRET"),
+            "private_key": provider.get("private_key")
+            or module.params.get("private_key")
+            or os.getenv("ZSCALER_PRIVATE_KEY"),
+            "vanity_domain": provider.get("vanity_domain")
+            or module.params.get("vanity_domain")
+            or os.getenv("ZSCALER_VANITY_DOMAIN"),
+            "cloud": provider.get("cloud")
+            or os.getenv("ZSCALER_CLOUD")
+            or module.params.get("cloud"),
+            "customer_id": provider.get("customer_id")
+            or module.params.get("customer_id")
+            or os.getenv("ZPA_CUSTOMER_ID"),
+            "microtenant_id": provider.get("microtenant_id")
+            or module.params.get("microtenant_id")
+            or os.getenv("ZPA_MICROTENANT_ID"),
         }
 
     def _init_oneapi_client(self, module, provider):

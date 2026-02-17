@@ -59,11 +59,17 @@ class TestZPAServiceEdgeAssistantScheduleInfoModule(ModuleTestCase):
 
     def test_get_schedule_by_id(self, mock_client):
         mock_schedule = MockBox(self.SAMPLE_SCHEDULE)
-        mock_client.service_edge_schedule.get_service_edge_schedule.return_value = (mock_schedule, None, None)
+        mock_client.service_edge_schedule.get_service_edge_schedule.return_value = (
+            mock_schedule,
+            None,
+            None,
+        )
 
         set_module_args(provider=DEFAULT_PROVIDER, id="216199618143441990")
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_service_edge_assistant_schedule_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_service_edge_assistant_schedule_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_service_edge_assistant_schedule_info.main()
@@ -72,11 +78,17 @@ class TestZPAServiceEdgeAssistantScheduleInfoModule(ModuleTestCase):
 
     def test_get_schedule_by_customer_id(self, mock_client):
         mock_schedule = MockBox(self.SAMPLE_SCHEDULE)
-        mock_client.service_edge_schedule.get_service_edge_schedule.return_value = (mock_schedule, None, None)
+        mock_client.service_edge_schedule.get_service_edge_schedule.return_value = (
+            mock_schedule,
+            None,
+            None,
+        )
 
         set_module_args(provider=DEFAULT_PROVIDER, customer_id="216199618143191041")
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_service_edge_assistant_schedule_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_service_edge_assistant_schedule_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_service_edge_assistant_schedule_info.main()
@@ -84,13 +96,23 @@ class TestZPAServiceEdgeAssistantScheduleInfoModule(ModuleTestCase):
         assert result.value.result["changed"] is False
 
     def test_schedule_not_found(self, mock_client):
-        mock_client.service_edge_schedule.get_service_edge_schedule.return_value = (None, None, "Not Found")
+        mock_client.service_edge_schedule.get_service_edge_schedule.return_value = (
+            None,
+            None,
+            "Not Found",
+        )
 
         set_module_args(provider=DEFAULT_PROVIDER, id="999999999999999999")
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_service_edge_assistant_schedule_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_service_edge_assistant_schedule_info,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_service_edge_assistant_schedule_info.main()
 
-        assert "Failed" in result.value.result["msg"] or "not found" in result.value.result["msg"].lower() or "Error" in result.value.result["msg"]
+        assert (
+            "Failed" in result.value.result["msg"]
+            or "not found" in result.value.result["msg"].lower()
+            or "Error" in result.value.result["msg"]
+        )

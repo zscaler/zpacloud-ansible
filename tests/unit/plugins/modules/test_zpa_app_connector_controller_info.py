@@ -88,11 +88,17 @@ class TestZPAAppConnectorControllerInfoModule(ModuleTestCase):
 
     def test_get_connector_by_id(self, mock_client):
         mock_connector = MockBox(self.SAMPLE_CONNECTOR)
-        mock_client.app_connectors.get_connector.return_value = (mock_connector, None, None)
+        mock_client.app_connectors.get_connector.return_value = (
+            mock_connector,
+            None,
+            None,
+        )
 
         set_module_args(provider=DEFAULT_PROVIDER, id="216199618143441990")
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_app_connector_controller_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_app_connector_controller_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_app_connector_controller_info.main()
@@ -100,7 +106,10 @@ class TestZPAAppConnectorControllerInfoModule(ModuleTestCase):
         assert result.value.result["changed"] is False
 
     def test_get_connector_by_name(self, mock_client, mocker):
-        mock_connectors = [MockBox(self.SAMPLE_CONNECTOR), MockBox(self.SAMPLE_CONNECTOR_2)]
+        mock_connectors = [
+            MockBox(self.SAMPLE_CONNECTOR),
+            MockBox(self.SAMPLE_CONNECTOR_2),
+        ]
 
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_app_connector_controller_info.collect_all_items",
@@ -109,7 +118,9 @@ class TestZPAAppConnectorControllerInfoModule(ModuleTestCase):
 
         set_module_args(provider=DEFAULT_PROVIDER, name="Test_App_Connector")
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_app_connector_controller_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_app_connector_controller_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_app_connector_controller_info.main()
@@ -117,7 +128,10 @@ class TestZPAAppConnectorControllerInfoModule(ModuleTestCase):
         assert result.value.result["changed"] is False
 
     def test_get_all_connectors(self, mock_client, mocker):
-        mock_connectors = [MockBox(self.SAMPLE_CONNECTOR), MockBox(self.SAMPLE_CONNECTOR_2)]
+        mock_connectors = [
+            MockBox(self.SAMPLE_CONNECTOR),
+            MockBox(self.SAMPLE_CONNECTOR_2),
+        ]
 
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_app_connector_controller_info.collect_all_items",
@@ -126,7 +140,9 @@ class TestZPAAppConnectorControllerInfoModule(ModuleTestCase):
 
         set_module_args(provider=DEFAULT_PROVIDER)
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_app_connector_controller_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_app_connector_controller_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_app_connector_controller_info.main()
@@ -134,16 +150,25 @@ class TestZPAAppConnectorControllerInfoModule(ModuleTestCase):
         assert result.value.result["changed"] is False
 
     def test_connector_not_found_by_id(self, mock_client):
-        mock_client.app_connectors.get_connector.return_value = (None, None, "Not Found")
+        mock_client.app_connectors.get_connector.return_value = (
+            None,
+            None,
+            "Not Found",
+        )
 
         set_module_args(provider=DEFAULT_PROVIDER, id="999999999999999999")
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_app_connector_controller_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_app_connector_controller_info,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_app_connector_controller_info.main()
 
-        assert "Failed" in result.value.result["msg"] or "not found" in result.value.result["msg"].lower()
+        assert (
+            "Failed" in result.value.result["msg"]
+            or "not found" in result.value.result["msg"].lower()
+        )
 
     def test_api_error_on_list(self, mock_client, mocker):
         mocker.patch(
@@ -153,7 +178,9 @@ class TestZPAAppConnectorControllerInfoModule(ModuleTestCase):
 
         set_module_args(provider=DEFAULT_PROVIDER)
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_app_connector_controller_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_app_connector_controller_info,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_app_connector_controller_info.main()

@@ -41,11 +41,17 @@ class TestZPARiskScoreValuesInfoModule(ModuleTestCase):
 
     def test_get_all_risk_scores(self, mock_client):
         # Module uses: values, _unused, err = client.policies.get_risk_score_values(...)
-        mock_client.policies.get_risk_score_values.return_value = (self.SAMPLE_RISK_VALUES, None, None)
+        mock_client.policies.get_risk_score_values.return_value = (
+            self.SAMPLE_RISK_VALUES,
+            None,
+            None,
+        )
 
         set_module_args(provider=DEFAULT_PROVIDER)
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_risk_score_values_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_risk_score_values_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_risk_score_values_info.main()
@@ -56,14 +62,20 @@ class TestZPARiskScoreValuesInfoModule(ModuleTestCase):
 
     def test_get_risk_scores_exclude_unknown(self, mock_client):
         filtered_values = ["CRITICAL", "HIGH", "MEDIUM", "LOW"]
-        mock_client.policies.get_risk_score_values.return_value = (filtered_values, None, None)
+        mock_client.policies.get_risk_score_values.return_value = (
+            filtered_values,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
             exclude_unknown=True,
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_risk_score_values_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_risk_score_values_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_risk_score_values_info.main()
@@ -72,11 +84,17 @@ class TestZPARiskScoreValuesInfoModule(ModuleTestCase):
         assert "UNKNOWN" not in result.value.result["values"]
 
     def test_api_error(self, mock_client):
-        mock_client.policies.get_risk_score_values.return_value = (None, None, "API Error")
+        mock_client.policies.get_risk_score_values.return_value = (
+            None,
+            None,
+            "API Error",
+        )
 
         set_module_args(provider=DEFAULT_PROVIDER)
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_risk_score_values_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_risk_score_values_info,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_risk_score_values_info.main()
@@ -88,7 +106,9 @@ class TestZPARiskScoreValuesInfoModule(ModuleTestCase):
 
         set_module_args(provider=DEFAULT_PROVIDER)
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_risk_score_values_info
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_risk_score_values_info,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_risk_score_values_info.main()

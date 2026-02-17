@@ -92,7 +92,11 @@ class TestZPASCIMAttributeHeaderInfoModule(ModuleTestCase):
         mock_client.idp.list_idps.return_value = ([mock_idp], None, None)
 
         mock_attr = MockBox(self.SAMPLE_ATTR)
-        mock_client.scim_attributes.get_scim_attribute.return_value = (mock_attr, None, None)
+        mock_client.scim_attributes.get_scim_attribute.return_value = (
+            mock_attr,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,

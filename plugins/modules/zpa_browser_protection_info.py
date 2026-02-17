@@ -267,22 +267,24 @@ def flatten_browser_criteria(browser):
     if not browser:
         return []
     browser_dict = browser if isinstance(browser, dict) else browser
-    return [{
-        "browser_eng": browser_dict.get("browser_eng", False),
-        "browser_eng_ver": browser_dict.get("browser_eng_ver", False),
-        "browser_name": browser_dict.get("browser_name", False),
-        "browser_version": browser_dict.get("browser_version", False),
-        "canvas": browser_dict.get("canvas", False),
-        "flash_ver": browser_dict.get("flash_ver", False),
-        "fp_usr_agent_str": browser_dict.get("fp_usr_agent_str", False),
-        "is_cookie": browser_dict.get("is_cookie", False),
-        "is_local_storage": browser_dict.get("is_local_storage", False),
-        "is_sess_storage": browser_dict.get("is_sess_storage", False),
-        "ja3": browser_dict.get("ja3", False),
-        "mime": browser_dict.get("mime", False),
-        "plugin": browser_dict.get("plugin", False),
-        "silverlight_ver": browser_dict.get("silverlight_ver", False),
-    }]
+    return [
+        {
+            "browser_eng": browser_dict.get("browser_eng", False),
+            "browser_eng_ver": browser_dict.get("browser_eng_ver", False),
+            "browser_name": browser_dict.get("browser_name", False),
+            "browser_version": browser_dict.get("browser_version", False),
+            "canvas": browser_dict.get("canvas", False),
+            "flash_ver": browser_dict.get("flash_ver", False),
+            "fp_usr_agent_str": browser_dict.get("fp_usr_agent_str", False),
+            "is_cookie": browser_dict.get("is_cookie", False),
+            "is_local_storage": browser_dict.get("is_local_storage", False),
+            "is_sess_storage": browser_dict.get("is_sess_storage", False),
+            "ja3": browser_dict.get("ja3", False),
+            "mime": browser_dict.get("mime", False),
+            "plugin": browser_dict.get("plugin", False),
+            "silverlight_ver": browser_dict.get("silverlight_ver", False),
+        }
+    ]
 
 
 def flatten_location_criteria(location):
@@ -290,10 +292,12 @@ def flatten_location_criteria(location):
     if not location:
         return []
     location_dict = location if isinstance(location, dict) else location
-    return [{
-        "lat": location_dict.get("lat", False),
-        "lon": location_dict.get("lon", False),
-    }]
+    return [
+        {
+            "lat": location_dict.get("lat", False),
+            "lon": location_dict.get("lon", False),
+        }
+    ]
 
 
 def flatten_system_criteria(system):
@@ -301,20 +305,24 @@ def flatten_system_criteria(system):
     if not system:
         return []
     system_dict = system if isinstance(system, dict) else system
-    return [{
-        "avail_screen_resolution": system_dict.get("avail_screen_resolution", False),
-        "cpu_arch": system_dict.get("cpu_arch", False),
-        "curr_screen_resolution": system_dict.get("curr_screen_resolution", False),
-        "font": system_dict.get("font", False),
-        "java_ver": system_dict.get("java_ver", False),
-        "mobile_dev_type": system_dict.get("mobile_dev_type", False),
-        "monitor_mobile": system_dict.get("monitor_mobile", False),
-        "os_name": system_dict.get("os_name", False),
-        "os_version": system_dict.get("os_version", False),
-        "sys_lang": system_dict.get("sys_lang", False),
-        "tz": system_dict.get("tz", False),
-        "usr_lang": system_dict.get("usr_lang", False),
-    }]
+    return [
+        {
+            "avail_screen_resolution": system_dict.get(
+                "avail_screen_resolution", False
+            ),
+            "cpu_arch": system_dict.get("cpu_arch", False),
+            "curr_screen_resolution": system_dict.get("curr_screen_resolution", False),
+            "font": system_dict.get("font", False),
+            "java_ver": system_dict.get("java_ver", False),
+            "mobile_dev_type": system_dict.get("mobile_dev_type", False),
+            "monitor_mobile": system_dict.get("monitor_mobile", False),
+            "os_name": system_dict.get("os_name", False),
+            "os_version": system_dict.get("os_version", False),
+            "sys_lang": system_dict.get("sys_lang", False),
+            "tz": system_dict.get("tz", False),
+            "usr_lang": system_dict.get("usr_lang", False),
+        }
+    ]
 
 
 def flatten_finger_print_criteria(fpc):
@@ -322,13 +330,15 @@ def flatten_finger_print_criteria(fpc):
     if not fpc:
         return []
     fpc_dict = fpc if isinstance(fpc, dict) else fpc
-    return [{
-        "collect_location": fpc_dict.get("collect_location", False),
-        "fingerprint_timeout": fpc_dict.get("fingerprint_timeout", ""),
-        "browser": flatten_browser_criteria(fpc_dict.get("browser", {})),
-        "location": flatten_location_criteria(fpc_dict.get("location", {})),
-        "system": flatten_system_criteria(fpc_dict.get("system", {})),
-    }]
+    return [
+        {
+            "collect_location": fpc_dict.get("collect_location", False),
+            "fingerprint_timeout": fpc_dict.get("fingerprint_timeout", ""),
+            "browser": flatten_browser_criteria(fpc_dict.get("browser", {})),
+            "location": flatten_location_criteria(fpc_dict.get("location", {})),
+            "system": flatten_system_criteria(fpc_dict.get("system", {})),
+        }
+    ]
 
 
 def flatten_criteria(criteria):
@@ -336,11 +346,13 @@ def flatten_criteria(criteria):
     if not criteria:
         return []
     criteria_dict = criteria if isinstance(criteria, dict) else criteria
-    return [{
-        "finger_print_criteria": flatten_finger_print_criteria(
-            criteria_dict.get("finger_print_criteria", {})
-        ),
-    }]
+    return [
+        {
+            "finger_print_criteria": flatten_finger_print_criteria(
+                criteria_dict.get("finger_print_criteria", {})
+            ),
+        }
+    ]
 
 
 def flatten_profile(profile):
@@ -369,7 +381,9 @@ def core(module):
         client.browser_protection.list_browser_protection_profile, {}
     )
     if err:
-        module.fail_json(msg=f"Error listing browser protection profiles: {to_native(err)}")
+        module.fail_json(
+            msg=f"Error listing browser protection profiles: {to_native(err)}"
+        )
 
     if not profiles:
         module.fail_json(msg="No browser protection profiles found")
@@ -384,7 +398,10 @@ def core(module):
                 break
 
         if not matched_profile:
-            available = [p.as_dict().get("name") if hasattr(p, "as_dict") else p.get("name") for p in profiles]
+            available = [
+                p.as_dict().get("name") if hasattr(p, "as_dict") else p.get("name")
+                for p in profiles
+            ]
             module.fail_json(
                 msg=f"Couldn't find any browser protection profile with name '{profile_name}'. Available: {available}"
             )

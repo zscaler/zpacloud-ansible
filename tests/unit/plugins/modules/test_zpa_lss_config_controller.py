@@ -79,7 +79,9 @@ class TestZPALSSConfigControllerModule(ModuleTestCase):
             app_connector_group_ids=["111111"],
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_lss_config_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_lss_config_controller,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_lss_config_controller.main()
@@ -106,7 +108,9 @@ class TestZPALSSConfigControllerModule(ModuleTestCase):
             },
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_lss_config_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_lss_config_controller,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_lss_config_controller.main()
@@ -131,7 +135,9 @@ class TestZPALSSConfigControllerModule(ModuleTestCase):
             },
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_lss_config_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_lss_config_controller,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_lss_config_controller.main()
@@ -155,7 +161,9 @@ class TestZPALSSConfigControllerModule(ModuleTestCase):
             },
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_lss_config_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_lss_config_controller,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_lss_config_controller.main()
@@ -178,7 +186,9 @@ class TestZPALSSConfigControllerModule(ModuleTestCase):
             },
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_lss_config_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_lss_config_controller,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_lss_config_controller.main()
@@ -202,7 +212,9 @@ class TestZPALSSConfigControllerModule(ModuleTestCase):
             },
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_lss_config_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_lss_config_controller,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_lss_config_controller.main()
@@ -229,7 +241,9 @@ class TestZPALSSConfigControllerModule(ModuleTestCase):
             },
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_lss_config_controller
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_lss_config_controller,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_lss_config_controller.main()

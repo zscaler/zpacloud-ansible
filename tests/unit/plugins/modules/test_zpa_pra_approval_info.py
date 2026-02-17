@@ -96,7 +96,10 @@ class TestZPAPRAApprovalInfoModule(ModuleTestCase):
 
     def test_get_all_approvals(self, mock_client, mocker):
         """Test fetching all PRA Approvals."""
-        mock_approvals = [MockBox(self.SAMPLE_APPROVAL), MockBox(self.SAMPLE_APPROVAL_2)]
+        mock_approvals = [
+            MockBox(self.SAMPLE_APPROVAL),
+            MockBox(self.SAMPLE_APPROVAL_2),
+        ]
         mocker.patch(
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_pra_approval_info.collect_all_items",
             return_value=(mock_approvals, None),

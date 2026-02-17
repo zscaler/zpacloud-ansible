@@ -385,7 +385,11 @@ class TestZPAApplicationSegmentModule(ModuleTestCase):
         )
 
         segment_multi_domain = dict(self.SAMPLE_SEGMENT)
-        segment_multi_domain["domain_names"] = ["app1.example.com", "app2.example.com", "app3.example.com"]
+        segment_multi_domain["domain_names"] = [
+            "app1.example.com",
+            "app2.example.com",
+            "app3.example.com",
+        ]
         mock_created = MockBox(segment_multi_domain)
         mock_client.application_segment.add_segment.return_value = (
             mock_created,

@@ -72,7 +72,9 @@ class TestZPAPolicyCapabilitiesAccessRuleV2Module(ModuleTestCase):
             return_value=([], None),
         )
         mock_client.policies.add_capabilities_rule_v2.return_value = (
-            MockBox(self.SAMPLE_RULE), None, None
+            MockBox(self.SAMPLE_RULE),
+            None,
+            None,
         )
 
         set_module_args(
@@ -86,7 +88,9 @@ class TestZPAPolicyCapabilitiesAccessRuleV2Module(ModuleTestCase):
             },
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_capabilities_access_rule_v2
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_policy_capabilities_access_rule_v2,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_policy_capabilities_access_rule_v2.main()
@@ -100,7 +104,9 @@ class TestZPAPolicyCapabilitiesAccessRuleV2Module(ModuleTestCase):
             return_value=([MockBox(self.SAMPLE_RULE)], None),
         )
         mock_client.policies.update_capabilities_rule_v2.return_value = (
-            MockBox({**self.SAMPLE_RULE, "description": "Updated"}), None, None
+            MockBox({**self.SAMPLE_RULE, "description": "Updated"}),
+            None,
+            None,
         )
 
         set_module_args(
@@ -114,7 +120,9 @@ class TestZPAPolicyCapabilitiesAccessRuleV2Module(ModuleTestCase):
             },
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_capabilities_access_rule_v2
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_policy_capabilities_access_rule_v2,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_policy_capabilities_access_rule_v2.main()
@@ -135,7 +143,9 @@ class TestZPAPolicyCapabilitiesAccessRuleV2Module(ModuleTestCase):
             name="Test_Capabilities_Rule",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_capabilities_access_rule_v2
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_policy_capabilities_access_rule_v2,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_policy_capabilities_access_rule_v2.main()
@@ -155,7 +165,9 @@ class TestZPAPolicyCapabilitiesAccessRuleV2Module(ModuleTestCase):
             name="NonExistent_Rule",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_capabilities_access_rule_v2
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_policy_capabilities_access_rule_v2,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_policy_capabilities_access_rule_v2.main()
@@ -175,7 +187,9 @@ class TestZPAPolicyCapabilitiesAccessRuleV2Module(ModuleTestCase):
             name="Test_Rule",
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_capabilities_access_rule_v2
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_policy_capabilities_access_rule_v2,
+        )
 
         with pytest.raises(AnsibleFailJson) as result:
             zpa_policy_capabilities_access_rule_v2.main()
@@ -196,7 +210,9 @@ class TestZPAPolicyCapabilitiesAccessRuleV2Module(ModuleTestCase):
             _ansible_check_mode=True,
         )
 
-        from ansible_collections.zscaler.zpacloud.plugins.modules import zpa_policy_capabilities_access_rule_v2
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_policy_capabilities_access_rule_v2,
+        )
 
         with pytest.raises(AnsibleExitJson) as result:
             zpa_policy_capabilities_access_rule_v2.main()

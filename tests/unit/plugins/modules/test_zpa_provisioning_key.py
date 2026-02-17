@@ -85,7 +85,11 @@ class TestZPAProvisioningKeyModule(ModuleTestCase):
         )
 
         mock_created = MockBox(self.SAMPLE_KEY)
-        mock_client.provisioning.add_provisioning_key.return_value = (mock_created, None, None)
+        mock_client.provisioning.add_provisioning_key.return_value = (
+            mock_created,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -124,7 +128,11 @@ class TestZPAProvisioningKeyModule(ModuleTestCase):
         updated_key = dict(self.SAMPLE_KEY)
         updated_key["max_usage"] = 10
         mock_updated = MockBox(updated_key)
-        mock_client.provisioning.update_provisioning_key.return_value = (mock_updated, None, None)
+        mock_client.provisioning.update_provisioning_key.return_value = (
+            mock_updated,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -158,7 +166,11 @@ class TestZPAProvisioningKeyModule(ModuleTestCase):
             ],
         )
 
-        mock_client.provisioning.delete_provisioning_key.return_value = (None, None, None)
+        mock_client.provisioning.delete_provisioning_key.return_value = (
+            None,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -275,9 +287,15 @@ class TestZPAProvisioningKeyModule(ModuleTestCase):
             return_value=([mock_cert], None),
         )
         mock_client.provisioning.get_provisioning_key.return_value = (
-            MockBox(self.SAMPLE_KEY), None, None
+            MockBox(self.SAMPLE_KEY),
+            None,
+            None,
         )
-        mock_client.provisioning.delete_provisioning_key.return_value = (None, None, None)
+        mock_client.provisioning.delete_provisioning_key.return_value = (
+            None,
+            None,
+            None,
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -303,7 +321,11 @@ class TestZPAProvisioningKeyModule(ModuleTestCase):
             "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_provisioning_key.collect_all_items",
             return_value=([mock_cert], None),
         )
-        mock_client.provisioning.get_provisioning_key.return_value = (None, None, "Not found")
+        mock_client.provisioning.get_provisioning_key.return_value = (
+            None,
+            None,
+            "Not found",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -332,7 +354,11 @@ class TestZPAProvisioningKeyModule(ModuleTestCase):
                 ([], None),
             ],
         )
-        mock_client.provisioning.add_provisioning_key.return_value = (None, None, "Create failed")
+        mock_client.provisioning.add_provisioning_key.return_value = (
+            None,
+            None,
+            "Create failed",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -363,7 +389,11 @@ class TestZPAProvisioningKeyModule(ModuleTestCase):
                 ([MockBox(existing_key)], None),
             ],
         )
-        mock_client.provisioning.update_provisioning_key.return_value = (None, None, "Update failed")
+        mock_client.provisioning.update_provisioning_key.return_value = (
+            None,
+            None,
+            "Update failed",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,
@@ -393,7 +423,11 @@ class TestZPAProvisioningKeyModule(ModuleTestCase):
                 ([MockBox(self.SAMPLE_KEY)], None),
             ],
         )
-        mock_client.provisioning.delete_provisioning_key.return_value = (None, None, "Delete failed")
+        mock_client.provisioning.delete_provisioning_key.return_value = (
+            None,
+            None,
+            "Delete failed",
+        )
 
         set_module_args(
             provider=DEFAULT_PROVIDER,

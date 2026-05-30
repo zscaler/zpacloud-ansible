@@ -12,7 +12,7 @@ permissions:
 env:
   NAMESPACE: zscaler
   COLLECTION_NAME: zpacloud
-  PYTHON_VERSION: 3.8
+  PYTHON_VERSION: 3.11
 
 jobs:
   ## Sanity is required:
@@ -29,8 +29,14 @@ jobs:
             python_ver: "3.11"
           - ansible: "2.18"
             python_ver: "3.11"
+          - ansible: "2.18"
+            python_ver: "3.12"
           - ansible: "2.19"
             python_ver: "3.11"
+          - ansible: "2.19"
+            python_ver: "3.12"
+          - ansible: "2.20"
+            python_ver: "3.12"
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -41,7 +47,7 @@ jobs:
           path: ./ansible_collections/${{ env.NAMESPACE }}/${{ env.COLLECTION_NAME }}
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python_ver }}
 

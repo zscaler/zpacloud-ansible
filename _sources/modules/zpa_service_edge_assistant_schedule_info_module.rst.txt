@@ -1,4 +1,3 @@
-
 .. Document meta
 
 :orphan:
@@ -7,7 +6,7 @@
     :trim:
 
 .. meta::
-  :antsibull-docs: 2.11.0
+  :antsibull-docs: 2.24.0
 
 .. Anchors
 
@@ -23,7 +22,7 @@ zscaler.zpacloud.zpa_service_edge_assistant_schedule_info module -- Gets the Aut
 .. Collection note
 
 .. note::
-    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 2.1.0).
+    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 2.2.0).
 
     It is not included in ``ansible-core``.
     To check whether it is installed, run :code:`ansible-galaxy collection list`.
@@ -200,10 +199,11 @@ Parameters
       - :ansible-option-choices-entry:`"BETA"`
       - :ansible-option-choices-entry:`"GOV"`
       - :ansible-option-choices-entry:`"GOVUS"`
+      - :ansible-option-choices-entry:`"PREVIEW"`
       - :ansible-option-choices-entry:`"PRODUCTION"`
       - :ansible-option-choices-entry:`"QA"`
       - :ansible-option-choices-entry:`"QA2"`
-      - :ansible-option-choices-entry:`"PREVIEW"`
+      - :ansible-option-choices-entry:`"ZPATWO"`
       - :ansible-option-choices-entry:`"beta"`
       - :ansible-option-choices-entry:`"production"`
 
@@ -385,7 +385,7 @@ Parameters
       .. raw:: html
 
         </div>
-    
+
   * - .. raw:: html
 
         <div class="ansible-option-indent"></div><div class="ansible-option-cell">
@@ -521,10 +521,11 @@ Parameters
       - :ansible-option-choices-entry:`"BETA"`
       - :ansible-option-choices-entry:`"GOV"`
       - :ansible-option-choices-entry:`"GOVUS"`
+      - :ansible-option-choices-entry:`"PREVIEW"`
       - :ansible-option-choices-entry:`"PRODUCTION"`
       - :ansible-option-choices-entry:`"QA"`
       - :ansible-option-choices-entry:`"QA2"`
-      - :ansible-option-choices-entry:`"PREVIEW"`
+      - :ansible-option-choices-entry:`"ZPATWO"`
       - :ansible-option-choices-entry:`"beta"`
       - :ansible-option-choices-entry:`"production"`
 
@@ -898,10 +899,11 @@ Parameters
       - :ansible-option-choices-entry:`"BETA"`
       - :ansible-option-choices-entry:`"GOV"`
       - :ansible-option-choices-entry:`"GOVUS"`
+      - :ansible-option-choices-entry:`"PREVIEW"`
       - :ansible-option-choices-entry:`"PRODUCTION"`
       - :ansible-option-choices-entry:`"QA"`
       - :ansible-option-choices-entry:`"QA2"`
-      - :ansible-option-choices-entry:`"PREVIEW"`
+      - :ansible-option-choices-entry:`"ZPATWO"`
       - :ansible-option-choices-entry:`"beta"`
       - :ansible-option-choices-entry:`"production"`
 
@@ -1192,10 +1194,11 @@ Parameters
       - :ansible-option-choices-entry:`"BETA"`
       - :ansible-option-choices-entry:`"GOV"`
       - :ansible-option-choices-entry:`"GOVUS"`
+      - :ansible-option-choices-entry:`"PREVIEW"`
       - :ansible-option-choices-entry:`"PRODUCTION"`
       - :ansible-option-choices-entry:`"QA"`
       - :ansible-option-choices-entry:`"QA2"`
-      - :ansible-option-choices-entry:`"PREVIEW"`
+      - :ansible-option-choices-entry:`"ZPATWO"`
       - :ansible-option-choices-entry:`"beta"`
       - :ansible-option-choices-entry:`"production"`
 
@@ -1298,7 +1301,6 @@ Examples
 
 .. code-block:: yaml+jinja
 
-    
     - name: Gather Details of All Assistant Schedules
       zscaler.zpacloud.zpa_connector_assistant_schedule_info:
         provider: "{{ zpa_cloud }}"
@@ -1312,7 +1314,6 @@ Examples
       zscaler.zpacloud.zpa_connector_assistant_schedule_info:
         provider: "{{ zpa_cloud }}"
         customer_id: "216196257331282583"
-
 
 
 
@@ -1465,7 +1466,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
 
         </div>
 
-    
+
   * - .. raw:: html
 
         <div class="ansible-option-indent"></div><div class="ansible-option-cell">
@@ -1797,7 +1798,6 @@ Authors
 - William Guilherme (@willguibr)
 
 
-
 .. Extra links
 
 Collection links
@@ -1814,4 +1814,3 @@ Collection links
 
 
 .. Parsing errors
-

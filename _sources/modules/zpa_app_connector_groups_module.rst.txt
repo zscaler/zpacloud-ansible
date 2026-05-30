@@ -1,4 +1,3 @@
-
 .. Document meta
 
 :orphan:
@@ -7,7 +6,7 @@
     :trim:
 
 .. meta::
-  :antsibull-docs: 2.11.0
+  :antsibull-docs: 2.24.0
 
 .. Anchors
 
@@ -23,7 +22,7 @@ zscaler.zpacloud.zpa_app_connector_groups module -- Create an App Connector Grou
 .. Collection note
 
 .. note::
-    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 2.1.0).
+    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 2.2.0).
 
     It is not included in ``ansible-core``.
     To check whether it is installed, run :code:`ansible-galaxy collection list`.
@@ -234,10 +233,11 @@ Parameters
       - :ansible-option-choices-entry:`"BETA"`
       - :ansible-option-choices-entry:`"GOV"`
       - :ansible-option-choices-entry:`"GOVUS"`
+      - :ansible-option-choices-entry:`"PREVIEW"`
       - :ansible-option-choices-entry:`"PRODUCTION"`
       - :ansible-option-choices-entry:`"QA"`
       - :ansible-option-choices-entry:`"QA2"`
-      - :ansible-option-choices-entry:`"PREVIEW"`
+      - :ansible-option-choices-entry:`"ZPATWO"`
       - :ansible-option-choices-entry:`"beta"`
       - :ansible-option-choices-entry:`"production"`
 
@@ -429,6 +429,42 @@ Parameters
 
       - :ansible-option-choices-entry:`false`
       - :ansible-option-choices-entry-default:`true` :ansible-option-choices-default-mark:`← (default)`
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-enrollment_cert_id"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_app_connector_groups_module__parameter-enrollment_cert_id:
+
+      .. rst-class:: ansible-option-title
+
+      **enrollment_cert_id**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-enrollment_cert_id" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`string`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      ID of the enrollment certificate used for OAuth onboarding.
+
+      If omitted, the module automatically resolves the certificate named :literal:`Connector`.
 
 
       .. raw:: html
@@ -828,7 +864,7 @@ Parameters
       .. raw:: html
 
         </div>
-    
+
   * - .. raw:: html
 
         <div class="ansible-option-indent"></div><div class="ansible-option-cell">
@@ -964,10 +1000,11 @@ Parameters
       - :ansible-option-choices-entry:`"BETA"`
       - :ansible-option-choices-entry:`"GOV"`
       - :ansible-option-choices-entry:`"GOVUS"`
+      - :ansible-option-choices-entry:`"PREVIEW"`
       - :ansible-option-choices-entry:`"PRODUCTION"`
       - :ansible-option-choices-entry:`"QA"`
       - :ansible-option-choices-entry:`"QA2"`
-      - :ansible-option-choices-entry:`"PREVIEW"`
+      - :ansible-option-choices-entry:`"ZPATWO"`
       - :ansible-option-choices-entry:`"beta"`
       - :ansible-option-choices-entry:`"production"`
 
@@ -1341,10 +1378,11 @@ Parameters
       - :ansible-option-choices-entry:`"BETA"`
       - :ansible-option-choices-entry:`"GOV"`
       - :ansible-option-choices-entry:`"GOVUS"`
+      - :ansible-option-choices-entry:`"PREVIEW"`
       - :ansible-option-choices-entry:`"PRODUCTION"`
       - :ansible-option-choices-entry:`"QA"`
       - :ansible-option-choices-entry:`"QA2"`
-      - :ansible-option-choices-entry:`"PREVIEW"`
+      - :ansible-option-choices-entry:`"ZPATWO"`
       - :ansible-option-choices-entry:`"beta"`
       - :ansible-option-choices-entry:`"production"`
 
@@ -1796,6 +1834,42 @@ Parameters
   * - .. raw:: html
 
         <div class="ansible-option-cell">
+        <div class="ansibleOptionAnchor" id="parameter-user_codes"></div>
+
+      .. _ansible_collections.zscaler.zpacloud.zpa_app_connector_groups_module__parameter-user_codes:
+
+      .. rst-class:: ansible-option-title
+
+      **user_codes**
+
+      .. raw:: html
+
+        <a class="ansibleOptionLink" href="#parameter-user_codes" title="Permalink to this option"></a>
+
+      .. ansible-option-type-line::
+
+        :ansible-option-type:`list` / :ansible-option-elements:`elements=string`
+
+      .. raw:: html
+
+        </div>
+
+    - .. raw:: html
+
+        <div class="ansible-option-cell">
+
+      OAuth user codes generated from deployed App Connector VMs.
+
+      When provided, the module invokes OAuth user code verification after create/update.
+
+
+      .. raw:: html
+
+        </div>
+
+  * - .. raw:: html
+
+        <div class="ansible-option-cell">
         <div class="ansibleOptionAnchor" id="parameter-vanity_domain"></div>
 
       .. _ansible_collections.zscaler.zpacloud.zpa_app_connector_groups_module__parameter-vanity_domain:
@@ -2027,10 +2101,11 @@ Parameters
       - :ansible-option-choices-entry:`"BETA"`
       - :ansible-option-choices-entry:`"GOV"`
       - :ansible-option-choices-entry:`"GOVUS"`
+      - :ansible-option-choices-entry:`"PREVIEW"`
       - :ansible-option-choices-entry:`"PRODUCTION"`
       - :ansible-option-choices-entry:`"QA"`
       - :ansible-option-choices-entry:`"QA2"`
-      - :ansible-option-choices-entry:`"PREVIEW"`
+      - :ansible-option-choices-entry:`"ZPATWO"`
       - :ansible-option-choices-entry:`"beta"`
       - :ansible-option-choices-entry:`"production"`
 
@@ -2133,7 +2208,6 @@ Examples
 
 .. code-block:: yaml+jinja
 
-    
     - name: Create/Update/Delete an App Connector Group
       zscaler.zpacloud.zpa_app_connector_groups:
         provider: "{{ zpa_cloud }}"
@@ -2150,7 +2224,9 @@ Examples
         override_version_profile: true
         version_profile_id: "0"
         dns_query_type: "IPV4"
-
+        user_codes:
+          - "ABCD-1234"
+          - "EFGH-5678"
 
 
 
@@ -2171,7 +2247,6 @@ Authors
 - William Guilherme (@willguibr)
 
 
-
 .. Extra links
 
 Collection links
@@ -2188,4 +2263,3 @@ Collection links
 
 
 .. Parsing errors
-

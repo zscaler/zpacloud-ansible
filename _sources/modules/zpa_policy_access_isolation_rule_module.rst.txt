@@ -1,4 +1,3 @@
-
 .. Document meta
 
 :orphan:
@@ -7,7 +6,7 @@
     :trim:
 
 .. meta::
-  :antsibull-docs: 2.11.0
+  :antsibull-docs: 2.24.0
 
 .. Anchors
 
@@ -23,7 +22,7 @@ zscaler.zpacloud.zpa_policy_access_isolation_rule module -- Manage ZPA Access Is
 .. Collection note
 
 .. note::
-    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 2.1.0).
+    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 2.2.0).
 
     It is not included in ``ansible-core``.
     To check whether it is installed, run :code:`ansible-galaxy collection list`.
@@ -245,10 +244,11 @@ Parameters
       - :ansible-option-choices-entry:`"BETA"`
       - :ansible-option-choices-entry:`"GOV"`
       - :ansible-option-choices-entry:`"GOVUS"`
+      - :ansible-option-choices-entry:`"PREVIEW"`
       - :ansible-option-choices-entry:`"PRODUCTION"`
       - :ansible-option-choices-entry:`"QA"`
       - :ansible-option-choices-entry:`"QA2"`
-      - :ansible-option-choices-entry:`"PREVIEW"`
+      - :ansible-option-choices-entry:`"ZPATWO"`
       - :ansible-option-choices-entry:`"beta"`
       - :ansible-option-choices-entry:`"production"`
 
@@ -290,7 +290,7 @@ Parameters
       .. raw:: html
 
         </div>
-    
+
   * - .. raw:: html
 
         <div class="ansible-option-indent"></div><div class="ansible-option-cell">
@@ -332,7 +332,7 @@ Parameters
       .. raw:: html
 
         </div>
-    
+
   * - .. raw:: html
 
         <div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
@@ -809,7 +809,7 @@ Parameters
       .. raw:: html
 
         </div>
-    
+
   * - .. raw:: html
 
         <div class="ansible-option-indent"></div><div class="ansible-option-cell">
@@ -945,10 +945,11 @@ Parameters
       - :ansible-option-choices-entry:`"BETA"`
       - :ansible-option-choices-entry:`"GOV"`
       - :ansible-option-choices-entry:`"GOVUS"`
+      - :ansible-option-choices-entry:`"PREVIEW"`
       - :ansible-option-choices-entry:`"PRODUCTION"`
       - :ansible-option-choices-entry:`"QA"`
       - :ansible-option-choices-entry:`"QA2"`
-      - :ansible-option-choices-entry:`"PREVIEW"`
+      - :ansible-option-choices-entry:`"ZPATWO"`
       - :ansible-option-choices-entry:`"beta"`
       - :ansible-option-choices-entry:`"production"`
 
@@ -1322,10 +1323,11 @@ Parameters
       - :ansible-option-choices-entry:`"BETA"`
       - :ansible-option-choices-entry:`"GOV"`
       - :ansible-option-choices-entry:`"GOVUS"`
+      - :ansible-option-choices-entry:`"PREVIEW"`
       - :ansible-option-choices-entry:`"PRODUCTION"`
       - :ansible-option-choices-entry:`"QA"`
       - :ansible-option-choices-entry:`"QA2"`
-      - :ansible-option-choices-entry:`"PREVIEW"`
+      - :ansible-option-choices-entry:`"ZPATWO"`
       - :ansible-option-choices-entry:`"beta"`
       - :ansible-option-choices-entry:`"production"`
 
@@ -1692,10 +1694,11 @@ Parameters
       - :ansible-option-choices-entry:`"BETA"`
       - :ansible-option-choices-entry:`"GOV"`
       - :ansible-option-choices-entry:`"GOVUS"`
+      - :ansible-option-choices-entry:`"PREVIEW"`
       - :ansible-option-choices-entry:`"PRODUCTION"`
       - :ansible-option-choices-entry:`"QA"`
       - :ansible-option-choices-entry:`"QA2"`
-      - :ansible-option-choices-entry:`"PREVIEW"`
+      - :ansible-option-choices-entry:`"ZPATWO"`
       - :ansible-option-choices-entry:`"beta"`
       - :ansible-option-choices-entry:`"production"`
 
@@ -1832,7 +1835,6 @@ Examples
 
 .. code-block:: yaml+jinja
 
-    
     - name: Gather information about all CBI Profile
       zscaler.zpacloud.zpa_isolation_profile_info:
         name: BD_SA_Profile1
@@ -1895,7 +1897,6 @@ Examples
 
 
 
-
 .. Facts
 
 
@@ -1911,7 +1912,6 @@ Authors
 ~~~~~~~
 
 - William Guilherme (@willguibr)
-
 
 
 .. Extra links
@@ -1930,4 +1930,3 @@ Collection links
 
 
 .. Parsing errors
-

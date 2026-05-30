@@ -4,7 +4,7 @@
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta content="2.11.0" name="antsibull-docs" />
+<meta content="2.24.0" name="antsibull-docs" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>zscaler.zpacloud.zpa_cloud_config_info module – Retrieves ZIA Cloud Config information. &mdash; Ansible Collections Documentation</title>
@@ -186,6 +186,12 @@
 <li class="toctree-l2"><a class="reference internal" href="zpa_service_edge_controller_module.html">zscaler.zpacloud.zpa_service_edge_controller module – Manages Service Edge Controllers in the ZPA Cloud.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_service_edge_groups_info_module.html">zscaler.zpacloud.zpa_service_edge_groups_info module – Retrieves information about a Service Edge Group.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_service_edge_groups_module.html">zscaler.zpacloud.zpa_service_edge_groups module – Create an Service Edge Group in the ZPA Cloud.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_tag_group_info_module.html">zscaler.zpacloud.zpa_tag_group_info module – Retrieve information about ZPA tag groups.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_tag_group_module.html">zscaler.zpacloud.zpa_tag_group module – Manage ZPA tag groups.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_tag_key_info_module.html">zscaler.zpacloud.zpa_tag_key_info module – Retrieve information about ZPA tag keys.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_tag_key_module.html">zscaler.zpacloud.zpa_tag_key module – Manage ZPA tag keys.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_tag_namespace_info_module.html">zscaler.zpacloud.zpa_tag_namespace_info module – Retrieve information about ZPA tag namespaces.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zpa_tag_namespace_module.html">zscaler.zpacloud.zpa_tag_namespace module – Manage ZPA tag namespaces.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_trusted_networks_info_module.html">zscaler.zpacloud.zpa_trusted_networks_info module – Retrieves information about a Trusted Network.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_user_portal_aup_info_module.html">zscaler.zpacloud.zpa_user_portal_aup_info module – Retrieves information about a User Portal Acceptable Use Policy (AUP).</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zpa_user_portal_aup_module.html">zscaler.zpacloud.zpa_user_portal_aup module – Create a User Portal Acceptable Use Policy (AUP)</a></li>
@@ -245,7 +251,7 @@
 <h1>zscaler.zpacloud.zpa_cloud_config_info module – Retrieves ZIA Cloud Config information.<a class="headerlink" href="#zscaler-zpacloud-zpa-cloud-config-info-module-retrieves-zia-cloud-config-information" title="Link to this heading"></a></h1>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/">zscaler.zpacloud collection</a> (version 2.1.0).</p>
+<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/">zscaler.zpacloud collection</a> (version 2.2.0).</p>
 <p>It is not included in <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code>.
 To check whether it is installed, run <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span></code>.</p>
 <p>To install it, use: <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">install</span> <span class="pre">zscaler.zpacloud</span></code>.
@@ -314,10 +320,11 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;BETA&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOV&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOVUS&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PRODUCTION&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;QA&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;QA2&quot;</span></code></p></li>
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;ZPATWO&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;beta&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;production&quot;</span></code></p></li>
 </ul>
@@ -381,10 +388,11 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;BETA&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOV&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOVUS&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PRODUCTION&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;QA&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;QA2&quot;</span></code></p></li>
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;ZPATWO&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;beta&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;production&quot;</span></code></p></li>
 </ul>
@@ -463,10 +471,11 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;BETA&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOV&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOVUS&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PRODUCTION&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;QA&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;QA2&quot;</span></code></p></li>
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;ZPATWO&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;beta&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;production&quot;</span></code></p></li>
 </ul>
@@ -537,10 +546,11 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;BETA&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOV&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;GOVUS&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PRODUCTION&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;QA&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;QA2&quot;</span></code></p></li>
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;ZPATWO&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;beta&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;production&quot;</span></code></p></li>
 </ul>

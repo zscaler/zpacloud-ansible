@@ -103,6 +103,11 @@ class TestZPAAppConnectorGroupsModule(ModuleTestCase):
         ) as mock_class:
             mock_class.zpa_argument_spec.return_value = REAL_ARGUMENT_SPEC.copy()
             client_instance = MagicMock()
+            client_instance.enrollment_certificates.list_enrolment.return_value = (
+                [MockBox({"id": "cert-123", "name": "Connector"})],
+                None,
+                None,
+            )
             mock_class.return_value = client_instance
             yield client_instance
 
@@ -645,3 +650,99 @@ class TestZPAAppConnectorGroupsModule(ModuleTestCase):
             zpa_app_connector_groups.main()
 
         assert "error" in result.value.result["msg"].lower()
+
+    def test_auto_resolves_enrollment_cert_id_on_create(self, mock_client, mocker):
+        """Test enrollment cert ID auto-resolution when omitted."""
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_app_connector_groups.collect_all_items",
+            side_effect=[
+                ([], None),  # list connector groups
+                (
+                    [MockBox({"id": "cert-123", "name": "Connector"})],
+                    None,
+                ),  # list certs
+            ],
+        )
+        mock_client.app_connector_groups.add_connector_group.return_value = (
+            MockBox(self.SAMPLE_GROUP),
+            None,
+            None,
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            name="Test_App_Connector_Group",
+            description="Test App Connector Group",
+            city_country="San Jose, US",
+            country_code="US",
+            latitude="37.33874",
+            longitude="-121.8852525",
+            location="San Jose, CA, USA",
+            enabled=True,
+            state="present",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_app_connector_groups,
+        )
+
+        with pytest.raises(AnsibleExitJson):
+            zpa_app_connector_groups.main()
+
+        create_kwargs = (
+            mock_client.app_connector_groups.add_connector_group.call_args.kwargs
+        )
+        assert create_kwargs["enrollment_cert_id"] == "cert-123"
+
+    def test_verifies_user_codes_after_create(self, mock_client, mocker):
+        """Test OAuth user code verification after create."""
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_app_connector_groups.collect_all_items",
+            side_effect=[
+                ([], None),  # list connector groups
+                (
+                    [MockBox({"id": "cert-123", "name": "Connector"})],
+                    None,
+                ),  # list certs
+            ],
+        )
+        created_group = dict(self.SAMPLE_GROUP)
+        created_group["id"] = "216199618143441990"
+        mock_client.app_connector_groups.add_connector_group.return_value = (
+            MockBox(created_group),
+            None,
+            None,
+        )
+        mock_client.oauth2_user_code.verify_oauth2_user_code.return_value = (
+            MockBox({"status": "ok"}),
+            None,
+            None,
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            name="Test_App_Connector_Group",
+            description="Test App Connector Group",
+            city_country="San Jose, US",
+            country_code="US",
+            latitude="37.33874",
+            longitude="-121.8852525",
+            location="San Jose, CA, USA",
+            enabled=True,
+            user_codes=["CODE-1", "CODE-2"],
+            state="present",
+        )
+
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_app_connector_groups,
+        )
+
+        with pytest.raises(AnsibleExitJson):
+            zpa_app_connector_groups.main()
+
+        mock_client.oauth2_user_code.verify_oauth2_user_code.assert_called_once()
+        verify_kwargs = (
+            mock_client.oauth2_user_code.verify_oauth2_user_code.call_args.kwargs
+        )
+        assert verify_kwargs["key_type"] == "connector"
+        assert verify_kwargs["user_codes"] == ["CODE-1", "CODE-2"]

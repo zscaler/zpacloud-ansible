@@ -171,6 +171,19 @@ options:
       - The unique identifier of the Microtenant for the ZPA tenant
     required: false
     type: str
+  enrollment_cert_id:
+    description:
+      - ID of the enrollment certificate used for OAuth onboarding.
+      - If omitted, the module automatically resolves the certificate named C(Connector).
+    required: false
+    type: str
+  user_codes:
+    description:
+      - OAuth user codes generated from deployed App Connector VMs.
+      - When provided, the module invokes OAuth user code verification after create/update.
+    required: false
+    type: list
+    elements: str
 """
 
 EXAMPLES = """
@@ -190,6 +203,9 @@ EXAMPLES = """
     override_version_profile: true
     version_profile_id: "0"
     dns_query_type: "IPV4"
+    user_codes:
+      - "ABCD-1234"
+      - "EFGH-5678"
 """
 
 RETURN = """
@@ -214,6 +230,82 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
 from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
     ZPAClientHelper,
 )
+
+
+def resolve_connector_enrollment_cert_id(module, client):
+    """
+    Resolve the default Connector enrollment certificate ID when the user
+    does not provide enrollment_cert_id explicitly.
+    """
+    query_params = {"search": "Connector"}
+    certs, error = collect_all_items(
+        client.enrollment_certificates.list_enrolment, query_params
+    )
+    if error:
+        module.fail_json(
+            msg=f"Error listing enrollment certificates for Connector lookup: {to_native(error)}"
+        )
+
+    # Fallback for clients/mocks that do not paginate this endpoint.
+    if not certs:
+        certs, _unused, error = client.enrollment_certificates.list_enrolment(
+            query_params
+        )
+        if error:
+            module.fail_json(
+                msg=f"Error listing enrollment certificates for Connector lookup: {to_native(error)}"
+            )
+
+    for cert in certs or []:
+        cert_dict = cert.as_dict()
+        if cert_dict.get("name") == "Connector" and cert_dict.get("id"):
+            return cert_dict.get("id")
+
+    # If paginated helper returns an unexpected/mocked payload, retry directly.
+    certs, _unused, error = client.enrollment_certificates.list_enrolment(query_params)
+    if error:
+        module.fail_json(
+            msg=f"Error listing enrollment certificates for Connector lookup: {to_native(error)}"
+        )
+
+    for cert in certs or []:
+        cert_dict = cert.as_dict()
+        if cert_dict.get("name") == "Connector" and cert_dict.get("id"):
+            return cert_dict.get("id")
+
+    module.fail_json(
+        msg="Unable to resolve enrollment certificate named 'Connector'. "
+        "Set enrollment_cert_id explicitly or create an enrollment certificate named 'Connector'."
+    )
+
+
+def verify_oauth_user_codes(
+    module, client, component_group_id, user_codes, microtenant_id
+):
+    """
+    Verify OAuth2 user codes for App Connector onboarding.
+    """
+    if not user_codes:
+        return
+
+    payload = {
+        "component_group_id": component_group_id,
+        "user_codes": user_codes,
+    }
+    if microtenant_id:
+        payload["microtenant_id"] = microtenant_id
+
+    _result, _unused, error = client.oauth2_user_code.verify_oauth2_user_code(
+        key_type="connector",
+        **payload,
+    )
+    if error:
+        module.fail_json(
+            msg=(
+                f"App Connector Group operation succeeded, but OAuth user code verification failed: "
+                f"{to_native(error)}"
+            )
+        )
 
 
 def core(module):
@@ -259,10 +351,13 @@ def core(module):
         "use_in_dr_mode",
         "pra_enabled",
         "waf_disabled",
+        "enrollment_cert_id",
+        "user_codes",
     ]
     for param_name in params:
         group[param_name] = module.params.get(param_name, None)
 
+    user_provided_enrollment_cert_id = group.get("enrollment_cert_id")
     group_id = group.get("id")
     group_name = group.get("name")
     microtenant_id = module.params.get("microtenant_id")
@@ -312,17 +407,43 @@ def core(module):
         if result:
             for group_ in result:
                 if group_.name == group_name:
-                    existing_group = group_.as_dict()
+                    summary_group = group_.as_dict()
+                    # Fetch full object to avoid false drift from summary-only fields.
+                    details_result = client.app_connector_groups.get_connector_group(
+                        summary_group.get("id"),
+                        query_params={"microtenant_id": microtenant_id},
+                    )
+                    if (
+                        isinstance(details_result, tuple)
+                        and len(details_result) == 3
+                    ):
+                        details, _unused, error = details_result
+                        if error:
+                            module.fail_json(
+                                msg=f"Error fetching app connector group with id {summary_group.get('id')}: {to_native(error)}"
+                            )
+                        existing_group = details.as_dict() if details else summary_group
+                    else:
+                        existing_group = summary_group
                     break
 
     # Normalize and compare existing and desired data
     desired_group = normalize_app(group)
     current_group = normalize_app(existing_group) if existing_group else {}
 
-    fields_to_exclude = ["id"]
+    fields_to_exclude = ["id", "user_codes"]
+    if not user_provided_enrollment_cert_id:
+        fields_to_exclude.append("enrollment_cert_id")
+    if not desired_group.get("override_version_profile"):
+        # API controls version profile selection when override is disabled.
+        fields_to_exclude.append("version_profile_id")
     differences_detected = False
     for key, value in desired_group.items():
-        if key not in fields_to_exclude and current_group.get(key) != value:
+        # Some API responses omit unset/default fields; do not treat missing keys
+        # as drift or we will repeatedly update on every run.
+        if key in fields_to_exclude or key not in current_group:
+            continue
+        if current_group.get(key) != value:
             differences_detected = True
             # module.warn(
             #     f"Difference detected in {key}. Current: {current_group.get(key)}, Desired: {value}"
@@ -342,6 +463,17 @@ def core(module):
         existing_group["id"] = id
 
     if state == "present":
+        effective_enrollment_cert_id = desired_group.get("enrollment_cert_id")
+        if not effective_enrollment_cert_id:
+            effective_enrollment_cert_id = resolve_connector_enrollment_cert_id(
+                module, client
+            )
+        effective_version_profile_id = (
+            desired_group.get("version_profile_id")
+            if desired_group.get("override_version_profile")
+            else None
+        )
+
         if latitude is not None and longitude is not None:
             unused_result_lat, lat_errors = validate_latitude(latitude)
             unused_result_lon, lon_errors = validate_longitude(longitude)
@@ -402,9 +534,7 @@ def core(module):
                         "override_version_profile": desired_group.get(
                             "override_version_profile", None
                         ),
-                        "version_profile_id": desired_group.get(
-                            "version_profile_id", None
-                        ),
+                        "version_profile_id": effective_version_profile_id,
                         "lss_app_connector_group": desired_group.get(
                             "lss_app_connector_group", None
                         ),
@@ -421,6 +551,7 @@ def core(module):
                         "use_in_dr_mode": desired_group.get("use_in_dr_mode", None),
                         "pra_enabled": desired_group.get("pra_enabled", None),
                         "waf_disabled": desired_group.get("waf_disabled", None),
+                        "enrollment_cert_id": effective_enrollment_cert_id,
                     }
                 )
                 # module.warn("Payload Update for SDK: {}".format(update_group))
@@ -429,6 +560,14 @@ def core(module):
                 )
                 if error:
                     module.fail_json(msg=f"Error updating group: {to_native(error)}")
+
+                verify_oauth_user_codes(
+                    module,
+                    client,
+                    updated_group.as_dict().get("id", existing_group.get("id")),
+                    desired_group.get("user_codes"),
+                    desired_group.get("microtenant_id"),
+                )
                 module.exit_json(changed=True, data=updated_group.as_dict())
             else:
                 module.exit_json(changed=False, data=existing_group)
@@ -452,7 +591,7 @@ def core(module):
                     "override_version_profile": desired_group.get(
                         "override_version_profile", None
                     ),
-                    "version_profile_id": desired_group.get("version_profile_id", None),
+                    "version_profile_id": effective_version_profile_id,
                     "lss_app_connector_group": desired_group.get(
                         "lss_app_connector_group", None
                     ),
@@ -467,6 +606,7 @@ def core(module):
                     "use_in_dr_mode": desired_group.get("use_in_dr_mode", None),
                     "pra_enabled": desired_group.get("pra_enabled", None),
                     "waf_disabled": desired_group.get("waf_disabled", None),
+                    "enrollment_cert_id": effective_enrollment_cert_id,
                 }
             )
             module.warn("Payload Update for SDK: {}".format(create_group))
@@ -477,9 +617,18 @@ def core(module):
                 module.fail_json(
                     msg=f"Error creating app connector group: {to_native(error)}"
                 )
+
+            verify_oauth_user_codes(
+                module,
+                client,
+                created.as_dict().get("id"),
+                desired_group.get("user_codes"),
+                desired_group.get("microtenant_id"),
+            )
             module.exit_json(changed=True, data=created.as_dict())
 
     elif state == "absent":
+        error = None
         if existing_group:
             _unused, _unused, error = (
                 client.app_connector_groups.delete_connector_group(
@@ -541,6 +690,8 @@ def main():
         use_in_dr_mode=dict(type="bool", default=False, required=False),
         pra_enabled=dict(type="bool", default=False, required=False),
         waf_disabled=dict(type="bool", default=False, required=False),
+        enrollment_cert_id=dict(type="str", required=False),
+        user_codes=dict(type="list", elements="str", required=False),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

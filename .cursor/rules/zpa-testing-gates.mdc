@@ -1,0 +1,15 @@
+---
+description: Required lint sanity and unit test gates
+globs: "{plugins/modules/*.py,tests/unit/plugins/modules/*.py}"
+alwaysApply: false
+---
+
+# Testing Gates
+
+- Any module change must include matching unit test coverage updates.
+- Validate at least create/update/delete/idempotency/check-mode or info-module filters.
+- Run formatting and sanity checks before finalizing:
+  - `make check-format`
+  - `make new-sanity`
+  - `make test:unit`
+- Do not merge module changes that skip unit tests.

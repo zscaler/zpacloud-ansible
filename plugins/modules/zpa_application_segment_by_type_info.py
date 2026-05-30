@@ -178,6 +178,35 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
 )
 
 
+def serialize_segment(obj):
+    """Serialize an SDK model to a snake_case dict.
+
+    Prefers the SDK's own ``as_dict()``. Some released SDK models expose an
+    attribute in ``request_format()`` that is not initialized on the populated
+    object (e.g. ``AppResource.inconsistent_config_details``), which makes
+    ``as_dict()`` raise ``AttributeError``. In that case we fall back to walking
+    the object's public attributes so the module stays usable.
+    """
+    if obj is None or isinstance(obj, (str, int, float, bool)):
+        return obj
+    if isinstance(obj, (list, tuple)):
+        return [serialize_segment(item) for item in obj]
+    if isinstance(obj, dict):
+        return {key: serialize_segment(value) for key, value in obj.items()}
+    if hasattr(obj, "as_dict"):
+        try:
+            return serialize_segment(obj.as_dict())
+        except AttributeError:
+            pass
+    if hasattr(obj, "__dict__"):
+        return {
+            key: serialize_segment(value)
+            for key, value in vars(obj).items()
+            if not key.startswith("_")
+        }
+    return obj
+
+
 def core(module):
     application_type = module.params.get("application_type")
     application_name = module.params.get("name")
@@ -224,8 +253,9 @@ def core(module):
             )
         segments = [matched]
 
-    # ✅ Serialize from SDK model (snake_case guaranteed)
-    result = [s.as_dict() if hasattr(s, "as_dict") else s for s in segments]
+    # Serialize from SDK model (snake_case). Falls back gracefully if a
+    # released SDK model raises AttributeError during as_dict().
+    result = [serialize_segment(s) for s in segments]
     module.exit_json(changed=False, data=result)
 
 

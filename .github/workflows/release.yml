@@ -158,7 +158,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
-          python-version: 3.10
+          python-version: 3.9
 
       - name: Install Poetry
         uses: Gr1N/setup-poetry@v9

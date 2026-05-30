@@ -28,6 +28,22 @@ class MockBox:
         return self._data
 
 
+class BrokenAsDictBox:
+    """Mimics a released SDK model whose as_dict() raises AttributeError
+    because request_format() references an uninitialized attribute
+    (e.g. AppResource.inconsistent_config_details)."""
+
+    def __init__(self, data):
+        self.name = data.get("name")
+        self.id = data.get("id")
+        self.domain = data.get("domain")
+
+    def as_dict(self):
+        raise AttributeError(
+            "'AppResource' object has no attribute 'inconsistent_config_details'"
+        )
+
+
 class TestZPAAppSegmentByTypeInfoModule(ModuleTestCase):
     SAMPLE_SEGMENTS = [
         {"id": "123", "name": "ba_app01", "domain": "app1.example.com"},
@@ -77,6 +93,30 @@ class TestZPAAppSegmentByTypeInfoModule(ModuleTestCase):
             zpa_application_segment_by_type_info.main()
         assert len(result.value.result["data"]) == 1
         assert result.value.result["data"][0]["name"] == "ba_app01"
+
+    def test_serializes_when_sdk_as_dict_raises_attribute_error(
+        self, mock_client, mocker
+    ):
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_application_segment_by_type_info.collect_all_items",
+            return_value=(
+                [BrokenAsDictBox(s) for s in self.SAMPLE_SEGMENTS],
+                None,
+            ),
+        )
+        set_module_args(
+            provider=DEFAULT_PROVIDER, application_type="SECURE_REMOTE_ACCESS"
+        )
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_by_type_info,
+        )
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_application_segment_by_type_info.main()
+        data = result.value.result["data"]
+        assert len(data) == 2
+        assert data[0]["name"] == "ba_app01"
+        assert data[0]["domain"] == "app1.example.com"
 
     def test_segment_not_found(self, mock_client, mocker):
         mocker.patch(

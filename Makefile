@@ -67,13 +67,13 @@ python_version := $(shell \
 docs:		## Build collection documentation
 	rm -rf antsibull
 	mkdir antsibull
-	poetry run pip install -r docs/dev_requirements.txt
+	poetry add sphinx_ansible_theme
 	poetry run antsibull-docs collection --use-current --dest-dir antsibull --no-indexes zscaler.zpacloud
 	mkdir -p docs/source/modules
 	mv antsibull/collections/zscaler/zpacloud/* docs/source/modules
 	rm -rf antsibull
 	rm -f docs/source/modules/index.rst
-	cd docs && sphinx-build source html
+	cd docs && poetry run sphinx-build source html
 
 clean:		## Remove all auto-generated files
 	rm -rf tests/output

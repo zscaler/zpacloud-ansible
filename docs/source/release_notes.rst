@@ -9,6 +9,38 @@ Releases
 Zscaler Private Access (ZPA) Ansible Collection Changelog
 ---------------------------------------------------------
 
+Version 2.2.0
+==============
+
+2.2.0 (May, 29 2026)
+----------------------------
+
+Notes
+-----
+
+- Python Versions: **v3.10, v3.11, v3.12**
+
+New Resources
+-------------
+
+* (`#94 <https://github.com/zscaler/zpacloud-ansible/pull/94>`_) - Added new resource ``zpa_tag_namespace`` to manage ZPA Tag Namespaces.
+* (`#94 <https://github.com/zscaler/zpacloud-ansible/pull/94>`_) - Added new info resource ``zpa_tag_namespace_info`` to retrieve ZPA Tag Namespaces.
+* (`#94 <https://github.com/zscaler/zpacloud-ansible/pull/94>`_) - Added new resource ``zpa_tag_key`` to manage ZPA Tag Keys.
+* (`#94 <https://github.com/zscaler/zpacloud-ansible/pull/94>`_) - Added new info resource ``zpa_tag_key_info`` to retrieve ZPA Tag Keys.
+* (`#94 <https://github.com/zscaler/zpacloud-ansible/pull/94>`_) - Added new resource ``zpa_tag_group`` to manage ZPA Tag Groups.
+* (`#94 <https://github.com/zscaler/zpacloud-ansible/pull/94>`_) - Added new info resource ``zpa_tag_group_info`` to retrieve ZPA Tag Groups.
+
+Enhancements
+-----------------
+
+* (`#94 <https://github.com/zscaler/zpacloud-ansible/pull/94>`_) - Enhanced ``zpa_app_connector_groups`` to automatically resolve ``enrollment_cert_id`` from the ``Connector`` enrollment certificate when not explicitly provided.
+* (`#94 <https://github.com/zscaler/zpacloud-ansible/pull/94>`_) - Enhanced ``zpa_app_connector_groups`` to verify OAuth onboarding automatically when ``user_codes`` is set.
+
+Bug Fixes
+------------
+
+* (`#94 <https://github.com/zscaler/zpacloud-ansible/pull/94>`_) - Fixed ``zpa_application_segment_by_type_info`` failure when retrieving application segments by type.
+
 Version 2.1.1
 ==============
 

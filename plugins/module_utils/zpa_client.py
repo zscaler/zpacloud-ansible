@@ -178,7 +178,7 @@ class ZPAClientHelper:
         if has_oneapi:
             module.fail_json(
                 msg="Cannot use use_legacy_client=true with OneAPI parameters (client_id, vanity_domain, client_secret or private_key). "
-                "Use use_legacy_client=false for OneAPI mode, or provide only Legacy parameters (zpa_client_id, zpa_client_secret, zpa_customer_id, zpa_cloud) for Legacy mode."
+                "Use use_legacy_client=false for OneAPI mode, or provide only Legacy parameters (zpa_client_id, zpa_client_secret,zpa_customer_id, zpa_cloud) for Legacy mode."
             )
 
     def __getattr__(self, name):

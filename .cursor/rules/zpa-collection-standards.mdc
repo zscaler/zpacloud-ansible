@@ -1,0 +1,14 @@
+---
+description: ZPA collection implementation standards
+alwaysApply: true
+---
+
+# ZPA Collection Standards
+
+- Keep module naming consistent: `zpa_<resource>.py` and `zpa_<resource>_info.py`.
+- Use `ZPAClientHelper.zpa_argument_spec()` and preserve provider auth compatibility.
+- Implement idempotent CRUD behavior with explicit drift checks and `check_mode` support.
+- Use SDK methods from `zscaler-sdk-python` that map directly to API capabilities.
+- Prefer implicit resolution for required IDs when API behavior is deterministic and safe.
+- Ensure microtenant-aware endpoints pass `microtenant_id` query parameters.
+- All new or changed modules must include or update unit tests.

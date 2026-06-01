@@ -4,7 +4,7 @@
 [![Ansible Lint](https://github.com/zscaler/zpacloud-ansible/actions/workflows/ansible-test-lint.yml/badge.svg?branch=master)](https://github.com/zscaler/zpacloud-ansible/actions/workflows/ansible-test-lint.yml)
 [![sanity](https://github.com/zscaler/zpacloud-ansible/actions/workflows/ansible-test-sanity.yml/badge.svg?branch=master)](https://github.com/zscaler/zpacloud-ansible/actions/workflows/ansible-test-sanity.yml)
 [![Documentation Status](https://readthedocs.org/projects/zpacloud-ansible/badge/?version=latest)](https://zpacloud-ansible.readthedocs.io/en/latest/?badge=latest)
-[![License](https://img.shields.io/github/license/zscaler/zpacloud-ansible?color=blue)](https://github.com/zscaler/zpacloud-ansible/v2/blob/master/LICENSE)
+[![License](https://img.shields.io/github/license/zscaler/zpacloud-ansible?color=blue)](https://github.com/zscaler/zpacloud-ansible/blob/master/LICENSE)
 [![Zscaler Community](https://img.shields.io/badge/zscaler-community-blue)](https://community.zscaler.com/)
 
 ## Zscaler Support

@@ -22,6 +22,13 @@
   - `make test:unit`
 - Prefer focused tests that validate create/update/delete/idempotency/check-mode/error handling.
 
+## CI / Sanity Requirements (Mandatory)
+- `meta/runtime.yml` must declare `requires_ansible: ">=2.16.0"` (RedHat AAP minimum). Keep the CI matrix aligned: test `ansible-core` 2.16+ and verify the minimum version (2.16) against **Python 3.12**.
+- For **every** Ansible version in the CI matrix there must be a matching `tests/sanity/ignore-2.XX.txt`. Adding a new matrix row (e.g. `2.20`) without the corresponding ignore file makes `validate-modules` fail every module with `missing-gplv3-license`.
+- In the sanity/release workflows, install the matrix-pinned `ansible-core` **after** `poetry install`, using `poetry run pip install --force-reinstall --no-deps "<stable-tarball>"`. Because `pyproject.toml` pins `ansible-core = "*"`, running `poetry install` after the pin would upgrade ansible-core to the newest release (e.g. 2.21 on Python 3.12) and break sanity.
+- Run sanity the way RedHat recommends before submitting: `ansible-test sanity --docker default --python 3.12`. The `WARNING: ... virtual environments are out-of-date ...` line is benign (cached venvs rebuild); only `ERROR:`/`FATAL:` lines or a non-zero exit indicate a real failure.
+- README links must be absolute GitHub URLs (Automation Hub does not resolve relative paths); the license badge must point to `https://github.com/zscaler/zpacloud-ansible/blob/master/LICENSE`.
+
 ## API Nuances
 - When API-required fields can be safely inferred (for example, known default resources), resolve them automatically to minimize user friction.
 - For onboarding flows requiring secondary API verification, call the corresponding SDK verification endpoint inside module execution.

@@ -1,5 +1,15 @@
 # Zscaler Private Access (ZPA) Ansible Collection Changelog
 
+## 2.2.1 (June 1, 2026)
+
+### Notes
+
+- Python Versions: **v3.10, v3.11, v3.12**
+
+### Internals
+
+- [#95](https://github.com/zscaler/zpacloud-ansible/pull/95) - Fixed sanity CI so the matrix-pinned `ansible-core` is installed after `poetry install` (preventing an unintended upgrade that broke `validate-modules`), bumped `requires_ansible` to `>=2.16.0`, added a `2.16`/Python 3.12 sanity job and `ignore-2.20.txt`, and corrected the README license badge URL.
+
 ## 2.2.0 (May, 29 2026)
 
 ### Notes

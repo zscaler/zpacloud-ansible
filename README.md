@@ -5,7 +5,7 @@
 [![sanity](https://github.com/zscaler/zpacloud-ansible/actions/workflows/ansible-test-sanity.yml/badge.svg?branch=master)](https://github.com/zscaler/zpacloud-ansible/actions/workflows/ansible-test-sanity.yml)
 [![Documentation Status](https://readthedocs.org/projects/zpacloud-ansible/badge/?version=latest)](https://zpacloud-ansible.readthedocs.io/en/latest/?badge=latest)
 [![License](https://img.shields.io/github/license/zscaler/zpacloud-ansible?color=blue)](https://github.com/zscaler/zpacloud-ansible/blob/master/LICENSE)
-[![Zscaler Community](https://img.shields.io/badge/zscaler-community-blue)](https://community.zscaler.com/)
+[![Zscaler Community](https://img.shields.io/badge/zscaler-community-blue)](https://community.zscaler.com/s/)
 
 ## Zscaler Support
 
@@ -304,7 +304,7 @@ For details about how to retrieve your tenant Base URL and API key/token refer t
 
 The intended release frequency for major and minor versions are performed whenever there is a need for fixing issues or to address security concerns.
 
-Changelog details are created automatically and more recently can be found [here](https://github.com/zscaler/zpacloud-ansible/blob/master/README.md), but also the full history is [here](https://github.com/zscaler/zpacloud-ansible/releases).
+Changelog details are created automatically and more recently can be found [here](https://github.com/zscaler/zpacloud-ansible/blob/master/CHANGELOG.md), but also the full history is [here](https://github.com/zscaler/zpacloud-ansible/releases).
 
 [Semantic versioning](https://semver.org/) is adhered to for this project.
 

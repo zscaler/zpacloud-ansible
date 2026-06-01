@@ -9,6 +9,40 @@ Releases
 Zscaler Private Access (ZPA) Ansible Collection Changelog
 ---------------------------------------------------------
 
+Version 2.2.3
+==============
+
+v2.2.3 (June 1, 2026)
+---------------------------
+
+Notes
+-------
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+#### Internals
+
+* (`#123 <https://github.com/zscaler/zpacloud-ansible/pull/123>`_) - Fixed sanity CI so the matrix-pinned `ansible-core` is installed after `poetry install` (preventing an unintended upgrade that broke `validate-modules`), bumped `requires_ansible` to `>=2.16.0`, added a `2.16`/Python 3.12 sanity job, and corrected README license badge and relative links
+
+* (`#123 <https://github.com/zscaler/zpacloud-ansible/pull/123>`_) - Release v2.2.3
+
+Version 2.2.2
+==============
+
+v2.2.2 (June 1, 2026)
+---------------------------
+
+Notes
+-------
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+#### Internals
+
+* (`#121 <https://github.com/zscaler/zpacloud-ansible/pull/121>`_) - Fixed sanity CI so the matrix-pinned `ansible-core` is installed after `poetry install` (preventing an unintended upgrade that broke `validate-modules`), bumped `requires_ansible` to `>=2.16.0`, added a `2.16`/Python 3.12 sanity job, and corrected README license badge and relative links
+
+* (`#122 <https://github.com/zscaler/zpacloud-ansible/pull/122>`_) - Release v2.2.3
+
 Version 2.2.1
 ==============
 
@@ -16,7 +50,7 @@ Version 2.2.1
 ----------------------------
 
 Notes
------
+-------
 
 - Python Versions: **v3.10, v3.11, v3.12**
 
@@ -34,7 +68,7 @@ Version 2.2.0
 ----------------------------
 
 Notes
------
+-------
 
 - Python Versions: **v3.10, v3.11, v3.12**
 
@@ -103,7 +137,8 @@ New Resources
 2.0.7 (August, 4 2025)
 -------------------------
 
-### Notes
+Notes
+-------
 
 - Python Versions: **v3.9, v3.10, v3.11**
 

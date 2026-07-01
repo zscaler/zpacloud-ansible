@@ -1,5 +1,15 @@
 # Zscaler Private Access (ZPA) Ansible Collection Changelog
 
+## v2.2.5 (July 1, 2026)
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+#### Bug Fix
+
+[#101](https://github.com/zscaler/zpacloud-ansible/pull/101) - Fixed `zpa_pra_approval` update to send the intended payload instead of the raw existing approval, and made `working_hours` truly optional so approvals can be created and updated without it.
+
 ## v2.2.4 (June 2, 2026)
 
 ### Notes

@@ -16,9 +16,13 @@ The ZPA Ansible Collection now offers support for (`OneAPI <https://help.zscaler
 
 * NOTE: As of version v2.0.0, this Ansible Collection offers backwards compatibility to the Zscaler legacy API framework. This is the recommended authentication method for organizations whose tenants are still not migrated to (`Zidentity <https://help.zscaler.com/zidentity/what-zidentity>`_)
 
-* NOTE: Notice that OneAPI and Zidentity is not currently supported for the following clouds: `GOV` and `GOVUS`. Refer to the Legacy API Framework for more information on how authenticate to these environments
+**NOTE**: Attention Government customers. OneAPI and Zidentity now support the government (FedRAMP) clouds via the unified `cloud=gov` and `cloud=govus` values. See the [OneAPI Government (FedRAMP) Cloud Environments](#oneapi-government-fedramp-cloud-environments) section below for details.
 
-* NOTE: The authentication parameter `cloud` or `ZSCALER_CLOUD` are optional, and only required when authenticating to a non-production environment i.e `beta`
+**NOTE**: The `zscaler_cloud` is optional for production comercial Clouds and ONLY required when authenticating to other environments. Currently the only supported value are:
+
+- Production Commericial Clouds: The cloud parameter `IS NOT` required.
+- Test (Beta) Commercial Clouds: `beta`
+- FedRAMP Clouds: `gov` or `govus`
 
 Client Secret Authentication
 -----------------------------
@@ -356,6 +360,84 @@ Private Key Authentication
             register: created_app
           - debug:
               msg: "{{ created_app }}"
+
+==============================================
+OneAPI Government (FedRAMP) Cloud Environments
+==============================================
+
+OneAPI supports the Zscaler government (FedRAMP) clouds. To authenticate to a government cloud, set the ``cloud`` attribute (or the ``ZSCALER_CLOUD`` environment variable) to one of the supported government values: ``gov`` or ``govus``.
+
+The following attributes (or their corresponding environment variables) must be used when authenticating to a government (FedRAMP) cloud:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 45 30
+
+   * - Argument
+     - Description
+     - Environment variable
+   * - ``client_id``
+     - *(String)* Zscaler API Client ID, used with ``client_secret`` or ``private_key``.
+     - ``ZSCALER_CLIENT_ID``
+   * - ``client_secret``
+     - *(String)* The client secret for the API client.
+     - ``ZSCALER_CLIENT_SECRET``
+   * - ``private_key``
+     - *(String)* The private key value (alternative to ``client_secret``).
+     - ``ZSCALER_PRIVATE_KEY``
+   * - ``vanity_domain``
+     - *(String)* The domain name used by your organization, used as the host prefix for the government identity provider.
+     - ``ZSCALER_VANITY_DOMAIN``
+   * - ``customer_id``
+     - *(String)* The unique identifier of the ZPA tenant.
+     - ``ZPA_CUSTOMER_ID``
+   * - ``cloud``
+     - *(String)* The supported Zidentity government cloud: ``gov`` or ``govus``.
+     - ``ZSCALER_CLOUD``
+
+**NOTE**: The ``cloud`` value is case-insensitive (``gov``, ``GOV``, ``govus``, ``GOVUS`` are all accepted). The ``vanity_domain`` is still required and is used as the host prefix for the government identity provider.
+
+For example, authenticating to the ``gov`` environment using environment variables:
+
+.. code-block:: bash
+
+   export ZSCALER_CLIENT_ID="client_id"
+   export ZSCALER_CLIENT_SECRET="client_secret"
+   export ZSCALER_VANITY_DOMAIN="vanity_domain"
+   export ZPA_CUSTOMER_ID="customer_id"
+   export ZSCALER_CLOUD="gov"
+
+Or using a ``provider`` block within your playbook:
+
+.. code-block:: yaml
+
+   - name: Create Application Segment
+     hosts: localhost
+     connection: local
+
+     vars:
+       zpa_cloud:
+         client_id: "{{ client_id | default(omit) }}"
+         client_secret: "{{ client_secret | default(omit) }}"
+         vanity_domain: "{{ vanity_domain | default(omit) }}"
+         customer_id: "{{ customer_id | default(omit) }}"
+         cloud: "gov"   # or "govus"
+
+     tasks:
+       - name: Create an Application Segment
+         zscaler.zpacloud.zpa_application_segment:
+           provider: "{{ zpa_cloud }}"
+           state: present
+           name: app_segment_01_ansible
+           enabled: true
+           domain_names:
+             - server1.example.com
+           segment_group_id: "72058304855114308"
+           server_group_ids:
+             - "72058304855090128"
+         register: created_app
+       - debug:
+           msg: "{{ created_app }}"
 
 =============================
 Legacy API Authentication

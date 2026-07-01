@@ -179,6 +179,35 @@ def normalize_approval(approval):
     return normalized
 
 
+def time_to_epoch(value, time_zone=None):
+    """
+    Convert an RFC1123-style time string to an integer epoch for idempotent
+    comparison only. The module keeps sending RFC strings to the SDK (which
+    performs the real epoch conversion the API requires); this mirrors that
+    logic so a value already stored as epoch is not reported as spurious drift.
+    Falls back to the original value when conversion is not possible.
+    """
+    if value is None or isinstance(value, bool):
+        return value
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        stripped = value.strip()
+        if stripped.isdigit():
+            return int(stripped)
+        try:
+            from dateutil import parser as date_parser
+            import pytz
+
+            parsed = date_parser.parse(stripped)
+            if parsed.tzinfo is None:
+                parsed = pytz.timezone(time_zone or "UTC").localize(parsed)
+            return int(parsed.timestamp())
+        except Exception:
+            return value
+    return value
+
+
 def core(module):
     state = module.params.get("state", None)
     client = ZPAClientHelper(module)
@@ -255,14 +284,56 @@ def core(module):
             desired_approval["application_ids"]
         )
 
+    existing_status = existing_approval.get("status") if existing_approval else None
+
+    # Timezone the SDK will use to convert the times, so comparisons match what
+    # the API stores (working_hours.time_zone when provided, otherwise UTC).
+    desired_working_hours = desired_approval.get("working_hours") or {}
+    comparison_time_zone = (
+        desired_working_hours.get("time_zone")
+        if isinstance(desired_working_hours, dict)
+        else None
+    )
+
+    time_fields = {"start_time", "end_time"}
     fields_to_exclude = ["id"]
     differences_detected = False
+    start_time_changed = False
     for key, value in desired_approval.items():
-        if key not in fields_to_exclude and current_approval.get(key) != value:
+        if key in fields_to_exclude:
+            continue
+        current_value = current_approval.get(key)
+        desired_value = value
+        if key in time_fields:
+            # Compare as epoch so RFC strings (desired) and stored epoch (current)
+            # do not register as false drift.
+            current_value = time_to_epoch(current_value, comparison_time_zone)
+            desired_value = time_to_epoch(value, comparison_time_zone)
+        if current_value != desired_value:
             differences_detected = True
+            if key == "start_time":
+                start_time_changed = True
             module.warn(
-                f"Difference detected in {key}. Current: {current_approval.get(key)}, Desired: {value}"
+                f"Difference detected in {key}. Current: {current_value}, Desired: {desired_value}"
             )
+
+    # Safeguard: the API rejects start_time changes on an approval that has already
+    # started (status ACTIVE). Fail early with a clear message instead of surfacing
+    # the raw API 400 (approval.starttime.update.not.allowed).
+    if (
+        existing_approval is not None
+        and state == "present"
+        and start_time_changed
+        and existing_status == "ACTIVE"
+    ):
+        module.fail_json(
+            msg=(
+                f"The start_time of active approval (id {existing_approval.get('id')}) "
+                "cannot be updated because it has already started. Revert the "
+                "start_time change, or delete and recreate the approval to set a "
+                "new start time."
+            )
+        )
 
     if module.check_mode:
         if state == "present" and (existing_approval is None or differences_detected):
@@ -297,7 +368,7 @@ def core(module):
                 )
                 module.warn("Payload Update for SDK: {}".format(update_approval))
                 updated_approval, _unused, error = client.pra_approval.update_approval(
-                    approval_id=update_approval.get("approval_id"), **existing_approval
+                    approval_id=update_approval.pop("approval_id"), **update_approval
                 )
                 if error:
                     module.fail_json(msg=f"Error updating approval: {to_native(error)}")

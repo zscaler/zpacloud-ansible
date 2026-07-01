@@ -83,6 +83,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#private-key-authentication">Private Key Authentication</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="#oneapi-government-fedramp-cloud-environments">OneAPI Government (FedRAMP) Cloud Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#legacy-api-authentication">Legacy API Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">Module reference</a></li>
@@ -139,8 +140,13 @@
 <p>The ZPA Ansible Collection now offers support for (<a class="reference external" href="https://help.zscaler.com/oneapi/understanding-oneapi">OneAPI</a>) OAuth2 authentication through (<a class="reference external" href="https://help.zscaler.com/zidentity/what-zidentity">Zidentity</a>)</p>
 <ul class="simple">
 <li><p>NOTE: As of version v2.0.0, this Ansible Collection offers backwards compatibility to the Zscaler legacy API framework. This is the recommended authentication method for organizations whose tenants are still not migrated to (<a class="reference external" href="https://help.zscaler.com/zidentity/what-zidentity">Zidentity</a>)</p></li>
-<li><p>NOTE: Notice that OneAPI and Zidentity is not currently supported for the following clouds: <cite>GOV</cite> and <cite>GOVUS</cite>. Refer to the Legacy API Framework for more information on how authenticate to these environments</p></li>
-<li><p>NOTE: The authentication parameter <cite>cloud</cite> or <cite>ZSCALER_CLOUD</cite> are optional, and only required when authenticating to a non-production environment i.e <cite>beta</cite></p></li>
+</ul>
+<p><strong>NOTE</strong>: Attention Government customers. OneAPI and Zidentity now support the government (FedRAMP) clouds via the unified <cite>cloud=gov</cite> and <cite>cloud=govus</cite> values. See the [OneAPI Government (FedRAMP) Cloud Environments](#oneapi-government-fedramp-cloud-environments) section below for details.</p>
+<p><strong>NOTE</strong>: The <cite>zscaler_cloud</cite> is optional for production comercial Clouds and ONLY required when authenticating to other environments. Currently the only supported value are:</p>
+<ul class="simple">
+<li><p>Production Commericial Clouds: The cloud parameter <cite>IS NOT</cite> required.</p></li>
+<li><p>Test (Beta) Commercial Clouds: <cite>beta</cite></p></li>
+<li><p>FedRAMP Clouds: <cite>gov</cite> or <cite>govus</cite></p></li>
 </ul>
 <section id="client-secret-authentication">
 <h2>Client Secret Authentication<a class="headerlink" href="#client-secret-authentication" title="Link to this heading"></a></h2>
@@ -461,6 +467,89 @@ For example, to execute the <cite>zpa_application_segment.yml</cite> playbook us
 </li>
 </ol>
 </section>
+</section>
+<section id="oneapi-government-fedramp-cloud-environments">
+<h1>OneAPI Government (FedRAMP) Cloud Environments<a class="headerlink" href="#oneapi-government-fedramp-cloud-environments" title="Link to this heading"></a></h1>
+<p>OneAPI supports the Zscaler government (FedRAMP) clouds. To authenticate to a government cloud, set the <code class="docutils literal notranslate"><span class="pre">cloud</span></code> attribute (or the <code class="docutils literal notranslate"><span class="pre">ZSCALER_CLOUD</span></code> environment variable) to one of the supported government values: <code class="docutils literal notranslate"><span class="pre">gov</span></code> or <code class="docutils literal notranslate"><span class="pre">govus</span></code>.</p>
+<p>The following attributes (or their corresponding environment variables) must be used when authenticating to a government (FedRAMP) cloud:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 45.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Argument</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Environment variable</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">client_id</span></code></p></td>
+<td><p><em>(String)</em> Zscaler API Client ID, used with <code class="docutils literal notranslate"><span class="pre">client_secret</span></code> or <code class="docutils literal notranslate"><span class="pre">private_key</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ZSCALER_CLIENT_ID</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">client_secret</span></code></p></td>
+<td><p><em>(String)</em> The client secret for the API client.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ZSCALER_CLIENT_SECRET</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">private_key</span></code></p></td>
+<td><p><em>(String)</em> The private key value (alternative to <code class="docutils literal notranslate"><span class="pre">client_secret</span></code>).</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ZSCALER_PRIVATE_KEY</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">vanity_domain</span></code></p></td>
+<td><p><em>(String)</em> The domain name used by your organization, used as the host prefix for the government identity provider.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ZSCALER_VANITY_DOMAIN</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">customer_id</span></code></p></td>
+<td><p><em>(String)</em> The unique identifier of the ZPA tenant.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ZPA_CUSTOMER_ID</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cloud</span></code></p></td>
+<td><p><em>(String)</em> The supported Zidentity government cloud: <code class="docutils literal notranslate"><span class="pre">gov</span></code> or <code class="docutils literal notranslate"><span class="pre">govus</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ZSCALER_CLOUD</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>NOTE</strong>: The <code class="docutils literal notranslate"><span class="pre">cloud</span></code> value is case-insensitive (<code class="docutils literal notranslate"><span class="pre">gov</span></code>, <code class="docutils literal notranslate"><span class="pre">GOV</span></code>, <code class="docutils literal notranslate"><span class="pre">govus</span></code>, <code class="docutils literal notranslate"><span class="pre">GOVUS</span></code> are all accepted). The <code class="docutils literal notranslate"><span class="pre">vanity_domain</span></code> is still required and is used as the host prefix for the government identity provider.</p>
+<p>For example, authenticating to the <code class="docutils literal notranslate"><span class="pre">gov</span></code> environment using environment variables:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">ZSCALER_CLIENT_ID</span><span class="o">=</span><span class="s2">&quot;client_id&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ZSCALER_CLIENT_SECRET</span><span class="o">=</span><span class="s2">&quot;client_secret&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ZSCALER_VANITY_DOMAIN</span><span class="o">=</span><span class="s2">&quot;vanity_domain&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ZPA_CUSTOMER_ID</span><span class="o">=</span><span class="s2">&quot;customer_id&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ZSCALER_CLOUD</span><span class="o">=</span><span class="s2">&quot;gov&quot;</span>
+</pre></div>
+</div>
+<p>Or using a <code class="docutils literal notranslate"><span class="pre">provider</span></code> block within your playbook:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create Application Segment</span>
+<span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">localhost</span>
+<span class="w">  </span><span class="nt">connection</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span>
+
+<span class="w">  </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">zpa_cloud</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">client_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">client_id</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="w">      </span><span class="nt">client_secret</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">client_secret</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="w">      </span><span class="nt">vanity_domain</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">vanity_domain</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="w">      </span><span class="nt">customer_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">customer_id</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="w">      </span><span class="nt">cloud</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;gov&quot;</span><span class="w">   </span><span class="c1"># or &quot;govus&quot;</span>
+
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create an Application Segment</span>
+<span class="w">      </span><span class="nt">zscaler.zpacloud.zpa_application_segment</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">zpa_cloud</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="w">        </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">present</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app_segment_01_ansible</span>
+<span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">domain_names</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">server1.example.com</span>
+<span class="w">        </span><span class="nt">segment_group_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;72058304855114308&quot;</span>
+<span class="w">        </span><span class="nt">server_group_ids</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;72058304855090128&quot;</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">created_app</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">debug</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">created_app</span><span class="nv"> </span><span class="s">}}&quot;</span>
+</pre></div>
+</div>
 </section>
 <section id="legacy-api-authentication">
 <h1>Legacy API Authentication<a class="headerlink" href="#legacy-api-authentication" title="Link to this heading"></a></h1>

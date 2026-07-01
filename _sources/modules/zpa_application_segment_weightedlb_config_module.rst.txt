@@ -22,7 +22,7 @@ zscaler.zpacloud.zpa_application_segment_weightedlb_config module -- Manage Weig
 .. Collection note
 
 .. note::
-    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 2.2.3).
+    This module is part of the `zscaler.zpacloud collection <https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/>`_ (version 2.2.5).
 
     It is not included in ``ansible-core``.
     To check whether it is installed, run :code:`ansible-galaxy collection list`.
@@ -434,15 +434,9 @@ Parameters
 
       :ansible-option-choices:`Choices:`
 
-      - :ansible-option-choices-entry:`"BETA"`
-      - :ansible-option-choices-entry:`"GOV"`
-      - :ansible-option-choices-entry:`"GOVUS"`
-      - :ansible-option-choices-entry:`"PREVIEW"`
-      - :ansible-option-choices-entry:`"PRODUCTION"`
-      - :ansible-option-choices-entry:`"QA"`
-      - :ansible-option-choices-entry:`"QA2"`
-      - :ansible-option-choices-entry:`"ZPATWO"`
       - :ansible-option-choices-entry:`"beta"`
+      - :ansible-option-choices-entry:`"gov"`
+      - :ansible-option-choices-entry:`"govus"`
       - :ansible-option-choices-entry:`"production"`
 
 
@@ -722,15 +716,9 @@ Parameters
 
       :ansible-option-choices:`Choices:`
 
-      - :ansible-option-choices-entry:`"BETA"`
-      - :ansible-option-choices-entry:`"GOV"`
-      - :ansible-option-choices-entry:`"GOVUS"`
-      - :ansible-option-choices-entry:`"PREVIEW"`
-      - :ansible-option-choices-entry:`"PRODUCTION"`
-      - :ansible-option-choices-entry:`"QA"`
-      - :ansible-option-choices-entry:`"QA2"`
-      - :ansible-option-choices-entry:`"ZPATWO"`
       - :ansible-option-choices-entry:`"beta"`
+      - :ansible-option-choices-entry:`"gov"`
+      - :ansible-option-choices-entry:`"govus"`
       - :ansible-option-choices-entry:`"production"`
 
 
@@ -1108,8 +1096,6 @@ Parameters
       - :ansible-option-choices-entry:`"QA"`
       - :ansible-option-choices-entry:`"QA2"`
       - :ansible-option-choices-entry:`"ZPATWO"`
-      - :ansible-option-choices-entry:`"beta"`
-      - :ansible-option-choices-entry:`"production"`
 
 
       .. raw:: html
@@ -1445,8 +1431,6 @@ Parameters
       - :ansible-option-choices-entry:`"QA"`
       - :ansible-option-choices-entry:`"QA2"`
       - :ansible-option-choices-entry:`"ZPATWO"`
-      - :ansible-option-choices-entry:`"beta"`
-      - :ansible-option-choices-entry:`"production"`
 
 
       .. raw:: html

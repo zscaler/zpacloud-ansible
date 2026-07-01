@@ -90,7 +90,7 @@ VALID_ZPA_CLOUD = frozenset(
 )
 
 # OneAPI: ZSCALER_CLOUD values only
-VALID_ZSCALER_CLOUD = frozenset({"beta", "production"})
+VALID_ZSCALER_CLOUD = frozenset({"beta", "production", "gov", "govus"})
 
 # Combined for argument_spec choices
 CLOUD_CHOICES = sorted(VALID_ZPA_CLOUD | VALID_ZSCALER_CLOUD)
@@ -314,20 +314,23 @@ class ZPAClientHelper:
         elif private_key:
             config["privateKey"] = private_key
 
-        # OneAPI cloud: optional. Only "beta" is passed; production is default.
-        # Ignore Legacy names (PRODUCTION, BETA, GOV, etc.) - they would break the URL.
+        # OneAPI cloud: optional. "beta" and the government (FedRAMP) clouds
+        # "gov"/"govus" are forwarded to the SDK; production is the default and is
+        # omitted. Other Legacy-only names are treated as production.
         if cloud_env:
             cloud_lower = cloud_env.lower()
             if cloud_lower == "beta":
                 config["cloud"] = "beta"
+            elif cloud_lower in ("gov", "govus"):
+                config["cloud"] = cloud_lower
             elif cloud_lower == "production" or cloud_lower.upper() in VALID_ZPA_CLOUD:
-                # Production (explicit or Legacy name): omit - SDK defaults to production
+                # Production (explicit or Legacy production-equivalent name): omit - SDK defaults to production
                 pass
             else:
                 module.fail_json(
                     msg=f"Invalid cloud '{cloud_env}' for OneAPI. "
-                    "Only 'beta' (for beta environment) or 'production' (default, optional) are supported. "
-                    "Legacy cloud names (PRODUCTION, BETA, GOV, etc.) require use_legacy_client=true. "
+                    "Only 'beta', 'gov', 'govus', or 'production' (default, optional) are supported. "
+                    "Other Legacy cloud names require use_legacy_client=true. "
                     "For production, omit the cloud parameter or set to 'production'."
                 )
 

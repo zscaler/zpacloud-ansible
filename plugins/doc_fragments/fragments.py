@@ -68,8 +68,6 @@ options:
             - QA
             - QA2
             - ZPATWO
-            - beta
-            - production
     use_legacy_client:
         description:
             - Whether to use the legacy Zscaler API client.
@@ -121,15 +119,9 @@ options:
         type: str
         required: false
         choices:
-            - BETA
-            - GOV
-            - GOVUS
-            - PREVIEW
-            - PRODUCTION
-            - QA
-            - QA2
-            - ZPATWO
             - beta
+            - gov
+            - govus
             - production
 """
 
@@ -180,8 +172,6 @@ options:
                     - QA
                     - QA2
                     - ZPATWO
-                    - beta
-                    - production
             use_legacy_client:
                 description:
                     - Whether to use the legacy Zscaler API client.
@@ -233,15 +223,9 @@ options:
                 type: str
                 required: false
                 choices:
-                    - BETA
-                    - GOV
-                    - GOVUS
-                    - PREVIEW
-                    - PRODUCTION
-                    - QA
-                    - QA2
-                    - ZPATWO
                     - beta
+                    - gov
+                    - govus
                     - production
 """
 

@@ -92,7 +92,11 @@ VALID_ZPA_CLOUD = frozenset(
 # OneAPI: ZSCALER_CLOUD values only
 VALID_ZSCALER_CLOUD = frozenset({"beta", "production", "gov", "govus"})
 
-# Combined for argument_spec choices
+# Per-mode argument_spec choices: zpa_cloud (Legacy) vs cloud (OneAPI)
+ZPA_CLOUD_CHOICES = sorted(VALID_ZPA_CLOUD)
+ZSCALER_CLOUD_CHOICES = sorted(VALID_ZSCALER_CLOUD)
+
+# Combined set, kept for backwards compatibility / internal checks
 CLOUD_CHOICES = sorted(VALID_ZPA_CLOUD | VALID_ZSCALER_CLOUD)
 
 
@@ -372,7 +376,7 @@ class ZPAClientHelper:
                         required=False,
                         fallback=(env_fallback, ["ZPA_CLOUD"]),
                         type="str",
-                        choices=CLOUD_CHOICES,
+                        choices=ZPA_CLOUD_CHOICES,
                     ),
                     # OneAPI authentication parameters
                     client_id=dict(
@@ -416,7 +420,7 @@ class ZPAClientHelper:
                         required=False,
                         fallback=(env_fallback, ["ZSCALER_CLOUD"]),
                         type="str",
-                        choices=CLOUD_CHOICES,
+                        choices=ZSCALER_CLOUD_CHOICES,
                     ),
                     use_legacy_client=dict(
                         type="bool",
@@ -454,7 +458,7 @@ class ZPAClientHelper:
                 required=False,
                 fallback=(env_fallback, ["ZPA_CLOUD"]),
                 type="str",
-                choices=CLOUD_CHOICES,
+                choices=ZPA_CLOUD_CHOICES,
             ),
             # OneAPI authentication parameters
             client_id=dict(
@@ -498,7 +502,7 @@ class ZPAClientHelper:
                 required=False,
                 fallback=(env_fallback, ["ZSCALER_CLOUD"]),
                 type="str",
-                choices=CLOUD_CHOICES,
+                choices=ZSCALER_CLOUD_CHOICES,
             ),
             use_legacy_client=dict(
                 type="bool",

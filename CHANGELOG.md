@@ -6,6 +6,16 @@
 
 - Python Versions: **v3.9, v3.10, v3.11**
 
+#### Internals
+
+[#106](https://github.com/zscaler/zpacloud-ansible/pull/106) - Upgraded to [Zscaler-SDK-Python v1.9.36](https://github.com/zscaler/zscaler-sdk-python/releases/tag/v1.9.36)
+
+## v2.2.5 (July 1, 2026)
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
 #### Bug Fix
 
 [#101](https://github.com/zscaler/zpacloud-ansible/pull/101) - Fixed `zpa_pra_approval` update to send the intended payload instead of the raw existing approval, and made `working_hours` truly optional so approvals can be created and updated without it.

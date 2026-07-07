@@ -4008,14 +4008,14 @@ type = ["pytest-mypy (>=1.0.1) ; platform_python_implementation != \"PyPy\""]
 
 [[package]]
 name = "zscaler-sdk-python"
-version = "1.9.34"
+version = "1.9.36"
 description = "Official Python SDK for the Zscaler Products"
 optional = false
 python-versions = "<4.0,>=3.10"
 groups = ["main"]
 files = [
-    {file = "zscaler_sdk_python-1.9.34-py3-none-any.whl", hash = "sha256:4e25d5055f4c9df7436688691274e95e981fe0fa71fec22334eaec89e8b25051"},
-    {file = "zscaler_sdk_python-1.9.34.tar.gz", hash = "sha256:5e30a8cff47a390dab1bfa6fe1ad3794da93b6e5c050e61c87bb79359efea0ca"},
+    {file = "zscaler_sdk_python-1.9.36-py3-none-any.whl", hash = "sha256:0d09ad128acd8ffac36c091e168cfd3becc142e2033188359241e9091b8e5a85"},
+    {file = "zscaler_sdk_python-1.9.36.tar.gz", hash = "sha256:e112b1698b6a32797090016398090cc05a2981f5c2bebb18fb00c6756b8c23c7"},
 ]
 
 [package.dependencies]
@@ -4036,4 +4036,4 @@ urllib3 = ">=2.6.0"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "7e8ee1818d4cf5c597f588aa80f7ee4df528ae41c508b7208573b206f5b08bfd"
+content-hash = "fcbfa8624cf79dd5faf4bbf8b19fe632c694d8d9a5492f99d5071feb0a7a3bcf"

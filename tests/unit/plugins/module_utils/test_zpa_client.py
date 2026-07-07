@@ -94,16 +94,19 @@ class TestZPAClientHelper:
         assert "use_legacy_client" in provider_options
 
     def test_zpa_argument_spec_cloud_choices(self):
-        """Test that cloud parameters have valid choices from CLOUD_CHOICES"""
+        """Test that cloud parameters have the correct per-mode choices"""
         from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (
             ZPAClientHelper,
-            CLOUD_CHOICES,
+            ZPA_CLOUD_CHOICES,
+            ZSCALER_CLOUD_CHOICES,
         )
 
         spec = ZPAClientHelper.zpa_argument_spec()
 
-        assert spec["zpa_cloud"]["choices"] == CLOUD_CHOICES
-        assert spec["cloud"]["choices"] == CLOUD_CHOICES
+        # Legacy `zpa_cloud` accepts the uppercase legacy cloud names,
+        # while OneAPI `cloud` accepts only the lowercase OneAPI names.
+        assert spec["zpa_cloud"]["choices"] == ZPA_CLOUD_CHOICES
+        assert spec["cloud"]["choices"] == ZSCALER_CLOUD_CHOICES
 
     def test_valid_zpa_cloud_constant(self):
         """Test that VALID_ZPA_CLOUD contains expected values"""

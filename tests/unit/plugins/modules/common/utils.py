@@ -270,6 +270,6 @@ DEFAULT_PROVIDER = {
     "client_id": "test_client_id",
     "client_secret": "test_client_secret",
     "customer_id": "test_customer_id",
-    "cloud": "PRODUCTION",
+    "cloud": "production",
     "vanity_domain": "test_domain",
 }

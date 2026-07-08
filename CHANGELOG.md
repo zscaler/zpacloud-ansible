@@ -1,5 +1,15 @@
 # Zscaler Private Access (ZPA) Ansible Collection Changelog
 
+## v2.2.8 (July 8, 2026)
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+#### Internals
+
+[#108](https://github.com/zscaler/zpacloud-ansible/pull/108) - Upgraded to [Zscaler-SDK-Python v1.9.37](https://github.com/zscaler/zscaler-sdk-python/releases/tag/v1.9.37)
+
 ## v2.2.7 (July 7, 2026)
 
 ### Notes

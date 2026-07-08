@@ -79,3 +79,64 @@ class TestZPAApplicationSegmentBAV2Module(ModuleTestCase):
         with pytest.raises(AnsibleExitJson) as result:
             zpa_application_segment_ba_v2.main()
         assert result.value.result["changed"] is False
+
+    def test_create_segment_with_managed_certificate(self, mock_client, mocker):
+        """A BA segment using a Zscaler-managed certificate forwards the
+        ext_domain / ext_label fields (and no certificate_id) to the SDK."""
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_application_segment_ba_v2.collect_all_items",
+            return_value=([], None),
+        )
+
+        created = MockBox({"id": "999", "name": "BA_Managed_Cert"})
+        mock_client.app_segments_ba_v2.add_segment_ba.return_value = (
+            created,
+            None,
+            None,
+        )
+        mock_client.app_segments_ba_v2.get_segment_ba.return_value = (
+            MockBox({"id": "999", "name": "BA_Managed_Cert"}),
+            None,
+            None,
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            state="present",
+            name="BA_Managed_Cert",
+            enabled=True,
+            segment_group_id="456",
+            server_group_ids=["789"],
+            tcp_port_range=[{"from": "80", "to": "80"}],
+            domain_names=["app1.example.com"],
+            common_apps_dto={
+                "apps_config": [
+                    {
+                        "name": "app1",
+                        "enabled": True,
+                        "domain": "app1.example.com",
+                        "application_port": "80",
+                        "application_protocol": "HTTP",
+                        "app_types": ["BROWSER_ACCESS"],
+                        "ext_domain": "example.zslogin.net",
+                        "ext_label": "app1label",
+                    }
+                ]
+            },
+        )
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_ba_v2,
+        )
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_application_segment_ba_v2.main()
+
+        assert result.value.result["changed"] is True
+
+        assert mock_client.app_segments_ba_v2.add_segment_ba.called
+        _args, kwargs = mock_client.app_segments_ba_v2.add_segment_ba.call_args
+        apps_config = kwargs["common_apps_dto"]["apps_config"]
+        assert apps_config[0]["ext_domain"] == "example.zslogin.net"
+        assert apps_config[0]["ext_label"] == "app1label"
+        # A Zscaler-managed certificate app should not carry a certificate_id.
+        assert apps_config[0].get("certificate_id") is None

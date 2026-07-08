@@ -9,8 +9,18 @@ Releases
 Zscaler Private Access (ZPA) Ansible Collection Changelog
 ---------------------------------------------------------
 
-Version 2.2.6
+Version 2.2.7
 ==============
+
+## v2.2.7 (July 7, 2026)
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+#### Enhancements
+
+* (`#107 <https://github.com/zscaler/zpacloud-ansible/pull/107>`_) - Added support for New Browser Access Application Segment attributes: `ext_domain`, `ext_domain_name`, `ext_label` in the resource: `zpa_application_segment_ba_v2`
 
 v2.2.6 (July 7, 2026)
 ---------------------------

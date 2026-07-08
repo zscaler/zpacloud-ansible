@@ -251,7 +251,7 @@
 <h1>zscaler.zpacloud.zpa_application_segment_ba_v2 module – Create an BA application segment in the ZPA Cloud.<a class="headerlink" href="#zscaler-zpacloud-zpa-application-segment-ba-v2-module-create-an-ba-application-segment-in-the-zpa-cloud" title="Link to this heading"></a></h1>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/">zscaler.zpacloud collection</a> (version 2.2.5).</p>
+<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/">zscaler.zpacloud collection</a> (version 2.2.7).</p>
 <p>It is not included in <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code>.
 To check whether it is installed, run <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span></code>.</p>
 <p>To install it, use: <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">install</span> <span class="pre">zscaler.zpacloud</span></code>.
@@ -350,6 +350,18 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-common_apps_dto/apps_config/allow_options"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-ba-v2-module-parameter-common-apps-dto-apps-config-allow-options"><strong>allow_options</strong></p>
+<a class="ansibleOptionLink" href="#parameter-common_apps_dto/apps_config/allow_options" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether the HTTP OPTIONS method is allowed for the Browser Access application.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-common_apps_dto/apps_config/app_types"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-ba-v2-module-parameter-common-apps-dto-apps-config-app-types"><strong>app_types</strong></p>
 <a class="ansibleOptionLink" href="#parameter-common_apps_dto/apps_config/app_types" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
 </div></td>
@@ -360,14 +372,14 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </ul>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-common_apps_dto/apps_config/application_port"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-ba-v2-module-parameter-common-apps-dto-apps-config-application-port"><strong>application_port</strong></p>
 <a class="ansibleOptionLink" href="#parameter-common_apps_dto/apps_config/application_port" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Port for the application.</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-common_apps_dto/apps_config/application_protocol"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-ba-v2-module-parameter-common-apps-dto-apps-config-application-protocol"><strong>application_protocol</strong></p>
 <a class="ansibleOptionLink" href="#parameter-common_apps_dto/apps_config/application_protocol" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
 </div></td>
@@ -379,28 +391,29 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </ul>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-common_apps_dto/apps_config/certificate_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-ba-v2-module-parameter-common-apps-dto-apps-config-certificate-id"><strong>certificate_id</strong></p>
 <a class="ansibleOptionLink" href="#parameter-common_apps_dto/apps_config/certificate_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The unique identifier of the certificate.</p>
+<p>Leave unset when using a Zscaler-managed certificate. In that case provide <em>ext_domain</em> and <em>ext_label</em> instead.</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-common_apps_dto/apps_config/description"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-ba-v2-module-parameter-common-apps-dto-apps-config-description"><strong>description</strong></p>
 <a class="ansibleOptionLink" href="#parameter-common_apps_dto/apps_config/description" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The description of the application.</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-common_apps_dto/apps_config/domain"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-ba-v2-module-parameter-common-apps-dto-apps-config-domain"><strong>domain</strong></p>
 <a class="ansibleOptionLink" href="#parameter-common_apps_dto/apps_config/domain" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The domain of the application.</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-common_apps_dto/apps_config/enabled"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-ba-v2-module-parameter-common-apps-dto-apps-config-enabled"><strong>enabled</strong></p>
 <a class="ansibleOptionLink" href="#parameter-common_apps_dto/apps_config/enabled" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
 </div></td>
@@ -412,11 +425,56 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </ul>
 </div></td>
 </tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-common_apps_dto/apps_config/ext_domain"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-ba-v2-module-parameter-common-apps-dto-apps-config-ext-domain"><strong>ext_domain</strong></p>
+<a class="ansibleOptionLink" href="#parameter-common_apps_dto/apps_config/ext_domain" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The external domain used when the Browser Access application relies on a Zscaler-managed certificate instead of a custom certificate.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-common_apps_dto/apps_config/ext_domain_name"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-ba-v2-module-parameter-common-apps-dto-apps-config-ext-domain-name"><strong>ext_domain_name</strong></p>
+<a class="ansibleOptionLink" href="#parameter-common_apps_dto/apps_config/ext_domain_name" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The fully qualified external domain name generated by Zscaler for a Zscaler-managed certificate Browser Access application.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-common_apps_dto/apps_config/ext_label"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-ba-v2-module-parameter-common-apps-dto-apps-config-ext-label"><strong>ext_label</strong></p>
+<a class="ansibleOptionLink" href="#parameter-common_apps_dto/apps_config/ext_label" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The external label associated with a Zscaler-managed certificate Browser Access application.</p>
+</div></td>
+</tr>
 <tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-common_apps_dto/apps_config/name"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-ba-v2-module-parameter-common-apps-dto-apps-config-name"><strong>name</strong></p>
 <a class="ansibleOptionLink" href="#parameter-common_apps_dto/apps_config/name" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The name of the application.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-common_apps_dto/apps_config/portal"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-ba-v2-module-parameter-common-apps-dto-apps-config-portal"><strong>portal</strong></p>
+<a class="ansibleOptionLink" href="#parameter-common_apps_dto/apps_config/portal" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether the Browser Access application is associated with a browser access portal.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-common_apps_dto/apps_config/trust_untrusted_cert"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-application-segment-ba-v2-module-parameter-common-apps-dto-apps-config-trust-untrusted-cert"><strong>trust_untrusted_cert</strong></p>
+<a class="ansibleOptionLink" href="#parameter-common_apps_dto/apps_config/trust_untrusted_cert" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether untrusted TLS certificates are trusted for the Browser Access application.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-cell">
@@ -969,6 +1027,37 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <span class="w">          </span><span class="nt">application_port</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;4443&quot;</span>
 <span class="w">          </span><span class="nt">application_protocol</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;HTTPS&quot;</span>
 <span class="w">          </span><span class="nt">certificate_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;72058304855021564&quot;</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create a Browser Access Application Segment using a Zscaler-managed certificate</span>
+<span class="w">  </span><span class="nt">zscaler.zpacloud.zpa_application_segment_ba_v2</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">zpa_cloud</span> <span class="cp">}}</span><span class="s">&quot;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ansible_Application_Segment_BA_Managed_Cert</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ansible_Application_Segment_BA_Managed_Cert</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">is_cname_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">health_reporting</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ON_ACCESS&quot;</span>
+<span class="w">    </span><span class="nt">bypass_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;NEVER&quot;</span>
+<span class="w">    </span><span class="nt">tcp_port_range</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">from</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;80&quot;</span>
+<span class="w">        </span><span class="nt">to</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;80&quot;</span>
+<span class="w">    </span><span class="nt">domain_names</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ba_access03.acme.com</span>
+<span class="w">    </span><span class="nt">segment_group_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;216196257331368720&quot;</span>
+<span class="w">    </span><span class="nt">server_group_ids</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;216196257331368722&quot;</span>
+<span class="w">    </span><span class="nt">common_apps_dto</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">apps_config</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ba_access03.acme.com&quot;</span>
+<span class="w">          </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="nt">domain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ba_access03.acme.com</span>
+<span class="w">          </span><span class="nt">application_port</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;443&quot;</span>
+<span class="w">          </span><span class="nt">certificate_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">216196257331369561</span>
+<span class="w">          </span><span class="nt">application_protocol</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;HTTPS&quot;</span>
+<span class="w">          </span><span class="nt">app_types</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;BROWSER_ACCESS&quot;</span>
+<span class="w">          </span><span class="nt">ext_domain</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;example.zslogin.net&quot;</span>
+<span class="w">          </span><span class="nt">ext_domain_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;acme-zslogin-net.p.zsproxy.net&quot;</span>
+<span class="w">          </span><span class="nt">ext_label</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ba_access03&quot;</span>
 </pre></div>
 </div>
 <section id="authors">

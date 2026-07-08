@@ -1,5 +1,15 @@
 # Zscaler Private Access (ZPA) Ansible Collection Changelog
 
+## v2.2.9 (July 8, 2026)
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+#### Internals
+
+[#109](https://github.com/zscaler/zpacloud-ansible/pull/109) - Added support to Zscaler Managed Certificate via attribute `certificate_managed_by_zscaler` to resource `zpa_application_segment_ba_v2`
+
 ## v2.2.8 (July 8, 2026)
 
 ### Notes

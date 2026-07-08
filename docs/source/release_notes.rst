@@ -9,22 +9,41 @@ Releases
 Zscaler Private Access (ZPA) Ansible Collection Changelog
 ---------------------------------------------------------
 
-Version 2.2.8
+Version 2.2.9
 ==============
 
-## v2.2.8 (July 8, 2026)
+v2.2.9 (July 8, 2026)
+---------------------------
 
-### Notes
+Notes
+-------
 
 - Python Versions: **v3.9, v3.10, v3.11**
 
-#### Internals
+Enhancements
+--------------
 
-[#108](https://github.com/zscaler/zpacloud-ansible/pull/108) - Upgraded to [Zscaler-SDK-Python v1.9.37](https://github.com/zscaler/zscaler-sdk-python/releases/tag/v1.9.37)
+* (`#109 <https://github.com/zscaler/zpacloud-ansible/pull/109>`_) - Added support to Zscaler Managed Certificate via attribute `certificate_managed_by_zscaler` to resource `zpa_application_segment_ba_v2`
 
-## v2.2.7 (July 7, 2026)
 
-### Notes
+v2.2.8 (July 8, 2026)
+---------------------------
+
+Notes
+-------
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+Internals
+-----------
+
+* (`#108 <https://github.com/zscaler/zpacloud-ansible/pull/108>`_) - Upgraded to [Zscaler-SDK-Python v1.9.37](https://github.com/zscaler/zscaler-sdk-python/releases/tag/v1.9.37)
+
+=v2.2.7 (July 7, 2026)
+---------------------------
+
+Notes
+-------
 
 - Python Versions: **v3.9, v3.10, v3.11**
 
@@ -41,6 +60,7 @@ Notes
 - Python Versions: **v3.9, v3.10, v3.11**
 
 #### Bug Fix
+-------------
 
 * (`#106 <https://github.com/zscaler/zpacloud-ansible/pull/106>`_) - Upgraded to `Zscaler-SDK-Python v1.9.36 <https://github.com/zscaler/zscaler-sdk-python/releases/tag/v1.9.36>`_
 
@@ -68,7 +88,8 @@ Notes
 
 - Python Versions: **v3.9, v3.10, v3.11**
 
-#### Internals
+Internals
+---------
 
 * (`#98 <https://github.com/zscaler/zpacloud-ansible/pull/98>`_) - Added the Red Hat partner certification checker workflow, set `license: [MIT]` in `galaxy.yml`, and resolved README changelog link and version-statement issues raised during certification review
 
@@ -83,7 +104,8 @@ Notes
 
 - Python Versions: **v3.9, v3.10, v3.11**
 
-#### Internals
+Internals
+---------
 
 * (`#123 <https://github.com/zscaler/zpacloud-ansible/pull/123>`_) - Fixed sanity CI so the matrix-pinned `ansible-core` is installed after `poetry install` (preventing an unintended upgrade that broke `validate-modules`), bumped `requires_ansible` to `>=2.16.0`, added a `2.16`/Python 3.12 sanity job, and corrected README license badge and relative links
 
@@ -100,7 +122,8 @@ Notes
 
 - Python Versions: **v3.9, v3.10, v3.11**
 
-#### Internals
+Internals
+---------
 
 * (`#121 <https://github.com/zscaler/zpacloud-ansible/pull/121>`_) - Fixed sanity CI so the matrix-pinned `ansible-core` is installed after `poetry install` (preventing an unintended upgrade that broke `validate-modules`), bumped `requires_ansible` to `>=2.16.0`, added a `2.16`/Python 3.12 sanity job, and corrected README license badge and relative links
 

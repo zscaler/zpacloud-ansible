@@ -166,6 +166,11 @@ options:
                 case provide I(ext_domain) and I(ext_label) instead.
             type: str
             required: false
+          certificate_managed_by_zscaler:
+            description:
+              - Enable Zscaler-managed certificate
+            type: bool
+            required: false
           domain:
             description: "The domain of the application."
             type: str
@@ -336,18 +341,18 @@ EXAMPLES = """
           application_protocol: "HTTPS"
           certificate_id: "72058304855021564"
 
-- name: Create a Browser Access Application Segment using a Zscaler-managed certificate
+- name: Create a Browser Access Application Segment using a Custom certificate
   zscaler.zpacloud.zpa_application_segment_ba_v2:
     provider: "{{ zpa_cloud }}"
-    name: Ansible_Application_Segment_BA_Managed_Cert
-    description: Ansible_Application_Segment_BA_Managed_Cert
+    name: Ansible_Application_Segment_BA_Custom_Cert
+    description: Ansible_Application_Segment_BA_Custom_Cert
     enabled: true
     is_cname_enabled: true
     health_reporting: "ON_ACCESS"
     bypass_type: "NEVER"
     tcp_port_range:
-      - from: "80"
-        to: "80"
+      - from: "443"
+        to: "443"
     domain_names:
       - ba_access03.acme.com
     segment_group_id: "216196257331368720"
@@ -365,6 +370,37 @@ EXAMPLES = """
             - "BROWSER_ACCESS"
           ext_domain: "example.zslogin.net"
           ext_domain_name: "acme-zslogin-net.p.zsproxy.net"
+          ext_label: "ba_access03"
+
+- name: Create a Browser Access Application Segment using a Zscaler Managed certificate
+  zscaler.zpacloud.zpa_application_segment_ba_v2:
+    provider: "{{ zpa_cloud }}"
+    name: Ansible_Application_Segment_BA_Managed_Cert
+    description: Ansible_Application_Segment_BA_Managed_Cert
+    enabled: true
+    is_cname_enabled: true
+    health_reporting: "ON_ACCESS"
+    bypass_type: "NEVER"
+    tcp_port_range:
+      - from: "443"
+        to: "443"
+    domain_names:
+      - ba_access03.acme.com
+    segment_group_id: "216196257331368720"
+    server_group_ids:
+      - "216196257331368722"
+    common_apps_dto:
+      apps_config:
+        - name: "ba_access03.acme.com"
+          enabled: true
+          domain: ba_access03.acme.com
+          application_port: "443"
+          certificate_id: 216196257331369561
+          application_protocol: "HTTPS"
+          certificate_managed_by_zscaler: true
+          app_types:
+            - "BROWSER_ACCESS"
+          ext_domain: "acme.com"
           ext_label: "ba_access03"
 """
 
@@ -787,6 +823,7 @@ def main():
             required=False,
         ),
         certificate_id=dict(type="str", required=False),
+        certificate_managed_by_zscaler=dict(type="bool", required=False),
         application_port=dict(type="str", required=True),
         application_protocol=dict(
             type="str",

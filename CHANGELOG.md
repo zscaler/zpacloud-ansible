@@ -1,5 +1,15 @@
 # Zscaler Private Access (ZPA) Ansible Collection Changelog
 
+## v2.2.10 (July 14, 2026)
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+#### Internals
+
+[#110](https://github.com/zscaler/zpacloud-ansible/pull/110) - Added attribute `application_id` to resource `zpa_user_portal_link` to make reference to application segment resources.
+
 ## v2.2.9 (July 8, 2026)
 
 ### Notes

@@ -251,7 +251,7 @@
 <h1>zscaler.zpacloud.zpa_user_portal_link module – Create a User Portal Link<a class="headerlink" href="#zscaler-zpacloud-zpa-user-portal-link-module-create-a-user-portal-link" title="Link to this heading"></a></h1>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/">zscaler.zpacloud collection</a> (version 2.2.8).</p>
+<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/">zscaler.zpacloud collection</a> (version 2.2.9).</p>
 <p>It is not included in <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code>.
 To check whether it is installed, run <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span></code>.</p>
 <p>To install it, use: <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">install</span> <span class="pre">zscaler.zpacloud</span></code>.
@@ -292,6 +292,13 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </thead>
 <tbody>
 <tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-application_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-application-id"><strong>application_id</strong></p>
+<a class="ansibleOptionLink" href="#parameter-application_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The unique identifier of the application segment</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-client_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-client-id"><strong>client_id</strong></p>
 <a class="ansibleOptionLink" href="#parameter-client_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -299,7 +306,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p>Required for OneAPI client authentication when use_legacy_client=false.</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-client_secret"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-client-secret"><strong>client_secret</strong></p>
 <a class="ansibleOptionLink" href="#parameter-client_secret" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -307,7 +314,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p>Used for OneAPI client authentication when use_legacy_client=false and not using private_key.</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-cloud"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-cloud"><strong>cloud</strong></p>
 <a class="ansibleOptionLink" href="#parameter-cloud" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -322,7 +329,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </ul>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-customer_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-customer-id"><strong>customer_id</strong></p>
 <a class="ansibleOptionLink" href="#parameter-customer_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -330,14 +337,14 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p>Used for OneAPI client authentication when use_legacy_client=false.</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-description"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-description"><strong>description</strong></p>
 <a class="ansibleOptionLink" href="#parameter-description" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>Description of the User Portal Link</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-enabled"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-enabled"><strong>enabled</strong></p>
 <a class="ansibleOptionLink" href="#parameter-enabled" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
 </div></td>
@@ -349,49 +356,49 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </ul>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-icon_text"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-icon-text"><strong>icon_text</strong></p>
 <a class="ansibleOptionLink" href="#parameter-icon_text" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>Icon text for the User Portal Link</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-id"><strong>id</strong></p>
 <a class="ansibleOptionLink" href="#parameter-id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>The unique identifier of the User Portal Link</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-link"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-link"><strong>link</strong></p>
 <a class="ansibleOptionLink" href="#parameter-link" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>Link URL for the User Portal Link</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-link_path"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-link-path"><strong>link_path</strong></p>
 <a class="ansibleOptionLink" href="#parameter-link_path" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>Link path for the User Portal Link</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-microtenant_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-microtenant-id"><strong>microtenant_id</strong></p>
 <a class="ansibleOptionLink" href="#parameter-microtenant_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>The unique identifier of the Microtenant for the ZPA tenant</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-name"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-name"><strong>name</strong></p>
 <a class="ansibleOptionLink" href="#parameter-name" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>Name of the User Portal Link</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-private_key"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-private-key"><strong>private_key</strong></p>
 <a class="ansibleOptionLink" href="#parameter-private_key" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -399,21 +406,21 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p>Used for OneAPI client authentication when use_legacy_client=false and not using client_secret.</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-protocol"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-protocol"><strong>protocol</strong></p>
 <a class="ansibleOptionLink" href="#parameter-protocol" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>Protocol for the User Portal Link (e.g., <a class="reference external" href="https://">https://</a>)</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-provider"><strong>provider</strong></p>
 <a class="ansibleOptionLink" href="#parameter-provider" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>A dict containing authentication credentials.</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/client_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-provider-client-id"><strong>client_id</strong></p>
 <a class="ansibleOptionLink" href="#parameter-provider/client_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -421,7 +428,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p>Required for OneAPI client authentication when use_legacy_client=false.</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/client_secret"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-provider-client-secret"><strong>client_secret</strong></p>
 <a class="ansibleOptionLink" href="#parameter-provider/client_secret" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -429,7 +436,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p>Used for OneAPI client authentication when use_legacy_client=false and not using private_key.</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/cloud"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-provider-cloud"><strong>cloud</strong></p>
 <a class="ansibleOptionLink" href="#parameter-provider/cloud" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -444,7 +451,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </ul>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/customer_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-provider-customer-id"><strong>customer_id</strong></p>
 <a class="ansibleOptionLink" href="#parameter-provider/customer_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -452,7 +459,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p>Used for OneAPI client authentication when use_legacy_client=false.</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/microtenant_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-provider-microtenant-id"><strong>microtenant_id</strong></p>
 <a class="ansibleOptionLink" href="#parameter-provider/microtenant_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -460,7 +467,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p>Used for OneAPI client authentication when use_legacy_client=false.</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/private_key"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-provider-private-key"><strong>private_key</strong></p>
 <a class="ansibleOptionLink" href="#parameter-provider/private_key" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -468,7 +475,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p>Used for OneAPI client authentication when use_legacy_client=false and not using client_secret.</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/use_legacy_client"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-provider-use-legacy-client"><strong>use_legacy_client</strong></p>
 <a class="ansibleOptionLink" href="#parameter-provider/use_legacy_client" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
 </div></td>
@@ -482,7 +489,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </ul>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/vanity_domain"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-provider-vanity-domain"><strong>vanity_domain</strong></p>
 <a class="ansibleOptionLink" href="#parameter-provider/vanity_domain" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -490,7 +497,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p>Required for OneAPI client authentication when use_legacy_client=false.</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/zpa_client_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-provider-zpa-client-id"><strong>zpa_client_id</strong></p>
 <a class="ansibleOptionLink" href="#parameter-provider/zpa_client_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -498,7 +505,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p>Required for legacy client authentication when use_legacy_client=true.</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/zpa_client_secret"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-provider-zpa-client-secret"><strong>zpa_client_secret</strong></p>
 <a class="ansibleOptionLink" href="#parameter-provider/zpa_client_secret" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -506,7 +513,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p>Required for legacy client authentication when use_legacy_client=true.</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/zpa_cloud"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-provider-zpa-cloud"><strong>zpa_cloud</strong></p>
 <a class="ansibleOptionLink" href="#parameter-provider/zpa_cloud" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -525,7 +532,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </ul>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/zpa_customer_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-provider-zpa-customer-id"><strong>zpa_customer_id</strong></p>
 <a class="ansibleOptionLink" href="#parameter-provider/zpa_customer_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -533,7 +540,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p>Required for legacy client authentication when use_legacy_client=true.</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-provider/zpa_microtenant_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-provider-zpa-microtenant-id"><strong>zpa_microtenant_id</strong></p>
 <a class="ansibleOptionLink" href="#parameter-provider/zpa_microtenant_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -541,7 +548,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p>Used for legacy client authentication when use_legacy_client=true.</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-state"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-state"><strong>state</strong></p>
 <a class="ansibleOptionLink" href="#parameter-state" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -553,7 +560,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </ul>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-use_legacy_client"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-use-legacy-client"><strong>use_legacy_client</strong></p>
 <a class="ansibleOptionLink" href="#parameter-use_legacy_client" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
 </div></td>
@@ -567,14 +574,14 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </ul>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-user_portal_link_ids"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-user-portal-link-ids"><strong>user_portal_link_ids</strong></p>
 <a class="ansibleOptionLink" href="#parameter-user_portal_link_ids" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>List of User Portal IDs to associate with this link</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-vanity_domain"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-vanity-domain"><strong>vanity_domain</strong></p>
 <a class="ansibleOptionLink" href="#parameter-vanity_domain" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -582,7 +589,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p>Required for OneAPI client authentication when use_legacy_client=false.</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-zpa_client_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-zpa-client-id"><strong>zpa_client_id</strong></p>
 <a class="ansibleOptionLink" href="#parameter-zpa_client_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -590,7 +597,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p>Required for legacy client authentication when use_legacy_client=true.</p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-zpa_client_secret"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-zpa-client-secret"><strong>zpa_client_secret</strong></p>
 <a class="ansibleOptionLink" href="#parameter-zpa_client_secret" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -598,7 +605,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p>Required for legacy client authentication when use_legacy_client=true.</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-zpa_cloud"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-zpa-cloud"><strong>zpa_cloud</strong></p>
 <a class="ansibleOptionLink" href="#parameter-zpa_cloud" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -617,7 +624,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 </ul>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-zpa_customer_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-zpa-customer-id"><strong>zpa_customer_id</strong></p>
 <a class="ansibleOptionLink" href="#parameter-zpa_customer_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -625,7 +632,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <p>Required for legacy client authentication when use_legacy_client=true.</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-zpa_microtenant_id"></div><p class="ansible-option-title" id="ansible-collections-zscaler-zpacloud-zpa-user-portal-link-module-parameter-zpa-microtenant-id"><strong>zpa_microtenant_id</strong></p>
 <a class="ansibleOptionLink" href="#parameter-zpa_microtenant_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -657,6 +664,7 @@ see <a class="reference internal" href="#ansible-collections-zscaler-zpacloud-zp
 <span class="w">    </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://&quot;</span>
 <span class="w">    </span><span class="nt">icon_text</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
 <span class="w">    </span><span class="nt">link_path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="w">    </span><span class="nt">application_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;72058304855142822&quot;</span>
 <span class="w">    </span><span class="nt">user_portal_link_ids</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;72058304855142822&quot;</span>
 </pre></div>

@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import absolute_import, division, print_function
+from __future__ import absolute_import, division, 
 
 __metaclass__ = type
 
@@ -77,6 +77,10 @@ options:
     description: "Protocol for the User Portal Link (e.g., https://)"
     type: str
     required: false
+  application_id:
+    description: "The unique identifier of the application segment"
+    type: str
+    required: false
   user_portal_link_ids:
     description: "List of User Portal IDs to associate with this link"
     type: list
@@ -100,6 +104,7 @@ EXAMPLES = """
     protocol: "https://"
     icon_text: ""
     link_path: ""
+    application_id: "72058304855142822"
     user_portal_link_ids:
       - "72058304855142822"
 """
@@ -138,6 +143,7 @@ def core(module):
         "protocol",
         "user_portal_link_ids",
         "microtenant_id",
+        "application_id",
     ]
     link_data = {param: module.params.get(param) for param in params}
     link_id = link_data.get("id")
@@ -236,6 +242,7 @@ def core(module):
                         "link": desired_link.get("link"),
                         "link_path": desired_link.get("link_path"),
                         "protocol": desired_link.get("protocol"),
+                        "application_id": desired_link.get("application_id"),
                         "user_portal_link_ids": desired_link.get(
                             "user_portal_link_ids"
                         ),
@@ -262,6 +269,7 @@ def core(module):
                     "link": desired_link.get("link"),
                     "link_path": desired_link.get("link_path"),
                     "protocol": desired_link.get("protocol"),
+                    "application_id": desired_link.get("application_id"),
                     "user_portal_link_ids": desired_link.get("user_portal_link_ids"),
                 }
             )
@@ -297,6 +305,7 @@ def main():
         link=dict(type="str", required=False),
         link_path=dict(type="str", required=False),
         protocol=dict(type="str", required=False),
+        application_id=dict(type="str", required=False),
         user_portal_link_ids=dict(type="list", elements="str", required=False),
         state=dict(type="str", choices=["present", "absent"], default="present"),
     )

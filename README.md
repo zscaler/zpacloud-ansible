@@ -312,7 +312,7 @@ Deprecations are done by version number, not by date or by age of release. Break
 
 ## Support
 
-The Zscaler Private Access (ZPA) Collection of Ansible Modules is [certified on Ansible Automation Hub](https://console.redhat.com/ansible/automation-hub/repo/published/zscaler/zpacloud) and officially supported for Ansible subscribers. Ansible subscribers can engage for support through their usual route towards Red Hat.
+The Zscaler Private Access (ZPA) Collection of Ansible Modules is [certified on Ansible Automation Hub](https://console.redhat.com/ansible/automation-hub/repo/published/zscaler/zpacloud) and officially supported for Ansible subscribers. Ansible subscribers can engage for support through their usual route towards Red Hat. Red Hat customers can also use the **Create issue** button on the top right corner through the Ansible Automation Platform (AAP) to open a support case.
 
 For those who are not Ansible subscribers, this Collection of Ansible Modules is also [published on Ansible Galaxy](https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud) and also supported via the formal Zscaler suppport process. Please refer to our [General Support Statement](https://zscaler.github.io/zpacloud-ansible/support.html)
 

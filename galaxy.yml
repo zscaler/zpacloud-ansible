@@ -59,8 +59,20 @@ issues: https://github.com/zscaler/zpacloud-ansible/issues
 build_ignore:
   - local_dev
   - ansible.cfg
-  - docs/html
+  - docs
   - .ansible
   - .github
   - poetry.lock
   - .ansible-lint
+  - tests/unit
+  - tests/integration
+  - Makefile
+  - codecov.yml
+  - pyproject.toml
+  - CLAUDE.md
+  - CODE_OF_CONDUCT.md
+  - .cursor
+  - .isort.cfg
+  - .nojekyll
+  - .releaserc.json
+  - .readthedocs.yaml

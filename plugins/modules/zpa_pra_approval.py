@@ -247,20 +247,32 @@ def core(module):
             )
         existing_approval = result.as_dict()
     else:
-        # Otherwise, retrieve entire list and match on email_ids
+        # Otherwise, retrieve entire list and match on email_ids plus the
+        # applications the approval grants access to. The same email can hold
+        # several approvals, one per application segment, so matching on
+        # email_ids alone would select an unrelated approval and update it in
+        # place instead of creating the approval that was asked for.
         result, error = collect_all_items(
             client.pra_approval.list_approval, query_params
         )
         if error:
             module.fail_json(msg=f"Error pra approvals: {to_native(error)}")
 
+        desired_application_ids = approval.get("application_ids")
         if result and email_ids:
             for approval_ in result:
-                # Compare the sorted lists to see if they match
-                # (assuming order doesn't matter, or all must match)
-                if sorted(approval_.email_ids or []) == sorted(email_ids or []):
-                    existing_approval = approval_.as_dict()
-                    break
+                if sorted(approval_.email_ids or []) != sorted(email_ids or []):
+                    continue
+                if desired_application_ids is not None:
+                    current_application_ids = sorted(
+                        app.get("id")
+                        for app in (approval_.applications or [])
+                        if app.get("id")
+                    )
+                    if current_application_ids != sorted(desired_application_ids):
+                        continue
+                existing_approval = approval_.as_dict()
+                break
 
     desired_approval = normalize_approval(approval)
     current_approval = (

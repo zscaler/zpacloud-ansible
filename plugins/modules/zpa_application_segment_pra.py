@@ -327,7 +327,6 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     deleteNone,
     collect_all_items,
     convert_ports_list,
-    map_pra_apps_to_common_apps,
     normalize_port_processing,
     normalize_app,
     warn_drift,
@@ -436,26 +435,21 @@ def core(module):
         desired_app["server_group_ids"] = sorted(desired_app["server_group_ids"])
 
     fields_to_exclude = ["id", "common_apps_dto"]
-    # Special comparison for common_apps_dto
-    if "common_apps_dto" in desired_app:
-        current_inspect_apps = current_app.get("pra_apps", [])
-        desired_apps_config = desired_app["common_apps_dto"].get("apps_config", [])
-
-        # Convert current inspectionApps to the same format as desired apps_config
-        normalized_current = map_pra_apps_to_common_apps(current_inspect_apps)
-        normalized_current_apps = normalized_current.get("apps_config", [])
-
-        # Compare the normalized versions
-        if sorted(normalized_current_apps, key=lambda x: x.get("domain", "")) != sorted(
-            desired_apps_config, key=lambda x: x.get("domain", "")
-        ):
-            differences_detected = True
-            # module.warn(
-            #     f"Difference detected in application configurations. "
-            #     f"Current: {normalized_current_apps}, Desired: {desired_apps_config}"
-            # )
-
     differences_detected = False
+
+    # Deleting a sub-app outside Ansible leaves the parent segment's domain_names
+    # untouched, so the only signal that it is gone is a declared apps_config
+    # domain with no live sub-app behind it.
+    if "common_apps_dto" in desired_app:
+        current_domains = {
+            (pra_app.get("domain") or "").strip().casefold()
+            for pra_app in current_app.get("pra_apps") or []
+        }
+        for app_config in desired_app["common_apps_dto"].get("apps_config") or []:
+            domain = (app_config.get("domain") or "").strip().casefold()
+            if domain and domain not in current_domains:
+                differences_detected = True
+                break
 
     for key, desired_value in desired_app.items():
         if key in fields_to_exclude:
@@ -505,61 +499,47 @@ def core(module):
         existing_app.update(app)
         existing_app["id"] = id
 
-    # Enrich common_apps_dto with app_id/pra_app_id and detect deletions
     # ------------------------------------------------------------------
     # Enrich common_apps_dto with app_id / pra_app_id and detect deletions
+    #
+    # Sub-app IDs are resolved exclusively from the PRA apps owned by the
+    # segment being updated. Resolving them from a tenant-wide lookup would
+    # attach another segment's praAppId whenever two segments share a domain,
+    # which reassigns that sub-app away from its original segment. On create
+    # there is no parent segment yet, so the IDs are left empty and nothing
+    # can be marked for deletion.
     # ------------------------------------------------------------------
     if "common_apps_dto" in desired_app:
         desired_configs = desired_app["common_apps_dto"].get("apps_config", [])
 
-        segments_list, err = collect_all_items(
-            lambda qp: client.app_segment_by_type.get_segments_by_type(
-                application_type="SECURE_REMOTE_ACCESS",
-                expand_all=False,
-                # only filter by appId when we are updating
-                query_params={"appId": existing_app["id"]} if existing_app else {},
-            ),
-            query_params={},
-        )
-        if err:
-            module.fail_json(msg=f"Failed to fetch PRA apps: {to_native(err)}")
-
-        # ------ extra debug so we know what came back ------
-        module.warn(f"[DEBUG] fetched {len(segments_list)} PRA segment(s)")
-
+        pra_by_domain = {}
         if existing_app:
-            target_app_id = existing_app.get("id")
-            module.warn(f"[DEBUG] existing_app.id = {target_app_id}")
-            pra_by_domain = {
-                getattr(s, "domain"): s
-                for s in segments_list
-                if getattr(s, "app_id", None) == target_app_id
-            }
-        else:
-            module.warn("[DEBUG] existing_app is None (create flow)")
-            pra_by_domain = {getattr(s, "domain"): s for s in segments_list}
+            for pra_app in existing_app.get("pra_apps") or []:
+                domain = pra_app.get("domain")
+                if domain:
+                    pra_by_domain[domain] = pra_app
 
         updated_configs = []
-        deleted_ids = []
         found_domains = set()
 
         for config in desired_configs:
             domain = config.get("domain")
             pra_app = pra_by_domain.get(domain)
 
-            # on create we do not have an app_id yet
             config["app_id"] = existing_app["id"] if existing_app else ""
             if pra_app:
-                config["pra_app_id"] = pra_app.id
+                config["pra_app_id"] = pra_app.get("id")
                 found_domains.add(domain)
             else:
                 config["pra_app_id"] = ""
 
             updated_configs.append(config)
 
-        for domain, pra in pra_by_domain.items():
-            if domain not in found_domains:
-                deleted_ids.append(pra.id)
+        deleted_ids = [
+            pra_app.get("id")
+            for domain, pra_app in pra_by_domain.items()
+            if domain not in found_domains and pra_app.get("id")
+        ]
 
         desired_app["common_apps_dto"]["apps_config"] = updated_configs
         if deleted_ids:

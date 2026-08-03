@@ -305,7 +305,6 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (
     deleteNone,
     collect_all_items,
     convert_ports_list,
-    map_pra_apps_to_common_apps,
     normalize_port_processing,
     normalize_app,
     warn_drift,
@@ -414,26 +413,21 @@ def core(module):
         desired_app["server_group_ids"] = sorted(desired_app["server_group_ids"])
 
     fields_to_exclude = ["id", "common_apps_dto"]
-    # Special comparison for common_apps_dto
-    if "common_apps_dto" in desired_app:
-        current_inspect_apps = current_app.get("inspection_apps", [])
-        desired_apps_config = desired_app["common_apps_dto"].get("apps_config", [])
-
-        # Convert current inspectionApps to the same format as desired apps_config
-        normalized_current = map_pra_apps_to_common_apps(current_inspect_apps)
-        normalized_current_apps = normalized_current.get("apps_config", [])
-
-        # Compare the normalized versions
-        if sorted(normalized_current_apps, key=lambda x: x.get("domain", "")) != sorted(
-            desired_apps_config, key=lambda x: x.get("domain", "")
-        ):
-            differences_detected = True
-            # module.warn(
-            #     f"Difference detected in application configurations. "
-            #     f"Current: {normalized_current_apps}, Desired: {desired_apps_config}"
-            # )
-
     differences_detected = False
+
+    # Deleting a sub-app outside Ansible leaves the parent segment's domain_names
+    # untouched, so the only signal that it is gone is a declared apps_config
+    # domain with no live sub-app behind it.
+    if "common_apps_dto" in desired_app:
+        current_domains = {
+            (inspection_app.get("domain") or "").strip().casefold()
+            for inspection_app in current_app.get("inspection_apps") or []
+        }
+        for app_config in desired_app["common_apps_dto"].get("apps_config") or []:
+            domain = (app_config.get("domain") or "").strip().casefold()
+            if domain and domain not in current_domains:
+                differences_detected = True
+                break
 
     for key, desired_value in desired_app.items():
         if key in fields_to_exclude:

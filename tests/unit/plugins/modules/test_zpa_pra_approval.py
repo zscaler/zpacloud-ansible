@@ -145,6 +145,51 @@ class TestZPAPRAApprovalModule(ModuleTestCase):
         mock_client.pra_approval.update_approval.assert_called_once()
         assert result.value.result["changed"] is True
 
+    def test_create_when_existing_approval_targets_other_application(
+        self, mock_client, mocker
+    ):
+        """An approval held by the same email but for a different application
+        segment must not be selected for update; a new approval is created."""
+        existing_ssh_approval = MockBox(
+            {
+                "id": "ssh-approval-id",
+                "email_ids": ["swarn@1labs.in"],
+                "start_time": "Thu, 09 May 2024 8:00:00 PST",
+                "end_time": "Mon, 10 Jun 2024 5:00:00 PST",
+                "applications": [{"id": "ssh-segment-id"}],
+                "status": "ACTIVE",
+            }
+        )
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules."
+            "zpa_pra_approval.collect_all_items",
+            return_value=([existing_ssh_approval], None),
+        )
+        mock_client.pra_approval.add_approval.return_value = (
+            MockBox({"id": "rdp-approval-id"}),
+            None,
+            None,
+        )
+
+        set_module_args(
+            provider=DEFAULT_PROVIDER,
+            email_ids=["swarn@1labs.in"],
+            start_time="Mon, 01 Jul 2024 8:00:00 PST",
+            end_time="Mon, 01 Aug 2024 5:00:00 PST",
+            application_ids=["rdp-segment-id"],
+            state="present",
+        )
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_pra_approval,
+        )
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_pra_approval.main()
+
+        mock_client.pra_approval.update_approval.assert_not_called()
+        mock_client.pra_approval.add_approval.assert_called_once()
+        assert result.value.result["changed"] is True
+
     def test_delete_approval(self, mock_client, mocker):
         """Test deleting a PRA Approval."""
         mock_existing = MockBox(self.SAMPLE_APPROVAL)

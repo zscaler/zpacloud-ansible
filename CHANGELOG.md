@@ -1,5 +1,19 @@
 # Zscaler Private Access (ZPA) Ansible Collection Changelog
 
+## v2.2.11 (August 3, 2026)
+
+### Notes
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+#### Bug Fixes
+
+[#113](https://github.com/zscaler/zpacloud-ansible/pull/113) - Fixed `zpa_application_segment_pra` reusing another segment's `pra_app_id` when a new segment declared a domain already belonging to an existing PRA application, which reassigned that sub-application away from its original segment. Sub-application IDs are now resolved only from the segment being updated, and creates no longer emit `deleted_pra_apps`.
+
+[#113](https://github.com/zscaler/zpacloud-ansible/pull/113) - Fixed `zpa_pra_approval` matching existing approvals by `email_ids` alone, which updated an approval belonging to a different application segment instead of creating the requested one. The lookup now also matches on `application_ids` when provided.
+
+[#113](https://github.com/zscaler/zpacloud-ansible/pull/113) - Fixed `zpa_application_segment_pra`, `zpa_application_segment_ba_v2` and `zpa_application_segment_inspection` reporting `changed: false` when a sub-application was deleted outside of Ansible. The `common_apps_dto` comparison result was discarded by a flag reset, so the missing sub-application was never recreated. Change detection now flags any declared `apps_config` domain that no longer has a live sub-application.
+
 ## v2.2.10 (July 14, 2026)
 
 ### Notes

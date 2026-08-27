@@ -464,52 +464,46 @@ def core(module):
         else:
             module.exit_json(changed=False)
 
-    if module.check_mode:
-        if state == "present" and (existing_app is None or differences_detected):
-            module.exit_json(changed=True)
-        elif state == "absent" and existing_app is not None:
-            module.exit_json(changed=True)
-        else:
-            module.exit_json(changed=False)
-
     if existing_app is not None:
         id = existing_app.get("id")
         existing_app.update(app)
         existing_app["id"] = id
 
-    # Enrich common_apps_dto with app_id/inspect_app_id and detect deletions
     # ------------------------------------------------------------------
     # Enrich common_apps_dto with app_id / inspect_app_id and detect deletions
+    #
+    # Sub-app IDs are resolved exclusively from the inspection apps owned by
+    # the segment being updated. Resolving them from a tenant-wide lookup
+    # would attach another segment's inspectAppId whenever two segments share
+    # a domain, and would mark every other segment's sub-app as deleted — a
+    # payload the create API rejects with 400 resource.not.found. On create
+    # there is no parent segment yet, so the IDs are left empty and nothing
+    # can be marked for deletion.
     # ------------------------------------------------------------------
     if "common_apps_dto" in desired_app:
         desired_configs = desired_app["common_apps_dto"].get("apps_config", [])
 
-        segments_list, err = collect_all_items(
-            lambda qp: client.app_segment_by_type.get_segments_by_type(
-                application_type="INSPECT",
-                expand_all=False,
-                # only filter by appId when we are updating
-                query_params={"appId": existing_app["id"]} if existing_app else {},
-            ),
-            query_params={},
-        )
-        if err:
-            module.fail_json(msg=f"Failed to fetch inspection apps: {to_native(err)}")
-
-        # ------ extra debug so we know what came back ------
-        module.warn(f"[DEBUG] fetched {len(segments_list)} inspection segment(s)")
-
+        pra_by_domain = {}
         if existing_app:
             target_app_id = existing_app.get("id")
-            module.warn(f"[DEBUG] existing_app.id = {target_app_id}")
+            segments_list, err = collect_all_items(
+                lambda qp: client.app_segment_by_type.get_segments_by_type(
+                    application_type="INSPECT",
+                    expand_all=False,
+                    query_params={"appId": target_app_id},
+                ),
+                query_params={},
+            )
+            if err:
+                module.fail_json(
+                    msg=f"Failed to fetch inspection apps: {to_native(err)}"
+                )
+
             pra_by_domain = {
                 getattr(s, "domain"): s
                 for s in segments_list
                 if getattr(s, "app_id", None) == target_app_id
             }
-        else:
-            module.warn("[DEBUG] existing_app is None (create flow)")
-            pra_by_domain = {getattr(s, "domain"): s for s in segments_list}
 
         updated_configs = []
         deleted_ids = []
@@ -537,13 +531,24 @@ def core(module):
         if deleted_ids:
             desired_app["common_apps_dto"]["deleted_pra_apps"] = deleted_ids
 
-        desired_app["domain_names"] = [
-            a["domain"] for a in updated_configs if a.get("domain")
+        # Merge the inspection app domains and ports into the declared values
+        # instead of replacing them: replacing discards user-supplied entries,
+        # and with an empty apps_config it wiped the live segment's domains
+        # and ports.
+        declared_domains = desired_app.get("domain_names") or []
+        desired_app["domain_names"] = list(declared_domains) + [
+            a["domain"]
+            for a in updated_configs
+            if a.get("domain") and a["domain"] not in declared_domains
         ]
-        desired_app["tcp_port_range"] = [
+
+        declared_ports = desired_app.get("tcp_port_range") or []
+        desired_app["tcp_port_range"] = list(declared_ports) + [
             {"from": a["application_port"], "to": a["application_port"]}
             for a in updated_configs
             if a.get("application_port")
+            and {"from": a["application_port"], "to": a["application_port"]}
+            not in declared_ports
         ]
 
     if state == "present":
@@ -650,7 +655,6 @@ def core(module):
                     udp_port_ranges=convert_ports_list(app.get("udp_port_range", None)),
                 )
             )
-            module.warn(f"Payload for SDK: {create_inspect_segment}")
             new_segment, _unused, error = (
                 client.app_segments_inspection.add_segment_inspection(
                     **create_inspect_segment

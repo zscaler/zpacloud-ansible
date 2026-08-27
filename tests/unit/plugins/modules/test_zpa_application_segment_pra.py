@@ -312,6 +312,40 @@ class TestZPAApplicationSegmentPRAModule(ModuleTestCase):
         _args, kwargs = mock_client.app_segments_pra.update_segment_pra.call_args
         assert kwargs["common_apps_dto"]["apps_config"][0]["pra_app_id"] == ""
 
+    def test_remove_last_pra_app_keeps_declared_domains(self, mock_client, mocker):
+        """Declaring an empty apps_config deletes the live PRA sub-app but must
+        keep the declared domain_names instead of wiping them to []."""
+        segment = dict(self.IN_SYNC_SEGMENT)
+        mocker.patch(
+            "ansible_collections.zscaler.zpacloud.plugins.modules.zpa_application_segment_pra.collect_all_items",
+            return_value=([MockSegment(segment)], None),
+        )
+        mock_client.app_segments_pra.update_segment_pra.return_value = (
+            MockSegment({"id": "123", "name": "PRA_App_Segment"}),
+            None,
+            None,
+        )
+        mock_client.app_segments_pra.get_segment_pra.return_value = (
+            MockSegment({"id": "123", "name": "PRA_App_Segment"}),
+            None,
+            None,
+        )
+        args = dict(self.IN_SYNC_ARGS, common_apps_dto={"apps_config": []})
+        set_module_args(provider=DEFAULT_PROVIDER, **args)
+        from ansible_collections.zscaler.zpacloud.plugins.modules import (
+            zpa_application_segment_pra,
+        )
+
+        with pytest.raises(AnsibleExitJson) as result:
+            zpa_application_segment_pra.main()
+
+        assert result.value.result["changed"] is True
+        _args, kwargs = mock_client.app_segments_pra.update_segment_pra.call_args
+        assert kwargs["common_apps_dto"]["deleted_pra_apps"] == ["own-pra-app-id"]
+        assert kwargs["common_apps_dto"]["apps_config"] == []
+        # The declared domains must survive the sub-app removal.
+        assert kwargs["domain_names"] == ["app1.example.com"]
+
     def test_live_pra_app_stays_idempotent(self, mock_client, mocker):
         """Guards the fix against the opposite failure: a segment whose sub-apps
         are all present must not report drift on every run."""

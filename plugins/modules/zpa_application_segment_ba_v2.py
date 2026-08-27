@@ -425,6 +425,22 @@ from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import
 )
 
 
+def map_clientless_apps(segment):
+    """Recover the live BA sub-apps from an SDK segment object.
+
+    The SDK model parses the API's clientlessApps field into an attribute
+    named inspection_apps and omits it from as_dict(), so the dict produced
+    by as_dict() never carries the segment's clientless apps.
+    """
+    clientless_apps = getattr(segment, "clientless_apps", None) or getattr(
+        segment, "inspection_apps", None
+    )
+    return [
+        app.as_dict() if hasattr(app, "as_dict") else dict(app)
+        for app in clientless_apps or []
+    ]
+
+
 def core(module):
     state = module.params.get("state", None)
     client = ZPAClientHelper(module)
@@ -493,6 +509,7 @@ def core(module):
                 msg=f"Error fetching ba application segment with id {segment_id}: {to_native(error)}"
             )
         existing_app = result.as_dict()
+        existing_app["clientless_apps"] = map_clientless_apps(result)
     else:
         result, error = collect_all_items(
             client.app_segments_ba_v2.list_segments_ba, query_params
@@ -505,6 +522,7 @@ def core(module):
             for segment_ in result:
                 if segment_.name == segment_name:
                     existing_app = segment_.as_dict()
+                    existing_app["clientless_apps"] = map_clientless_apps(segment_)
                     break
 
     desired_app = normalize_app(normalize_port_processing(app))
@@ -526,19 +544,24 @@ def core(module):
     fields_to_exclude = ["id", "common_apps_dto"]
     differences_detected = False
 
-    # Deleting a sub-app outside Ansible leaves the parent segment's domain_names
-    # untouched, so the only signal that it is gone is a declared apps_config
-    # domain with no live sub-app behind it.
+    # A BA sub-app can drift in either direction without touching the parent
+    # segment's other fields: a sub-app deleted outside Ansible leaves
+    # domain_names intact, and dropping a declared apps_config entry (including
+    # the last one, via an empty list) leaves the live sub-app behind. Compare
+    # declared vs live domains both ways.
     if "common_apps_dto" in desired_app:
         current_domains = {
             (ba_app.get("domain") or "").strip().casefold()
             for ba_app in current_app.get("clientless_apps") or []
         }
-        for app_config in desired_app["common_apps_dto"].get("apps_config") or []:
-            domain = (app_config.get("domain") or "").strip().casefold()
-            if domain and domain not in current_domains:
-                differences_detected = True
-                break
+        desired_domains = {
+            (app_config.get("domain") or "").strip().casefold()
+            for app_config in desired_app["common_apps_dto"].get("apps_config") or []
+        }
+        current_domains.discard("")
+        desired_domains.discard("")
+        if desired_domains != current_domains:
+            differences_detected = True
 
     for key, desired_value in desired_app.items():
         if key in fields_to_exclude:
@@ -575,82 +598,75 @@ def core(module):
         else:
             module.exit_json(changed=False)
 
-    if module.check_mode:
-        if state == "present" and (existing_app is None or differences_detected):
-            module.exit_json(changed=True)
-        elif state == "absent" and existing_app is not None:
-            module.exit_json(changed=True)
-        else:
-            module.exit_json(changed=False)
-
     if existing_app is not None:
         id = existing_app.get("id")
         existing_app.update(app)
         existing_app["id"] = id
 
+    # ------------------------------------------------------------------
+    # Enrich common_apps_dto with app_id / ba_app_id and detect deletions
+    #
+    # Sub-app IDs are resolved exclusively from the clientless apps owned by
+    # the segment being updated. Resolving them from a tenant-wide lookup
+    # would attach another segment's baAppId whenever two segments share a
+    # domain, and would mark every other segment's sub-app as deleted — a
+    # payload the create API rejects with 400 resource.not.found. On create
+    # there is no parent segment yet, so the IDs are left empty and nothing
+    # can be marked for deletion.
+    # ------------------------------------------------------------------
     if "common_apps_dto" in desired_app:
         desired_configs = desired_app["common_apps_dto"].get("apps_config", [])
 
-        segments_list, err = collect_all_items(
-            lambda qp: client.app_segment_by_type.get_segments_by_type(
-                application_type="BROWSER_ACCESS",
-                expand_all=False,
-                query_params={"appId": existing_app["id"]} if existing_app else {},
-            ),
-            query_params={},
-        )
-        if err:
-            module.fail_json(
-                msg=f"Failed to fetch Browser Access apps: {to_native(err)}"
-            )
-
-        # ------ extra debug so we know what came back ------
-        module.warn(f"[DEBUG] fetched {len(segments_list)} Browser Access segment(s)")
-
+        ba_by_domain = {}
         if existing_app:
-            target_app_id = existing_app.get("id")
-            module.warn(f"[DEBUG] existing_app.id = {target_app_id}")
-            pra_by_domain = {
-                getattr(s, "domain"): s
-                for s in segments_list
-                if getattr(s, "app_id", None) == target_app_id
-            }
-        else:
-            module.warn("[DEBUG] existing_app is None (create flow)")
-            pra_by_domain = {getattr(s, "domain"): s for s in segments_list}
+            for ba_app in existing_app.get("clientless_apps") or []:
+                domain = ba_app.get("domain")
+                if domain:
+                    ba_by_domain[domain] = ba_app
 
         updated_configs = []
-        deleted_ids = []
         found_domains = set()
 
         for config in desired_configs:
             domain = config.get("domain")
-            pra_app = pra_by_domain.get(domain)
+            ba_app = ba_by_domain.get(domain)
 
             config["app_id"] = existing_app["id"] if existing_app else ""
-            if pra_app:
-                config["ba_app_id"] = pra_app.id
+            if ba_app:
+                config["ba_app_id"] = ba_app.get("id")
                 found_domains.add(domain)
             else:
                 config["ba_app_id"] = ""
 
             updated_configs.append(config)
 
-        for domain, ba in pra_by_domain.items():
-            if domain not in found_domains:
-                deleted_ids.append(ba.id)
+        deleted_ids = [
+            ba_app.get("id")
+            for domain, ba_app in ba_by_domain.items()
+            if domain not in found_domains and ba_app.get("id")
+        ]
 
         desired_app["common_apps_dto"]["apps_config"] = updated_configs
         if deleted_ids:
             desired_app["common_apps_dto"]["deleted_ba_apps"] = deleted_ids
 
-        desired_app["domain_names"] = [
-            a["domain"] for a in updated_configs if a.get("domain")
+        # Merge the BA app domains and ports into the declared values instead
+        # of replacing them: replacing discards user-supplied entries, and with
+        # an empty apps_config it wiped the live segment's domains and ports.
+        declared_domains = desired_app.get("domain_names") or []
+        desired_app["domain_names"] = list(declared_domains) + [
+            a["domain"]
+            for a in updated_configs
+            if a.get("domain") and a["domain"] not in declared_domains
         ]
-        desired_app["tcp_port_range"] = [
+
+        declared_ports = desired_app.get("tcp_port_range") or []
+        desired_app["tcp_port_range"] = list(declared_ports) + [
             {"from": a["application_port"], "to": a["application_port"]}
             for a in updated_configs
             if a.get("application_port")
+            and {"from": a["application_port"], "to": a["application_port"]}
+            not in declared_ports
         ]
 
     if state == "present":
@@ -757,7 +773,6 @@ def core(module):
                     udp_port_ranges=convert_ports_list(app.get("udp_port_range", None)),
                 )
             )
-            module.warn(f"Payload for SDK: {create_inspect_segment}")
             new_segment, _unused, error = client.app_segments_ba_v2.add_segment_ba(
                 **create_inspect_segment
             )

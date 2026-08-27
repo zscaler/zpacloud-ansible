@@ -9,6 +9,26 @@ Releases
 Zscaler Private Access (ZPA) Ansible Collection Changelog
 ---------------------------------------------------------
 
+Version 2.2.12
+===============
+
+v2.2.12 (August 27, 2026)
+---------------------------
+
+Notes
+-------
+
+- Python Versions: **v3.9, v3.10, v3.11**
+
+Bug Fixes
+-----------
+
+* (`#114 <https://github.com/zscaler/zpacloud-ansible/pull/114>`_) - Fixed ``zpa_application_segment_ba_v2`` marking other segments' Browser Access sub-applications as ``deleted_ba_apps`` when creating a new segment, which the API rejected with ``400 resource.not.found``. Sub-application IDs are now resolved only from the clientless apps owned by the segment being updated, and creates no longer emit ``deleted_ba_apps``. The same scoping was applied to the ``zpa_application_segment_inspection`` create flow.
+
+* (`#114 <https://github.com/zscaler/zpacloud-ansible/pull/114>`_) - Fixed ``zpa_application_segment_ba_v2`` and ``zpa_application_segment_pra`` never detecting sub-application removals: declaring an empty ``common_apps_dto.apps_config`` exited ``changed: false`` and left the live sub-application behind. Change detection now compares declared vs live sub-application domains in both directions, which also stops ``zpa_application_segment_ba_v2`` from reporting ``changed: true`` on every run.
+
+* (`#114 <https://github.com/zscaler/zpacloud-ansible/pull/114>`_) - Fixed ``zpa_application_segment_ba_v2``, ``zpa_application_segment_pra`` and ``zpa_application_segment_inspection`` silently wiping the segment's ``domain_names`` and TCP ports when ``apps_config`` was emptied: the values derived from ``apps_config`` replaced the user-declared ones. Declared domains and ports are now merged with the sub-application values instead of replaced.
+
 Version 2.2.11
 ===============
 

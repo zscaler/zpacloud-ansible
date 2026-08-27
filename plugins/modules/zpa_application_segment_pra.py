@@ -437,19 +437,24 @@ def core(module):
     fields_to_exclude = ["id", "common_apps_dto"]
     differences_detected = False
 
-    # Deleting a sub-app outside Ansible leaves the parent segment's domain_names
-    # untouched, so the only signal that it is gone is a declared apps_config
-    # domain with no live sub-app behind it.
+    # A PRA sub-app can drift in either direction without touching the parent
+    # segment's other fields: a sub-app deleted outside Ansible leaves
+    # domain_names intact, and dropping a declared apps_config entry (including
+    # the last one, via an empty list) leaves the live sub-app behind. Compare
+    # declared vs live domains both ways.
     if "common_apps_dto" in desired_app:
         current_domains = {
             (pra_app.get("domain") or "").strip().casefold()
             for pra_app in current_app.get("pra_apps") or []
         }
-        for app_config in desired_app["common_apps_dto"].get("apps_config") or []:
-            domain = (app_config.get("domain") or "").strip().casefold()
-            if domain and domain not in current_domains:
-                differences_detected = True
-                break
+        desired_domains = {
+            (app_config.get("domain") or "").strip().casefold()
+            for app_config in desired_app["common_apps_dto"].get("apps_config") or []
+        }
+        current_domains.discard("")
+        desired_domains.discard("")
+        if desired_domains != current_domains:
+            differences_detected = True
 
     for key, desired_value in desired_app.items():
         if key in fields_to_exclude:
@@ -477,14 +482,6 @@ def core(module):
                 # module.warn(
                 #     f"Difference detected in {key}. Current: {current_app.get(key)}, Desired: {desired_value}"
                 # )
-
-    if module.check_mode:
-        if state == "present" and (existing_app is None or differences_detected):
-            module.exit_json(changed=True)
-        elif state == "absent" and existing_app is not None:
-            module.exit_json(changed=True)
-        else:
-            module.exit_json(changed=False)
 
     if module.check_mode:
         if state == "present" and (existing_app is None or differences_detected):
@@ -545,13 +542,23 @@ def core(module):
         if deleted_ids:
             desired_app["common_apps_dto"]["deleted_pra_apps"] = deleted_ids
 
-        desired_app["domain_names"] = [
-            a["domain"] for a in updated_configs if a.get("domain")
+        # Merge the PRA app domains and ports into the declared values instead
+        # of replacing them: replacing discards user-supplied entries, and with
+        # an empty apps_config it wiped the live segment's domains and ports.
+        declared_domains = desired_app.get("domain_names") or []
+        desired_app["domain_names"] = list(declared_domains) + [
+            a["domain"]
+            for a in updated_configs
+            if a.get("domain") and a["domain"] not in declared_domains
         ]
-        desired_app["tcp_port_range"] = [
+
+        declared_ports = desired_app.get("tcp_port_range") or []
+        desired_app["tcp_port_range"] = list(declared_ports) + [
             {"from": a["application_port"], "to": a["application_port"]}
             for a in updated_configs
             if a.get("application_port")
+            and {"from": a["application_port"], "to": a["application_port"]}
+            not in declared_ports
         ]
 
     if state == "present":
